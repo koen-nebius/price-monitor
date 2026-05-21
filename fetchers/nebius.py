@@ -145,10 +145,15 @@ def _parse_table_rows(rows: list, now: str) -> List[PriceRecord]:
         preempt_price = _parse_price(cells[3])
         od_price = _parse_price(cells[4])
 
-        # Derive gpu_count from vCPU column if possible
+        # Derive gpu_count from vCPU column if possible.
+        # Cap at 16: the Nebius pricing page sometimes has unexpected vCPU values
+        # (e.g. showing cluster-level totals) that produce unrealistic gpu_counts.
+        # Any result > 16 is treated as a parse artifact and reset to 1.
         try:
             vcpus = int(re.sub(r'[^0-9]', '', cells[1].split()[0]))
             gpu_count = max(1, round(vcpus / VCPU_PER_GPU.get(gpu_model, 16)))
+            if gpu_count > 16:
+                gpu_count = 1
         except (ValueError, IndexError):
             gpu_count = 1
 

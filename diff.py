@@ -380,9 +380,11 @@ def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
     # ── Section 1: Executive benchmark ──────────────────────────────────────
     html.append('<h2>Executive Benchmark — Nebius vs Market</h2>')
     html.append(
-        '<p>On-demand, cheapest US price per provider tier. '
-        '<strong>Raw GPU Cloud</strong> peers are the direct competitive set. '
-        'Hyperscaler rack rates are list price; enterprise customers pay 40–57% less at 3yr committed.</p>'
+        '<p>On-demand prices, cheapest available per provider. '
+        '<strong>Enterprise GPU cloud</strong> peers are the direct competitive set '
+        '(named providers with enterprise SLAs; commodity rental marketplaces excluded). '
+        'Hyperscaler column shows rack-rate list price — enterprise customers pay 40–57% less at 3yr committed. '
+        'Nebius prices are EU (eu-north1); US pricing typically 5–10% lower.</p>'
     )
     html.append(_build_executive_table(records))
 
@@ -480,10 +482,16 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
 
     rows.append('</tbody></table>')
     rows.append(
-        '<p><em>Enterprise peers: CoreWeave, Lambda, Crusoe, Hyperstack, Voltage Park, '
-        'RunPod, DigitalOcean, Genesis Cloud, GMI Cloud, Civo, Scaleway, Paperspace, '
-        'GCore, Vultr, Sesterce, denvr dataworks. '
-        'Commodity GPU rental marketplaces excluded from this table.</em></p>'
+        '<p><em>'
+        'Enterprise peers: CoreWeave, Lambda, Crusoe, Hyperstack, Voltage Park, '
+        'Genesis Cloud, GMI Cloud, Scaleway, GCore, Sesterce, denvr dataworks. '
+        'Hyperscaler column = cheapest of AWS / GCP / Azure / Oracle (on-demand list price; '
+        'enterprise customers typically pay 40–57% less at 3yr committed). '
+        'Commodity GPU rental marketplaces (RunPod, TensorDock, Vast.ai) and general VPS '
+        'providers (DigitalOcean, Vultr) excluded — not enterprise-comparable. '
+        'Nebius prices are from EU (eu-north1); US pricing typically 5–10% lower. '
+        'IREN: competitor identified in sales calls; not yet tracked (no public pricing).'
+        '</em></p>'
     )
     return "\n".join(rows)
 
@@ -621,10 +629,13 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
         '¹ AWS: Standard reserved, partial-upfront (best discount for fixed commitment). '
         'H100 1yr: Convertible class only (Standard 1yr not available for p5 family). '
         'Azure: partial-upfront capacity reservation. '
-        'GCP: Committed Use Discount (no upfront payment, usage commitment, no capacity guarantee). '
+        'GCP: Committed Use Discount (no upfront, usage commitment, no capacity guarantee). '
+        'Oracle: on-demand prices sourced from ComputePrices.com — treat as directional estimates '
+        'until verified against OCI directly. Oracle does not publish committed GPU pricing publicly. '
         'Nebius: internal pricing model effective April 23rd 2026; enterprise tier (512+ GPU, 100% upfront). '
         'Standard tier (&lt;512 GPU) ~5–10% higher; 36-month H100/H200 available on request. '
-        'Peer providers (Civo, Genesis Cloud, Vultr) sourced from ComputePrices.com.'
+        'Peer providers (Genesis Cloud, Vultr, Civo) sourced from ComputePrices.com. '
+        'Nebius prices from EU (eu-north1); US pricing typically 5–10% lower.'
         '</em></p>'
     )
     return "\n".join(html)
@@ -685,10 +696,15 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
 
 
 def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
-    """Full detail table for hyperscalers: all CTs × regions."""
+    """Full detail table for hyperscalers: all CTs × regions.
+    Includes AWS, GCP, Azure only — Oracle is in the hyperscaler tier but uses
+    a synthetic 'global' region from ComputePrices.com and is excluded here to
+    avoid adding empty rows to the regional breakdown.
+    """
     html = []
+    REGIONAL_HYPERSCALERS = {"aws", "gcp", "azure"}
     hyp_records = [r for r in records
-                   if provider_tier(r.provider) == "hyperscaler"]
+                   if r.provider in REGIONAL_HYPERSCALERS]
 
     grouped = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     for r in hyp_records:

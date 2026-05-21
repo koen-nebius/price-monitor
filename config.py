@@ -81,6 +81,12 @@ AZURE_REGIONS = [
 PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices"]
 
 # ---------------------------------------------------------------------------
+# IREN (formerly Iris Energy) — GPU cloud competitor mentioned in sales calls.
+# Not yet listed on ComputePrices.com. Add pricing here when available:
+# MANUAL_PRICES[("iren", "H100", "on_demand", "us-east")] = X.XX
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
 # Provider tiers — used to segment competitive analysis
 # ---------------------------------------------------------------------------
 # hyperscaler:       Bundled SLA, CPU/networking, enterprise contracts. High
@@ -92,11 +98,14 @@ PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "
 #                    Include for awareness but exclude from raw compute comps.
 # ---------------------------------------------------------------------------
 PROVIDER_TIERS = {
+    # Full-platform cloud providers with enterprise contracts, SLAs, and committed pricing.
+    # Oracle Cloud (cp_oracle) is included here; its prices come from ComputePrices.com
+    # and should be treated as directional estimates until verified against OCI directly.
     "hyperscaler": [
-        "aws", "gcp", "azure",
+        "aws", "gcp", "azure", "cp_oracle",
     ],
-    # Enterprise GPU cloud: named providers with SLAs, capacity guarantees,
-    # enterprise support. Direct competitive set for Nebius sales conversations.
+    # All GPU cloud providers tracked (used for broad market sweep and raw price tables).
+    # Includes commodity rental marketplaces — not used for executive positioning tables.
     "raw_gpu_cloud": [
         "nebius", "coreweave", "lambda", "crusoe",
         "cp_hyperstack", "cp_voltage", "cp_runpod", "cp_digitalocean",
@@ -108,15 +117,22 @@ PROVIDER_TIERS = {
         "cp_vast", "cp_vultr", "cp_verda", "cp_akamai",
         "cp_packet-ai", "cp_gcore",
     ],
-    # Named enterprise peers used in Slack position summary and committed gap table.
-    # Excludes commodity GPU rental marketplaces (TensorDock, Vast.ai, etc.)
-    # that distort the floor price downward without being enterprise-comparable.
+    # Named enterprise GPU cloud peers — used in Slack positioning and the executive
+    # benchmark table. Criteria: GPU-first or significant GPU cloud business, named
+    # brand with enterprise SLAs, public pricing. Excludes:
+    #   - Commodity GPU rental marketplaces (TensorDock, Vast.ai, RunPod, Vast)
+    #     that rent spare capacity without SLAs and distort the floor price.
+    #   - General VPS providers (DigitalOcean, Vultr, UpCloud) whose GPU offerings
+    #     are a side product, not their core competitive motion.
+    #   - Kubernetes-first clouds (Civo) not competing in raw GPU workloads.
+    #   - Developer ML platforms (Paperspace/DO) targeting hobbyists, not enterprise.
+    # IREN: GPU cloud competitor named in sales calls; not yet on ComputePrices.com.
+    #   Add to this list once pricing is confirmed.
     "enterprise_gpu_cloud": [
         "nebius", "coreweave", "lambda", "crusoe",
-        "cp_hyperstack", "cp_voltage", "cp_runpod", "cp_digitalocean",
-        "cp_genesis", "cp_gmi-cloud", "cp_civo", "cp_scaleway",
-        "cp_paperspace", "cp_gcore", "cp_vultr", "cp_sesterce",
-        "cp_denvr-dataworks",
+        "cp_hyperstack", "cp_voltage",
+        "cp_genesis", "cp_gmi-cloud", "cp_scaleway",
+        "cp_gcore", "cp_sesterce", "cp_denvr-dataworks",
     ],
     "managed_inference": [
         "cp_deep-infra", "cp_fal-ai", "cp_together-ai",
