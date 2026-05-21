@@ -1,0 +1,6 @@
+# Core — stdlib urllib is used for HTTP; no extra HTTP lib required
+# boto3 is optional: only needed for AWS spot prices
+boto3>=1.34.0
+
+# Optional: install if JS-rendered pages need headless scraping
+# playwright>=1.44.0
