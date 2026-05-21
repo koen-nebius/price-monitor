@@ -95,6 +95,8 @@ PROVIDER_TIERS = {
     "hyperscaler": [
         "aws", "gcp", "azure",
     ],
+    # Enterprise GPU cloud: named providers with SLAs, capacity guarantees,
+    # enterprise support. Direct competitive set for Nebius sales conversations.
     "raw_gpu_cloud": [
         "nebius", "coreweave", "lambda", "crusoe",
         "cp_hyperstack", "cp_voltage", "cp_runpod", "cp_digitalocean",
@@ -105,6 +107,16 @@ PROVIDER_TIERS = {
         "cp_upcloud", "cp_beyond-pl", "cp_koyeb", "cp_ionet",
         "cp_vast", "cp_vultr", "cp_verda", "cp_akamai",
         "cp_packet-ai", "cp_gcore",
+    ],
+    # Named enterprise peers used in Slack position summary and committed gap table.
+    # Excludes commodity GPU rental marketplaces (TensorDock, Vast.ai, etc.)
+    # that distort the floor price downward without being enterprise-comparable.
+    "enterprise_gpu_cloud": [
+        "nebius", "coreweave", "lambda", "crusoe",
+        "cp_hyperstack", "cp_voltage", "cp_runpod", "cp_digitalocean",
+        "cp_genesis", "cp_gmi-cloud", "cp_civo", "cp_scaleway",
+        "cp_paperspace", "cp_gcore", "cp_vultr", "cp_sesterce",
+        "cp_denvr-dataworks",
     ],
     "managed_inference": [
         "cp_deep-infra", "cp_fal-ai", "cp_together-ai",

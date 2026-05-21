@@ -124,7 +124,8 @@ def _position_for_tier(records, gpu, cts, label):
 
     peers = [r for r in records
              if r.gpu_model == gpu and r.consumption_type in cts
-             and provider_tier(r.provider) == "raw_gpu_cloud"
+             and provider_tier(r.provider) in ("raw_gpu_cloud", "enterprise_gpu_cloud")
+             and r.provider in PROVIDER_TIERS.get("enterprise_gpu_cloud", [])
              and r.provider != "nebius"]
 
     if not peers and nebius_rec is None:
@@ -242,60 +243,81 @@ def _format_committed_callout(records: List[PriceRecord]) -> str:
 def format_slack_message(diffs: List[DiffEntry], run_date: str,
                          confluence_url: str, records: List[PriceRecord] = None) -> str:
     """
-    Executive-grade Slack digest.
-    - Opens with Nebius competitive position summary (if records provided)
-    - Lists only significant (>ALERT_THRESHOLD_PCT) price changes on tracked peers
-    - Suppresses routine SKU churn (adds/removes from ComputePrices refreshes)
-    - Flags the committed-tier gap
+    Executive-grade Slack digest framed for CFO / Pricing PM audience.
+
+    Structure:
+    1. Key signals — wins, concerns, committed pricing vs AWS
+    2. On-demand position vs enterprise GPU cloud peers (not commodity floor)
+    3. Significant price moves (>threshold)
+    4. Link to full Confluence table
     """
     lines = [f"*GPU Competitor Pricing — {run_date}*"]
 
-    # ── Nebius competitive position ──────────────────────────────────────────
     if records:
         position = compute_position(records)
-        if position:
-            # Group by tier for cleaner display
-            od_rows   = [r for r in position if r["tier_label"] == "on_demand"]
-            intr_rows = [r for r in position if r["tier_label"] == "interruptible"]
+        od_rows = [r for r in position if r["tier_label"] == "on_demand"]
 
-            def _pos_line(row, tier_prefix=""):
-                gpu = row["gpu"]
+        # ── 1. Key signals ───────────────────────────────────────────────────
+        wins    = [r for r in od_rows if r["nebius_price"] and r["cheapest_peer"]
+                   and r["nebius_price"] <= r["cheapest_peer"]]
+        concerns = [r for r in od_rows if r["nebius_price"] and r["median_peer"]
+                    and r["nebius_price"] > r["median_peer"] * 1.15]
+
+        signals = []
+        for r in wins:
+            nxt = r["cheapest_peer"]
+            nxt_name = (r["cheapest_peer_name"] or "").replace("cp_", "")
+            signals.append(
+                f"*{r['gpu']}*: Nebius ✅ cheapest at ${r['nebius_price']:.2f} "
+                f"(next: ${nxt:.2f} {nxt_name})"
+            )
+        for r in concerns:
+            signals.append(
+                f"*{r['gpu']}*: Nebius ${r['nebius_price']:.2f} — above peer median "
+                f"${r['median_peer']:.2f} ⚠️"
+            )
+
+        # Committed callout as a key signal
+        _committed = _format_committed_callout(records)
+
+        if signals or _committed:
+            lines.append("\n*Key signals:*")
+            for s in signals:
+                lines.append(f"• {s}")
+            if _committed:
+                # Inline the committed bullets under key signals
+                for l in _committed.split("\n")[1:]:   # skip the header line
+                    lines.append(l)
+
+        # ── 2. On-demand position vs enterprise peers ────────────────────────
+        if od_rows:
+            lines.append("\n*On-demand vs enterprise GPU cloud peers:*")
+            for row in od_rows:
                 neb = row["nebius_price"]
+                med = row["median_peer"]
                 cheap = row["cheapest_peer"]
                 cheap_name = (row["cheapest_peer_name"] or "").replace("cp_", "")
-                med = row["median_peer"]
-                cheaper = row["peers_cheaper"]
                 total = row["total_peers"]
-                prefix = f"• *{gpu}*{tier_prefix}: "
+                gpu = row["gpu"]
 
                 if neb is None:
-                    return prefix + "Nebius — no public price"
-                neb_str = f"${neb:.2f}"
+                    lines.append(f"• *{gpu}*: Nebius — no public price")
+                    continue
+
                 if cheap and cheap < neb:
-                    vs = row["vs_cheapest_pct"]
-                    return (prefix + f"Nebius {neb_str} | "
-                            f"Floor: ${cheap:.2f} ({cheap_name}) "
-                            f"[{cheaper}/{total} cheaper, +{vs:.0f}%] | "
-                            f"Median: ${med:.2f}" if med else "")
-                elif cheap:
-                    return (prefix + f"Nebius {neb_str} ✅ cheapest | "
-                            f"Next: ${cheap:.2f} ({cheap_name}) | Median: ${med:.2f}" if med else "")
-                return prefix + f"Nebius {neb_str} | No peer data"
-
-            if od_rows:
-                lines.append("\n*On-demand / PAYG — Nebius vs raw GPU cloud peers:*")
-                for row in od_rows:
-                    lines.append(_pos_line(row))
-
-            if intr_rows:
-                lines.append("\n*Spot / Preemptible (interruptible) — Nebius vs peers:*")
-                for row in intr_rows:
-                    lines.append(_pos_line(row, " preemptible"))
-
-            # Committed-tier comparison — dynamic from records
-            _committed_callout = _format_committed_callout(records)
-            if _committed_callout:
-                lines.append("\n" + _committed_callout)
+                    cheaper = row["peers_cheaper"]
+                    lines.append(
+                        f"• *{gpu}*: Nebius ${neb:.2f} | "
+                        f"Range: ${cheap:.2f}–${max(r.price_per_gpu_hour_usd for r in records if r.gpu_model == gpu and r.consumption_type == 'on_demand' and r.provider in PROVIDER_TIERS.get('enterprise_gpu_cloud',[]) and r.provider != 'nebius'):.2f} | "
+                        f"Median: ${med:.2f} | {cheaper}/{total} peers cheaper"
+                        if med else f"• *{gpu}*: Nebius ${neb:.2f}"
+                    )
+                else:
+                    lines.append(
+                        f"• *{gpu}*: Nebius ${neb:.2f} ✅ cheapest | "
+                        f"Next: ${cheap:.2f} ({cheap_name}) | Median: ${med:.2f}"
+                        if cheap and med else f"• *{gpu}*: Nebius ${neb:.2f}"
+                    )
 
     # ── Significant price changes ────────────────────────────────────────────
     significant = [
@@ -330,12 +352,12 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
     # ── Pipeline churn summary (adds/removes — not individual SKUs) ──────────
     adds    = [d for d in diffs if d.change_type == "added"]
     removes = [d for d in diffs if d.change_type == "removed"]
-    if adds or removes:
-        churn_parts = []
-        if adds:    churn_parts.append(f"{len(adds)} SKUs added")
-        if removes: churn_parts.append(f"{len(removes)} SKUs removed")
-        lines.append(f"\n_Pipeline churn: {', '.join(churn_parts)} "
-                     f"(ComputePrices refresh / provider catalogue changes)_")
+    # Pipeline churn — only surface if unusually large (>50 net changes)
+    # routine catalogue refreshes from ComputePrices are not CFO-relevant
+    net_churn = abs(len(adds) - len(removes))
+    if net_churn > 50:
+        lines.append(f"\n_Note: {net_churn} net provider SKU changes — may indicate "
+                     f"a new provider added or data source change._")
 
     lines.append(f"\nFull benchmark table: {confluence_url}")
     return "\n".join(lines)
