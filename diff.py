@@ -423,7 +423,10 @@ def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
 
 
 def _build_executive_table(records: List[PriceRecord]) -> str:
-    """One row per GPU: Nebius | cheapest raw peer | cheapest hyperscaler | # providers"""
+    """
+    One row per GPU: Nebius | cheapest enterprise peer | vs median | cheapest hyperscaler | count
+    Peers = enterprise_gpu_cloud tier only (excludes commodity spot marketplaces).
+    """
     position = compute_position(records)
     pos_by_gpu = {row["gpu"]: row for row in position}
 
@@ -432,11 +435,11 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         '<tr>'
         '<th>GPU</th>'
         '<th>Nebius (on-demand)</th>'
-        '<th>Cheapest Raw GPU Cloud peer</th>'
-        '<th>Nebius vs floor</th>'
-        '<th>Cheapest Hyperscaler (on-demand)</th>'
-        '<th>Peer median</th>'
-        '<th>Providers tracked</th>'
+        '<th>Cheapest enterprise peer</th>'
+        '<th>vs peer median</th>'
+        '<th>Cheapest hyperscaler (on-demand)</th>'
+        '<th>Enterprise peer median</th>'
+        '<th>Enterprise peers tracked</th>'
         '</tr>'
     )
 
@@ -451,12 +454,13 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         else:
             peer_td = '<td>—</td>'
 
-        if row and row["vs_cheapest_pct"] is not None:
-            pct = row["vs_cheapest_pct"]
-            loz_color = "red" if pct > 20 else ("yellow" if pct > 5 else "green")
+        # vs median (more meaningful than vs floor for pricing decisions)
+        if row and row["nebius_price"] and row["median_peer"]:
+            pct = (row["nebius_price"] - row["median_peer"]) / row["median_peer"] * 100
+            loz_color = "red" if pct > 15 else ("yellow" if pct > 0 else "green")
             sign = "+" if pct >= 0 else ""
             vs_td = (f'<td><span data-type="status" data-color="{loz_color}">'
-                     f'{sign}{pct:.0f}%</span></td>')
+                     f'{sign}{pct:.0f}% vs median</span></td>')
         else:
             vs_td = '<td>—</td>'
 
@@ -475,6 +479,12 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         )
 
     rows.append('</tbody></table>')
+    rows.append(
+        '<p><em>Enterprise peers: CoreWeave, Lambda, Crusoe, Hyperstack, Voltage Park, '
+        'RunPod, DigitalOcean, Genesis Cloud, GMI Cloud, Civo, Scaleway, Paperspace, '
+        'GCore, Vultr, Sesterce, denvr dataworks. '
+        'Commodity GPU rental marketplaces excluded from this table.</em></p>'
+    )
     return "\n".join(rows)
 
 
