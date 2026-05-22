@@ -11,7 +11,7 @@ import os
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from schema import PriceRecord
 
@@ -64,6 +64,17 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
             records.extend(slug_records)
         except Exception as e:
             logger.warning(f"ComputePrices slug={slug} failed: {e}")
+
+    # Deduplicate: for each (provider, gpu_model, ct), keep the cheapest per-GPU price.
+    # Some providers have incorrect total_hourly_usd values that scale non-linearly with
+    # gpu_count (e.g. UpCloud H100), causing inflated per-GPU prices for multi-GPU nodes.
+    # Keeping the minimum ensures the executive table and diff log reflect the real price.
+    best: Dict[tuple, PriceRecord] = {}
+    for r in records:
+        key = (r.provider, r.gpu_model, r.consumption_type)
+        if key not in best or r.price_per_gpu_hour_usd < best[key].price_per_gpu_hour_usd:
+            best[key] = r
+    records = list(best.values())
 
     logger.info(f"ComputePrices: {len(records)} records from {len(GPU_SLUGS)} GPU slugs")
     return records
