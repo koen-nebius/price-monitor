@@ -272,14 +272,12 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
         position = compute_position(records)
         od_rows = [r for r in position if r["tier_label"] == "on_demand"]
 
-        # ── 1. On-demand position vs enterprise peers ────────────────────────
+        # ── 1. On-demand position vs enterprise peers + hyperscaler reference ──
         if od_rows:
-            lines.append("\n*Nebius on-demand vs enterprise GPU cloud peers:*")
+            lines.append("\n*Nebius on-demand vs market:*")
             for row in od_rows:
                 neb = row["nebius_price"]
                 med = row["median_peer"]
-                cheap = row["cheapest_peer"]
-                cheap_name = _pname(row["cheapest_peer_name"] or "")
                 total = row["total_peers"]
                 gpu = row["gpu"]
 
@@ -295,20 +293,34 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                 if med:
                     vs_med_pct = (neb - med) / med * 100
                     sign = "+" if vs_med_pct >= 0 else ""
-                    vs_med_str = f"{sign}{vs_med_pct:.0f}% vs median ${med:.2f}"
+                    vs_med_str = f"{sign}{vs_med_pct:.0f}% vs peer median ${med:.2f}"
                 else:
                     vs_med_str = None
 
-                cheaper = row["peers_cheaper"]
-                if peer_str and vs_med_str:
-                    lines.append(
-                        f"• *{gpu}*: Nebius ${neb:.2f} ({vs_med_str}) | "
-                        f"Cheapest peers: {peer_str} | {cheaper}/{total} cheaper"
-                    )
-                elif neb and cheap:
-                    lines.append(f"• *{gpu}*: Nebius ${neb:.2f} | Cheapest peer: {cheap_name} ${cheap:.2f}")
+                # Cheapest hyperscaler on-demand — key reference point especially
+                # for GPUs where enterprise peer count is thin (H200, B200, B300)
+                hyp_best = _best_price(records, gpu, "on_demand", tiers=["hyperscaler"])
+                if hyp_best:
+                    hyp_name = _pname(hyp_best.provider)
+                    hyp_price = hyp_best.price_per_gpu_hour_usd
+                    if neb:
+                        hyp_pct = (neb - hyp_price) / hyp_price * 100
+                        hyp_sign = "+" if hyp_pct >= 0 else ""
+                        hyp_str = f"{hyp_name} ${hyp_price:.2f} ({hyp_sign}{hyp_pct:.0f}%)"
+                    else:
+                        hyp_str = f"{hyp_name} ${hyp_price:.2f}"
                 else:
-                    lines.append(f"• *{gpu}*: Nebius ${neb:.2f}")
+                    hyp_str = None
+
+                cheaper = row["peers_cheaper"]
+                parts = [f"• *{gpu}*: Nebius ${neb:.2f}"]
+                if vs_med_str:
+                    parts.append(f"({vs_med_str}, {cheaper}/{total} GPU cloud peers cheaper)")
+                if peer_str:
+                    parts.append(f"Cheapest GPU cloud: {peer_str}")
+                if hyp_str:
+                    parts.append(f"Cheapest hyperscaler: {hyp_str}")
+                lines.append(" | ".join(parts))
 
         # ── 2. Committed pricing benchmark ───────────────────────────────────
         _committed = _format_committed_callout(records)
