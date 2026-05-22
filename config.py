@@ -118,21 +118,26 @@ PROVIDER_TIERS = {
         "cp_packet-ai", "cp_gcore",
     ],
     # Named enterprise GPU cloud peers — used in Slack positioning and the executive
-    # benchmark table. Criteria: GPU-first or significant GPU cloud business, named
-    # brand with enterprise SLAs, public pricing. Excludes:
-    #   - Commodity GPU rental marketplaces (TensorDock, Vast.ai, RunPod, Vast)
-    #     that rent spare capacity without SLAs and distort the floor price.
-    #   - General VPS providers (DigitalOcean, Vultr, UpCloud) whose GPU offerings
-    #     are a side product, not their core competitive motion.
-    #   - Kubernetes-first clouds (Civo) not competing in raw GPU workloads.
-    #   - Developer ML platforms (Paperspace/DO) targeting hobbyists, not enterprise.
+    # benchmark table. Criteria: GPU-first or significant GPU cloud business, meaningful
+    # owned capacity (1,000+ GPUs), enterprise SLAs, active and solvent.
+    #
+    # Excluded from enterprise tier:
+    #   - Genesis Cloud (cp_genesis): confirmed in liquidation 2025 — pricing stale/unreliable
+    #   - Sesterce (cp_sesterce): broker/aggregator reselling spare capacity, no owned infra
+    #   - Denvr Dataworks (cp_denvr-dataworks): only $10.8M raised, ~1,024 H100s — too small
+    #   - Commodity GPU rental marketplaces (TensorDock, Vast.ai, RunPod)
+    #   - General VPS providers (DigitalOcean, Vultr, UpCloud) — GPU is a side product
+    #   - Kubernetes-first clouds (Civo) not competing in raw GPU workloads
+    #   - Developer ML platforms (Paperspace/DO) targeting hobbyists, not enterprise
     # IREN: GPU cloud competitor named in sales calls; not yet on ComputePrices.com.
     #   Add to this list once pricing is confirmed.
     "enterprise_gpu_cloud": [
         "nebius", "coreweave", "lambda", "crusoe",
-        "cp_hyperstack", "cp_voltage",
-        "cp_genesis", "cp_gmi-cloud", "cp_scaleway",
-        "cp_gcore", "cp_sesterce", "cp_denvr-dataworks",
+        "cp_hyperstack",       # NexGen Cloud — $1B AI Supercloud, thousands of H100s, UK
+        "cp_voltage",          # Voltage Park — 24,000 H100s, $1B Navigation Fund, US
+        "cp_gmi-cloud",        # GMI Cloud — $12B sovereign AI initiative, NVIDIA partner, APAC
+        "cp_scaleway",         # Scaleway (Iliad Group) — serious European cloud, up to 504-GPU clusters
+        "cp_gcore",            # Gcore — expanding European GPU cloud, Luxembourg/Helsinki/Portugal
     ],
     "managed_inference": [
         "cp_deep-infra", "cp_fal-ai", "cp_together-ai",

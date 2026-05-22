@@ -578,12 +578,13 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
     rows.append('</tbody></table>')
     rows.append(
         '<p><em>'
-        'Enterprise peers: CoreWeave, Lambda, Crusoe, Hyperstack, Voltage Park, '
-        'Genesis Cloud, GMI Cloud, Scaleway, GCore, Sesterce, denvr dataworks. '
+        'Enterprise peers: CoreWeave, Lambda, Crusoe, Hyperstack (NexGen Cloud), '
+        'Voltage Park, GMI Cloud, Scaleway, Gcore. '
+        'Criteria: GPU-first business, meaningful owned capacity (1,000+ GPUs), enterprise SLAs, active. '
+        'Excluded: Genesis Cloud (in liquidation 2025), Sesterce (broker/reseller model), '
+        'Denvr Dataworks (too small). '
         'Hyperscaler column = cheapest of AWS / GCP / Azure / Oracle (on-demand list price; '
         'enterprise customers typically pay 40–57% less at 3yr committed). '
-        'Commodity GPU rental marketplaces (RunPod, TensorDock, Vast.ai) and general VPS '
-        'providers (DigitalOcean, Vultr) excluded — not enterprise-comparable. '
         'Nebius prices are from EU (eu-north1); US pricing typically 5–10% lower. '
         'IREN: competitor identified in sales calls; not yet tracked (no public pricing).'
         '</em></p>'
