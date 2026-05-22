@@ -504,12 +504,13 @@ def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
     )
     html.append(_build_peer_tables(records))
 
-    # ── Section 4: Hyperscaler detail ───────────────────────────────────────
-    html.append('<h2>Hyperscaler Detail — All Consumption Types &amp; Regions</h2>')
+    # ── Section 4: Regional comparison ──────────────────────────────────────
+    html.append('<h2>Regional Price Comparison — All Providers by Geography</h2>')
     html.append(
-        '<p>Includes on-demand, spot, and reserved tiers across regions. '
-        'Note: reservation <em>retailPrice</em> from Azure/AWS APIs is converted to effective '
-        'hourly rate (total upfront ÷ term hours).</p>'
+        '<p>Cheapest price per provider within each geographic region. '
+        'Geo buckets aggregate across provider-specific region names so AWS us-east-1, '
+        'GCP us-east4, and Azure eastus can be compared in the same row. '
+        'On-demand, spot, and committed tiers shown separately.</p>'
     )
     html.append(_build_hyperscaler_tables(records))
 
@@ -521,7 +522,9 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
     One row per GPU: Nebius | cheapest enterprise peer | vs median | cheapest hyperscaler | count
     Peers = enterprise_gpu_cloud tier only (excludes commodity spot marketplaces).
     """
-    position = compute_position(records)
+    # Only keep on-demand rows — the dict comprehension would otherwise overwrite
+    # on-demand entries with interruptible entries (same gpu key, appended last).
+    position = [row for row in compute_position(records) if row["tier_label"] == "on_demand"]
     pos_by_gpu = {row["gpu"]: row for row in position}
 
     rows = ['<table data-layout="full-width"><tbody>']
@@ -787,54 +790,176 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
     return "\n".join(html)
 
 
+# ---------------------------------------------------------------------------
+# Geo-bucket helpers for regional comparison tables
+# ---------------------------------------------------------------------------
+
+_GEO_BUCKETS: Dict[str, set] = {
+    "US": {
+        "us-east-1", "us-east-2", "us-west-2", "us-west-1", "us-west-3",
+        "us-east4", "us-central1", "us-west4", "us-south1",
+        "eastus", "eastus2", "westus2", "westus3",
+        "us-east", "us-west", "us-south",
+    },
+    "Europe": {
+        "eu-west-1", "eu-west-2", "eu-central-1", "eu-north-1",
+        "europe-west1", "europe-west3", "europe-west4",
+        "westeurope", "northeurope", "germanywestcentral",
+        "eu-north1",
+    },
+    "APAC": {
+        "ap-northeast-1", "ap-southeast-1", "ap-east-1",
+        "asia-northeast1", "asia-southeast1",
+        "japaneast", "southeastasia",
+    },
+}
+_GEO_ORDER = ["US", "Europe", "APAC"]
+
+
+def _region_to_geo(region: str) -> Optional[str]:
+    r = region.lower()
+    for geo, regions in _GEO_BUCKETS.items():
+        if r in regions:
+            return geo
+    return None
+
+
 def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
-    """Full detail table for hyperscalers: all CTs × regions.
-    Includes AWS, GCP, Azure only — Oracle is in the hyperscaler tier but uses
-    a synthetic 'global' region from ComputePrices.com and is excluded here to
-    avoid adding empty rows to the regional breakdown.
+    """
+    Regional price comparison table — all direct providers grouped into
+    geo buckets (US / Europe / APAC) rather than exact region rows.
+
+    Each cell shows the cheapest price for that provider in that geography,
+    making cross-provider comparison meaningful even when providers don't
+    share exact region names (AWS us-east-1 ≈ GCP us-east4 ≈ Azure eastus).
+
+    Includes AWS, GCP, Azure, CoreWeave, Lambda, Crusoe.
+    Excludes Oracle (global synthetic region only) and Nebius (EU only, already
+    covered in the executive table above).
     """
     html = []
-    REGIONAL_HYPERSCALERS = {"aws", "gcp", "azure"}
-    hyp_records = [r for r in records
-                   if r.provider in REGIONAL_HYPERSCALERS]
 
-    grouped = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    for r in hyp_records:
-        grouped[r.gpu_model][r.consumption_type][r.provider].append(r)
+    # Providers in column order for this table
+    GEO_PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe"]
+
+    # Only include providers with real regional data (not synthetic 'global')
+    included = [r for r in records if r.provider in GEO_PROVIDERS and _region_to_geo(r.region)]
+
+    # Build: gpu → ct → geo → provider → cheapest price
+    geo_grouped: Dict[str, Dict[str, Dict[str, Dict[str, float]]]] = defaultdict(
+        lambda: defaultdict(lambda: defaultdict(dict))
+    )
+    for r in included:
+        geo = _region_to_geo(r.region)
+        if not geo:
+            continue
+        existing = geo_grouped[r.gpu_model][r.consumption_type][geo].get(r.provider)
+        if existing is None or r.price_per_gpu_hour_usd < existing:
+            geo_grouped[r.gpu_model][r.consumption_type][geo][r.provider] = r.price_per_gpu_hour_usd
+
+    # Also add Nebius committed prices to the reserved CT buckets for comparison
+    nebius_committed: Dict[str, Dict[str, float]] = defaultdict(dict)
+    for r in records:
+        if r.provider == "nebius":
+            existing = nebius_committed[r.gpu_model].get(r.consumption_type)
+            if existing is None or r.price_per_gpu_hour_usd < existing:
+                nebius_committed[r.gpu_model][r.consumption_type] = r.price_per_gpu_hour_usd
+
+    # CT groups to show: on-demand, spot, 1yr reserved, 3yr reserved
+    CT_GROUPS = [
+        ("On-demand",           {"on_demand"}),
+        ("Spot / Preemptible",  INTERRUPTIBLE_CTS),
+        ("Reserved / Committed 1 yr", RESERVED_1YR_CTS),
+        ("Reserved / Committed 3 yr", RESERVED_3YR_CTS),
+    ]
+
+    all_col_providers = ["nebius"] + GEO_PROVIDERS
+    col_headers = ["Nebius*"] + [p.upper() for p in GEO_PROVIDERS]
 
     for gpu in GPU_ORDER:
-        if gpu not in grouped:
+        if gpu not in geo_grouped:
             continue
         html.append(f'<h3>{gpu}</h3>')
 
-        for ct in CT_ORDER:
-            if ct not in grouped[gpu]:
-                continue
-            label = CT_LABELS.get(ct, ct)
-            all_regions = sorted({r.region for recs in grouped[gpu][ct].values() for r in recs})
-            if not all_regions:
+        for ct_label, cts in CT_GROUPS:
+            # Collect all data for this CT group
+            # geo → provider → cheapest price across all matching CTs
+            ct_data: Dict[str, Dict[str, float]] = defaultdict(dict)
+            for ct in cts:
+                for geo, prov_map in geo_grouped[gpu].get(ct, {}).items():
+                    for prov, price in prov_map.items():
+                        existing = ct_data[geo].get(prov)
+                        if existing is None or price < existing:
+                            ct_data[geo][prov] = price
+
+            # Add Nebius committed prices (region-agnostic — apply to all geos)
+            neb_price = None
+            for ct in cts:
+                p = nebius_committed[gpu].get(ct)
+                if p is not None and (neb_price is None or p < neb_price):
+                    neb_price = p
+
+            # Check if any geo has data for this CT group
+            has_data = any(ct_data[geo] for geo in _GEO_ORDER) or neb_price is not None
+            if not has_data:
                 continue
 
-            html.append(f'<h4>{label}</h4>')
+            html.append(f'<h4>{ct_label}</h4>')
             html.append('<table data-layout="full-width"><tbody>')
             html.append(
-                '<tr><th>Region</th>'
-                + "".join(f'<th>{p.upper()}</th>' for p in DIRECT_PROVIDERS if p != "nebius")
+                '<tr><th>Geography</th>'
+                + "".join(f'<th>{h}</th>' for h in col_headers)
                 + '</tr>'
             )
-            for region in all_regions:
+
+            # Nebius on-demand price (from nebius fetcher, region eu-north1 = Europe)
+            neb_od_price = next(
+                (r.price_per_gpu_hour_usd for r in records
+                 if r.provider == "nebius" and r.gpu_model == gpu
+                 and r.consumption_type == "on_demand"),
+                None
+            )
+
+            for geo in _GEO_ORDER:
+                row_data = ct_data.get(geo, {})
+                # Skip geos with no data at all
+                if not row_data and neb_price is None and neb_od_price is None:
+                    continue
                 cells = []
-                for p in [p for p in DIRECT_PROVIDERS if p != "nebius"]:
-                    recs = [r for r in grouped[gpu][ct].get(p, []) if r.region == region]
-                    if recs:
-                        best = min(recs, key=lambda r: r.price_per_gpu_hour_usd)
-                        cells.append(f'<td>${best.price_per_gpu_hour_usd:.3f}</td>')
+                # Nebius column (on-demand: EU only; committed: shown for all geos)
+                if ct_label == "On-demand":
+                    # Nebius on-demand only available in Europe (eu-north1)
+                    p = neb_od_price if geo == "Europe" else None
+                    cells.append(f'<td><strong>${p:.2f}</strong></td>' if p else '<td>—</td>')
+                elif neb_price is not None:
+                    cells.append(f'<td><strong>${neb_price:.2f}</strong></td>')
+                else:
+                    cells.append('<td>—</td>')
+
+                for prov in GEO_PROVIDERS:
+                    price = row_data.get(prov)
+                    if price is not None:
+                        cells.append(f'<td>${price:.2f}</td>')
                     else:
                         cells.append('<td>—</td>')
-                html.append(f'<tr><td><code>{region}</code></td>{"".join(cells)}</tr>')
+
+                html.append(f'<tr><td><strong>{geo}</strong></td>{"".join(cells)}</tr>')
 
             html.append('</tbody></table>')
 
+    html.append(
+        '<p><em>'
+        'Each cell shows the cheapest price for that provider in any region within that geography. '
+        'AWS: standard reserved partial-upfront. GCP: Committed Use Discount (no upfront). '
+        'Azure: partial-upfront capacity reservation. '
+        '*Nebius on-demand prices are EU (eu-north1); US pricing typically 5–10% lower. '
+        'Nebius committed = internal pricing model (enterprise tier, 100% upfront). '
+        'CoreWeave and Lambda: US regions only currently. '
+        'Geography buckets: US includes us-east/us-west/us-central; '
+        'Europe includes eu-west/eu-central/eu-north/northeurope/westeurope; '
+        'APAC includes ap-northeast/ap-southeast/asia-northeast/japaneast.'
+        '</em></p>'
+    )
     return "\n".join(html)
 
 
