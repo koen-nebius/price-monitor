@@ -1,7 +1,12 @@
 .env
 *.pyc
 __pycache__/
-store/*.json
+# Daily snapshots and diffs — not committed (large, generated each run)
+store/????-??-??.json
+store/diff_*.json
+store/latest.json
+# peer_cache.json IS committed — it's the fallback for cloud runs that can't scrape
+# Update it by running main.py locally, then git add store/peer_cache.json && git push
 store/*.txt
 store/*.html
 .DS_Store

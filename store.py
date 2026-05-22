@@ -1,18 +1,27 @@
 """
 Snapshot storage: save/load daily price records as JSON.
+
+peer_cache.json
+    Tracks the last successful scrape for each web-scraped provider.
+    Committed to git so remote CCR runs (which can't scrape commercial sites)
+    always have peer context. Updated automatically on successful local runs.
 """
 import json
 import logging
 import os
 from datetime import date, datetime, timezone
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from schema import PriceRecord
 
 logger = logging.getLogger(__name__)
 
 STORE_DIR = Path(__file__).parent / "store"
+
+# Providers whose data comes from web scraping (blocked in cloud/CCR environments).
+# Their records are cached in peer_cache.json so remote runs can fall back to them.
+WEB_SCRAPED_PROVIDERS = {"coreweave", "lambda", "crusoe", "nebius", "computeprices"}
 
 
 def save_snapshot(records: List[PriceRecord], day: date = None) -> Path:
@@ -66,3 +75,50 @@ def previous_snapshot_day() -> Optional[date]:
     # Return the most recent day before today
     past = [d for d in days if d < today]
     return past[-1] if past else None
+
+
+# ---------------------------------------------------------------------------
+# Peer cache — last successful web-scraped data, committed to git
+# ---------------------------------------------------------------------------
+
+_PEER_CACHE_FILE = STORE_DIR / "peer_cache.json"
+
+
+def load_peer_cache() -> Dict[str, List[dict]]:
+    """Load the peer cache. Returns {fetch_key: [record_dicts]}."""
+    if not _PEER_CACHE_FILE.exists():
+        return {}
+    try:
+        with open(_PEER_CACHE_FILE) as f:
+            return json.load(f)
+    except Exception as e:
+        logger.warning(f"Could not read peer_cache.json: {e}")
+        return {}
+
+
+def get_cached_records(fetch_key: str) -> List[PriceRecord]:
+    """Return cached records for a provider fetch key, or [] if none."""
+    cache = load_peer_cache()
+    data = cache.get(fetch_key, [])
+    if not data:
+        return []
+    try:
+        records = [PriceRecord.from_dict(d) for d in data]
+        logger.info(f"  peer_cache: loaded {len(records)} records for '{fetch_key}'")
+        return records
+    except Exception as e:
+        logger.warning(f"  peer_cache: failed to deserialise '{fetch_key}': {e}")
+        return []
+
+
+def update_peer_cache(fetch_key: str, records: List[PriceRecord]):
+    """Persist fresh records for a fetch key into peer_cache.json."""
+    cache = load_peer_cache()
+    cache[fetch_key] = [r.to_dict() for r in records]
+    STORE_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(_PEER_CACHE_FILE, "w") as f:
+            json.dump(cache, f, indent=2)
+        logger.info(f"  peer_cache: updated '{fetch_key}' with {len(records)} records")
+    except Exception as e:
+        logger.warning(f"  peer_cache: write failed: {e}")

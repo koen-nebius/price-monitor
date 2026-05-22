@@ -22,7 +22,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from store import save_snapshot, load_snapshot, previous_snapshot_day, STORE_DIR
+from store import (save_snapshot, load_snapshot, previous_snapshot_day, STORE_DIR,
+                   WEB_SCRAPED_PROVIDERS, get_cached_records, update_peer_cache)
 from diff import compute_diff, format_slack_message, format_confluence_table
 from config import PROVIDERS
 
@@ -43,11 +44,34 @@ def run(providers=None, test=False):
     for provider in providers:
         try:
             records = _fetch_provider(provider)
-            all_records.extend(records)
-            logger.info(f"{provider}: {len(records)} records")
         except Exception as e:
             logger.error(f"{provider} fetch failed: {e}", exc_info=True)
             errors.append(provider)
+            records = []
+
+        if records:
+            # Successful live fetch — update peer cache for web-scraped providers
+            if provider in WEB_SCRAPED_PROVIDERS:
+                update_peer_cache(provider, records)
+            logger.info(f"{provider}: {len(records)} records (live)")
+        elif provider in WEB_SCRAPED_PROVIDERS:
+            # Web scrape returned nothing (likely blocked in cloud environment).
+            # Fall back to last known-good data from peer_cache.json.
+            records = get_cached_records(provider)
+            if records:
+                logger.warning(
+                    f"{provider}: live fetch returned 0 records — "
+                    f"falling back to {len(records)} cached records"
+                )
+            else:
+                logger.warning(
+                    f"{provider}: live fetch returned 0 records and no cache available. "
+                    f"Run main.py locally once to populate peer_cache.json."
+                )
+        else:
+            logger.info(f"{provider}: {len(records)} records")
+
+        all_records.extend(records)
 
     today = date.today()
     save_snapshot(all_records, today)

@@ -264,9 +264,15 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                     and r["nebius_price"] > r["median_peer"] * 1.15]
 
         signals = []
+        def _pname(p: str) -> str:
+            _KEEP_UPPER = {"aws", "gcp", "azure", "gpu", "gmi"}
+            name = p.replace("cp_", "").replace("-", " ")
+            return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
+                            for w in name.split())
+
         for r in wins:
             nxt = r["cheapest_peer"]
-            nxt_name = (r["cheapest_peer_name"] or "").replace("cp_", "")
+            nxt_name = _pname(r["cheapest_peer_name"] or "")
             signals.append(
                 f"*{r['gpu']}*: Nebius ✅ cheapest at ${r['nebius_price']:.2f} "
                 f"(next: ${nxt:.2f} {nxt_name})"
@@ -296,7 +302,7 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                 neb = row["nebius_price"]
                 med = row["median_peer"]
                 cheap = row["cheapest_peer"]
-                cheap_name = (row["cheapest_peer_name"] or "").replace("cp_", "")
+                cheap_name = _pname(row["cheapest_peer_name"] or "")
                 total = row["total_peers"]
                 gpu = row["gpu"]
 
@@ -319,45 +325,79 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                         if cheap and med else f"• *{gpu}*: Nebius ${neb:.2f}"
                     )
 
-    # ── Significant price changes ────────────────────────────────────────────
+    # ── Significant price changes — grouped by provider + GPU ───────────────
+    # Raw diffs contain one entry per (instance_type × region × ct). Group them
+    # so "AWS L40S reserved -17% across 6 instance types × 5 regions" becomes
+    # one readable line, not 90 separate bullets.
     significant = [
         d for d in diffs
         if d.change_type == "price_change"
-        and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler")
+        and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
+                                          "enterprise_gpu_cloud")
         and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
     ]
 
     if significant:
-        lines.append(f"\n*Price moves ≥{ALERT_THRESHOLD_PCT:.0f}% on tracked providers:*")
+        # Group: (provider, gpu_model, ct_bucket, direction) → list of deltas
+        from collections import defaultdict as _dd
+
+        def _ct_bucket(ct: str) -> str:
+            if ct in INTERRUPTIBLE_CTS:            return "spot"
+            if ct in RESERVED_1YR_CTS:             return "committed/reserved 1yr"
+            if ct in RESERVED_2YR_CTS:             return "committed/reserved 2yr"
+            if ct in RESERVED_3YR_CTS:             return "committed/reserved 3yr"
+            if "reserved" in ct or "committed" in ct: return "committed/reserved"
+            return "on-demand"
+
+        groups: Dict[tuple, list] = _dd(list)
         for d in significant:
-            arrow = "🔺" if d.delta_pct > 0 else "🔻"
-            sign  = "+" if d.delta_pct > 0 else ""
-            tier_tag = "(hyperscaler)" if provider_tier(d.provider) == "hyperscaler" else ""
+            bucket = _ct_bucket(d.consumption_type)
+            direction = "up" if (d.delta_pct or 0) > 0 else "down"
+            groups[(d.provider, d.gpu_model, bucket, direction)].append(d)
+
+        # Sort groups by magnitude (median abs delta_pct) descending
+        def _group_sort_key(items):
+            pcts = [abs(d.delta_pct or 0) for d in items]
+            return -statistics.median(pcts)
+
+        sorted_groups = sorted(groups.items(), key=lambda kv: _group_sort_key(kv[1]))
+
+        def _display_prov(p: str) -> str:
+            """Clean provider name for display: strip cp_ prefix, title-case."""
+            _KEEP_UPPER = {"aws", "gcp", "azure", "gpu", "gmi"}
+            name = p.replace("cp_", "").replace("-", " ")
+            return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
+                            for w in name.split())
+
+        lines.append(f"\n*Price moves ≥{ALERT_THRESHOLD_PCT:.0f}%:*")
+        for (prov, gpu, bucket, direction), items in sorted_groups[:15]:
+            arrow = "🔺" if direction == "up" else "🔻"
+            pcts = [d.delta_pct or 0 for d in items]
+            avg_pct = statistics.mean(pcts)
+            sign = "+" if avg_pct > 0 else ""
+            tier_tag = " _(hyperscaler)_" if provider_tier(prov) == "hyperscaler" else ""
+            sku_count = len(set((d.instance_type, d.region) for d in items))
+            sku_note = f" across {sku_count} SKUs" if sku_count > 1 else \
+                       f" ({items[0].region})"
+            # Sample old→new from the most impactful SKU
+            best = max(items, key=lambda d: abs(d.delta_pct or 0))
             lines.append(
-                f"{arrow} *{d.provider.upper()}* {tier_tag} {d.gpu_model} "
-                f"({d.region}, {d.consumption_type}): "
-                f"${d.old_price:.2f} → ${d.new_price:.2f}/GPU-hr "
-                f"({sign}{d.delta_pct:.1f}%)"
+                f"{arrow} *{_display_prov(prov)}*{tier_tag} {gpu} {bucket}: "
+                f"${best.old_price:.2f}→${best.new_price:.2f}/GPU-hr "
+                f"({sign}{avg_pct:.1f}%{sku_note})"
             )
+        if len(sorted_groups) > 15:
+            lines.append(f"_…and {len(sorted_groups) - 15} more provider/GPU groups_")
     else:
         # Check if there were any price changes below threshold
         minor = [d for d in diffs if d.change_type == "price_change"
-                 and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler")]
+                 and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
+                                                    "enterprise_gpu_cloud")]
         if minor:
             lines.append(f"\n_No significant price moves today "
                          f"({len(minor)} minor changes below {ALERT_THRESHOLD_PCT:.0f}% threshold)._")
         else:
             lines.append("\n_No price changes detected on tracked providers today._")
-
-    # ── Pipeline churn summary (adds/removes — not individual SKUs) ──────────
-    adds    = [d for d in diffs if d.change_type == "added"]
-    removes = [d for d in diffs if d.change_type == "removed"]
-    # Pipeline churn — only surface if unusually large (>50 net changes)
-    # routine catalogue refreshes from ComputePrices are not CFO-relevant
-    net_churn = abs(len(adds) - len(removes))
-    if net_churn > 50:
-        lines.append(f"\n_Note: {net_churn} net provider SKU changes — may indicate "
-                     f"a new provider added or data source change._")
 
     lines.append(f"\nFull benchmark table: {confluence_url}")
     return "\n".join(lines)
