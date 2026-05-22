@@ -435,18 +435,25 @@ def _build_committed_implication(records: List[PriceRecord]) -> str:
 
     if neb_1yr:
         neb_discount = int((1 - neb_1yr / neb_od) * 100)
-        neb_part = (
-            f" Nebius 1yr committed at ${neb_1yr:.2f} ({neb_discount}% discount) "
-            f"{'beats' if neb_1yr < aws_3yr else 'trails'} the AWS 3yr price — "
-            f"{'clear ARR opportunity' if neb_1yr < aws_3yr else 'closing the gap'}."
-        )
+        if neb_1yr < aws_3yr:
+            neb_part = (
+                f" Nebius 1yr committed (${neb_1yr:.2f}, {neb_discount}% off on-demand) "
+                f"is <strong>below the AWS 3yr price</strong> — "
+                f"Nebius committed beats the deepest hyperscaler discount available."
+            )
+        else:
+            neb_vs_aws3yr = (neb_1yr - aws_3yr) / aws_3yr * 100
+            neb_part = (
+                f" Nebius 1yr committed (${neb_1yr:.2f}, {neb_discount}% off on-demand) "
+                f"is {neb_vs_aws3yr:.0f}% above the AWS 3yr price of ${aws_3yr:.2f}."
+            )
     else:
         neb_part = ""
 
     return (
-        f'<p><strong>Strategic implication:</strong> An enterprise customer comparing '
-        f'Nebius on-demand (${neb_od:.2f}/H100 GPU-hr) against AWS 3yr committed '
-        f'(${aws_3yr:.2f}) faces a <strong>{gap_mult:.1f}× price gap</strong> — '
+        f'<p><strong>Sales context:</strong> An enterprise customer comparing '
+        f'Nebius on-demand (${neb_od:.2f}/H100 GPU-hr) to AWS 3yr committed '
+        f'(${aws_3yr:.2f}) sees a <strong>{gap_mult:.1f}× price difference</strong> — '
         f'the most common H100 objection in enterprise sales.'
         f'{neb_part}</p>'
     )
@@ -473,12 +480,14 @@ def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
     )
     html.append(_build_executive_table(records))
 
-    # ── Section 2: Committed pricing gap ────────────────────────────────────
-    html.append('<h2>⚠️ Committed Pricing Gap</h2>')
+    # ── Section 2: Committed pricing comparison ─────────────────────────────
+    html.append('<h2>Committed Pricing Comparison</h2>')
     html.append(
-        '<p>Nebius currently has <strong>no reserved or committed pricing tier</strong>. '
-        'All major hyperscalers and several GPU-cloud peers offer significant discounts for '
-        '1- and 3-year commitments:</p>'
+        '<p>Nebius launched committed pricing on <strong>April 23rd 2026</strong> '
+        '(9-month to 36-month terms; 100%, 50%, and 30% upfront options). '
+        'The table below compares Nebius committed tiers against hyperscaler reserved pricing. '
+        'Nebius figures shown are enterprise tier (512+ GPUs), 100% upfront — the most aggressive available rate. '
+        'Standard tier (&lt;512 GPU) is ~5–10% higher.</p>'
     )
     html.append(_build_committed_gap_table(records))
     html.append(_build_committed_implication(records))
@@ -718,7 +727,7 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
         'until verified against OCI directly. Oracle does not publish committed GPU pricing publicly. '
         'Nebius: internal pricing model effective April 23rd 2026; enterprise tier (512+ GPU, 100% upfront). '
         'Standard tier (&lt;512 GPU) ~5–10% higher; 36-month H100/H200 available on request. '
-        'Peer providers (Genesis Cloud, Vultr, Civo) sourced from ComputePrices.com. '
+        'Peer providers (Vultr, Civo) sourced from ComputePrices.com. '
         'Nebius prices from EU (eu-north1); US pricing typically 5–10% lower.'
         '</em></p>'
     )
