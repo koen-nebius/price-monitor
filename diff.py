@@ -714,16 +714,23 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
 
 
 def _build_peer_tables(records: List[PriceRecord]) -> str:
-    """One table per GPU, rows = raw_gpu_cloud peers, sorted by price."""
+    """One table per GPU, rows = raw_gpu_cloud peers, sorted by price.
+    Deduplicated to cheapest per provider (multi-node-size providers like Lambda
+    list one row per node size; we show only the cheapest to avoid clutter).
+    """
     html = []
     for gpu in GPU_ORDER:
-        peers = sorted(
-            [r for r in records
-             if r.gpu_model == gpu
-             and r.consumption_type == "on_demand"
-             and provider_tier(r.provider) == "raw_gpu_cloud"],
-            key=lambda r: r.price_per_gpu_hour_usd
-        )
+        raw_peers = [r for r in records
+                     if r.gpu_model == gpu
+                     and r.consumption_type == "on_demand"
+                     and provider_tier(r.provider) == "raw_gpu_cloud"]
+        # Deduplicate: keep cheapest record per provider
+        best_by_prov: Dict[str, PriceRecord] = {}
+        for r in raw_peers:
+            if r.provider not in best_by_prov or \
+                    r.price_per_gpu_hour_usd < best_by_prov[r.provider].price_per_gpu_hour_usd:
+                best_by_prov[r.provider] = r
+        peers = sorted(best_by_prov.values(), key=lambda r: r.price_per_gpu_hour_usd)
         if not peers:
             continue
 
@@ -781,8 +788,8 @@ _GEO_BUCKETS: Dict[str, set] = {
     "Europe": {
         "eu-west-1", "eu-west-2", "eu-central-1", "eu-north-1",
         "europe-west1", "europe-west3", "europe-west4",
-        "westeurope", "northeurope", "germanywestcentral",
-        "eu-north1",
+        "westeurope", "northeurope", "germanywestcentral", "swedencentral",
+        "eu-north1", "eu-west1", "eu-central1",
     },
     "APAC": {
         "ap-northeast-1", "ap-southeast-1", "ap-east-1",
@@ -818,6 +825,10 @@ def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
 
     # Providers in column order for this table
     GEO_PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe"]
+    # Providers with only global/aggregate pricing (no region-specific data).
+    # Their prices are shown in every geo row as a reference column.
+    GLOBAL_COL_PROVIDERS = ["cp_oracle"]
+    GLOBAL_COL_LABELS    = ["Oracle†"]
 
     # Only include providers with real regional data (not synthetic 'global')
     included = [r for r in records if r.provider in GEO_PROVIDERS and _region_to_geo(r.region)]
@@ -833,6 +844,15 @@ def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
         existing = geo_grouped[r.gpu_model][r.consumption_type][geo].get(r.provider)
         if existing is None or r.price_per_gpu_hour_usd < existing:
             geo_grouped[r.gpu_model][r.consumption_type][geo][r.provider] = r.price_per_gpu_hour_usd
+
+    # Global providers: cheapest price per gpu × ct (shown identically in all geo rows)
+    global_prices: Dict[str, Dict[str, Dict[str, float]]] = defaultdict(lambda: defaultdict(dict))
+    for r in records:
+        if r.provider not in GLOBAL_COL_PROVIDERS:
+            continue
+        existing = global_prices[r.gpu_model][r.consumption_type].get(r.provider)
+        if existing is None or r.price_per_gpu_hour_usd < existing:
+            global_prices[r.gpu_model][r.consumption_type][r.provider] = r.price_per_gpu_hour_usd
 
     # Also add Nebius committed prices to the reserved CT buckets for comparison
     nebius_committed: Dict[str, Dict[str, float]] = defaultdict(dict)
@@ -850,8 +870,8 @@ def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
         ("Reserved / Committed 3 yr", RESERVED_3YR_CTS),
     ]
 
-    all_col_providers = ["nebius"] + GEO_PROVIDERS
-    col_headers = ["Nebius*"] + [p.upper() for p in GEO_PROVIDERS]
+    all_col_providers = ["nebius"] + GEO_PROVIDERS + GLOBAL_COL_PROVIDERS
+    col_headers = ["Nebius*"] + [p.upper() for p in GEO_PROVIDERS] + GLOBAL_COL_LABELS
 
     for gpu in GPU_ORDER:
         if gpu not in geo_grouped:
@@ -876,8 +896,20 @@ def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
                 if p is not None and (neb_price is None or p < neb_price):
                     neb_price = p
 
-            # Check if any geo has data for this CT group
-            has_data = any(ct_data[geo] for geo in _GEO_ORDER) or neb_price is not None
+            # Global providers: cheapest price across all matching CTs (same in all geo rows)
+            global_col_prices: Dict[str, Optional[float]] = {}
+            for gp in GLOBAL_COL_PROVIDERS:
+                best_gp = None
+                for ct in cts:
+                    p = global_prices[gpu].get(ct, {}).get(gp)
+                    if p is not None and (best_gp is None or p < best_gp):
+                        best_gp = p
+                global_col_prices[gp] = best_gp
+
+            # Check if any geo has data for this CT group (or global provider data)
+            has_data = (any(ct_data[geo] for geo in _GEO_ORDER)
+                        or neb_price is not None
+                        or any(v is not None for v in global_col_prices.values()))
             if not has_data:
                 continue
 
@@ -899,8 +931,11 @@ def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
 
             for geo in _GEO_ORDER:
                 row_data = ct_data.get(geo, {})
-                # Skip geos with no data at all
-                if not row_data and neb_price is None and neb_od_price is None:
+                # Skip geos with no data at all (including global column data)
+                has_row_data = (row_data or neb_price is not None
+                                or any(v is not None for v in global_col_prices.values())
+                                or (geo == "Europe" and neb_od_price and ct_label == "On-demand"))
+                if not has_row_data:
                     continue
                 cells = []
                 # Nebius column (on-demand: EU only; committed: shown for all geos)
@@ -920,6 +955,11 @@ def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
                     else:
                         cells.append('<td>—</td>')
 
+                # Global provider columns — same price in every geo row
+                for gp in GLOBAL_COL_PROVIDERS:
+                    gp_price = global_col_prices.get(gp)
+                    cells.append(f'<td>${gp_price:.2f}</td>' if gp_price else '<td>—</td>')
+
                 html.append(f'<tr><td><strong>{geo}</strong></td>{"".join(cells)}</tr>')
 
             html.append('</tbody></table>')
@@ -932,6 +972,8 @@ def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
         '*Nebius on-demand prices are EU (eu-north1); US pricing typically 5–10% lower. '
         'Nebius committed = internal pricing model (enterprise tier, 100% upfront). '
         'CoreWeave and Lambda: US regions only currently. '
+        '†Oracle prices sourced from ComputePrices.com (no region breakdown available) — '
+        'treat as directional estimates; Oracle does not publish GPU committed pricing publicly. '
         'Geography buckets: US includes us-east/us-west/us-central; '
         'Europe includes eu-west/eu-central/eu-north/northeurope/westeurope; '
         'APAC includes ap-northeast/ap-southeast/asia-northeast/japaneast.'

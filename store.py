@@ -25,9 +25,12 @@ logger = logging.getLogger(__name__)
 
 STORE_DIR = Path(__file__).parent / "store"
 
-# Providers whose data comes from web scraping (blocked in cloud/CCR environments).
-# Their records are cached in peer_cache.json so remote runs can fall back to them.
-WEB_SCRAPED_PROVIDERS = {"coreweave", "lambda", "crusoe", "nebius", "computeprices"}
+# Providers whose data is cached in peer_cache.json so remote CCR runs can fall back
+# to it when they can't fetch live data.
+# - Web-scraped providers: blocked by Cloudflare in cloud environments (CCR / GitHub Actions IPs)
+# - API providers that require secrets only available in GitHub Actions (e.g. gcp needs GCP_API_KEY):
+#   GitHub Actions fetches and caches; CCR uses the cache.
+WEB_SCRAPED_PROVIDERS = {"coreweave", "lambda", "crusoe", "nebius", "computeprices", "gcp"}
 
 
 def save_snapshot(records: List[PriceRecord], day: date = None) -> Path:
