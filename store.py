@@ -5,6 +5,12 @@ peer_cache.json
     Tracks the last successful scrape for each web-scraped provider.
     Committed to git so remote CCR runs (which can't scrape commercial sites)
     always have peer context. Updated automatically on successful local runs.
+
+last_snapshot.json
+    The most recent complete price snapshot, committed to git.
+    Used as the "previous day" baseline for diff computation in environments
+    (e.g. CCR) that start with a fresh clone and have no date-stamped history.
+    Updated by the CCR routine after each successful run via git commit+push.
 """
 import json
 import logging
@@ -75,6 +81,47 @@ def previous_snapshot_day() -> Optional[date]:
     # Return the most recent day before today
     past = [d for d in days if d < today]
     return past[-1] if past else None
+
+
+# ---------------------------------------------------------------------------
+# Last snapshot — full price snapshot committed to git for CCR diff baseline
+# ---------------------------------------------------------------------------
+
+LAST_SNAPSHOT_PATH = STORE_DIR / "last_snapshot.json"
+
+
+def load_last_snapshot() -> List[PriceRecord]:
+    """
+    Load the last committed snapshot. Used as the diff baseline when no
+    date-stamped snapshot file exists (e.g. fresh CCR clone).
+    Returns [] if the file doesn't exist or can't be read.
+    """
+    if not LAST_SNAPSHOT_PATH.exists():
+        return []
+    try:
+        with open(LAST_SNAPSHOT_PATH) as f:
+            data = json.load(f)
+        records = [PriceRecord.from_dict(d) for d in data]
+        logger.info(f"Loaded {len(records)} records from last_snapshot.json as diff baseline")
+        return records
+    except Exception as e:
+        logger.warning(f"Could not read last_snapshot.json: {e}")
+        return []
+
+
+def save_last_snapshot(records: List[PriceRecord]):
+    """
+    Persist the current run's records as last_snapshot.json.
+    Called at the end of each successful run so the next run has a baseline.
+    In CCR environments, the caller is responsible for git add+commit+push.
+    """
+    STORE_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(LAST_SNAPSHOT_PATH, "w") as f:
+            json.dump([r.to_dict() for r in records], f, indent=2)
+        logger.info(f"Saved {len(records)} records to last_snapshot.json")
+    except Exception as e:
+        logger.warning(f"Could not write last_snapshot.json: {e}")
 
 
 # ---------------------------------------------------------------------------

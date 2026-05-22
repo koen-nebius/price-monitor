@@ -150,12 +150,20 @@ def _position_for_tier(records, gpu, cts, label):
         vs_cheapest_pct = (nebius_rec.price_per_gpu_hour_usd
                            - cheapest_peer.price_per_gpu_hour_usd) \
                           / cheapest_peer.price_per_gpu_hour_usd * 100
+
+    # Top 3 cheapest peers with names — shown in Slack message instead of anonymous range
+    peers_sorted = sorted(peers, key=lambda r: r.price_per_gpu_hour_usd)
+    cheapest_peers_detail = [
+        (r.provider, r.price_per_gpu_hour_usd) for r in peers_sorted[:3]
+    ]
+
     return {
         "gpu": gpu,
         "tier_label": label,
         "nebius_price": nebius_rec.price_per_gpu_hour_usd if nebius_rec else None,
         "cheapest_peer": cheapest_peer.price_per_gpu_hour_usd if cheapest_peer else None,
         "cheapest_peer_name": cheapest_peer.provider if cheapest_peer else None,
+        "cheapest_peers_detail": cheapest_peers_detail,
         "median_peer": median_peer,
         "vs_cheapest_pct": vs_cheapest_pct,
         "peers_cheaper": cheaper_count,
@@ -222,9 +230,10 @@ def _format_committed_callout(records: List[PriceRecord]) -> str:
     if aws_3yr:
         neb_od = _best("nebius", "H100", {"on_demand"})
         if neb_od:
+            gap_mult = neb_od / aws_3yr
             parts.append(
-                f"AWS H100 3yr standard: ${aws_3yr:.2f}/GPU-hr "
-                f"(vs Nebius on-demand ${neb_od:.2f}; 3yr Nebius H100 = per request)"
+                f"AWS H100 3yr vs Nebius on-demand: ${aws_3yr:.2f} vs ${neb_od:.2f} "
+                f"— {gap_mult:.1f}× gap ⚠️ key enterprise objection"
             )
         else:
             parts.append(f"AWS H100 3yr standard: ${aws_3yr:.2f}/GPU-hr")
@@ -278,9 +287,11 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                 f"(next: ${nxt:.2f} {nxt_name})"
             )
         for r in concerns:
+            pct_above = (r["nebius_price"] - r["median_peer"]) / r["median_peer"] * 100
             signals.append(
-                f"*{r['gpu']}*: Nebius ${r['nebius_price']:.2f} — above peer median "
-                f"${r['median_peer']:.2f} ⚠️"
+                f"*{r['gpu']}*: Nebius ${r['nebius_price']:.2f} — "
+                f"+{pct_above:.0f}% above peer median ${r['median_peer']:.2f}, "
+                f"{r['peers_cheaper']}/{r['total_peers']} peers cheaper ⚠️"
             )
 
         # Committed callout as a key signal
@@ -312,11 +323,16 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
 
                 if cheap and cheap < neb:
                     cheaper = row["peers_cheaper"]
+                    # Show top-2 cheapest peer names for actionable context
+                    peer_details = row.get("cheapest_peers_detail", [])
+                    peer_str = ", ".join(
+                        f"{_pname(p)} ${px:.2f}" for p, px in peer_details[:2]
+                    )
                     lines.append(
                         f"• *{gpu}*: Nebius ${neb:.2f} | "
-                        f"Range: ${cheap:.2f}–${max(r.price_per_gpu_hour_usd for r in records if r.gpu_model == gpu and r.consumption_type == 'on_demand' and r.provider in PROVIDER_TIERS.get('enterprise_gpu_cloud',[]) and r.provider != 'nebius'):.2f} | "
-                        f"Median: ${med:.2f} | {cheaper}/{total} peers cheaper"
-                        if med else f"• *{gpu}*: Nebius ${neb:.2f}"
+                        f"Cheapest: {peer_str} | "
+                        f"Median: ${med:.2f} | {cheaper}/{total} cheaper"
+                        if med and peer_str else f"• *{gpu}*: Nebius ${neb:.2f}"
                     )
                 else:
                     lines.append(
@@ -407,6 +423,47 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
 # Confluence page — executive benchmark + detailed tables
 # ---------------------------------------------------------------------------
 
+def _build_committed_implication(records: List[PriceRecord]) -> str:
+    """
+    Dynamic strategic implication block — uses live prices so it stays accurate
+    as AWS/GCP reprice their committed tiers.
+    """
+    def _best(provider, gpu, cts):
+        prices = [
+            r.price_per_gpu_hour_usd for r in records
+            if r.provider == provider and r.gpu_model == gpu
+            and r.consumption_type in cts
+        ]
+        return min(prices) if prices else None
+
+    neb_od  = _best("nebius", "H100", {"on_demand"})
+    aws_3yr = _best("aws",    "H100", RESERVED_3YR_CTS)
+    neb_1yr = _best("nebius", "H100", RESERVED_1YR_CTS)
+
+    if not (neb_od and aws_3yr):
+        return ""
+
+    gap_mult = neb_od / aws_3yr
+
+    if neb_1yr:
+        neb_discount = int((1 - neb_1yr / neb_od) * 100)
+        neb_part = (
+            f" Nebius 1yr committed at ${neb_1yr:.2f} ({neb_discount}% discount) "
+            f"{'beats' if neb_1yr < aws_3yr else 'trails'} the AWS 3yr price — "
+            f"{'clear ARR opportunity' if neb_1yr < aws_3yr else 'closing the gap'}."
+        )
+    else:
+        neb_part = ""
+
+    return (
+        f'<p><strong>Strategic implication:</strong> An enterprise customer comparing '
+        f'Nebius on-demand (${neb_od:.2f}/H100 GPU-hr) against AWS 3yr committed '
+        f'(${aws_3yr:.2f}) faces a <strong>{gap_mult:.1f}× price gap</strong> — '
+        f'the most common H100 objection in enterprise sales.'
+        f'{neb_part}</p>'
+    )
+
+
 def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
     html = []
 
@@ -436,12 +493,7 @@ def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
         '1- and 3-year commitments:</p>'
     )
     html.append(_build_committed_gap_table(records))
-    html.append(
-        '<p><strong>Strategic implication:</strong> An enterprise customer comparing Nebius '
-        'on-demand ($2.95/H100 GPU-hr) against AWS 3yr committed (~$3.04) sees near-parity. '
-        'A Nebius 1yr committed at 15% discount ($2.51) would be the clear cheapest option '
-        'for H100 among hyperscalers while locking in ARR.</p>'
-    )
+    html.append(_build_committed_implication(records))
 
     # ── Section 3: Full peer price table by GPU ──────────────────────────────
     html.append('<h2>Full Market Reference — On-Demand by GPU</h2>')

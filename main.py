@@ -23,7 +23,8 @@ from datetime import date
 from pathlib import Path
 
 from store import (save_snapshot, load_snapshot, previous_snapshot_day, STORE_DIR,
-                   WEB_SCRAPED_PROVIDERS, get_cached_records, update_peer_cache)
+                   WEB_SCRAPED_PROVIDERS, get_cached_records, update_peer_cache,
+                   load_last_snapshot, save_last_snapshot)
 from diff import compute_diff, format_slack_message, format_confluence_table
 from config import PROVIDERS
 
@@ -77,7 +78,8 @@ def run(providers=None, test=False):
     save_snapshot(all_records, today)
     logger.info(f"Saved {len(all_records)} total records for {today}")
 
-    # Diff
+    # Diff — compare vs previous day snapshot, falling back to last_snapshot.json
+    # (last_snapshot.json is committed to git so CCR fresh-clone runs have a baseline)
     prev_day = previous_snapshot_day()
     diffs = []
     if prev_day:
@@ -88,7 +90,20 @@ def run(providers=None, test=False):
             json.dump([d.to_dict() for d in diffs], f, indent=2)
         logger.info(f"Diff vs {prev_day}: {len(diffs)} changes")
     else:
-        logger.info("No previous snapshot — skipping diff (first run)")
+        # No date-stamped history — try last_snapshot.json (committed baseline)
+        old_records = load_last_snapshot()
+        if old_records:
+            diffs = compute_diff(old_records, all_records)
+            diff_path = STORE_DIR / f"diff_{today.isoformat()}.json"
+            with open(diff_path, "w") as f:
+                json.dump([d.to_dict() for d in diffs], f, indent=2)
+            logger.info(f"Diff vs last_snapshot.json: {len(diffs)} changes")
+        else:
+            logger.info("No previous snapshot — skipping diff (first run)")
+
+    # Update last_snapshot.json so the next run has a baseline.
+    # In CCR environments, the prompt instructs the agent to git commit+push this file.
+    save_last_snapshot(all_records)
 
     # Write Slack message
     run_date = today.strftime("%B %d, %Y")

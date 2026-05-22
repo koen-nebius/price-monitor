@@ -35,25 +35,26 @@ jobs:
           pip install requests 2>/dev/null || true
           # No requirements.txt yet — stdlib only
 
-      - name: Run scraper (peer providers only)
+      - name: Run full pipeline
         env:
           GCP_API_KEY: ${{ secrets.GCP_API_KEY }}
         run: |
-          # Run only the web-scraped providers to update peer_cache.json.
-          # Skip hyperscalers here — CCR handles them fresh at 07:00 UTC.
-          python3 main.py --provider nebius coreweave lambda crusoe computeprices 2>&1 | tee /tmp/scrape.log
-          echo "--- Scrape complete ---"
-          cat /tmp/scrape.log | grep -E "records|WARNING|ERROR" || true
+          # Run all providers (hyperscalers + peers) to build a complete snapshot.
+          # This updates peer_cache.json AND last_snapshot.json, which the CCR
+          # routine at 07:00 UTC uses as the diff baseline.
+          python3 main.py 2>&1 | tee /tmp/scrape.log
+          echo "--- Pipeline complete ---"
+          cat /tmp/scrape.log | grep -E "records|WARNING|ERROR|Diff" || true
 
-      - name: Commit updated peer_cache.json if changed
+      - name: Commit updated cache and snapshot if changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet store/peer_cache.json; then
-            echo "peer_cache.json unchanged — no commit needed"
+          git add store/peer_cache.json store/last_snapshot.json
+          if git diff --cached --quiet; then
+            echo "No changes — no commit needed"
           else
-            git add store/peer_cache.json
-            git commit -m "chore: update peer_cache.json [skip ci]"
+            git commit -m "chore: update peer_cache + last_snapshot [skip ci]"
             git push
-            echo "peer_cache.json updated and pushed"
+            echo "Cache and snapshot updated and pushed"
           fi
