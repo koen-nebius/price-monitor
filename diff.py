@@ -216,27 +216,26 @@ def _format_committed_callout(records: List[PriceRecord]) -> str:
     if neb_1yr and aws_1yr:
         diff_pct = (neb_1yr - aws_1yr) / aws_1yr * 100
         sign = "+" if diff_pct > 0 else ""
-        winner = "⚠️ AWS cheaper" if diff_pct > 0 else "✅ Nebius cheaper"
         parts.append(
             f"H100 12-month: Nebius ${neb_1yr:.2f} vs AWS ${aws_1yr:.2f} "
-            f"({sign}{diff_pct:.0f}%) {winner}"
+            f"({sign}{diff_pct:.0f}%)"
         )
     elif neb_1yr:
         parts.append(f"H100 12-month: Nebius ${neb_1yr:.2f} (AWS: no data)")
 
     if neb_2yr:
-        parts.append(f"H100 24-month (Nebius max): ${neb_2yr:.2f}/GPU-hr")
+        parts.append(f"H100 24-month: Nebius ${neb_2yr:.2f}/GPU-hr")
 
     if aws_3yr:
         neb_od = _best("nebius", "H100", {"on_demand"})
         if neb_od:
             gap_mult = neb_od / aws_3yr
             parts.append(
-                f"AWS H100 3yr vs Nebius on-demand: ${aws_3yr:.2f} vs ${neb_od:.2f} "
-                f"— {gap_mult:.1f}× gap ⚠️ key enterprise objection"
+                f"AWS H100 3yr: ${aws_3yr:.2f} vs Nebius on-demand ${neb_od:.2f} "
+                f"({gap_mult:.1f}× difference)"
             )
         else:
-            parts.append(f"AWS H100 3yr standard: ${aws_3yr:.2f}/GPU-hr")
+            parts.append(f"AWS H100 3yr: ${aws_3yr:.2f}/GPU-hr")
 
     if not parts:
         return ""
@@ -253,62 +252,29 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                          confluence_url: str, records: List[PriceRecord] = None) -> str:
     """
     Executive-grade Slack digest framed for CFO / Pricing PM audience.
+    Neutral framing — price differences shown as plain +/-% without sentiment.
 
     Structure:
-    1. Key signals — wins, concerns, committed pricing vs AWS
-    2. On-demand position vs enterprise GPU cloud peers (not commodity floor)
+    1. Nebius position vs enterprise GPU cloud peers (on-demand)
+    2. Committed pricing benchmark vs AWS
     3. Significant price moves (>threshold)
     4. Link to full Confluence table
     """
     lines = [f"*GPU Competitor Pricing — {run_date}*"]
 
+    def _pname(p: str) -> str:
+        _KEEP_UPPER = {"aws", "gcp", "azure", "gpu", "gmi"}
+        name = p.replace("cp_", "").replace("-", " ")
+        return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
+                        for w in name.split())
+
     if records:
         position = compute_position(records)
         od_rows = [r for r in position if r["tier_label"] == "on_demand"]
 
-        # ── 1. Key signals ───────────────────────────────────────────────────
-        wins    = [r for r in od_rows if r["nebius_price"] and r["cheapest_peer"]
-                   and r["nebius_price"] <= r["cheapest_peer"]]
-        concerns = [r for r in od_rows if r["nebius_price"] and r["median_peer"]
-                    and r["nebius_price"] > r["median_peer"] * 1.15]
-
-        signals = []
-        def _pname(p: str) -> str:
-            _KEEP_UPPER = {"aws", "gcp", "azure", "gpu", "gmi"}
-            name = p.replace("cp_", "").replace("-", " ")
-            return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
-                            for w in name.split())
-
-        for r in wins:
-            nxt = r["cheapest_peer"]
-            nxt_name = _pname(r["cheapest_peer_name"] or "")
-            signals.append(
-                f"*{r['gpu']}*: Nebius ✅ cheapest at ${r['nebius_price']:.2f} "
-                f"(next: ${nxt:.2f} {nxt_name})"
-            )
-        for r in concerns:
-            pct_above = (r["nebius_price"] - r["median_peer"]) / r["median_peer"] * 100
-            signals.append(
-                f"*{r['gpu']}*: Nebius ${r['nebius_price']:.2f} — "
-                f"+{pct_above:.0f}% above peer median ${r['median_peer']:.2f}, "
-                f"{r['peers_cheaper']}/{r['total_peers']} peers cheaper ⚠️"
-            )
-
-        # Committed callout as a key signal
-        _committed = _format_committed_callout(records)
-
-        if signals or _committed:
-            lines.append("\n*Key signals:*")
-            for s in signals:
-                lines.append(f"• {s}")
-            if _committed:
-                # Inline the committed bullets under key signals
-                for l in _committed.split("\n")[1:]:   # skip the header line
-                    lines.append(l)
-
-        # ── 2. On-demand position vs enterprise peers ────────────────────────
+        # ── 1. On-demand position vs enterprise peers ────────────────────────
         if od_rows:
-            lines.append("\n*On-demand vs enterprise GPU cloud peers:*")
+            lines.append("\n*Nebius on-demand vs enterprise GPU cloud peers:*")
             for row in od_rows:
                 neb = row["nebius_price"]
                 med = row["median_peer"]
@@ -321,25 +287,35 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                     lines.append(f"• *{gpu}*: Nebius — no public price")
                     continue
 
-                if cheap and cheap < neb:
-                    cheaper = row["peers_cheaper"]
-                    # Show top-2 cheapest peer names for actionable context
-                    peer_details = row.get("cheapest_peers_detail", [])
-                    peer_str = ", ".join(
-                        f"{_pname(p)} ${px:.2f}" for p, px in peer_details[:2]
-                    )
-                    lines.append(
-                        f"• *{gpu}*: Nebius ${neb:.2f} | "
-                        f"Cheapest: {peer_str} | "
-                        f"Median: ${med:.2f} | {cheaper}/{total} cheaper"
-                        if med and peer_str else f"• *{gpu}*: Nebius ${neb:.2f}"
-                    )
+                peer_details = row.get("cheapest_peers_detail", [])
+                peer_str = ", ".join(
+                    f"{_pname(p)} ${px:.2f}" for p, px in peer_details[:2]
+                )
+
+                if med:
+                    vs_med_pct = (neb - med) / med * 100
+                    sign = "+" if vs_med_pct >= 0 else ""
+                    vs_med_str = f"{sign}{vs_med_pct:.0f}% vs median ${med:.2f}"
                 else:
+                    vs_med_str = None
+
+                cheaper = row["peers_cheaper"]
+                if peer_str and vs_med_str:
                     lines.append(
-                        f"• *{gpu}*: Nebius ${neb:.2f} ✅ cheapest | "
-                        f"Next: ${cheap:.2f} ({cheap_name}) | Median: ${med:.2f}"
-                        if cheap and med else f"• *{gpu}*: Nebius ${neb:.2f}"
+                        f"• *{gpu}*: Nebius ${neb:.2f} ({vs_med_str}) | "
+                        f"Cheapest peers: {peer_str} | {cheaper}/{total} cheaper"
                     )
+                elif neb and cheap:
+                    lines.append(f"• *{gpu}*: Nebius ${neb:.2f} | Cheapest peer: {cheap_name} ${cheap:.2f}")
+                else:
+                    lines.append(f"• *{gpu}*: Nebius ${neb:.2f}")
+
+        # ── 2. Committed pricing benchmark ───────────────────────────────────
+        _committed = _format_committed_callout(records)
+        if _committed:
+            lines.append("")
+            for l in _committed.split("\n"):
+                lines.append(l)
 
     # ── Significant price changes — grouped by provider + GPU ───────────────
     # Raw diffs contain one entry per (instance_type × region × ct). Group them
