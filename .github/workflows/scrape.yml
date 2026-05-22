@@ -1,0 +1,59 @@
+name: Scrape peer pricing
+
+# Runs at 06:00 UTC — one hour before the CCR posting routine (07:00 UTC).
+# Fetches all web-scraped providers and updates store/peer_cache.json.
+# The CCR routine then clones the repo with a fresh cache and posts to
+# Slack / Confluence with up-to-date peer data.
+#
+# GitHub Actions runners use GitHub's own IPs, which are much less aggressively
+# blocked by Cloudflare than Anthropic CCR IPs.
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # 06:00 UTC daily
+  workflow_dispatch:       # allow manual trigger from GitHub UI
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write      # needed to push peer_cache.json back to the repo
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install requests 2>/dev/null || true
+          # No requirements.txt yet — stdlib only
+
+      - name: Run scraper (peer providers only)
+        env:
+          GCP_API_KEY: ${{ secrets.GCP_API_KEY }}
+        run: |
+          # Run only the web-scraped providers to update peer_cache.json.
+          # Skip hyperscalers here — CCR handles them fresh at 07:00 UTC.
+          python3 main.py --provider nebius coreweave lambda crusoe computeprices 2>&1 | tee /tmp/scrape.log
+          echo "--- Scrape complete ---"
+          cat /tmp/scrape.log | grep -E "records|WARNING|ERROR" || true
+
+      - name: Commit updated peer_cache.json if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet store/peer_cache.json; then
+            echo "peer_cache.json unchanged — no commit needed"
+          else
+            git add store/peer_cache.json
+            git commit -m "chore: update peer_cache.json [skip ci]"
+            git push
+            echo "peer_cache.json updated and pushed"
+          fi
