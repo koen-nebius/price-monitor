@@ -34,6 +34,35 @@ RESERVED_3YR_CTS  = {"reserved_3yr", "committed_3yr"}
 # Providers shown as named columns in the detailed Confluence table
 DIRECT_PROVIDERS = ["nebius", "aws", "gcp", "azure", "coreweave", "lambda", "crusoe"]
 
+# Canonical display names for provider codes — used throughout Confluence tables
+_PROVIDER_DISPLAY: Dict[str, str] = {
+    "aws":            "AWS",
+    "gcp":            "GCP",
+    "azure":          "Azure",
+    "nebius":         "Nebius",
+    "coreweave":      "CoreWeave",
+    "lambda":         "Lambda",
+    "crusoe":         "Crusoe",
+    "cp_oracle":      "Oracle",
+    "cp_hyperstack":  "Hyperstack",
+    "cp_voltage":     "Voltage Park",
+    "cp_gmi-cloud":   "GMI Cloud",
+    "cp_scaleway":    "Scaleway",
+    "cp_gcore":       "Gcore",
+    "cp_genesis":     "Genesis",
+    "cp_civo":        "Civo",
+    "cp_paperspace":  "Paperspace",
+    "cp_vultr":       "Vultr",
+}
+
+def _provider_display(p: str) -> str:
+    """Canonical display name for a provider code."""
+    if p in _PROVIDER_DISPLAY:
+        return _PROVIDER_DISPLAY[p]
+    name = p.replace("cp_", "").replace("-", " ")
+    _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi", "ai"}
+    return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title() for w in name.split())
+
 
 # ---------------------------------------------------------------------------
 # Diff computation
@@ -450,12 +479,38 @@ def _build_committed_implication(records: List[PriceRecord]) -> str:
     else:
         neb_part = ""
 
+    # AWS 1yr vs Nebius 1yr — often the more actionable sales comparison
+    aws_1yr = _best("aws", "H100", RESERVED_1YR_CTS)
+    aws1yr_part = ""
+    if aws_1yr and neb_1yr:
+        if neb_1yr < aws_1yr:
+            aws1yr_part = (
+                f' Nebius 1yr committed (${neb_1yr:.2f}) is also '
+                f'<strong>cheaper than AWS 1yr committed (${aws_1yr:.2f})</strong> — '
+                f'customers do not need a 3yr AWS lock-in to match Nebius pricing.'
+            )
+        else:
+            diff_pct = int((neb_1yr - aws_1yr) / aws_1yr * 100)
+            aws1yr_part = (
+                f' Nebius 1yr committed (${neb_1yr:.2f}) is {diff_pct}% above AWS 1yr (${aws_1yr:.2f}).'
+            )
+
+    # GCP 1yr — often 2–3× above Nebius committed, strong positioning point
+    gcp_1yr = _best("gcp", "H100", RESERVED_1YR_CTS)
+    gcp_part = ""
+    if gcp_1yr and neb_1yr:
+        gcp_disc = int((gcp_1yr - neb_1yr) / gcp_1yr * 100)
+        gcp_part = (
+            f' GCP 1yr committed runs ${gcp_1yr:.2f} — '
+            f'Nebius 1yr is <strong>{gcp_disc}% cheaper than GCP committed</strong>.'
+        )
+
     return (
         f'<p><strong>Sales context:</strong> An enterprise customer comparing '
         f'Nebius on-demand (${neb_od:.2f}/H100 GPU-hr) to AWS 3yr committed '
         f'(${aws_3yr:.2f}) sees a <strong>{gap_mult:.1f}× price difference</strong> — '
         f'the most common H100 objection in enterprise sales.'
-        f'{neb_part}</p>'
+        f'{neb_part}{aws1yr_part}{gcp_part}</p>'
     )
 
 
@@ -493,11 +548,13 @@ def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
     html.append(_build_committed_implication(records))
 
     # ── Section 3: Full peer price table by GPU ──────────────────────────────
-    html.append('<h2>Full Market Reference — On-Demand by GPU</h2>')
+    html.append('<h2>Complete Market Sweep — On-Demand by GPU</h2>')
     html.append(
-        '<p>Raw GPU Cloud peers only. Managed inference platforms (fal.ai, Deep Infra, '
-        'Together AI etc.) excluded — their per-GPU-hr equivalent is not comparable to '
-        'bare-metal GPU cloud.</p>'
+        '<p>All tracked raw GPU cloud providers sorted by price. Includes commodity spot rental '
+        'marketplaces (TensorDock, Vast.ai, RunPod, etc.) alongside enterprise GPU clouds — '
+        'use the Executive Benchmark table above for apples-to-apples enterprise comparisons. '
+        'Managed inference platforms (fal.ai, Deep Infra, Together AI) excluded — '
+        'per-token billing makes $/GPU-hr comparisons meaningless.</p>'
     )
     html.append(_build_peer_tables(records))
 
@@ -544,7 +601,7 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
 
         if row and row["cheapest_peer"]:
             peer_td = (f'<td>${row["cheapest_peer"]:.2f} '
-                       f'<em>({row["cheapest_peer_name"].replace("cp_","") if row["cheapest_peer_name"] else ""})</em></td>')
+                       f'<em>({_provider_display(row["cheapest_peer_name"]) if row["cheapest_peer_name"] else ""})</em></td>')
         else:
             peer_td = '<td>—</td>'
 
@@ -561,7 +618,7 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         # Cheapest hyperscaler on-demand
         hyp_best = _best_price(records, gpu, "on_demand", tiers=["hyperscaler"])
         hyp_td = (f'<td>${hyp_best.price_per_gpu_hour_usd:.2f} '
-                  f'<em>({hyp_best.provider.upper()})</em></td>') \
+                  f'<em>({_provider_display(hyp_best.provider)})</em></td>') \
                  if hyp_best else '<td>—</td>'
 
         med_td = f'<td>${row["median_peer"]:.2f}</td>' if row and row["median_peer"] else '<td>—</td>'
@@ -583,7 +640,10 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         'Hyperscaler column = cheapest of AWS / GCP / Azure / Oracle (on-demand list price; '
         'enterprise customers typically pay 40–57% less at 3yr committed). '
         'Nebius prices are from EU (eu-north1); US pricing typically 5–10% lower. '
-        'IREN: competitor identified in sales calls; not yet tracked (no public pricing).'
+        'IREN: competitor named in enterprise sales calls; not yet tracked (no public pricing). '
+        '⚠️ L40S pricing risk: Nebius on-demand ($1.82) is only 2% below AWS on-demand ($1.86); '
+        'AWS L40S drops to ~$0.37 at 3yr committed — a 5× gap that Nebius has no committed L40S tier to counter. '
+        'GB200/GB300: Nebius has committed pricing for these GPUs (see table below) but no published on-demand rate.'
         '</em></p>'
     )
     return "\n".join(rows)
@@ -607,6 +667,14 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
     # For Blackwell (B200/B300/GB300): include raw_gpu_cloud peers with committed data
     # since hyperscalers don't yet publish reserved pricing for these GPUs.
     HYPERSCALER_PROVIDERS = ["aws", "gcp", "azure", "nebius"]
+
+    # Providers to exclude from this table — defunct, consumer-focused, or not
+    # relevant enterprise GPU competitors despite having committed pricing data
+    COMMITTED_TABLE_EXCLUDE = {
+        "cp_genesis",    # in liquidation since 2025 — prices stale and unreliable
+        "cp_paperspace", # consumer ML platform (DigitalOcean), not enterprise GPU cloud
+        "cp_civo",       # Kubernetes-first cloud, not a GPU compute competitor
+    }
 
     # Column definitions: (display header, CT set)
     COLUMNS = [
@@ -675,6 +743,7 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
         peers_with_committed = sorted(
             [p for p in providers_with_data
              if p not in HYPERSCALER_PROVIDERS
+             and p not in COMMITTED_TABLE_EXCLUDE
              and any(grouped[gpu][ci].get(p) for ci in range(1, len(COLUMNS)))],
             key=lambda p: min(
                 (grouped[gpu][ci].get(p, 9999) for ci in range(1, len(COLUMNS))),
@@ -710,7 +779,7 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
                 else:
                     cells.append('<td>—</td>')
             if has_any:
-                display = prov.replace("cp_", "").upper()
+                display = _provider_display(prov)
                 html.append(
                     f'<tr><td>{display}</td>'
                     + "".join(cells) + '</tr>'
@@ -727,7 +796,7 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
         'until verified against OCI directly. Oracle does not publish committed GPU pricing publicly. '
         'Nebius: internal pricing model effective April 23rd 2026; enterprise tier (512+ GPU, 100% upfront). '
         'Standard tier (&lt;512 GPU) ~5–10% higher; 36-month H100/H200 available on request. '
-        'Peer providers (Vultr, Civo) sourced from ComputePrices.com. '
+        'Peer providers (Vultr) sourced from ComputePrices.com. '
         'Nebius prices from EU (eu-north1); US pricing typically 5–10% lower.'
         '</em></p>'
     )
