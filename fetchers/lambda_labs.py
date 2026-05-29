@@ -2,6 +2,10 @@
 Lambda Labs (lambda.ai) pricing fetcher.
 Tries the REST API first (requires LAMBDA_API_KEY env var),
 then scrapes lambda.ai/instances which has PRICE/GPU/HR tables.
+
+CCR environment: set LAMBDA_API_KEY in the routine's environment variables for
+reliable API-based pricing. Without it, the scrape fallback is used.
+Get a free key at: https://cloud.lambdalabs.com/api-keys
 """
 import base64
 import json
@@ -137,6 +141,7 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
             price_per_gpu_hour_usd=price_per_gpu,
             fetched_at=now,
             source_url=SOURCE_URL,
+            data_source="web_scrape",
         ))
 
     return records
@@ -182,6 +187,7 @@ def _parse_api_data(data: dict, now: str) -> List[PriceRecord]:
                 price_per_gpu_hour_usd=price / mapping["gpu_count"],
                 fetched_at=now,
                 source_url=SOURCE_URL,
+                data_source="official_api",
             ))
     return records
 

@@ -58,7 +58,7 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
 
 def _parse_html(html: str, now: str) -> List[PriceRecord]:
     records = []
-    seen = set()
+    seen = set()  # tracks (gpu_model, ct) only
 
     row_pattern = re.compile(
         r'<h3[^>]*data-product="([^"]+)"[^>]*>.*?</h3>(.*?)'
@@ -79,12 +79,12 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
         od_m = re.search(r'On-Demand Price:\s*\$([0-9.]+)', text)
         spot_m = re.search(r'Spot Price:\s*\$([0-9.]+)', text)
 
-        # Assign region based on order seen (page shows two regions)
-        region = "us-east-1" if (gpu_model, "on_demand", "us-east-1") not in seen else "us-central-1"
+        # All CoreWeave records use us-central-1 (their primary region)
+        region = "us-central-1"
 
         if od_m:
             price = float(od_m.group(1))
-            key = (gpu_model, "on_demand", region)
+            key = (gpu_model, "on_demand")
             if key not in seen:
                 seen.add(key)
                 records.append(PriceRecord(
@@ -98,11 +98,12 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
                     price_per_gpu_hour_usd=price / gpu_count,
                     fetched_at=now,
                     source_url=SOURCE_URL,
+                    data_source="web_scrape",
                 ))
 
         if spot_m:
             price = float(spot_m.group(1))
-            key = (gpu_model, "spot", region)
+            key = (gpu_model, "spot")
             if key not in seen:
                 seen.add(key)
                 records.append(PriceRecord(
@@ -116,6 +117,7 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
                     price_per_gpu_hour_usd=price / gpu_count,
                     fetched_at=now,
                     source_url=SOURCE_URL,
+                    data_source="web_scrape",
                 ))
 
     return records

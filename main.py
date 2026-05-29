@@ -19,8 +19,9 @@ import argparse
 import json
 import logging
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
+from typing import List
 
 from store import (save_snapshot, load_snapshot, previous_snapshot_day, STORE_DIR,
                    WEB_SCRAPED_PROVIDERS, get_cached_records, update_peer_cache,
@@ -28,6 +29,7 @@ from store import (save_snapshot, load_snapshot, previous_snapshot_day, STORE_DI
 from diff import compute_diff, format_slack_message, format_confluence_table
 from history import append_today as append_history
 from config import PROVIDERS
+from schema import PriceRecord
 
 logging.basicConfig(
     level=logging.INFO,
@@ -38,10 +40,73 @@ logger = logging.getLogger("main")
 from config import CONFLUENCE_PAGE_URL
 
 
+def validate_prices(new_records: List[PriceRecord], old_records: List[PriceRecord]) -> List[str]:
+    """
+    Sanity-check new_records against old_records.
+    Returns a list of anomaly strings for any suspicious prices.
+    Flags:
+      - Day-over-day change > ±40%
+      - price_per_gpu_hour_usd < 0.20 or > 200.0
+    """
+    # Build lookup: (provider, gpu_model, consumption_type) -> old price
+    old_lookup = {}
+    for r in old_records:
+        key = (r.provider, r.gpu_model, r.consumption_type)
+        if key not in old_lookup or r.price_per_gpu_hour_usd < old_lookup[key]:
+            old_lookup[key] = r.price_per_gpu_hour_usd
+
+    anomalies = []
+    for r in new_records:
+        p = r.price_per_gpu_hour_usd
+
+        # Absolute range check
+        if p < 0.20:
+            anomalies.append(
+                f"{r.provider} {r.gpu_model} {r.consumption_type} {r.region}: "
+                f"${p:.2f}/GPU-hr ⚠ implausibly low price"
+            )
+            continue
+        if p > 200.0:
+            anomalies.append(
+                f"{r.provider} {r.gpu_model} {r.consumption_type} {r.region}: "
+                f"${p:.2f}/GPU-hr ⚠ implausibly high price"
+            )
+            continue
+
+        # Day-over-day change check
+        key = (r.provider, r.gpu_model, r.consumption_type)
+        old_price = old_lookup.get(key)
+        if old_price is not None and old_price > 0:
+            change_pct = (p - old_price) / old_price * 100
+            if abs(change_pct) > 40.0:
+                anomalies.append(
+                    f"{r.provider} {r.gpu_model} {r.consumption_type} {r.region}: "
+                    f"${old_price:.2f} → ${p:.2f} ({change_pct:+.1f}%) ⚠ price anomaly"
+                )
+
+    return anomalies
+
+
 def run(providers=None, test=False):
     providers = providers or PROVIDERS
     all_records = []
     errors = []
+
+    # Item 2: Check Nebius committed prices staleness
+    nebius_date_warning = None
+    try:
+        from config import NEBIUS_COMMITTED_PRICES_VERIFIED_DATE
+        verified = datetime.strptime(NEBIUS_COMMITTED_PRICES_VERIFIED_DATE, "%Y-%m-%d").date()
+        days_old = (date.today() - verified).days
+        if days_old > 30:
+            msg = (
+                f"Nebius committed prices in config.py were last verified {days_old} days ago "
+                f"— verify against current pricing sheet."
+            )
+            logger.warning(msg)
+            nebius_date_warning = f"_⚠ Nebius committed prices last verified {days_old} days ago — check config.py_"
+    except Exception as e:
+        logger.debug(f"Could not check NEBIUS_COMMITTED_PRICES_VERIFIED_DATE: {e}")
 
     for provider in providers:
         try:
@@ -82,6 +147,7 @@ def run(providers=None, test=False):
     # Diff — compare vs previous day snapshot, falling back to last_snapshot.json
     # (last_snapshot.json is committed to git so CCR fresh-clone runs have a baseline)
     prev_day = previous_snapshot_day()
+    old_records = []
     diffs = []
     if prev_day:
         old_records = load_snapshot(prev_day)
@@ -109,9 +175,25 @@ def run(providers=None, test=False):
     # Append today's data to the historical price CSV
     append_history()
 
+    # Item 1: Validate prices for anomalies
+    anomalies = validate_prices(all_records, old_records)
+    for anomaly in anomalies:
+        logger.warning(f"Price anomaly: {anomaly}")
+
     # Write Slack message
     run_date = today.strftime("%B %d, %Y")
     slack_msg = format_slack_message(diffs, run_date, CONFLUENCE_PAGE_URL, records=all_records)
+
+    # Prepend anomaly block if any anomalies detected
+    slack_prefix_parts = []
+    if anomalies:
+        anomaly_lines = "\n".join(f"• {a}" for a in anomalies)
+        slack_prefix_parts.append(f"⚠ *Data anomaly detected*\n{anomaly_lines}")
+    if nebius_date_warning:
+        slack_prefix_parts.append(nebius_date_warning)
+    if slack_prefix_parts:
+        slack_msg = "\n\n".join(slack_prefix_parts) + "\n\n" + slack_msg
+
     slack_path = STORE_DIR / "slack_message.txt"
     with open(slack_path, "w") as f:
         f.write(slack_msg)
@@ -155,6 +237,10 @@ def _fetch_provider(provider: str):
         from fetchers.nebius_committed import fetch
     elif provider == "computeprices":
         from fetchers.computeprices import fetch
+    elif provider == "oracle":
+        from fetchers.oracle import fetch
+    elif provider == "hyperstack":
+        from fetchers.hyperstack import fetch
     else:
         raise ValueError(f"Unknown provider: {provider}")
     return fetch()

@@ -175,6 +175,7 @@ def _parse_table_rows(rows: list, now: str) -> List[PriceRecord]:
                 price_per_gpu_hour_usd=price,
                 fetched_at=now,
                 source_url=SOURCE_URL,
+                data_source="web_scrape",
             ))
 
     return records
@@ -250,6 +251,7 @@ def _regex_fallback(html: str, now: str) -> List[PriceRecord]:
             price_per_gpu_hour_usd=price,
             fetched_at=now,
             source_url=SOURCE_URL,
+            data_source="web_scrape",
         ))
 
     logger.info(f"Nebius regex fallback: {len(records)} records")

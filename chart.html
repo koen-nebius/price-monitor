@@ -247,6 +247,10 @@
   }
   .legend-mobile-toggle { display:none; background:none; border:1px solid var(--border); color:var(--muted); border-radius:6px; padding:6px 14px; font-size:12px; cursor:pointer; width:100%; text-align:center; }
   .legend-mobile-toggle:hover { border-color:var(--accent); color:var(--text); }
+  .src-badge { font-size:9px; padding:1px 6px; border-radius:8px; font-weight:600; letter-spacing:.04em; }
+  .src-badge.agg    { background:var(--border); color:var(--muted); }
+  .src-badge.scrape { background:var(--amber)22; color:var(--amber); }
+  .src-badge.manual { background:var(--gold)22; color:var(--gold); }
   </style>
 </head>
 <body>
@@ -852,6 +856,18 @@ function buildCard(gpu, stats, status) {
   // Count intel rows for this GPU
   const intelCount = intelRows.filter(r=>r.gpu_model===gpu).length;
 
+  // Compute source badge from allRows data_source field
+  const cts = ctSet(pos.ctLabel, POS_CT_PILLS);
+  const srcSet = new Set(allRows.filter(r=>r.gpu_model===gpu && cts.has(r.consumption_type) && r.data_source).map(r=>r.data_source));
+  let srcBadge = "";
+  if (srcSet.has("manual")) {
+    srcBadge = `<span class="src-badge manual">manual</span>`;
+  } else if (srcSet.has("web_scrape")) {
+    srcBadge = `<span class="src-badge scrape">scraped</span>`;
+  } else if (srcSet.has("aggregator")) {
+    srcBadge = `<span class="src-badge agg">aggregated</span>`;
+  }
+
   if (!stats || !stats.nebRow) {
     div.innerHTML = `
       <div class="card-header">
@@ -867,6 +883,7 @@ function buildCard(gpu, stats, status) {
       </div>` : `<div class="card-rows" style="margin-top:8px;color:var(--muted);font-size:12px">No public data for this pricing type.</div>`}
       <div class="card-footer">
         <span class="card-meta">Snapshot: ${fmtDate(pos.date==="7d"||pos.date==="30d" ? allDates[allDates.length-1] : pos.date)}</span>
+        ${srcBadge}
         ${intelCount ? `<span class="card-intel-count">◇ ${intelCount} intel quote${intelCount>1?"s":""}</span>` : ""}
       </div>`;
     return div;
@@ -916,6 +933,7 @@ function buildCard(gpu, stats, status) {
     </div>
     <div class="card-footer">
       <span class="card-meta">${total} providers · ${fmtDate(pos.date==="7d"||pos.date==="30d" ? allDates[allDates.length-1] : pos.date)}</span>
+      ${srcBadge}
       ${intelCount ? `<span class="card-intel-count">◇ ${intelCount} quote${intelCount>1?"s":""}</span>` : ""}
     </div>`;
   return div;

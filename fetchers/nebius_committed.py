@@ -75,6 +75,7 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
                         price_per_gpu_hour_usd=price,
                         fetched_at=now,
                         source_url=SOURCE_URL,
+                        data_source="manual",
                     ))
 
     logger.info(

@@ -78,7 +78,10 @@ AZURE_REGIONS = [
     "southeastasia", "japaneast",
 ]
 
-PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices"]
+PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices", "oracle", "hyperstack"]
+# Note: set LAMBDA_API_KEY in the routine's environment variables for reliable Lambda Labs
+# API-based pricing. Without it, the scrape fallback is used.
+# Get a free key at: https://cloud.lambdalabs.com/api-keys
 
 # ---------------------------------------------------------------------------
 # IREN (formerly Iris Energy) — GPU cloud competitor mentioned in sales calls.
@@ -99,16 +102,15 @@ PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "
 # ---------------------------------------------------------------------------
 PROVIDER_TIERS = {
     # Full-platform cloud providers with enterprise contracts, SLAs, and committed pricing.
-    # Oracle Cloud (cp_oracle) is included here; its prices come from ComputePrices.com
-    # and should be treated as directional estimates until verified against OCI directly.
+    # Oracle Cloud: direct fetcher via oracle.py; cp_oracle from ComputePrices kept as fallback.
     "hyperscaler": [
-        "aws", "gcp", "azure", "cp_oracle",
+        "aws", "gcp", "azure", "cp_oracle", "oracle",
     ],
     # All GPU cloud providers tracked (used for broad market sweep and raw price tables).
     # Includes commodity rental marketplaces — not used for executive positioning tables.
     "raw_gpu_cloud": [
         "nebius", "coreweave", "lambda", "crusoe",
-        "cp_hyperstack", "cp_voltage", "cp_runpod", "cp_digitalocean",
+        "hyperstack", "cp_hyperstack", "cp_voltage", "cp_runpod", "cp_digitalocean",
         "cp_genesis", "cp_denvr-dataworks", "cp_massedcompute",
         "cp_oblivus", "cp_gmi-cloud", "cp_atlas-cloud", "cp_seeweb",
         "cp_civo", "cp_tensordock", "cp_latitude", "cp_acecloud",
@@ -173,6 +175,8 @@ MANUAL_PRICES = {
 # ---------------------------------------------------------------------------
 # Nebius committed / reserved pricing — effective April 23rd 2026
 # Source: internal Pricing Model AE sheet
+# Last verified against the internal AE pricing sheet — update this date when prices change.
+NEBIUS_COMMITTED_PRICES_VERIFIED_DATE = "2026-04-23"
 # Structure: gpu_model → volume_tier → commitment_months → prepayment_pct → $/GPU/hr
 # Prepayment options: "100pct" (all upfront), "50pct" (half upfront), "30pct" (30% upfront)
 # Volume tiers: "below_512" (standard, accessible to all) and "above_512" (enterprise)
@@ -230,6 +234,8 @@ NEBIUS_COMMITTED_PRICES = {
             36: {"100pct": 4.55, "50pct": 4.65, "30pct": 4.70},
         },
     },
+    # GB200: committed pricing not yet available as of 2026-04-23.
+    # Only on-demand and preemptible pricing exists. Add here when committed contracts launch.
     "GB300": {
         # Only listed in above-512 tier on the pricing sheet
         "above_512": {

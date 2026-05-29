@@ -17,6 +17,7 @@ class PriceRecord:
     ram_gb: Optional[float] = None
     fetched_at: str = ""
     source_url: str = ""
+    data_source: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)

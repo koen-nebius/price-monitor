@@ -148,6 +148,7 @@ def _parse_sku(sku: dict, fetched_at: str, seen: set) -> List[PriceRecord]:
             price_per_gpu_hour_usd=price,
             fetched_at=fetched_at,
             source_url=SOURCE_URL,
+            data_source="official_api",
         ))
 
     return records

@@ -30,7 +30,7 @@ STORE_DIR = Path(__file__).parent / "store"
 # - Web-scraped providers: blocked by Cloudflare in cloud environments (CCR / GitHub Actions IPs)
 # - API providers that require secrets only available in GitHub Actions (e.g. gcp needs GCP_API_KEY):
 #   GitHub Actions fetches and caches; CCR uses the cache.
-WEB_SCRAPED_PROVIDERS = {"coreweave", "lambda", "crusoe", "nebius", "computeprices", "gcp"}
+WEB_SCRAPED_PROVIDERS = {"coreweave", "lambda", "crusoe", "nebius", "computeprices", "gcp", "hyperstack"}
 
 
 def save_snapshot(records: List[PriceRecord], day: date = None) -> Path:

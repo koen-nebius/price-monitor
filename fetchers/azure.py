@@ -117,6 +117,7 @@ def _fetch_instance(
                 ram_gb=spec.get("ram_gb"),
                 fetched_at=fetched_at,
                 source_url=SOURCE_URL_OD if "spot" not in ct else SOURCE_URL_SPOT,
+                data_source="official_api",
             ))
 
         url = data.get("NextPageLink")

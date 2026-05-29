@@ -66,6 +66,7 @@ def _manual_records(scraped: List[PriceRecord], now: str) -> List[PriceRecord]:
             price_per_hour_usd=price,
             fetched_at=now,
             source_url="manual",
+            data_source="manual",
         ))
     return records
 
@@ -112,6 +113,7 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
             price_per_gpu_hour_usd=price,
             fetched_at=now,
             source_url=SOURCE_URL,
+            data_source="web_scrape",
         ))
 
     # Fallback regex
@@ -136,6 +138,7 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
                 price_per_gpu_hour_usd=price,
                 fetched_at=now,
                 source_url=SOURCE_URL,
+                data_source="web_scrape",
             ))
 
     return records

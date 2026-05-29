@@ -29,6 +29,8 @@ SKIP_PROVIDERS = {
     "lambda labs",
     "crusoe",
     "nebius",
+    "hyperstack",
+    "nexgencloud",
 }
 
 # ComputePrices GPU name → our normalized model name
@@ -154,6 +156,7 @@ def _fetch_slug(
             price_per_gpu_hour_usd=price_usd,
             fetched_at=now,
             source_url=source,
+            data_source="aggregator",
         ))
 
     return records
