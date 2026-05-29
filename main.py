@@ -241,6 +241,8 @@ def _fetch_provider(provider: str):
         from fetchers.oracle import fetch
     elif provider == "hyperstack":
         from fetchers.hyperstack import fetch
+    elif provider == "runpod":
+        from fetchers.runpod import fetch
     else:
         raise ValueError(f"Unknown provider: {provider}")
     return fetch()

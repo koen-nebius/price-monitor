@@ -78,7 +78,7 @@ AZURE_REGIONS = [
     "southeastasia", "japaneast",
 ]
 
-PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices", "oracle", "hyperstack"]
+PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices", "oracle", "hyperstack", "runpod"]
 # Note: set LAMBDA_API_KEY in the routine's environment variables for reliable Lambda Labs
 # API-based pricing. Without it, the scrape fallback is used.
 # Get a free key at: https://cloud.lambdalabs.com/api-keys
@@ -110,6 +110,7 @@ PROVIDER_TIERS = {
     # Includes commodity rental marketplaces — not used for executive positioning tables.
     "raw_gpu_cloud": [
         "nebius", "coreweave", "lambda", "crusoe",
+        "runpod",  # direct fetcher via runpod.py; cp_runpod from ComputePrices kept as cross-ref
         "hyperstack", "cp_hyperstack", "cp_voltage", "cp_runpod", "cp_digitalocean",
         "cp_genesis", "cp_denvr-dataworks", "cp_massedcompute",
         "cp_oblivus", "cp_gmi-cloud", "cp_atlas-cloud", "cp_seeweb",

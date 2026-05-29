@@ -1,13 +1,21 @@
 """
 Lambda Labs (lambda.ai) pricing fetcher.
-Tries the REST API first (requires LAMBDA_API_KEY env var),
-then scrapes lambda.ai/instances which has PRICE/GPU/HR tables.
+Three-tier fetch strategy:
+  1. REST API  — requires LAMBDA_API_KEY env var (most reliable, always use in CCR)
+  2. Web scrape — lambda.ai/instances (blocked by Cloudflare in cloud envs)
+  3. SkyPilot catalog fallback — raw GitHub CSV, no auth, no Cloudflare
 
 CCR environment: set LAMBDA_API_KEY in the routine's environment variables for
-reliable API-based pricing. Without it, the scrape fallback is used.
+reliable API-based pricing. Without it, the scrape fallback is used, and if
+that also fails (Cloudflare), the SkyPilot catalog is used as last resort.
 Get a free key at: https://cloud.lambdalabs.com/api-keys
+
+SkyPilot catalog source: https://github.com/skypilot-org/skypilot-catalog
+Data may be 1-4 weeks behind live pricing; treated as data_source="aggregator".
 """
 import base64
+import csv
+import io
 import json
 import logging
 import os
@@ -23,6 +31,7 @@ logger = logging.getLogger(__name__)
 API_URL = "https://cloud.lambdalabs.com/api/v1/instance-types"
 PRICING_URL = "https://lambda.ai/instances"
 SOURCE_URL = PRICING_URL
+SKYPILOT_CSV_URL = "https://raw.githubusercontent.com/skypilot-org/skypilot-catalog/master/catalogs/v8/lambda/vms.csv"
 
 NEBIUS_GPUS = {"H100", "H200", "B200", "B300", "GB200", "GB300", "L40S"}
 
@@ -47,7 +56,7 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
     now = datetime.now(timezone.utc).isoformat()
     api_key = os.environ.get("LAMBDA_API_KEY")
 
-    # Try API first
+    # Tier 1: REST API (most reliable)
     if api_key:
         try:
             creds = base64.b64encode(f"{api_key}:".encode()).decode()
@@ -61,7 +70,90 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
         except Exception as e:
             logger.info(f"Lambda Labs API failed ({e})")
 
-    return _scrape_pricing_page(now)
+    # Tier 2: Web scrape (blocked by Cloudflare in cloud environments)
+    records = _scrape_pricing_page(now)
+    if records:
+        return records
+
+    # Tier 3: SkyPilot catalog fallback — public GitHub CSV, no Cloudflare
+    logger.warning("Lambda Labs: scrape returned 0 records — trying SkyPilot catalog fallback")
+    return _fetch_skypilot_catalog(now)
+
+
+def _fetch_skypilot_catalog(now: str) -> List[PriceRecord]:
+    """
+    Fetch Lambda pricing from the SkyPilot community catalog on GitHub.
+    CSV columns: InstanceType, AcceleratorName, AcceleratorCount, vCPUs,
+                 MemoryGiB, Price, Region, GpuInfo, SpotPrice
+    Price and SpotPrice are per-instance/hr; divide by AcceleratorCount for per-GPU.
+    """
+    try:
+        req = urllib.request.Request(
+            SKYPILOT_CSV_URL,
+            headers={"User-Agent": "Mozilla/5.0 (price-monitor/1.0)"},
+        )
+        with urllib.request.urlopen(req, timeout=20) as resp:
+            content = resp.read().decode("utf-8", errors="replace")
+    except Exception as e:
+        logger.error(f"Lambda Labs SkyPilot fallback failed: {e}")
+        return []
+
+    records = []
+    seen: set = set()
+    reader = csv.DictReader(io.StringIO(content))
+
+    for row in reader:
+        accel = row.get("AcceleratorName", "").strip()
+        gpu_model = _match_gpu(accel)
+        if gpu_model is None:
+            continue
+
+        try:
+            gpu_count = max(1, round(float(row.get("AcceleratorCount", "1") or 1)))
+        except ValueError:
+            gpu_count = 1
+
+        instance_type = row.get("InstanceType", "").strip()
+        region = row.get("Region", "us-east").strip() or "us-east"
+
+        for ct, price_field in [("on_demand", "Price"), ("spot", "SpotPrice")]:
+            raw = row.get(price_field, "").strip()
+            if not raw:
+                continue
+            try:
+                price_total = float(raw)
+            except ValueError:
+                continue
+            if price_total <= 0:
+                continue
+
+            price_per_gpu = price_total / gpu_count
+
+            # De-duplicate: keep cheapest per (instance_type, region, ct)
+            key = (instance_type, region, ct)
+            if key in seen:
+                continue
+            seen.add(key)
+
+            records.append(PriceRecord(
+                provider="lambda",
+                gpu_model=gpu_model,
+                gpu_count=gpu_count,
+                instance_type=instance_type,
+                region=region,
+                consumption_type=ct,
+                price_per_hour_usd=price_total,
+                price_per_gpu_hour_usd=price_per_gpu,
+                fetched_at=now,
+                source_url=SOURCE_URL,
+                data_source="aggregator",
+            ))
+
+    if records:
+        logger.info(f"Lambda Labs SkyPilot fallback: {len(records)} records")
+    else:
+        logger.error("Lambda Labs SkyPilot fallback: no records parsed")
+    return records
 
 
 def _scrape_pricing_page(now: str) -> List[PriceRecord]:

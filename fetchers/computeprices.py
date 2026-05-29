@@ -31,6 +31,7 @@ SKIP_PROVIDERS = {
     "nebius",
     "hyperstack",
     "nexgencloud",
+    "runpod",   # direct fetcher via runpod.py — skip to avoid double-counting
 }
 
 # ComputePrices GPU name → our normalized model name
