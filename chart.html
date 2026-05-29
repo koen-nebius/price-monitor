@@ -209,9 +209,9 @@
   /* ── Position chart toggle (both desktop and mobile) ── */
   .show-chart-btn { display:block; background:var(--card); border:1px solid var(--border); color:var(--muted); border-radius:6px; padding:7px 14px; font-size:12px; cursor:pointer; width:100%; text-align:center; }
   .show-chart-btn:hover { border-color:var(--accent); color:var(--text); }
-  /* Chart is collapsed by default; .visible class reveals it */
-  #pos-chart-wrap { display:none; }
-  #pos-chart-wrap.visible { display:block; }
+  /* Chart is visible by default; toggle hides it */
+  #pos-chart-wrap { display:block; }
+  #pos-chart-wrap.hidden { display:none; }
 
   /* ══════════════ MOBILE ══════════════ */
   @media (max-width: 700px) {
@@ -337,7 +337,7 @@
           <button class="pill" data-mode="all" tabindex="0">All providers</button>
         </div>
       </div>
-      <button class="show-chart-btn" id="show-chart-btn" aria-expanded="false">Show chart ▾</button>
+      <button class="show-chart-btn" id="show-chart-btn" aria-expanded="true">Hide chart ▴</button>
       <div class="pos-chart-wrap" id="pos-chart-wrap">
         <canvas id="chart-position"></canvas>
       </div>
@@ -711,8 +711,9 @@ Promise.all([parseCsv(CSV_URL), parseCsv(INTEL_CSV_URL)]).then(([hist, intel]) =
   document.getElementById("show-chart-btn").addEventListener("click", () => {
     const wrap = document.getElementById("pos-chart-wrap");
     const btn  = document.getElementById("show-chart-btn");
-    const vis  = wrap.classList.toggle("visible");
-    btn.textContent = vis ? "Hide chart ▴" : "Show chart ▾";
+    const hidden = wrap.classList.toggle("hidden");
+    btn.textContent = hidden ? "Show chart ▾" : "Hide chart ▴";
+    btn.setAttribute("aria-expanded", String(!hidden));
     btn.setAttribute("aria-expanded", vis);
     if (vis && chartPos) chartPos.resize();
   });
