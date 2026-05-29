@@ -123,7 +123,8 @@ def rebuild() -> Path:
 
 def append_today() -> Path:
     """
-    Append today's snapshot rows to history.csv (or rebuild if it doesn't exist).
+    Write today's snapshot rows to history.csv, replacing any existing rows
+    for today (or rebuild if history.csv doesn't exist).
     Reads from the snapshot file. Use append_records() if you have already-validated
     records in memory (preferred — avoids re-reading the raw snapshot).
     """
@@ -131,32 +132,38 @@ def append_today() -> Path:
         return rebuild()
 
     today = date.today()
-
-    # Check if today is already in the file (idempotent)
-    with open(HISTORY_CSV) as f:
-        reader = csv.DictReader(f)
-        existing_dates = {row["snapshot_date"] for row in reader}
-
-    if today.isoformat() in existing_dates:
-        logger.info(f"history.csv: {today.isoformat()} already present — skipping append")
-        return HISTORY_CSV
+    today_str = today.isoformat()
 
     rows = _rows_for_date(today)
     if not rows:
-        logger.warning(f"history.csv: no snapshot for {today.isoformat()} found — nothing to append")
+        logger.warning(f"history.csv: no snapshot for {today_str} found — nothing to write")
         return HISTORY_CSV
 
-    with open(HISTORY_CSV, "a", newline="") as f:
+    # Drop any existing rows for today, then rewrite with fresh data
+    with open(HISTORY_CSV, newline="") as f:
+        reader = csv.DictReader(f)
+        kept_rows = [row for row in reader if row["snapshot_date"] != today_str]
+
+    with open(HISTORY_CSV, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=COLUMNS)
+        writer.writeheader()
+        writer.writerows(kept_rows)
         writer.writerows(rows)
 
-    logger.info(f"history.csv: appended {len(rows)} rows for {today.isoformat()}")
+    logger.info(f"history.csv: wrote {len(rows)} rows for {today_str}")
     return HISTORY_CSV
 
 
 def append_records(records: List[PriceRecord], day: date = None) -> Path:
     """
-    Append a caller-supplied list of records for `day` (default: today).
+    Write a caller-supplied list of records for `day` (default: today) into
+    history.csv, replacing any existing rows for that date.
+
+    Idempotent: running twice with the same input produces the same output.
+    Replaces rather than skips when the date already exists — avoids the
+    partial-data trap where a prior incomplete run (e.g. only manual/committed
+    rows) would block a later full run from writing its on_demand data.
+
     Preferred over append_today() when records have already been validated
     in memory — ensures history.csv only contains accepted data.
     Rebuilds from scratch if history.csv doesn't exist yet.
@@ -167,19 +174,10 @@ def append_records(records: List[PriceRecord], day: date = None) -> Path:
     day = day or date.today()
     day_str = day.isoformat()
 
-    # Check if this date is already present (idempotent)
-    with open(HISTORY_CSV) as f:
-        reader = csv.DictReader(f)
-        existing_dates = {row["snapshot_date"] for row in reader}
-
-    if day_str in existing_dates:
-        logger.info(f"history.csv: {day_str} already present — skipping append")
-        return HISTORY_CSV
-
     best = _cheapest_per_combo(records)
-    rows = []
+    new_rows = []
     for r in sorted(best.values(), key=lambda x: (x.provider, x.gpu_model, x.consumption_type)):
-        rows.append({
+        new_rows.append({
             "snapshot_date":          day_str,
             "provider":               r.provider,
             "gpu_model":              r.gpu_model,
@@ -192,15 +190,24 @@ def append_records(records: List[PriceRecord], day: date = None) -> Path:
             "data_source":            getattr(r, "data_source", ""),
         })
 
-    if not rows:
-        logger.warning(f"history.csv: no valid records for {day_str} — nothing to append")
+    if not new_rows:
+        logger.warning(f"history.csv: no valid records for {day_str} — nothing to write")
         return HISTORY_CSV
 
-    with open(HISTORY_CSV, "a", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=COLUMNS)
-        writer.writerows(rows)
+    # Read existing rows, dropping any that belong to this date (we're replacing them)
+    with open(HISTORY_CSV, newline="") as f:
+        reader = csv.DictReader(f)
+        all_existing = list(reader)
+    kept_rows = [row for row in all_existing if row["snapshot_date"] != day_str]
+    action = "replaced" if len(kept_rows) < len(all_existing) else "appended"
 
-    logger.info(f"history.csv: appended {len(rows)} rows for {day_str} (from validated records)")
+    with open(HISTORY_CSV, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=COLUMNS)
+        writer.writeheader()
+        writer.writerows(kept_rows)
+        writer.writerows(new_rows)
+
+    logger.info(f"history.csv: {action} {len(new_rows)} rows for {day_str} (from validated records)")
     return HISTORY_CSV
 
 
