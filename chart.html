@@ -3,792 +3,878 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GPU Competitor Pricing — Historical Trends</title>
+  <title>GPU Competitor Pricing</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:      #0d0f18;
+    --surface: #151821;
+    --card:    #1b1e2d;
+    --border:  #252840;
+    --text:    #e2e4f0;
+    --muted:   #6b7194;
+    --accent:  #00b97a;
+    --gold:    #f5c842;
+    --red:     #e05252;
+    --amber:   #e09030;
+  }
+  body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-size:14px; min-height:100vh; display:flex; flex-direction:column; }
 
-    :root {
-      --bg:        #0f1117;
-      --surface:   #1a1d27;
-      --border:    #2a2d3a;
-      --text:      #e8eaf0;
-      --muted:     #7a7f96;
-      --accent:    #00b97a;
-      --accent-dim: #007a52;
-    }
+  /* ── Header ── */
+  header { display:flex; align-items:center; justify-content:space-between; padding:16px 24px 0; flex-wrap:wrap; gap:12px; }
+  .header-title h1 { font-size:17px; font-weight:600; }
+  .header-title span { font-size:11px; color:var(--muted); margin-top:2px; display:block; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      font-size: 14px;
-      min-height: 100vh;
-    }
+  /* ── Tabs ── */
+  .tab-bar { display:flex; gap:4px; background:var(--card); border-radius:8px; padding:3px; border:1px solid var(--border); }
+  .tab-btn { background:transparent; border:none; color:var(--muted); padding:6px 16px; border-radius:6px; font-size:13px; cursor:pointer; transition:all .15s; white-space:nowrap; }
+  .tab-btn.active { background:var(--surface); color:var(--text); box-shadow:0 1px 3px #0006; }
+  .tab-btn:hover:not(.active) { color:var(--text); }
 
-    /* ── Header ─────────────────────────────────────────────────────────── */
-    header {
-      padding: 20px 24px 16px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    header h1 {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text);
-      white-space: nowrap;
-    }
-    #data-range {
-      font-size: 12px;
-      color: var(--muted);
-    }
+  /* ── Filters bar ── */
+  .filters-bar { display:flex; align-items:center; gap:16px; padding:14px 24px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .filter-section { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .filter-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; font-weight:600; white-space:nowrap; }
+  .filter-sep { width:1px; height:20px; background:var(--border); margin:0 4px; }
 
-    /* ── Filters ─────────────────────────────────────────────────────────── */
-    #filters {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 24px;
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .filter-group label {
-      color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-    select {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 10px;
-      font-size: 13px;
-      cursor: pointer;
-      outline: none;
-    }
-    select:focus { border-color: var(--accent); }
+  /* Pill buttons */
+  .pill-group { display:flex; gap:4px; flex-wrap:wrap; }
+  .pill { background:transparent; border:1px solid var(--border); color:var(--muted); border-radius:20px; padding:4px 12px; font-size:12px; cursor:pointer; transition:all .12s; white-space:nowrap; }
+  .pill:hover { border-color:var(--accent); color:var(--text); }
+  .pill.active { background:var(--accent); border-color:var(--accent); color:#000; font-weight:600; }
+  .pill.gpu-pill { font-family:monospace; font-size:12px; }
 
-    /* ── Provider panel ───────────────────────────────────────────────────── */
-    #provider-panel {
-      padding: 14px 24px;
-      border-bottom: 1px solid var(--border);
-    }
-    .provider-panel-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-    .provider-panel-header span {
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .pill-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 4px;
-      padding: 3px 8px;
-      font-size: 11px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .pill-btn:hover { border-color: var(--accent); color: var(--accent); }
+  /* Intel toggle */
+  .intel-wrap { display:flex; align-items:center; gap:8px; cursor:pointer; margin-left:auto; }
+  .intel-wrap .label { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:5px; }
+  .toggle-track { width:30px; height:17px; border-radius:9px; background:var(--border); position:relative; transition:.2s; flex-shrink:0; }
+  .toggle-track::after { content:""; position:absolute; width:11px; height:11px; border-radius:50%; background:var(--muted); top:3px; left:3px; transition:.2s; }
+  input.toggle-cb { display:none; }
+  input.toggle-cb:checked ~ .toggle-track { background:#f5c84244; border:1px solid var(--gold); }
+  input.toggle-cb:checked ~ .toggle-track::after { left:15px; background:var(--gold); }
+  .diamond-icon { display:inline-block; width:9px; height:9px; border:1.5px solid var(--gold); transform:rotate(45deg); flex-shrink:0; }
 
-    .provider-groups {
-      display: flex;
-      gap: 28px;
-      flex-wrap: wrap;
-    }
-    .provider-group {
-      min-width: 180px;
-    }
-    .provider-group-title {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-    .provider-check-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .provider-check {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      cursor: pointer;
-      user-select: none;
-    }
-    .provider-check input[type="checkbox"] {
-      appearance: none;
-      width: 13px;
-      height: 13px;
-      border-radius: 3px;
-      border: 2px solid var(--border);
-      cursor: pointer;
-      flex-shrink: 0;
-      position: relative;
-      transition: all 0.12s;
-    }
-    .provider-check input[type="checkbox"]:checked {
-      background: var(--color, var(--accent));
-      border-color: var(--color, var(--accent));
-    }
-    .provider-check input[type="checkbox"]:checked::after {
-      content: "";
-      position: absolute;
-      left: 2px; top: 0px;
-      width: 5px; height: 8px;
-      border: 2px solid #fff;
-      border-top: none; border-left: none;
-      transform: rotate(40deg);
-    }
-    .provider-check-label {
-      font-size: 12px;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .provider-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+  /* ── Tab content ── */
+  .tab-pane { display:none; flex:1; flex-direction:column; }
+  .tab-pane.active { display:flex; }
 
-    /* ── Others collapsible ───────────────────────────────────────────────── */
-    #others-toggle {
-      font-size: 11px;
-      color: var(--muted);
-      cursor: pointer;
-      text-decoration: underline;
-      text-decoration-style: dotted;
-      background: none;
-      border: none;
-      padding: 0;
-      margin-top: 6px;
-      display: block;
-    }
-    #others-toggle:hover { color: var(--accent); }
-    #others-group { display: none; }
-    #others-group.visible { display: block; }
+  /* ── Trends layout ── */
+  .trends-layout { display:flex; flex:1; overflow:hidden; min-height:0; }
+  .chart-wrap { flex:1; position:relative; padding:20px 20px 12px 24px; min-width:0; }
+  .focus-chip { position:absolute; top:24px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--border); border-radius:20px; padding:4px 14px; font-size:12px; color:var(--text); pointer-events:none; opacity:0; transition:opacity .15s; white-space:nowrap; z-index:10; }
+  .focus-chip.visible { opacity:1; }
+  #no-data { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; }
+  canvas { width:100% !important; }
 
-    /* ── Chart area ───────────────────────────────────────────────────────── */
-    #chart-wrap {
-      padding: 20px 24px 10px;
-      position: relative;
-    }
-    #no-data-msg {
-      display: none;
-      text-align: center;
-      color: var(--muted);
-      padding: 60px 0;
-      font-size: 14px;
-    }
-    canvas#chart {
-      width: 100% !important;
-    }
+  /* ── Legend panel ── */
+  .legend-panel { width:224px; flex-shrink:0; border-left:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+  .legend-search-wrap { padding:10px 12px; border-bottom:1px solid var(--border); }
+  .legend-search { width:100%; background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:5px 10px; font-size:12px; outline:none; }
+  .legend-search:focus { border-color:var(--accent); }
+  .legend-scroll { flex:1; overflow-y:auto; padding:6px 0 12px; }
+  .legend-scroll::-webkit-scrollbar { width:4px; }
+  .legend-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  .legend-group-title { font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); padding:8px 12px 4px; }
+  .legend-item { display:flex; align-items:center; gap:8px; padding:5px 12px; cursor:pointer; transition:background .1s; border-radius:0; }
+  .legend-item:hover { background:var(--card); }
+  .legend-item.dimmed { opacity:.25; }
+  .legend-item.hidden-ds .legend-name { text-decoration:line-through; color:var(--muted); }
+  .legend-swatch { width:18px; height:3px; border-radius:2px; flex-shrink:0; }
+  .legend-name { flex:1; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .legend-name .you { font-size:10px; color:var(--accent); margin-left:3px; }
+  .legend-price { font-size:11px; color:var(--muted); font-family:monospace; white-space:nowrap; }
+  .legend-others-toggle { font-size:11px; color:var(--muted); padding:6px 12px; cursor:pointer; display:flex; align-items:center; gap:4px; background:none; border:none; width:100%; text-align:left; }
+  .legend-others-toggle:hover { color:var(--accent); }
+  .legend-others-group { display:none; }
+  .legend-others-group.open { display:block; }
 
-    /* ── Intel toggle ────────────────────────────────────────────────────── */
-    .intel-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      user-select: none;
-    }
-    .intel-toggle input[type="checkbox"] {
-      appearance: none;
-      width: 32px; height: 18px;
-      border-radius: 9px;
-      background: var(--border);
-      cursor: pointer;
-      position: relative;
-      transition: background 0.2s;
-      flex-shrink: 0;
-    }
-    .intel-toggle input[type="checkbox"]::after {
-      content: "";
-      position: absolute;
-      width: 12px; height: 12px;
-      border-radius: 50%;
-      background: var(--muted);
-      top: 3px; left: 3px;
-      transition: left 0.2s, background 0.2s;
-    }
-    .intel-toggle input[type="checkbox"]:checked {
-      background: #ffd70033;
-      border: 1px solid #ffd700;
-    }
-    .intel-toggle input[type="checkbox"]:checked::after {
-      left: 15px;
-      background: #ffd700;
-    }
-    .intel-toggle-label {
-      font-size: 12px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .intel-diamond {
-      display: inline-block;
-      width: 10px; height: 10px;
-      border: 2px solid #ffd700;
-      background: transparent;
-      transform: rotate(45deg);
-      flex-shrink: 0;
-    }
+  /* ── Snapshot tab ── */
+  #tab-snapshot { overflow:auto; }
+  .snap-layout { padding:20px 24px; flex:1; display:flex; flex-direction:column; gap:16px; }
+  .snap-chart-wrap { position:relative; }
+  .snap-chart-wrap canvas { max-height:420px; }
+  .snap-summary { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; }
+  .snap-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+  .snap-card-gpu { font-size:11px; font-weight:700; letter-spacing:.08em; color:var(--muted); text-transform:uppercase; margin-bottom:6px; }
+  .snap-card-row { display:flex; justify-content:space-between; align-items:baseline; font-size:12px; margin-top:3px; }
+  .snap-card-row .label { color:var(--muted); }
+  .snap-card-row .val { font-family:monospace; }
+  .snap-card-nebius { background:var(--accent)18; border-color:var(--accent)55; }
+  .snap-card-nebius .snap-card-gpu { color:var(--accent); }
+  .rank-badge { display:inline-block; background:var(--surface); border-radius:4px; padding:1px 6px; font-size:11px; font-family:monospace; }
+  .rank-badge.good { background:var(--accent)22; color:var(--accent); }
+  .rank-badge.warn { background:var(--amber)22; color:var(--amber); }
+  .rank-badge.bad  { background:var(--red)22; color:var(--red); }
 
-    /* ── Footer note ─────────────────────────────────────────────────────── */
-    footer {
-      padding: 8px 24px 20px;
-      color: var(--muted);
-      font-size: 11px;
-    }
-    footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+  /* ── Footer ── */
+  footer { padding:8px 24px 16px; color:var(--muted); font-size:11px; border-top:1px solid var(--border); margin-top:auto; }
+  footer a { color:var(--accent); text-decoration:none; }
+  footer span { margin:0 8px; opacity:.4; }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>GPU Competitor Pricing — Historical Trends</h1>
-  <span id="data-range">Loading…</span>
+  <div class="header-title">
+    <h1>GPU Competitor Pricing</h1>
+    <span id="data-range">Loading…</span>
+  </div>
+  <nav class="tab-bar">
+    <button class="tab-btn active" data-tab="trends">Price Trends</button>
+    <button class="tab-btn"        data-tab="snapshot">Market Snapshot</button>
+  </nav>
 </header>
 
-<div id="filters">
-  <div class="filter-group">
-    <label>GPU</label>
-    <select id="gpu-select"></select>
+<!-- ── Tab 1: Price Trends ──────────────────────────────────────────── -->
+<div id="tab-trends" class="tab-pane active">
+  <div class="filters-bar">
+    <div class="filter-section">
+      <span class="filter-label">GPU</span>
+      <div class="pill-group" id="gpu-pills"></div>
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-section">
+      <span class="filter-label">Pricing</span>
+      <div class="pill-group" id="ct-pills"></div>
+    </div>
+    <label class="intel-wrap" title="Deal quotes from #price-intelligence (not public rack rates)">
+      <input type="checkbox" class="toggle-cb" id="intel-toggle" checked>
+      <span class="toggle-track"></span>
+      <span class="label"><span class="diamond-icon"></span> Field intel</span>
+    </label>
   </div>
-  <div class="filter-group">
-    <label>Pricing type</label>
-    <select id="ct-select"></select>
+
+  <div class="trends-layout">
+    <div class="chart-wrap">
+      <div class="focus-chip" id="focus-chip"></div>
+      <div id="no-data">No data for this combination.</div>
+      <canvas id="chart-trends" height="400"></canvas>
+    </div>
+    <aside class="legend-panel">
+      <div class="legend-search-wrap">
+        <input class="legend-search" id="legend-search" type="search" placeholder="Filter providers…">
+      </div>
+      <div class="legend-scroll" id="legend-list"></div>
+    </aside>
   </div>
-  <label class="intel-toggle" title="Show deal quotes from #price-intelligence channel (not public rack rates)">
-    <input type="checkbox" id="intel-toggle" checked>
-    <span class="intel-toggle-label">
-      <span class="intel-diamond"></span>
-      Field intelligence
-    </span>
-  </label>
 </div>
 
-<div id="provider-panel">
-  <div class="provider-panel-header">
-    <span>Providers</span>
-    <button class="pill-btn" id="btn-key">Key providers</button>
-    <button class="pill-btn" id="btn-all">All</button>
-    <button class="pill-btn" id="btn-none">None</button>
+<!-- ── Tab 2: Market Snapshot ───────────────────────────────────────── -->
+<div id="tab-snapshot" class="tab-pane">
+  <div class="filters-bar">
+    <div class="filter-section">
+      <span class="filter-label">Pricing type</span>
+      <div class="pill-group" id="snap-ct-pills"></div>
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-section">
+      <span class="filter-label">As of</span>
+      <div class="pill-group" id="snap-date-pills"></div>
+    </div>
   </div>
-  <div class="provider-groups" id="provider-groups"></div>
-</div>
-
-<div id="chart-wrap">
-  <div id="no-data-msg">No data for this combination — try a different GPU or pricing type.</div>
-  <canvas id="chart" height="420"></canvas>
+  <div class="snap-layout">
+    <div class="snap-chart-wrap">
+      <canvas id="chart-snapshot"></canvas>
+    </div>
+    <div class="snap-summary" id="snap-summary"></div>
+  </div>
 </div>
 
 <footer>
-  Line data: cheapest price per provider per day across all regions/SKUs, from public APIs and pricing pages. &nbsp;|&nbsp;
-  <span class="intel-diamond" style="display:inline-block;width:8px;height:8px;border:1.5px solid #ffd700;transform:rotate(45deg);margin-bottom:-1px"></span>
-  Field intelligence: deal-specific quotes reported in <strong>#price-intelligence</strong> — reflect volume, relationship, and timing. Hover for terms.
-  &nbsp;|&nbsp; Full benchmark: <a href="https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/" target="_blank">Confluence →</a>
+  Lines: cheapest price per provider/day from public APIs &amp; pricing pages.
+  <span>|</span>
+  <span class="diamond-icon"></span> Field intel: deal quotes from <strong>#price-intelligence</strong> (terms in tooltip).
+  <span>|</span>
+  <a href="https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/" target="_blank">Full Confluence benchmark →</a>
 </footer>
 
 <script>
-// ── Config ────────────────────────────────────────────────────────────────────
-const CSV_URL      = "store/history.csv";
-const INTEL_CSV_URL = "store/intel.csv";
+// ─────────────────────────────────────────────────────────────────────────────
+// Constants
+// ─────────────────────────────────────────────────────────────────────────────
+const CSV_URL        = "store/history.csv";
+const INTEL_CSV_URL  = "store/intel.csv";
+const GPU_ORDER      = ["H100","H200","B200","B300","GB200","GB300","L40S"];
 
-const CONSUMPTION_LABELS = {
-  on_demand:      "On-demand",
-  spot:           "Spot / Preemptible",
-  preemptible:    "Spot / Preemptible",
-  reserved_1yr:   "Reserved / Committed 1yr",
-  committed_1yr:  "Reserved / Committed 1yr",
-  committed_9mo:  "Committed 9mo",
-  committed_18mo: "Committed 18mo",
-  reserved_3yr:   "Reserved / Committed 3yr",
-  committed_3yr:  "Reserved / Committed 3yr",
-  committed_2yr:  "Committed 2yr",
-  reserved_2yr:   "Reserved 2yr",
-};
-
-// Canonical CTs to show in dropdown (dedup spot/preemptible etc.)
-const CT_ORDER = [
-  "on_demand", "spot", "reserved_1yr", "committed_9mo",
-  "committed_18mo", "committed_2yr", "reserved_3yr",
+const CT_PILLS = [
+  { label:"On-demand",     cts:["on_demand"] },
+  { label:"Spot",          cts:["spot","preemptible"] },
+  { label:"Committed 1yr", cts:["committed_1yr","reserved_1yr"] },
+  { label:"Committed 2yr", cts:["committed_2yr"] },
+  { label:"Committed 3yr", cts:["committed_3yr","reserved_3yr"] },
 ];
-// Map display label → set of raw CT values to include
-const CT_GROUPS = {
-  "On-demand":                  new Set(["on_demand"]),
-  "Spot / Preemptible":         new Set(["spot", "preemptible"]),
-  "Reserved / Committed 1yr":   new Set(["reserved_1yr", "committed_1yr"]),
-  "Committed 9mo":              new Set(["committed_9mo"]),
-  "Committed 18mo":             new Set(["committed_18mo"]),
-  "Committed 2yr":              new Set(["committed_2yr", "reserved_2yr"]),
-  "Reserved / Committed 3yr":   new Set(["reserved_3yr", "committed_3yr"]),
-};
+const SNAP_CT_PILLS = [
+  { label:"On-demand",     cts:["on_demand"] },
+  { label:"Committed 1yr", cts:["committed_1yr","reserved_1yr"] },
+  { label:"Committed 3yr", cts:["committed_3yr","reserved_3yr"] },
+];
 
 const PROVIDER_DISPLAY = {
-  aws:            "AWS",
-  gcp:            "GCP",
-  azure:          "Azure",
-  nebius:         "Nebius",
-  coreweave:      "CoreWeave",
-  lambda:         "Lambda",
-  crusoe:         "Crusoe",
-  cp_oracle:      "Oracle",
-  cp_hyperstack:  "Hyperstack",
-  cp_voltage:     "Voltage Park",
-  "cp_gmi-cloud": "GMI Cloud",
-  cp_scaleway:    "Scaleway",
-  cp_gcore:       "Gcore",
-  cp_vultr:       "Vultr",
-  cp_runpod:      "RunPod",
-  cp_vast:        "Vast.ai",
-  cp_tensordock:  "TensorDock",
-  cp_digitalocean:"DigitalOcean",
-  cp_paperspace:  "Paperspace",
-  cp_civo:        "Civo",
-  cp_genesis:     "Genesis Cloud",
+  aws:"AWS", gcp:"GCP", azure:"Azure", nebius:"Nebius",
+  coreweave:"CoreWeave", lambda:"Lambda", crusoe:"Crusoe",
+  cp_oracle:"Oracle", cp_hyperstack:"Hyperstack",
+  cp_voltage:"Voltage Park", "cp_gmi-cloud":"GMI Cloud",
+  cp_scaleway:"Scaleway", cp_gcore:"Gcore",
+  cp_vultr:"Vultr", cp_runpod:"RunPod", cp_vast:"Vast.ai",
+  cp_tensordock:"TensorDock", cp_digitalocean:"DigitalOcean",
+  cp_paperspace:"Paperspace", cp_genesis:"Genesis Cloud",
 };
-function providerDisplay(p) {
+function provDisp(p) {
   if (PROVIDER_DISPLAY[p]) return PROVIDER_DISPLAY[p];
-  return p.replace("cp_", "").replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+  return p.replace("cp_","").replace(/-/g," ").replace(/\b\w/g,c=>c.toUpperCase());
 }
 
-// Provider groups — determines placement in the UI
-const HYPERSCALERS    = new Set(["aws", "gcp", "azure", "cp_oracle"]);
-const ENTERPRISE_GPU  = new Set(["nebius", "coreweave", "lambda", "crusoe",
-                                  "cp_hyperstack", "cp_voltage", "cp_gmi-cloud",
-                                  "cp_scaleway", "cp_gcore"]);
-const KEY_PROVIDERS   = new Set([...HYPERSCALERS, ...ENTERPRISE_GPU]);
-
-// Brand colors for known providers
 const PROVIDER_COLORS = {
-  nebius:         "#00b97a",
-  aws:            "#FF9900",
-  gcp:            "#4285F4",
-  azure:          "#0072C6",
-  coreweave:      "#9B59B6",
-  lambda:         "#E84A27",
-  crusoe:         "#00BCD4",
-  cp_oracle:      "#F80000",
-  cp_hyperstack:  "#FF6B35",
-  cp_voltage:     "#27AE60",
-  "cp_gmi-cloud": "#1ABC9C",
-  cp_scaleway:    "#7159F5",
-  cp_gcore:       "#E91E8C",
-  cp_vultr:       "#007BFC",
-  cp_runpod:      "#AC39FF",
-  cp_vast:        "#FFD600",
-  cp_tensordock:  "#78909C",
-  cp_digitalocean:"#0080FF",
-  cp_paperspace:  "#00D084",
-  cp_genesis:     "#607D8B",
+  nebius:"#00b97a", aws:"#FF9900", gcp:"#4285F4", azure:"#0072C6",
+  coreweave:"#9B59B6", lambda:"#E84A27", crusoe:"#00BCD4",
+  cp_oracle:"#F80000", cp_hyperstack:"#FF6B35", cp_voltage:"#27AE60",
+  "cp_gmi-cloud":"#1ABC9C", cp_scaleway:"#7159F5", cp_gcore:"#E91E8C",
+  cp_vultr:"#007BFC", cp_runpod:"#AC39FF", cp_vast:"#FFD600",
+  cp_tensordock:"#78909C", cp_digitalocean:"#0080FF", cp_paperspace:"#00D084",
 };
-
-// Generate a deterministic color for unknown providers
-function autoColor(provider, index) {
-  if (PROVIDER_COLORS[provider]) return PROVIDER_COLORS[provider];
-  const hue = (index * 47 + 200) % 360;
-  return `hsl(${hue}, 65%, 58%)`;
+function provColor(p, idx) {
+  if (PROVIDER_COLORS[p]) return PROVIDER_COLORS[p];
+  return `hsl(${(idx*47+200)%360},60%,56%)`;
 }
 
-// ── State ─────────────────────────────────────────────────────────────────────
-let allRows      = [];   // parsed history.csv rows
-let intelRows    = [];   // parsed intel.csv rows
-let chart        = null;
-let allProviders = [];   // sorted provider list
+const HYPERSCALERS   = new Set(["aws","gcp","azure","cp_oracle"]);
+const ENTERPRISE_GPU = new Set(["nebius","coreweave","lambda","crusoe",
+  "cp_hyperstack","cp_voltage","cp_gmi-cloud","cp_scaleway","cp_gcore"]);
+const KEY_PROVIDERS  = new Set([...HYPERSCALERS, ...ENTERPRISE_GPU]);
 
-// ── Boot — load both CSVs in parallel ─────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────────────────────────
+let allRows=[], intelRows=[], allProviders=[];
+let chartT1=null, chartT2=null;
+let hoveredIdx=null, origStyles=[];
+
+const t1 = { gpu:"H100", ctLabel:"On-demand", visible:new Set(), showIntel:true };
+const t2 = { ctLabel:"On-demand", date:null };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
 function parseCsv(url) {
-  return new Promise((resolve) => {
-    Papa.parse(url, {
-      download: true, header: true, skipEmptyLines: true,
-      complete: ({ data }) => resolve(data),
-      error: ()           => resolve([]),
-    });
+  return new Promise(res => {
+    Papa.parse(url, { download:true, header:true, skipEmptyLines:true,
+      complete:({data})=>res(data), error:()=>res([]) });
   });
 }
 
-Promise.all([parseCsv(CSV_URL), parseCsv(INTEL_CSV_URL)]).then(([history, intel]) => {
-  allRows   = history;
+function hexToRgba(color, alpha) {
+  if (color.startsWith("hsl")) return color.replace("hsl(","hsla(").replace(")",`,${alpha})`);
+  const hex = color.replace("#","");
+  const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function ctSet(label, pills) {
+  const found = pills.find(p=>p.label===label);
+  return found ? new Set(found.cts) : new Set();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Boot
+// ─────────────────────────────────────────────────────────────────────────────
+Promise.all([parseCsv(CSV_URL), parseCsv(INTEL_CSV_URL)]).then(([hist, intel]) => {
+  allRows   = hist;
   intelRows = intel;
+
   if (!allRows.length) {
-    document.getElementById("data-range").textContent = "No data loaded.";
+    document.getElementById("data-range").textContent = "No data loaded";
     return;
   }
-  boot();
+
+  const dates = [...new Set(allRows.map(r=>r.snapshot_date))].sort();
+  document.getElementById("data-range").textContent =
+    `${dates.length} daily snapshots  ·  ${dates[0]} → ${dates[dates.length-1]}`;
+
+  // Provider ordering: key providers first
+  const pSet = new Set(allRows.map(r=>r.provider));
+  const key  = [...KEY_PROVIDERS].filter(p=>pSet.has(p))
+    .sort((a,b)=>provDisp(a).localeCompare(provDisp(b)));
+  const rest = [...pSet].filter(p=>!KEY_PROVIDERS.has(p))
+    .sort((a,b)=>provDisp(a).localeCompare(provDisp(b)));
+  allProviders = [...key, ...rest];
+
+  // Default visible = all key providers
+  allProviders.filter(p=>KEY_PROVIDERS.has(p)).forEach(p=>t1.visible.add(p));
+
+  // Tab 2: latest date
+  t2.date = dates[dates.length-1];
+
+  initTabSwitcher();
+  buildGpuPills();
+  buildCtPills();
+  buildSnapCtPills();
+  buildSnapDatePills(dates);
+  buildLegend();
+  initTrendsChart();
+  renderTrends();
+  initSnapshotChart();
+  renderSnapshot();
+
+  document.getElementById("intel-toggle").addEventListener("change", e => {
+    t1.showIntel = e.target.checked;
+    renderTrends();
+  });
+  document.getElementById("legend-search").addEventListener("input", e => {
+    filterLegend(e.target.value.toLowerCase());
+  });
 });
 
-function boot() {
-  const rows = allRows;
-  // Dates
-  const dates = [...new Set(rows.map(r => r.snapshot_date))].sort();
-  const first = dates[0], last = dates[dates.length - 1];
-  document.getElementById("data-range").textContent =
-    `${dates.length} snapshots  ·  ${first} → ${last}`;
-
-  // All providers sorted: key providers first, then others
-  const provSet = new Set(rows.map(r => r.provider));
-  const keyFirst  = [...KEY_PROVIDERS].filter(p => provSet.has(p))
-                     .sort((a, b) => providerDisplay(a).localeCompare(providerDisplay(b)));
-  const rest      = [...provSet].filter(p => !KEY_PROVIDERS.has(p))
-                     .sort((a, b) => providerDisplay(a).localeCompare(providerDisplay(b)));
-  allProviders    = [...keyFirst, ...rest];
-
-  // GPU dropdown — GPUs that appear in data
-  const gpuOrder  = ["H100","H200","B200","B300","GB200","GB300","L40S"];
-  const gpuSet    = new Set(rows.map(r => r.gpu_model));
-  const gpuSel    = document.getElementById("gpu-select");
-  gpuOrder.filter(g => gpuSet.has(g)).forEach(g => {
-    const o = document.createElement("option");
-    o.value = g; o.textContent = g;
-    gpuSel.appendChild(o);
+// ─────────────────────────────────────────────────────────────────────────────
+// Tab switcher
+// ─────────────────────────────────────────────────────────────────────────────
+function initTabSwitcher() {
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+      document.querySelectorAll(".tab-pane").forEach(p=>p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
+    });
   });
-  gpuSel.value = gpuSet.has("H100") ? "H100" : [...gpuSet][0];
-
-  // CT dropdown
-  buildCtDropdown(gpuSel.value);
-
-  // Provider checkboxes
-  buildProviderChecks();
-
-  // Chart
-  initChart();
-  updateChart();
-
-  // Events
-  gpuSel.addEventListener("change", () => {
-    buildCtDropdown(gpuSel.value);
-    updateChart();
-  });
-  document.getElementById("ct-select").addEventListener("change", updateChart);
-  document.getElementById("btn-key").addEventListener("click", () => setProviders("key"));
-  document.getElementById("btn-all").addEventListener("click", () => setProviders("all"));
-  document.getElementById("btn-none").addEventListener("click", () => setProviders("none"));
-  document.getElementById("intel-toggle").addEventListener("change", updateChart);
 }
 
-function buildCtDropdown(gpu) {
-  const ctSel   = document.getElementById("ct-select");
-  const prevVal = ctSel.value;
-  ctSel.innerHTML = "";
+// ─────────────────────────────────────────────────────────────────────────────
+// Pill builders
+// ─────────────────────────────────────────────────────────────────────────────
+function buildGpuPills() {
+  const gpuSet = new Set(allRows.map(r=>r.gpu_model));
+  const wrap   = document.getElementById("gpu-pills");
+  GPU_ORDER.filter(g=>gpuSet.has(g)).forEach(g => {
+    const btn = document.createElement("button");
+    btn.className = "pill gpu-pill" + (g===t1.gpu ? " active" : "");
+    btn.textContent = g;
+    btn.addEventListener("click", () => {
+      wrap.querySelectorAll(".pill").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      t1.gpu = g;
+      buildCtPills(); // some CTs only exist for certain GPUs
+      updateLegendPrices();
+      renderTrends();
+    });
+    wrap.appendChild(btn);
+  });
+}
 
-  const ctSet = new Set(
-    allRows.filter(r => r.gpu_model === gpu).map(r => r.consumption_type)
-  );
-
-  // Add CT groups that have data
-  for (const [label, rawCTs] of Object.entries(CT_GROUPS)) {
-    if ([...rawCTs].some(ct => ctSet.has(ct))) {
-      const o = document.createElement("option");
-      o.value = label; o.textContent = label;
-      ctSel.appendChild(o);
-    }
-  }
-
-  // Restore selection if still valid, else default to on-demand
-  if ([...ctSel.options].some(o => o.value === prevVal)) {
-    ctSel.value = prevVal;
-  } else {
-    ctSel.value = "On-demand";
+function buildCtPills() {
+  const gpuCTs = new Set(allRows.filter(r=>r.gpu_model===t1.gpu).map(r=>r.consumption_type));
+  const wrap   = document.getElementById("ct-pills");
+  wrap.innerHTML = "";
+  CT_PILLS.forEach(p => {
+    if (!p.cts.some(ct=>gpuCTs.has(ct))) return;
+    const btn = document.createElement("button");
+    btn.className = "pill" + (p.label===t1.ctLabel ? " active" : "");
+    btn.textContent = p.label;
+    btn.addEventListener("click", () => {
+      wrap.querySelectorAll(".pill").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      t1.ctLabel = p.label;
+      updateLegendPrices();
+      renderTrends();
+    });
+    wrap.appendChild(btn);
+  });
+  // If current ctLabel not available for this GPU, reset
+  if (![...wrap.querySelectorAll(".pill.active")].length) {
+    const first = wrap.querySelector(".pill");
+    if (first) { first.classList.add("active"); t1.ctLabel = first.textContent; }
   }
 }
 
-function buildProviderChecks() {
-  const container = document.getElementById("provider-groups");
-  container.innerHTML = "";
+function buildSnapCtPills() {
+  const wrap = document.getElementById("snap-ct-pills");
+  SNAP_CT_PILLS.forEach(p => {
+    const btn = document.createElement("button");
+    btn.className = "pill" + (p.label===t2.ctLabel ? " active" : "");
+    btn.textContent = p.label;
+    btn.addEventListener("click", () => {
+      wrap.querySelectorAll(".pill").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      t2.ctLabel = p.label;
+      renderSnapshot();
+    });
+    wrap.appendChild(btn);
+  });
+}
 
-  const hyperList   = allProviders.filter(p => HYPERSCALERS.has(p));
-  const gpuList     = allProviders.filter(p => ENTERPRISE_GPU.has(p));
-  const otherList   = allProviders.filter(p => !KEY_PROVIDERS.has(p));
+function buildSnapDatePills(dates) {
+  const wrap = document.getElementById("snap-date-pills");
+  const options = [ { label:"Latest", date: dates[dates.length-1] } ];
+  if (dates.length >= 7) {
+    options.push({ label:"7d avg",  date:"7d" });
+  }
+  if (dates.length >= 14) {
+    options.push({ label:"30d avg", date:"30d" });
+  }
+  options.forEach((opt,i) => {
+    const btn = document.createElement("button");
+    btn.className = "pill" + (i===0 ? " active" : "");
+    btn.textContent = opt.label;
+    btn.addEventListener("click", () => {
+      wrap.querySelectorAll(".pill").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      t2.date = opt.date;
+      renderSnapshot();
+    });
+    wrap.appendChild(btn);
+  });
+}
 
-  function makeGroup(title, providers, defaultOn, id) {
-    const wrap = document.createElement("div");
-    wrap.className = "provider-group";
-    if (id) wrap.id = id;
+// ─────────────────────────────────────────────────────────────────────────────
+// Legend
+// ─────────────────────────────────────────────────────────────────────────────
+function buildLegend() {
+  const list = document.getElementById("legend-list");
+  list.innerHTML = "";
 
+  const groups = [
+    { title:"Hyperscalers",         providers: allProviders.filter(p=>HYPERSCALERS.has(p)) },
+    { title:"Enterprise GPU clouds", providers: allProviders.filter(p=>ENTERPRISE_GPU.has(p)) },
+  ];
+  const others = allProviders.filter(p=>!KEY_PROVIDERS.has(p));
+
+  groups.forEach(g => {
+    if (!g.providers.length) return;
     const titleEl = document.createElement("div");
-    titleEl.className = "provider-group-title";
-    titleEl.textContent = title;
-    wrap.appendChild(titleEl);
-
-    const list = document.createElement("div");
-    list.className = "provider-check-list";
-
-    providers.forEach((p, i) => {
-      const color = autoColor(p, allProviders.indexOf(p));
-      const row = document.createElement("label");
-      row.className = "provider-check";
-
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.id = `cb-${p}`;
-      cb.dataset.provider = p;
-      cb.checked = defaultOn;
-      cb.style.setProperty("--color", color);
-      cb.addEventListener("change", updateChart);
-
-      const dot = document.createElement("span");
-      dot.className = "provider-dot";
-      dot.style.background = color;
-
-      const lbl = document.createElement("span");
-      lbl.className = "provider-check-label";
-      lbl.appendChild(dot);
-      lbl.appendChild(document.createTextNode(providerDisplay(p)));
-
-      row.appendChild(cb);
-      row.appendChild(lbl);
-      list.appendChild(row);
-    });
-
-    wrap.appendChild(list);
-    return wrap;
-  }
-
-  if (hyperList.length)  container.appendChild(makeGroup("Hyperscalers", hyperList, true));
-  if (gpuList.length)    container.appendChild(makeGroup("Enterprise GPU clouds", gpuList, true));
-
-  if (otherList.length) {
-    // Others collapsible
-    const othersWrap = document.createElement("div");
-    othersWrap.className = "provider-group";
-
-    const toggleBtn = document.createElement("button");
-    toggleBtn.id = "others-toggle";
-    toggleBtn.textContent = `▶ Other providers (${otherList.length})`;
-    othersWrap.appendChild(toggleBtn);
-
-    const othersGroup = makeGroup("Other providers", otherList, false, "others-group");
-    othersGroup.style.display = "none";
-    othersGroup.style.marginTop = "8px";
-    othersWrap.appendChild(othersGroup);
-
-    toggleBtn.addEventListener("click", () => {
-      const visible = othersGroup.style.display !== "none";
-      othersGroup.style.display = visible ? "none" : "block";
-      toggleBtn.textContent = `${visible ? "▶" : "▼"} Other providers (${otherList.length})`;
-    });
-
-    container.appendChild(othersWrap);
-  }
-}
-
-function setProviders(mode) {
-  document.querySelectorAll(".provider-check input[type=checkbox]").forEach(cb => {
-    const p = cb.dataset.provider;
-    if (mode === "key")  cb.checked = KEY_PROVIDERS.has(p);
-    else if (mode === "all")  cb.checked = true;
-    else cb.checked = false;
+    titleEl.className = "legend-group-title";
+    titleEl.textContent = g.title;
+    list.appendChild(titleEl);
+    g.providers.forEach(p => list.appendChild(makeLegendItem(p)));
   });
-  updateChart();
+
+  if (others.length) {
+    const togBtn = document.createElement("button");
+    togBtn.className = "legend-others-toggle";
+    togBtn.innerHTML = `<span style="font-size:9px">▶</span>&nbsp;Other providers (${others.length})`;
+    const othersDiv = document.createElement("div");
+    othersDiv.className = "legend-others-group";
+    others.forEach(p => othersDiv.appendChild(makeLegendItem(p)));
+    togBtn.addEventListener("click", () => {
+      const open = othersDiv.classList.toggle("open");
+      togBtn.innerHTML = `<span style="font-size:9px">${open?"▼":"▶"}</span>&nbsp;Other providers (${others.length})`;
+    });
+    list.appendChild(togBtn);
+    list.appendChild(othersDiv);
+  }
 }
 
-function checkedProviders() {
-  return [...document.querySelectorAll(".provider-check input[type=checkbox]:checked")]
-    .map(cb => cb.dataset.provider);
+function makeLegendItem(p) {
+  const idx   = allProviders.indexOf(p);
+  const color = provColor(p, idx);
+  const el    = document.createElement("div");
+  el.className = "legend-item" + (t1.visible.has(p) ? "" : " hidden-ds");
+  el.dataset.provider = p;
+
+  const swatch = document.createElement("span");
+  swatch.className = "legend-swatch";
+  swatch.style.background = color;
+
+  const name = document.createElement("span");
+  name.className = "legend-name";
+  name.textContent = provDisp(p);
+  if (p === "nebius") name.innerHTML += '<span class="you">you</span>';
+
+  const price = document.createElement("span");
+  price.className = "legend-price";
+  price.dataset.priceholder = p;
+
+  el.appendChild(swatch);
+  el.appendChild(name);
+  el.appendChild(price);
+
+  el.addEventListener("click", () => toggleProvider(p));
+  el.addEventListener("mouseenter", () => hoverLegendItem(p));
+  el.addEventListener("mouseleave", clearHover);
+
+  return el;
 }
 
-// ── Chart ─────────────────────────────────────────────────────────────────────
-function initChart() {
-  const ctx = document.getElementById("chart").getContext("2d");
-  chart = new Chart(ctx, {
-    type: "line",
-    data: { datasets: [] },
-    options: {
-      responsive: true,
-      animation: { duration: 250 },
-      interaction: { mode: "index", intersect: false },
-      plugins: {
-        legend: {
-          display: true,
-          position: "bottom",
-          labels: {
-            color: "#9ca3b0",
-            boxWidth: 12,
-            boxHeight: 12,
-            padding: 14,
-            font: { size: 12 },
-          }
-        },
-        tooltip: {
-          backgroundColor: "#1a1d27",
-          borderColor: "#2a2d3a",
-          borderWidth: 1,
-          titleColor: "#e8eaf0",
-          bodyColor: "#9ca3b0",
-          callbacks: {
-            label(ctx) {
+function updateLegendPrices() {
+  const cts = ctSet(t1.ctLabel, CT_PILLS);
+  const latestDate = [...new Set(allRows.map(r=>r.snapshot_date))].sort().pop();
+  document.querySelectorAll("[data-priceholder]").forEach(el => {
+    const p = el.dataset.priceholder;
+    const row = allRows.find(r =>
+      r.snapshot_date===latestDate && r.provider===p &&
+      r.gpu_model===t1.gpu && cts.has(r.consumption_type));
+    el.textContent = row ? `$${parseFloat(row.price_per_gpu_hour_usd).toFixed(2)}` : "—";
+  });
+}
+
+function toggleProvider(p) {
+  if (t1.visible.has(p)) t1.visible.delete(p);
+  else t1.visible.add(p);
+  document.querySelectorAll(`[data-provider="${p}"]`).forEach(el => {
+    el.classList.toggle("hidden-ds", !t1.visible.has(p));
+  });
+  renderTrends();
+}
+
+function filterLegend(query) {
+  document.querySelectorAll(".legend-item").forEach(el => {
+    const name = (el.querySelector(".legend-name")?.textContent||"").toLowerCase();
+    el.style.display = (!query || name.includes(query)) ? "" : "none";
+  });
+  // If searching, expand others
+  if (query) {
+    document.querySelector(".legend-others-group")?.classList.add("open");
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Hover / focus
+// ─────────────────────────────────────────────────────────────────────────────
+function applyHover(idx) {
+  if (!chartT1) return;
+  hoveredIdx = idx;
+  chartT1.data.datasets.forEach((ds, i) => {
+    const orig = origStyles[i] || {};
+    const isTarget = i === idx;
+    const alpha    = isTarget ? 1 : 0.07;
+    ds.borderColor       = hexToRgba(orig.color||"#fff", isTarget ? 1 : 0.07);
+    ds.pointBorderColor  = ds.borderColor;
+    ds.pointBackgroundColor = ds.borderColor;
+    ds.borderWidth       = isTarget ? Math.max((orig.width||1.5)+1, 3) : 1;
+    ds.pointRadius       = isTarget ? (orig.radius||3)+2 : 2;
+  });
+  chartT1.update("none");
+
+  // Dim legend items
+  document.querySelectorAll(".legend-item").forEach((el,i) => {
+    el.classList.toggle("dimmed", i !== idx);
+  });
+
+  // Focus chip
+  const ds     = chartT1.data.datasets[idx];
+  const chip   = document.getElementById("focus-chip");
+  const pts    = ds.data.filter(d=>d.y!=null);
+  const latest = pts[pts.length-1];
+  if (ds && !ds._isIntel) {
+    chip.textContent = latest
+      ? `${ds.label}  ·  $${latest.y.toFixed(2)}/GPU-hr`
+      : ds.label;
+    chip.classList.add("visible");
+  }
+}
+
+function clearHover() {
+  if (!chartT1) return;
+  hoveredIdx = null;
+  chartT1.data.datasets.forEach((ds, i) => {
+    const orig = origStyles[i] || {};
+    ds.borderColor          = orig.color || "#fff";
+    ds.pointBorderColor     = orig.color;
+    ds.pointBackgroundColor = orig.color;
+    ds.borderWidth          = orig.width  || 1.5;
+    ds.pointRadius          = orig.radius || 3;
+  });
+  chartT1.update("none");
+  document.querySelectorAll(".legend-item").forEach(el => el.classList.remove("dimmed"));
+  document.getElementById("focus-chip").classList.remove("visible");
+}
+
+function hoverLegendItem(p) {
+  const idx = chartT1?.data.datasets.findIndex(ds=>ds._provider===p);
+  if (idx >= 0) applyHover(idx);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tab 1: Trends chart
+// ─────────────────────────────────────────────────────────────────────────────
+function initTrendsChart() {
+  const ctx = document.getElementById("chart-trends").getContext("2d");
+  chartT1 = new Chart(ctx, {
+    type:"line",
+    data:{ datasets:[] },
+    options:{
+      responsive:true,
+      animation:{ duration:200 },
+      interaction:{ mode:"dataset", intersect:false },
+      plugins:{
+        legend:{ display:false },
+        tooltip:{
+          backgroundColor:"#151821", borderColor:"#252840", borderWidth:1,
+          titleColor:"#e2e4f0", bodyColor:"#9096b8",
+          callbacks:{
+            title: items => {
+              const pt = items[0]?.raw;
+              return pt?._provider ? "" : items[0]?.label || "";
+            },
+            label: ctx => {
               const pt = ctx.raw;
-              if (pt && pt._provider !== undefined) {
-                // Intel scatter point
-                const parts = [`  ◇ ${pt._provider}  $${ctx.parsed.y.toFixed(2)}/GPU-hr`];
-                parts.push(`    Term: ${pt._term}  ·  Prepay: ${pt._prepay}`);
-                if (pt._notes) parts.push(`    ${pt._notes}`);
-                return parts;
+              if (pt?._provider !== undefined) {
+                return [
+                  `  ◇ ${pt._provider}  $${ctx.parsed.y.toFixed(2)}/GPU-hr`,
+                  `    Term: ${pt._term}  ·  Prepay: ${pt._prepay}`,
+                  pt._notes ? `    ${pt._notes}` : null,
+                ].filter(Boolean);
               }
-              return `  ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}/GPU-hr`;
+              return `  ${ctx.dataset.label}:  $${ctx.parsed.y.toFixed(2)}/GPU-hr`;
             }
           }
         }
       },
-      scales: {
-        x: {
-          type: "time",
-          time: { unit: "day", tooltipFormat: "yyyy-MM-dd", displayFormats: { day: "MMM d" } },
-          ticks: { color: "#7a7f96", maxTicksLimit: 10 },
-          grid: { color: "#1f2230" },
-        },
-        y: {
-          title: { display: true, text: "$/GPU-hr", color: "#7a7f96", font: { size: 12 } },
-          ticks: {
-            color: "#7a7f96",
-            callback: v => `$${v.toFixed(2)}`,
-          },
-          grid: { color: "#1f2230" },
-          min: 0,
+      scales:{
+        x:{ type:"time", time:{ unit:"day", tooltipFormat:"yyyy-MM-dd", displayFormats:{ day:"MMM d" } },
+            ticks:{ color:"#6b7194", maxTicksLimit:8 }, grid:{ color:"#1a1d2a" } },
+        y:{ title:{ display:true, text:"$/GPU-hr", color:"#6b7194", font:{ size:11 } },
+            ticks:{ color:"#6b7194", callback:v=>`$${v.toFixed(2)}` },
+            grid:{ color:"#1a1d2a" }, min:0 }
+      }
+    }
+  });
+
+  // Hover via canvas mousemove
+  chartT1.canvas.addEventListener("mousemove", e => {
+    const els = chartT1.getElementsAtEventForMode(e, "dataset", { intersect:false }, false);
+    const idx = els.length ? els[0].datasetIndex : null;
+    if (idx !== hoveredIdx) {
+      if (idx !== null) applyHover(idx);
+      else clearHover();
+    }
+  });
+  chartT1.canvas.addEventListener("mouseleave", clearHover);
+}
+
+function renderTrends() {
+  const cts     = ctSet(t1.ctLabel, CT_PILLS);
+  const filtered = allRows.filter(r => r.gpu_model===t1.gpu && cts.has(r.consumption_type));
+
+  const noData = document.getElementById("no-data");
+
+  if (!filtered.length) {
+    chartT1.data.datasets = [];
+    chartT1.update();
+    noData.style.display = "";
+    chartT1.canvas.style.display = "none";
+    return;
+  }
+  noData.style.display = "none";
+  chartT1.canvas.style.display = "";
+
+  // Group by provider
+  const byProv = {};
+  for (const r of filtered) {
+    if (!byProv[r.provider]) byProv[r.provider] = [];
+    byProv[r.provider].push({ x:r.snapshot_date, y:parseFloat(r.price_per_gpu_hour_usd) });
+  }
+  for (const pts of Object.values(byProv)) pts.sort((a,b)=>a.x.localeCompare(b.x));
+
+  const orderedProvs = allProviders.filter(p=>byProv[p]);
+  origStyles = [];
+
+  const lineDatasets = orderedProvs.map((p, i) => {
+    const color    = provColor(p, allProviders.indexOf(p));
+    const isNebius = p === "nebius";
+    const style    = { color, width: isNebius?2.5:1.5, radius: isNebius?5:3.5 };
+    origStyles.push(style);
+    return {
+      label:                provDisp(p),
+      _provider:            p,
+      _isIntel:             false,
+      data:                 byProv[p],
+      borderColor:          color,
+      backgroundColor:      color+"18",
+      pointBackgroundColor: color,
+      pointBorderColor:     color,
+      borderWidth:          style.width,
+      pointRadius:          style.radius,
+      pointHoverRadius:     style.radius+2,
+      tension:              0.12,
+      spanGaps:             false,
+      hidden:               !t1.visible.has(p),
+      order:                isNebius ? 0 : 1,
+    };
+  });
+
+  // Intel scatter overlay
+  const intelDatasets = [];
+  if (t1.showIntel) {
+    const gpuIntel = intelRows.filter(r => r.gpu_model===t1.gpu && r.provider_type!=="nebius");
+    if (gpuIntel.length) {
+      const scatterPts = gpuIntel.map(r => {
+        const tm = parseInt(r.term_months)||0;
+        const termStr = tm===0?"On-demand":tm<12?`${tm}mo`:`${Math.floor(tm/12)}yr${tm%12?` ${tm%12}mo`:""}`;
+        return { x:r.message_date, y:parseFloat(r.price_per_gpu_hour_usd),
+          _provider:r.provider_name||"Undisclosed", _term:termStr,
+          _prepay:`${r.prepay_pct||0}%`, _notes:r.notes||"", _isIntel:true };
+      });
+      origStyles.push({ color:"#f5c842", width:0, radius:6 });
+      intelDatasets.push({
+        type:"scatter", label:"◇ Field intel", _isIntel:true,
+        data:scatterPts, showLine:false,
+        pointStyle:"rectRot", pointRadius:6, pointHoverRadius:8,
+        pointBorderWidth:1.5, pointBorderColor:"#f5c842",
+        pointBackgroundColor:"transparent", borderColor:"transparent",
+        order:-1,
+      });
+    }
+  }
+
+  chartT1.data.datasets = [...lineDatasets, ...intelDatasets];
+  chartT1.update();
+  updateLegendPrices();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tab 2: Market Snapshot
+// ─────────────────────────────────────────────────────────────────────────────
+const SNAP_PROVIDERS = [...KEY_PROVIDERS]
+  .sort((a,b) => {
+    // Nebius first, then hyperscalers, then enterprise GPU
+    if (a==="nebius") return -1;
+    if (b==="nebius") return 1;
+    if (HYPERSCALERS.has(a) && !HYPERSCALERS.has(b)) return 1;
+    if (!HYPERSCALERS.has(a) && HYPERSCALERS.has(b)) return -1;
+    return provDisp(a).localeCompare(provDisp(b));
+  });
+
+function getSnapRows(dateParam, cts) {
+  const allDates = [...new Set(allRows.map(r=>r.snapshot_date))].sort();
+  let rows;
+  if (dateParam==="7d") {
+    const recent = allDates.slice(-7);
+    const candidates = allRows.filter(r => recent.includes(r.snapshot_date) && cts.has(r.consumption_type));
+    // average per provider+gpu
+    const grouped = {};
+    for (const r of candidates) {
+      const key = `${r.provider}|${r.gpu_model}`;
+      if (!grouped[key]) grouped[key] = { ...r, _prices:[] };
+      grouped[key]._prices.push(parseFloat(r.price_per_gpu_hour_usd));
+    }
+    rows = Object.values(grouped).map(g => ({
+      ...g, price_per_gpu_hour_usd: g._prices.reduce((a,b)=>a+b,0)/g._prices.length }));
+  } else if (dateParam==="30d") {
+    const recent = allDates.slice(-30);
+    const candidates = allRows.filter(r => recent.includes(r.snapshot_date) && cts.has(r.consumption_type));
+    const grouped = {};
+    for (const r of candidates) {
+      const key = `${r.provider}|${r.gpu_model}`;
+      if (!grouped[key]) grouped[key] = { ...r, _prices:[] };
+      grouped[key]._prices.push(parseFloat(r.price_per_gpu_hour_usd));
+    }
+    rows = Object.values(grouped).map(g => ({
+      ...g, price_per_gpu_hour_usd: g._prices.reduce((a,b)=>a+b,0)/g._prices.length }));
+  } else {
+    rows = allRows.filter(r => r.snapshot_date===dateParam && cts.has(r.consumption_type));
+  }
+  return rows;
+}
+
+function initSnapshotChart() {
+  const ctx = document.getElementById("chart-snapshot").getContext("2d");
+  chartT2 = new Chart(ctx, {
+    type:"bar",
+    data:{ labels:[], datasets:[] },
+    options:{
+      responsive:true,
+      animation:{ duration:200 },
+      plugins:{
+        legend:{ display:true, position:"bottom",
+          labels:{ color:"#6b7194", boxWidth:10, boxHeight:10, padding:12, font:{ size:11 } } },
+        tooltip:{
+          backgroundColor:"#151821", borderColor:"#252840", borderWidth:1,
+          titleColor:"#e2e4f0", bodyColor:"#9096b8",
+          callbacks:{ label: ctx=>`  ${ctx.dataset.label}: $${(ctx.parsed.y||0).toFixed(2)}/GPU-hr` }
         }
+      },
+      scales:{
+        x:{ ticks:{ color:"#6b7194", font:{ family:"monospace" } }, grid:{ color:"#1a1d2a" } },
+        y:{ title:{ display:true, text:"$/GPU-hr", color:"#6b7194", font:{ size:11 } },
+            ticks:{ color:"#6b7194", callback:v=>`$${v.toFixed(2)}` },
+            grid:{ color:"#1a1d2a" }, min:0 }
       }
     }
   });
 }
 
-function updateChart() {
-  const gpu      = document.getElementById("gpu-select").value;
-  const ctLabel  = document.getElementById("ct-select").value;
-  const rawCTs   = CT_GROUPS[ctLabel] || new Set([ctLabel]);
-  const selected = new Set(checkedProviders());
+function renderSnapshot() {
+  const cts  = ctSet(t2.ctLabel, SNAP_CT_PILLS);
+  const rows = getSnapRows(t2.date, cts);
 
-  // Filter rows
-  const filtered = allRows.filter(r =>
-    r.gpu_model === gpu && rawCTs.has(r.consumption_type)
-  );
+  // Only GPUs that have at least one provider with data
+  const availGPUs = GPU_ORDER.filter(g => rows.some(r=>r.gpu_model===g));
+  // Only providers in SNAP_PROVIDERS that have data
+  const availProv = SNAP_PROVIDERS.filter(p => rows.some(r=>r.provider===p));
 
-  const noData = document.getElementById("no-data-msg");
-
-  if (!filtered.length) {
-    chart.data.datasets = [];
-    chart.update();
-    noData.style.display = "block";
-    document.getElementById("chart").style.display = "none";
-    return;
-  }
-  noData.style.display = "none";
-  document.getElementById("chart").style.display = "block";
-
-  // Group by provider
-  const byProvider = {};
-  for (const r of filtered) {
-    if (!byProvider[r.provider]) byProvider[r.provider] = [];
-    byProvider[r.provider].push({
-      x: r.snapshot_date,
-      y: parseFloat(r.price_per_gpu_hour_usd),
-    });
+  // Cheapest per provider+gpu
+  function bestPrice(p, g) {
+    const cands = rows.filter(r=>r.provider===p && r.gpu_model===g);
+    return cands.length ? Math.min(...cands.map(r=>parseFloat(r.price_per_gpu_hour_usd))) : null;
   }
 
-  // Sort each provider's points by date
-  for (const pts of Object.values(byProvider)) {
-    pts.sort((a, b) => a.x.localeCompare(b.x));
-  }
-
-  // Build datasets — key providers first in legend
-  const orderedProviders = allProviders.filter(p => byProvider[p]);
-
-  const lineDatasets = orderedProviders.map((p, i) => {
-    const color = autoColor(p, allProviders.indexOf(p));
-    const isNebius = p === "nebius";
+  chartT2.data.labels = availGPUs;
+  chartT2.data.datasets = availProv.map(p => {
+    const color    = provColor(p, allProviders.indexOf(p));
+    const isNebius = p==="nebius";
     return {
-      label:                providerDisplay(p),
-      data:                 byProvider[p],
-      borderColor:          color,
-      backgroundColor:      color + "22",
-      pointBackgroundColor: color,
-      borderWidth:          isNebius ? 2.5 : 1.5,
-      pointRadius:          isNebius ? 5 : 3.5,
-      pointHoverRadius:     6,
-      tension:              0.15,
-      spanGaps:             false,
-      hidden:               !selected.has(p),
+      label:           provDisp(p),
+      data:            availGPUs.map(g=>bestPrice(p,g)),
+      backgroundColor: color + (isNebius?"ee":"88"),
+      borderColor:     color,
+      borderWidth:     isNebius ? 2 : 0,
+      borderSkipped:   false,
+      borderRadius:    3,
     };
   });
+  chartT2.update();
 
-  // ── Intel scatter overlay ────────────────────────────────────────────────
-  const showIntel = document.getElementById("intel-toggle").checked;
-  const intelDatasets = [];
+  // Summary cards
+  const sumEl = document.getElementById("snap-summary");
+  sumEl.innerHTML = "";
+  availGPUs.forEach(gpu => {
+    const gpuRows = rows.filter(r=>r.gpu_model===gpu)
+      .map(r=>({ provider:r.provider, price:parseFloat(r.price_per_gpu_hour_usd) }));
+    // Deduplicate: cheapest per provider
+    const deduped = Object.values(gpuRows.reduce((acc, r) => {
+      if (!acc[r.provider] || r.price < acc[r.provider].price) acc[r.provider] = r;
+      return acc;
+    }, {})).sort((a,b)=>a.price-b.price);
 
-  if (showIntel && intelRows.length) {
-    // Filter intel rows to selected GPU; always show regardless of CT
-    // (intel quotes have their own term/prepay — shown in tooltip)
-    const gpuIntel = intelRows.filter(r => r.gpu_model === gpu && r.provider_type !== "nebius");
+    const total   = deduped.length;
+    const nebRow  = deduped.find(r=>r.provider==="nebius");
+    const nebRank = nebRow ? deduped.indexOf(nebRow)+1 : null;
+    const floor   = deduped[0];
+    const median  = deduped[Math.floor(total/2)];
+    const isNeb   = !!nebRow;
 
-    if (gpuIntel.length) {
-      // Group by provider_name so we can show them in legend
-      const byProvName = {};
-      for (const r of gpuIntel) {
-        const key = r.provider_name || "Undisclosed";
-        if (!byProvName[key]) byProvName[key] = [];
-        byProvName[key].push(r);
-      }
+    const card = document.createElement("div");
+    card.className = "snap-card" + (isNeb?" snap-card-nebius":"");
 
-      for (const [provName, pts] of Object.entries(byProvName)) {
-        const scatterPts = pts.map(r => {
-          const termMo = parseInt(r.term_months) || 0;
-          const termStr = termMo === 0 ? "On-demand"
-            : termMo < 12 ? `${termMo}mo`
-            : `${Math.floor(termMo/12)}yr${termMo%12 ? ` ${termMo%12}mo` : ""}`;
-          return {
-            x:         r.message_date,
-            y:         parseFloat(r.price_per_gpu_hour_usd),
-            // extra metadata for tooltip
-            _provider: provName,
-            _term:     termStr,
-            _prepay:   `${r.prepay_pct || 0}%`,
-            _notes:    r.notes || "",
-          };
-        });
-
-        intelDatasets.push({
-          type:                 "scatter",
-          label:                `◇ ${provName}`,
-          data:                 scatterPts,
-          borderColor:          "#ffd700",
-          backgroundColor:      "transparent",
-          pointStyle:           "rectRot",   // diamond
-          pointRadius:          6,
-          pointHoverRadius:     8,
-          pointBorderWidth:     2,
-          pointBorderColor:     "#ffd700",
-          pointBackgroundColor: "transparent",
-          showLine:             false,
-          hidden:               false,
-        });
-      }
+    let rankBadge = "";
+    if (nebRank) {
+      const cls = nebRank<=2?"good":nebRank<=Math.ceil(total*0.5)?"":"bad";
+      rankBadge = `<span class="rank-badge ${cls}">#${nebRank} of ${total}</span>`;
     }
-  }
 
-  chart.data.datasets = [...lineDatasets, ...intelDatasets];
-  chart.update();
+    card.innerHTML = `
+      <div class="snap-card-gpu">${gpu}</div>
+      ${nebRow ? `<div class="snap-card-row">
+        <span class="label">Nebius ${rankBadge}</span>
+        <span class="val" style="color:var(--accent)">$${nebRow.price.toFixed(2)}</span>
+      </div>` : `<div class="snap-card-row"><span class="label" style="color:var(--muted)">Nebius — no data</span></div>`}
+      <div class="snap-card-row">
+        <span class="label">Floor (${provDisp(floor.provider)})</span>
+        <span class="val">$${floor.price.toFixed(2)}</span>
+      </div>
+      <div class="snap-card-row">
+        <span class="label">Market median</span>
+        <span class="val">$${median.price.toFixed(2)}</span>
+      </div>
+      <div class="snap-card-row">
+        <span class="label">Providers tracked</span>
+        <span class="val">${total}</span>
+      </div>
+    `;
+    sumEl.appendChild(card);
+  });
 }
 </script>
 </body>
