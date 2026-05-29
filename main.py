@@ -19,15 +19,16 @@ import argparse
 import json
 import logging
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
-from typing import List
+from typing import Dict, List, Optional
 
 from store import (save_snapshot, load_snapshot, previous_snapshot_day, STORE_DIR,
                    WEB_SCRAPED_PROVIDERS, get_cached_records, update_peer_cache,
-                   load_last_snapshot, save_last_snapshot)
+                   load_last_snapshot, save_last_snapshot,
+                   get_cache_age_hours, save_run_manifest)
 from diff import compute_diff, format_slack_message, format_confluence_table
-from history import append_today as append_history
+from history import append_records as append_history_records
 from config import PROVIDERS
 from schema import PriceRecord
 
@@ -44,43 +45,49 @@ def validate_prices(new_records: List[PriceRecord], old_records: List[PriceRecor
     """
     Sanity-check new_records against old_records.
     Returns a list of anomaly strings for any suspicious prices.
+
+    Validation is performed at the (provider, gpu_model, consumption_type) level —
+    comparing the CHEAPEST new price against the CHEAPEST old price for each combo.
+    This matches the granularity the dashboard uses for positioning, avoids
+    false positives from multi-size instance families, and keeps the signal clean.
+
     Flags:
-      - Day-over-day change > ±40%
-      - price_per_gpu_hour_usd < 0.20 or > 200.0
+      - Best new price < $0.20 or > $200 per GPU-hr (implausible range)
+      - Best new price changed > ±40% vs best old price (day-over-day spike)
     """
-    # Build lookup: (provider, gpu_model, consumption_type) -> old price
-    old_lookup = {}
-    for r in old_records:
-        key = (r.provider, r.gpu_model, r.consumption_type)
-        if key not in old_lookup or r.price_per_gpu_hour_usd < old_lookup[key]:
-            old_lookup[key] = r.price_per_gpu_hour_usd
+    # Build best-price lookup per (provider, gpu_model, consumption_type)
+    def best_per_combo(records):
+        lookup = {}
+        for r in records:
+            key = (r.provider, r.gpu_model, r.consumption_type)
+            if key not in lookup or r.price_per_gpu_hour_usd < lookup[key]:
+                lookup[key] = r.price_per_gpu_hour_usd
+        return lookup
+
+    old_lookup = best_per_combo(old_records)
+    new_lookup = best_per_combo(new_records)
 
     anomalies = []
-    for r in new_records:
-        p = r.price_per_gpu_hour_usd
-
+    for (provider, gpu, ct), p in sorted(new_lookup.items()):
         # Absolute range check
         if p < 0.20:
             anomalies.append(
-                f"{r.provider} {r.gpu_model} {r.consumption_type} {r.region}: "
-                f"${p:.2f}/GPU-hr ⚠ implausibly low price"
+                f"{provider} {gpu} {ct}: ${p:.2f}/GPU-hr ⚠ implausibly low price"
             )
             continue
         if p > 200.0:
             anomalies.append(
-                f"{r.provider} {r.gpu_model} {r.consumption_type} {r.region}: "
-                f"${p:.2f}/GPU-hr ⚠ implausibly high price"
+                f"{provider} {gpu} {ct}: ${p:.2f}/GPU-hr ⚠ implausibly high price"
             )
             continue
 
-        # Day-over-day change check
-        key = (r.provider, r.gpu_model, r.consumption_type)
-        old_price = old_lookup.get(key)
+        # Day-over-day change check (best vs best)
+        old_price = old_lookup.get((provider, gpu, ct))
         if old_price is not None and old_price > 0:
             change_pct = (p - old_price) / old_price * 100
             if abs(change_pct) > 40.0:
                 anomalies.append(
-                    f"{r.provider} {r.gpu_model} {r.consumption_type} {r.region}: "
+                    f"{provider} {gpu} {ct}: "
                     f"${old_price:.2f} → ${p:.2f} ({change_pct:+.1f}%) ⚠ price anomaly"
                 )
 
@@ -89,10 +96,17 @@ def validate_prices(new_records: List[PriceRecord], old_records: List[PriceRecor
 
 def run(providers=None, test=False):
     providers = providers or PROVIDERS
-    all_records = []
-    errors = []
+    all_records: List[PriceRecord] = []
+    errors: List[str] = []
+    warnings: List[str] = []
+    started_at = datetime.now(timezone.utc).isoformat()
 
-    # Item 2: Check Nebius committed prices staleness
+    # Per-provider fetch status — used in manifest and Slack footer
+    # Schema: {provider: {status, record_count, cache_age_hours}}
+    # status: "live" | "cache" | "fallback" | "error" | "missing"
+    provider_status: Dict[str, dict] = {}
+
+    # ── Nebius committed prices staleness check ──────────────────────────────
     nebius_date_warning = None
     try:
         from config import NEBIUS_COMMITTED_PRICES_VERIFIED_DATE
@@ -105,86 +119,132 @@ def run(providers=None, test=False):
             )
             logger.warning(msg)
             nebius_date_warning = f"_⚠ Nebius committed prices last verified {days_old} days ago — check config.py_"
+            warnings.append(msg)
     except Exception as e:
         logger.debug(f"Could not check NEBIUS_COMMITTED_PRICES_VERIFIED_DATE: {e}")
 
+    # ── Fetch all providers ──────────────────────────────────────────────────
     for provider in providers:
         try:
             records = _fetch_provider(provider)
         except Exception as e:
             logger.error(f"{provider} fetch failed: {e}", exc_info=True)
             errors.append(provider)
+            provider_status[provider] = {"status": "error", "record_count": 0}
             records = []
 
         if records:
-            # Successful live fetch — update peer cache for web-scraped providers
+            # Live fetch succeeded — update peer cache for web-scraped providers
             if provider in WEB_SCRAPED_PROVIDERS:
                 update_peer_cache(provider, records)
             logger.info(f"{provider}: {len(records)} records (live)")
+            provider_status[provider] = {"status": "live", "record_count": len(records)}
         elif provider in WEB_SCRAPED_PROVIDERS:
-            # Web scrape returned nothing (likely blocked in cloud environment).
-            # Fall back to last known-good data from peer_cache.json.
+            # Web scrape returned nothing — fall back to peer_cache.json
+            cache_age = get_cache_age_hours(provider)
             records = get_cached_records(provider)
             if records:
+                age_str = f"{cache_age:.0f}h" if cache_age is not None else "unknown age"
                 logger.warning(
                     f"{provider}: live fetch returned 0 records — "
-                    f"falling back to {len(records)} cached records"
+                    f"falling back to {len(records)} cached records ({age_str})"
                 )
+                provider_status[provider] = {
+                    "status": "cache",
+                    "record_count": len(records),
+                    "cache_age_hours": round(cache_age, 1) if cache_age is not None else None,
+                }
             else:
                 logger.warning(
                     f"{provider}: live fetch returned 0 records and no cache available. "
                     f"Run main.py locally once to populate peer_cache.json."
                 )
-        else:
+                provider_status[provider] = {"status": "missing", "record_count": 0}
+        elif provider not in provider_status:
+            # Non-web-scraped provider with 0 records (e.g. hyperstack, manual providers)
             logger.info(f"{provider}: {len(records)} records")
+            # Detect SkyPilot fallback: lambda records with data_source="aggregator"
+            if provider == "lambda" and not records:
+                provider_status[provider] = {"status": "missing", "record_count": 0}
+            else:
+                provider_status[provider] = {"status": "live", "record_count": len(records)}
+
+        # Detect SkyPilot fallback for lambda (all records have data_source="aggregator")
+        if provider == "lambda" and records and all(
+            getattr(r, "data_source", "") == "aggregator" for r in records
+        ):
+            provider_status[provider] = {
+                "status": "fallback",
+                "record_count": len(records),
+                "fallback_source": "skypilot_catalog",
+            }
 
         all_records.extend(records)
 
     today = date.today()
-    save_snapshot(all_records, today)
-    logger.info(f"Saved {len(all_records)} total records for {today}")
+    logger.info(f"Fetched {len(all_records)} total records for {today}")
 
-    # Diff — compare vs previous day snapshot, falling back to last_snapshot.json
-    # (last_snapshot.json is committed to git so CCR fresh-clone runs have a baseline)
+    # ── Load previous snapshot for diff and validation ───────────────────────
     prev_day = previous_snapshot_day()
-    old_records = []
-    diffs = []
+    old_records: List[PriceRecord] = []
     if prev_day:
         old_records = load_snapshot(prev_day)
-        diffs = compute_diff(old_records, all_records)
-        diff_path = STORE_DIR / f"diff_{today.isoformat()}.json"
-        with open(diff_path, "w") as f:
-            json.dump([d.to_dict() for d in diffs], f, indent=2)
-        logger.info(f"Diff vs {prev_day}: {len(diffs)} changes")
     else:
-        # No date-stamped history — try last_snapshot.json (committed baseline)
         old_records = load_last_snapshot()
-        if old_records:
-            diffs = compute_diff(old_records, all_records)
-            diff_path = STORE_DIR / f"diff_{today.isoformat()}.json"
-            with open(diff_path, "w") as f:
-                json.dump([d.to_dict() for d in diffs], f, indent=2)
-            logger.info(f"Diff vs last_snapshot.json: {len(diffs)} changes")
-        else:
-            logger.info("No previous snapshot — skipping diff (first run)")
 
-    # Update last_snapshot.json so the next run has a baseline.
-    # In CCR environments, the prompt instructs the agent to git commit+push this file.
-    save_last_snapshot(all_records)
-
-    # Append today's data to the historical price CSV
-    append_history()
-
-    # Item 1: Validate prices for anomalies
+    # ── Validate BEFORE writing canonical outputs ────────────────────────────
+    # Anomalies are flagged here; suspicious records are noted in the manifest
+    # but still saved to the raw snapshot (for auditability). history.csv
+    # receives only the non-anomalous accepted records.
     anomalies = validate_prices(all_records, old_records)
     for anomaly in anomalies:
         logger.warning(f"Price anomaly: {anomaly}")
+    if anomalies:
+        warnings.extend(anomalies)
 
-    # Write Slack message
+    # Build accepted set: exclude records flagged by absolute range check
+    # (>±40% day-over-day is flagged but kept — real price changes can be large)
+    anomalous_keys = set()
+    for anomaly in anomalies:
+        # Absolute range violations (implausibly low/high) are excluded from history
+        if "implausibly" in anomaly:
+            parts = anomaly.split()
+            if len(parts) >= 3:
+                anomalous_keys.add((parts[0], parts[1], parts[2]))
+    accepted_records = [
+        r for r in all_records
+        if (r.provider, r.gpu_model, r.consumption_type) not in anomalous_keys
+    ]
+    quarantined_count = len(all_records) - len(accepted_records)
+    if quarantined_count:
+        logger.warning(f"Quarantined {quarantined_count} records with implausible prices from history.csv")
+
+    # ── Write canonical outputs (using validated records) ────────────────────
+    save_snapshot(all_records, today)              # raw snapshot — includes everything
+    save_last_snapshot(accepted_records)           # baseline for next diff — accepted only
+    append_history_records(accepted_records, today)  # trend CSV — accepted only
+
+    # ── Compute diff ─────────────────────────────────────────────────────────
+    diffs = []
+    if old_records:
+        source = str(prev_day) if prev_day else "last_snapshot.json"
+        diffs = compute_diff(old_records, accepted_records)
+        diff_path = STORE_DIR / f"diff_{today.isoformat()}.json"
+        with open(diff_path, "w") as f:
+            json.dump([d.to_dict() for d in diffs], f, indent=2)
+        logger.info(f"Diff vs {source}: {len(diffs)} changes")
+    else:
+        logger.info("No previous snapshot — skipping diff (first run)")
+
+    # ── Format outputs ────────────────────────────────────────────────────────
     run_date = today.strftime("%B %d, %Y")
-    slack_msg = format_slack_message(diffs, run_date, CONFLUENCE_PAGE_URL, records=all_records)
+    slack_msg = format_slack_message(
+        diffs, run_date, CONFLUENCE_PAGE_URL,
+        records=accepted_records,
+        provider_status=provider_status,
+    )
 
-    # Prepend anomaly block if any anomalies detected
+    # Prepend anomaly and staleness warnings
     slack_prefix_parts = []
     if anomalies:
         anomaly_lines = "\n".join(f"• {a}" for a in anomalies)
@@ -198,23 +258,48 @@ def run(providers=None, test=False):
     with open(slack_path, "w") as f:
         f.write(slack_msg)
 
-    # Write Confluence body
-    confluence_body = format_confluence_table(all_records, run_date)
+    confluence_body = format_confluence_table(accepted_records, run_date)
     conf_path = STORE_DIR / "confluence_body.html"
     with open(conf_path, "w") as f:
         f.write(confluence_body)
 
     logger.info(f"Output files written to {STORE_DIR}")
-
     if errors:
         logger.warning(f"Providers with errors: {errors}")
 
+    # ── Write run manifest ────────────────────────────────────────────────────
+    completed_at = datetime.now(timezone.utc).isoformat()
+    stale_providers = [p for p, s in provider_status.items() if s["status"] in ("cache", "fallback", "missing")]
+    run_status = "failed" if len(errors) >= len(providers) // 2 else \
+                 "partial" if (errors or stale_providers) else "success"
+    manifest = {
+        "run_date":          today.isoformat(),
+        "started_at":        started_at,
+        "completed_at":      completed_at,
+        "status":            run_status,
+        "record_count":      len(accepted_records),
+        "raw_record_count":  len(all_records),
+        "anomaly_count":     len(anomalies),
+        "quarantined_count": quarantined_count,
+        "diff_count":        len(diffs),
+        "failed_providers":  errors,
+        "stale_providers":   stale_providers,
+        "provider_status":   provider_status,
+        "warnings":          warnings,
+        "generated_outputs": {
+            "slack_message":    True,
+            "confluence_body":  True,
+        },
+    }
+    save_run_manifest(manifest)
+
     return {
-        "records": len(all_records),
+        "records": len(accepted_records),
         "diffs": len(diffs),
         "errors": errors,
         "slack_message": slack_msg,
         "confluence_body": confluence_body,
+        "manifest": manifest,
     }
 
 

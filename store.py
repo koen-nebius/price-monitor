@@ -5,12 +5,18 @@ peer_cache.json
     Tracks the last successful scrape for each web-scraped provider.
     Committed to git so remote CCR runs (which can't scrape commercial sites)
     always have peer context. Updated automatically on successful local runs.
+    A "_meta" key stores per-provider timestamps: {provider: {cached_at, record_count}}.
 
 last_snapshot.json
     The most recent complete price snapshot, committed to git.
     Used as the "previous day" baseline for diff computation in environments
     (e.g. CCR) that start with a fresh clone and have no date-stamped history.
     Updated by the CCR routine after each successful run via git commit+push.
+
+run_manifest.json
+    Written at the end of each successful main.py run.
+    Records run health: date, status, per-provider fetch status (live/cache/fallback),
+    anomaly count, warnings. Read by the CCR agent to gate Slack/Confluence publishing.
 """
 import json
 import logging
@@ -165,6 +171,15 @@ def update_peer_cache(fetch_key: str, records: List[PriceRecord]):
     """Persist fresh records for a fetch key into peer_cache.json."""
     cache = load_peer_cache()
     cache[fetch_key] = [r.to_dict() for r in records]
+    # Update _meta timestamp so we can compute cache age later
+    meta = cache.get("_meta", {})
+    if not isinstance(meta, dict):
+        meta = {}
+    meta[fetch_key] = {
+        "cached_at": datetime.now(timezone.utc).isoformat(),
+        "record_count": len(records),
+    }
+    cache["_meta"] = meta
     STORE_DIR.mkdir(parents=True, exist_ok=True)
     try:
         with open(_PEER_CACHE_FILE, "w") as f:
@@ -172,3 +187,55 @@ def update_peer_cache(fetch_key: str, records: List[PriceRecord]):
         logger.info(f"  peer_cache: updated '{fetch_key}' with {len(records)} records")
     except Exception as e:
         logger.warning(f"  peer_cache: write failed: {e}")
+
+
+def get_cache_age_hours(fetch_key: str) -> Optional[float]:
+    """Return the age in hours of the peer cache entry for fetch_key, or None if unknown."""
+    try:
+        cache = load_peer_cache()
+        meta = cache.get("_meta", {})
+        if not isinstance(meta, dict):
+            return None
+        cached_at_str = meta.get(fetch_key, {}).get("cached_at")
+        if not cached_at_str:
+            return None
+        cached_at = datetime.fromisoformat(cached_at_str)
+        if cached_at.tzinfo is None:
+            cached_at = cached_at.replace(tzinfo=timezone.utc)
+        return (datetime.now(timezone.utc) - cached_at).total_seconds() / 3600
+    except Exception:
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Run manifest — health contract between fetch job and publish job
+# ---------------------------------------------------------------------------
+
+RUN_MANIFEST_PATH = STORE_DIR / "run_manifest.json"
+
+
+def save_run_manifest(manifest: dict):
+    """
+    Write run_manifest.json. Called at the end of each main.py run.
+    The CCR publish agent reads this to gate Slack/Confluence publishing.
+    """
+    STORE_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(RUN_MANIFEST_PATH, "w") as f:
+            json.dump(manifest, f, indent=2)
+        logger.info(f"Run manifest written: status={manifest.get('status')} "
+                    f"records={manifest.get('record_count')}")
+    except Exception as e:
+        logger.warning(f"Could not write run_manifest.json: {e}")
+
+
+def load_run_manifest() -> dict:
+    """Load run_manifest.json. Returns {} if missing or unreadable."""
+    if not RUN_MANIFEST_PATH.exists():
+        return {}
+    try:
+        with open(RUN_MANIFEST_PATH) as f:
+            return json.load(f)
+    except Exception as e:
+        logger.warning(f"Could not read run_manifest.json: {e}")
+        return {}

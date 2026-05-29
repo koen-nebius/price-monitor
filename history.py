@@ -124,7 +124,8 @@ def rebuild() -> Path:
 def append_today() -> Path:
     """
     Append today's snapshot rows to history.csv (or rebuild if it doesn't exist).
-    Avoids re-reading all historical snapshots on every daily run.
+    Reads from the snapshot file. Use append_records() if you have already-validated
+    records in memory (preferred — avoids re-reading the raw snapshot).
     """
     if not HISTORY_CSV.exists():
         return rebuild()
@@ -150,6 +151,56 @@ def append_today() -> Path:
         writer.writerows(rows)
 
     logger.info(f"history.csv: appended {len(rows)} rows for {today.isoformat()}")
+    return HISTORY_CSV
+
+
+def append_records(records: List[PriceRecord], day: date = None) -> Path:
+    """
+    Append a caller-supplied list of records for `day` (default: today).
+    Preferred over append_today() when records have already been validated
+    in memory — ensures history.csv only contains accepted data.
+    Rebuilds from scratch if history.csv doesn't exist yet.
+    """
+    if not HISTORY_CSV.exists():
+        return rebuild()
+
+    day = day or date.today()
+    day_str = day.isoformat()
+
+    # Check if this date is already present (idempotent)
+    with open(HISTORY_CSV) as f:
+        reader = csv.DictReader(f)
+        existing_dates = {row["snapshot_date"] for row in reader}
+
+    if day_str in existing_dates:
+        logger.info(f"history.csv: {day_str} already present — skipping append")
+        return HISTORY_CSV
+
+    best = _cheapest_per_combo(records)
+    rows = []
+    for r in sorted(best.values(), key=lambda x: (x.provider, x.gpu_model, x.consumption_type)):
+        rows.append({
+            "snapshot_date":          day_str,
+            "provider":               r.provider,
+            "gpu_model":              r.gpu_model,
+            "consumption_type":       r.consumption_type,
+            "region":                 r.region,
+            "instance_type":          r.instance_type,
+            "gpu_count":              r.gpu_count,
+            "price_per_gpu_hour_usd": round(r.price_per_gpu_hour_usd, 4),
+            "price_per_hour_usd":     round(r.price_per_hour_usd, 4),
+            "data_source":            getattr(r, "data_source", ""),
+        })
+
+    if not rows:
+        logger.warning(f"history.csv: no valid records for {day_str} — nothing to append")
+        return HISTORY_CSV
+
+    with open(HISTORY_CSV, "a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=COLUMNS)
+        writer.writerows(rows)
+
+    logger.info(f"history.csv: appended {len(rows)} rows for {day_str} (from validated records)")
     return HISTORY_CSV
 
 

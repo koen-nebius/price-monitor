@@ -283,7 +283,8 @@ def _format_committed_callout(records: List[PriceRecord]) -> str:
 # ---------------------------------------------------------------------------
 
 def format_slack_message(diffs: List[DiffEntry], run_date: str,
-                         confluence_url: str, records: List[PriceRecord] = None) -> str:
+                         confluence_url: str, records: List[PriceRecord] = None,
+                         provider_status: dict = None) -> str:
     """
     Executive-grade Slack digest framed for CFO / Pricing PM audience.
     Neutral framing — price differences shown as plain +/-% without sentiment.
@@ -309,11 +310,32 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                                           "enterprise_gpu_cloud")
     ]
     if not significant and not minor:
-        return (
-            f"*GPU Competitor Pricing — {run_date}*\n"
-            f"_No price changes detected on tracked providers today._\n"
-            f"Full benchmark table: {confluence_url}"
-        )
+        lines = [
+            f"*GPU Competitor Pricing — {run_date}*",
+            f"_No price changes detected on tracked providers today._",
+            f"Full benchmark table: {confluence_url}",
+        ]
+        if provider_status:
+            non_live = {
+                p: s for p, s in provider_status.items()
+                if s.get("status") not in ("live",) and s.get("record_count", 0) > 0
+            }
+            if non_live:
+                parts = []
+                for p, s in sorted(non_live.items()):
+                    status = s.get("status", "?")
+                    age = s.get("cache_age_hours")
+                    if status == "cache":
+                        age_str = f" ({age:.0f}h ago)" if age is not None else ""
+                        parts.append(f"{p} cached{age_str}")
+                    elif status == "fallback":
+                        src = s.get("fallback_source", "fallback")
+                        parts.append(f"{p} via {src}")
+                    elif status == "missing":
+                        parts.append(f"{p} no data")
+                if parts:
+                    lines.append(f"_Data freshness: {' · '.join(parts)}_")
+        return "\n".join(lines)
 
     lines = [f"*GPU Competitor Pricing — {run_date}*"]
 
@@ -447,6 +469,38 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                      f"({len(minor)} minor changes below {ALERT_THRESHOLD_PCT:.0f}% threshold)._")
 
     lines.append(f"\nFull benchmark table: {confluence_url}")
+
+    # ── Data freshness footer ─────────────────────────────────────────────────
+    # Show which providers used live data vs cache/fallback, with cache age.
+    # Only shown when at least one provider is non-live — clean runs stay quiet.
+    if provider_status:
+        non_live = {
+            p: s for p, s in provider_status.items()
+            if s.get("status") not in ("live",) and s.get("record_count", 0) > 0
+        }
+        missing = {
+            p: s for p, s in provider_status.items()
+            if s.get("status") == "missing"
+        }
+        if non_live or missing:
+            parts = []
+            for p, s in sorted(non_live.items()):
+                status = s.get("status", "?")
+                age = s.get("cache_age_hours")
+                if status == "cache":
+                    age_str = f" ({age:.0f}h ago)" if age is not None else ""
+                    parts.append(f"{p} cached{age_str}")
+                elif status == "fallback":
+                    src = s.get("fallback_source", "fallback")
+                    parts.append(f"{p} via {src}")
+                elif status == "missing":
+                    parts.append(f"{p} no data")
+            for p in sorted(missing):
+                if p not in non_live:
+                    parts.append(f"{p} no data")
+            if parts:
+                lines.append(f"_Data freshness: {' · '.join(parts)}_")
+
     return "\n".join(lines)
 
 

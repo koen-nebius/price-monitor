@@ -1,0 +1,77 @@
+{
+  "run_date": "2026-05-29",
+  "started_at": "2026-05-29T16:56:48.670246+00:00",
+  "completed_at": "2026-05-29T16:57:59.452919+00:00",
+  "status": "partial",
+  "record_count": 733,
+  "raw_record_count": 733,
+  "anomaly_count": 3,
+  "quarantined_count": 0,
+  "diff_count": 176,
+  "failed_providers": [],
+  "stale_providers": [
+    "gcp",
+    "hyperstack"
+  ],
+  "provider_status": {
+    "aws": {
+      "status": "live",
+      "record_count": 314
+    },
+    "gcp": {
+      "status": "cache",
+      "record_count": 83,
+      "cache_age_hours": null
+    },
+    "azure": {
+      "status": "live",
+      "record_count": 72
+    },
+    "coreweave": {
+      "status": "live",
+      "record_count": 10
+    },
+    "lambda": {
+      "status": "live",
+      "record_count": 9
+    },
+    "crusoe": {
+      "status": "live",
+      "record_count": 2
+    },
+    "nebius": {
+      "status": "live",
+      "record_count": 10
+    },
+    "nebius_committed": {
+      "status": "live",
+      "record_count": 93
+    },
+    "computeprices": {
+      "status": "live",
+      "record_count": 117
+    },
+    "oracle": {
+      "status": "live",
+      "record_count": 8
+    },
+    "hyperstack": {
+      "status": "missing",
+      "record_count": 0
+    },
+    "runpod": {
+      "status": "live",
+      "record_count": 15
+    }
+  },
+  "warnings": [
+    "Nebius committed prices in config.py were last verified 36 days ago \u2014 verify against current pricing sheet.",
+    "cp_vast L40S on_demand: $0.56 \u2192 $1.21 (+115.0%) \u26a0 price anomaly",
+    "cp_verda H100 on_demand: $2.29 \u2192 $3.25 (+41.9%) \u26a0 price anomaly",
+    "cp_verda L40S on_demand: $0.91 \u2192 $1.37 (+49.8%) \u26a0 price anomaly"
+  ],
+  "generated_outputs": {
+    "slack_message": true,
+    "confluence_body": true
+  }
+}
