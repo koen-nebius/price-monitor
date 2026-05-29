@@ -26,6 +26,7 @@ from store import (save_snapshot, load_snapshot, previous_snapshot_day, STORE_DI
                    WEB_SCRAPED_PROVIDERS, get_cached_records, update_peer_cache,
                    load_last_snapshot, save_last_snapshot)
 from diff import compute_diff, format_slack_message, format_confluence_table
+from history import append_today as append_history
 from config import PROVIDERS
 
 logging.basicConfig(
@@ -104,6 +105,9 @@ def run(providers=None, test=False):
     # Update last_snapshot.json so the next run has a baseline.
     # In CCR environments, the prompt instructs the agent to git commit+push this file.
     save_last_snapshot(all_records)
+
+    # Append today's data to the historical price CSV
+    append_history()
 
     # Write Slack message
     run_date = today.strftime("%B %d, %Y")

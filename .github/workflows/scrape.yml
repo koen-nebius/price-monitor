@@ -50,11 +50,11 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add store/peer_cache.json store/last_snapshot.json
+          git add store/peer_cache.json store/last_snapshot.json store/history.csv
           if git diff --cached --quiet; then
             echo "No changes — no commit needed"
           else
-            git commit -m "chore: update peer_cache + last_snapshot [skip ci]"
+            git commit -m "chore: update peer_cache + last_snapshot + history [skip ci]"
             git push
-            echo "Cache and snapshot updated and pushed"
+            echo "Cache, snapshot, and history updated and pushed"
           fi
