@@ -44,9 +44,10 @@
   .exec-position-group { display:flex; gap:16px; margin-left:auto; flex-wrap:wrap; }
   .exec-tag-list { display:flex; gap:4px; flex-wrap:wrap; margin-top:2px; }
   .exec-tag { font-size:11px; padding:1px 7px; border-radius:10px; font-weight:600; white-space:nowrap; }
-  .exec-tag.good  { background:var(--accent)22; color:var(--accent); }
-  .exec-tag.watch { background:var(--amber)22; color:var(--amber); }
-  .exec-tag.risk  { background:var(--red)22; color:var(--red); }
+  .exec-tag.inrange { background:var(--accent)22; color:var(--accent); }
+  .exec-tag.above   { background:var(--amber)22; color:var(--amber); }
+  .exec-tag.high    { background:var(--red)22; color:var(--red); }
+  .exec-tag.below   { background:var(--blue)22; color:var(--blue); }
 
   /* ── Filters bar ── */
   .filters-bar { display:flex; align-items:center; gap:12px; padding:12px 24px; border-bottom:1px solid var(--border); flex-wrap:wrap; overflow-x:auto; -webkit-overflow-scrolling:touch; }
@@ -74,48 +75,53 @@
   .gpu-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:10px; }
 
   .gpu-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px 16px; border-left:4px solid var(--border); position:relative; }
-  .gpu-card.status-good  { border-left-color:var(--accent); }
-  .gpu-card.status-watch { border-left-color:var(--amber); }
-  .gpu-card.status-risk  { border-left-color:var(--red); }
-  .gpu-card.status-thin  { border-left-color:var(--muted); }
+  .gpu-card.status-inrange { border-left-color:var(--accent); }
+  .gpu-card.status-above  { border-left-color:var(--amber); }
+  .gpu-card.status-high   { border-left-color:var(--red); }
+  .gpu-card.status-below  { border-left-color:var(--blue); }
+  .gpu-card.status-thin   { border-left-color:var(--muted); }
   .gpu-card.status-nodata { border-left-color:var(--border); opacity:.7; }
 
   .card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
   .card-gpu { font-family:monospace; font-size:15px; font-weight:700; }
   .card-status-badge { font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:2px 8px; border-radius:10px; }
-  .card-status-badge.good  { background:var(--accent)22; color:var(--accent); }
-  .card-status-badge.watch { background:var(--amber)22; color:var(--amber); }
-  .card-status-badge.risk  { background:var(--red)22; color:var(--red); }
-  .card-status-badge.thin  { background:var(--muted)22; color:var(--muted); }
+  .card-status-badge.inrange { background:var(--accent)22; color:var(--accent); }
+  .card-status-badge.above  { background:var(--amber)22; color:var(--amber); }
+  .card-status-badge.high   { background:var(--red)22; color:var(--red); }
+  .card-status-badge.below  { background:var(--blue)22; color:var(--blue); }
+  .card-status-badge.thin   { background:var(--muted)22; color:var(--muted); }
   .card-status-badge.nodata { background:var(--border); color:var(--muted); }
 
   .card-nebius-row { display:flex; align-items:baseline; gap:8px; margin-bottom:8px; }
   .card-nebius-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); opacity:.7; flex-shrink:0; }
   .card-nebius-price { font-size:22px; font-weight:700; font-family:monospace; color:var(--accent); }
-  .card-nebius-price.watch { color:var(--amber); }
-  .card-nebius-price.risk  { color:var(--red); }
+  .card-nebius-price.above  { color:var(--amber); }
+  .card-nebius-price.high   { color:var(--red); }
+  .card-nebius-price.below  { color:var(--blue); }
   .card-nebius-price.nodata { color:var(--muted); font-size:14px; }
   .card-rank { font-size:12px; color:var(--muted); margin-left:auto; }
   .rank-badge { display:inline-block; padding:1px 6px; border-radius:4px; font-size:11px; font-family:monospace; font-weight:700; }
-  .rank-badge.good  { background:var(--accent)22; color:var(--accent); }
-  .rank-badge.watch { background:var(--amber)22; color:var(--amber); }
-  .rank-badge.bad   { background:var(--red)22;   color:var(--red); }
+  .rank-badge.top    { background:var(--accent)22; color:var(--accent); }
+  .rank-badge.mid    { background:var(--border); color:var(--muted); }
+  .rank-badge.bottom { background:var(--amber)22; color:var(--amber); }
   .rank-badge.neutral { background:var(--border); color:var(--muted); }
 
   .card-rows { display:flex; flex-direction:column; gap:4px; }
   .card-row { display:flex; justify-content:space-between; align-items:baseline; font-size:12px; }
   .card-row .lbl { color:var(--muted); }
   .card-row .val { font-family:monospace; }
-  .card-row .val.pos { color:#e08080; } /* above = bad */
-  .card-row .val.neg { color:var(--accent); } /* below = good */
+  .card-row .val.pos  { color:var(--amber); }  /* above median */
+  .card-row .val.neg  { color:var(--blue); }   /* below median */
+  .card-row .val.high { color:var(--red); }    /* significantly above */
 
   .card-deltas { display:flex; gap:12px; margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
   .card-delta { display:flex; flex-direction:column; gap:1px; }
   .card-delta .dlbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
   .card-delta .dval { font-size:13px; font-weight:600; font-family:monospace; }
-  .card-delta .dval.neg { color:var(--accent); }
-  .card-delta .dval.pos { color:var(--amber); }
-  .card-delta .dval.risk { color:var(--red); }
+  .card-delta .dval.below  { color:var(--blue); }
+  .card-delta .dval.inrange { color:var(--muted); }
+  .card-delta .dval.above  { color:var(--amber); }
+  .card-delta .dval.high   { color:var(--red); }
 
   .card-footer { display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:6px; border-top:1px solid var(--border); }
   .card-meta { font-size:10px; color:var(--muted); }
@@ -290,11 +296,11 @@
   <div class="exec-sep" style="margin-left:auto"></div>
   <div class="exec-position-group">
     <div class="exec-stat">
-      <span class="exec-stat-label">Strong</span>
+      <span class="exec-stat-label">In range</span>
       <div class="exec-tag-list" id="exec-strong">—</div>
     </div>
     <div class="exec-stat">
-      <span class="exec-stat-label">Watch / Risk</span>
+      <span class="exec-stat-label">Off range</span>
       <div class="exec-tag-list" id="exec-watch">—</div>
     </div>
     <div class="exec-stat">
@@ -448,12 +454,32 @@ function provDisp(p) {
 }
 
 const PROVIDER_COLORS = {
-  nebius:"#00b97a", aws:"#FF9900", gcp:"#4285F4", azure:"#0072C6",
-  coreweave:"#9B59B6", lambda:"#E84A27", crusoe:"#00BCD4",
-  cp_oracle:"#F80000", cp_hyperstack:"#FF6B35", cp_voltage:"#27AE60",
-  "cp_gmi-cloud":"#1ABC9C", cp_scaleway:"#7159F5", cp_gcore:"#E91E8C",
-  cp_vultr:"#007BFC", cp_runpod:"#AC39FF", cp_vast:"#FFD600",
-  cp_tensordock:"#78909C", cp_digitalocean:"#0080FF",
+  // ── Hero ──────────────────────────────────────────────
+  nebius:            "#00b97a",  // Nebius green
+
+  // ── Hyperscalers (reference benchmarks) ───────────────
+  aws:               "#FF9900",  // amber-orange
+  gcp:               "#4285F4",  // Google blue
+  azure:             "#00BCEB",  // sky blue (lighter than GCP)
+  cp_oracle:         "#DC2626",  // red
+
+  // ── Tier-1 neoclouds ───────────────────────────────────
+  coreweave:         "#9B59B6",  // purple
+  lambda:            "#F97316",  // orange
+  crusoe:            "#06B6D4",  // cyan
+
+  // ── Other neoclouds ────────────────────────────────────
+  "cp_gmi-cloud":    "#34D399",  // light emerald (lighter shade than Nebius)
+  cp_scaleway:       "#6D28D9",  // deep violet (distinct from CoreWeave purple)
+  cp_gcore:          "#EC4899",  // pink-magenta
+  cp_hyperstack:     "#14B8A6",  // teal
+  cp_voltage:        "#84CC16",  // lime
+  cp_runpod:         "#A855F7",  // violet
+  runpod:            "#A855F7",  // RunPod direct API
+  cp_vast:           "#FBBF24",  // amber-yellow (visible on dark bg)
+  cp_vultr:          "#60A5FA",  // light blue
+  cp_tensordock:     "#94A3B8",  // slate gray
+  cp_digitalocean:   "#38BDF8",  // pale sky blue
 };
 function provColor(p, idx) {
   if (PROVIDER_COLORS[p]) return PROVIDER_COLORS[p];
@@ -553,18 +579,21 @@ function computeGpuStats(gpu, snapRows) {
 function getStatus(stats) {
   if (!stats || !stats.nebRow) return "nodata";
   if (stats.total < 3) return "thin";
-  const { nebRow, nebRank, medPrice, total } = stats;
-  if (nebRank <= 2 || nebRow.price <= medPrice) return "good";
-  const pct = pctDiff(nebRow.price, medPrice);
-  if (pct <= 15) return "watch";
-  return "risk";
+  const { nebRow, medPrice } = stats;
+  const pct = pctDiff(nebRow.price, medPrice);  // positive = above median
+  if (pct === null) return "inrange";
+  if (pct > 40)  return "high";    // >40% above median — off market
+  if (pct > 20)  return "above";   // 20–40% above — worth watching
+  if (pct < -20) return "below";   // >20% below — potentially underpriced
+  return "inrange";                // within ±20% — competitive
 }
 
 function getRankBadgeClass(rank, total) {
   if (!rank) return "neutral";
-  if (rank <= 2) return "good";
-  if (rank <= Math.ceil(total/2)) return "watch";
-  return "bad";
+  const pct = rank / total;
+  if (pct <= 0.33) return "top";
+  if (pct <= 0.67) return "mid";
+  return "bottom";
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -727,18 +756,20 @@ function updateExecBand(snapRows) {
     const stats  = computeGpuStats(gpu, snapRows);
     const status = getStatus(stats);
     if (status==="nodata") {
-      // Check if this GPU has any Nebius data in the whole history
       const nebHasAny = allRows.some(r=>r.gpu_model===gpu && r.provider==="nebius");
       const t=document.createElement("span");
       t.className="exec-tag"; t.style.cssText="background:var(--border);color:var(--muted)";
       t.textContent=gpu;
       t.title=nebHasAny?"Not available for this pricing type":"No Nebius data for this GPU";
       gapsEl.appendChild(t); hasGaps=true;
-    } else if (status==="good") {
-      const t=document.createElement("span"); t.className="exec-tag good"; t.textContent=gpu;
+    } else if (status==="inrange") {
+      const t=document.createElement("span"); t.className="exec-tag inrange"; t.textContent=gpu;
       strongEl.appendChild(t); hasStrong=true;
-    } else if (status==="watch"||status==="risk"||status==="thin") {
-      const t=document.createElement("span"); t.className=`exec-tag ${status==="thin"?"watch":status}`; t.textContent=gpu;
+    } else {
+      // above, high, below, thin all go in "off range"
+      const cls = status==="high"?"high":status==="above"?"above":status==="below"?"below":"above";
+      const t=document.createElement("span"); t.className=`exec-tag ${cls}`; t.textContent=gpu;
+      t.title=status==="below"?"Below market (>20% under median)":status==="high"?"Significantly above market (>40%)":status==="above"?"Above market (20–40%)":"Thin data";
       watchEl.appendChild(t); hasWatch=true;
     }
   }
@@ -850,7 +881,7 @@ function buildCard(gpu, stats, status) {
   div.className = `gpu-card status-${status}`;
   div.setAttribute("role","listitem");
 
-  const statusLabels = { good:"Strong", watch:"Watch", risk:"Risk", thin:"Thin data", nodata:"No data" };
+  const statusLabels = { inrange:"In range", above:"Above market", high:"Significantly above", below:"Below market", thin:"Thin data", nodata:"No data" };
   const statusLabel = statusLabels[status] || status;
 
   // Count intel rows for this GPU
@@ -891,14 +922,14 @@ function buildCard(gpu, stats, status) {
 
   const { nebRow, nebRank, floorRow, medPrice, p75Price, total } = stats;
   const rankCls = getRankBadgeClass(nebRank, total);
-  const nebPriceCls = status==="risk"?"risk":status==="watch"?"watch":"";
+  const nebPriceCls = status==="high"?"high":status==="above"?"above":status==="below"?"below":"";
   const vsFloor  = pctDiff(nebRow.price, floorRow.price);
   const vsMedian = pctDiff(nebRow.price, medPrice);
 
   const vsFloorStr   = vsFloor!=null  ? `${vsFloor>=0?"+":""}${vsFloor.toFixed(1)}%`  : "—";
   const vsMedianStr  = vsMedian!=null ? `${vsMedian>=0?"+":""}${vsMedian.toFixed(1)}%` : "—";
-  const vsFloorCls   = vsFloor==null?"":"";
-  const vsMedianCls  = vsMedian==null?"":vsMedian<=0?"neg":vsMedian<=15?"pos":"pos risk";
+  const vsFloorCls   = "";
+  const vsMedianCls  = vsMedian==null?"":vsMedian<-20?"below":vsMedian<=0?"inrange":vsMedian<=20?"inrange":vsMedian<=40?"above":"high";
 
   const nebIsFloor = nebRank===1;
 
@@ -914,7 +945,7 @@ function buildCard(gpu, stats, status) {
     </div>
     <div class="card-rows">
       ${nebIsFloor
-        ? `<div class="card-row"><span class="lbl" style="color:var(--accent)">✓ Nebius is the floor</span></div>`
+        ? `<div class="card-row"><span class="lbl">Floor</span><span class="val" style="color:var(--muted)">Nebius</span></div>`
         : `<div class="card-row"><span class="lbl">Floor (${provDisp(floorRow.provider)})</span><span class="val">$${floorRow.price.toFixed(2)}</span></div>`
       }
       <div class="card-row"><span class="lbl">Market median</span><span class="val">$${medPrice.toFixed(2)}</span></div>
@@ -958,7 +989,7 @@ function renderPositionChart(snapRowsArg) {
     const nebColors = gpus.map(g=>{
       const s = computeGpuStats(g, snapRows);
       const st = getStatus(s);
-      return st==="good"?"#00b97a":st==="watch"?"#e09030":st==="risk"?"#e05252":"#6b7194";
+      return st==="inrange"?"#00b97a":st==="above"?"#e09030":st==="high"?"#e05252":st==="below"?"#4a90d9":"#6b7194";
     });
 
     chartPos.data.labels = gpus;
