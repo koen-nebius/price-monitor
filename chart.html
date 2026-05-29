@@ -89,7 +89,8 @@
   .card-status-badge.thin  { background:var(--muted)22; color:var(--muted); }
   .card-status-badge.nodata { background:var(--border); color:var(--muted); }
 
-  .card-nebius-row { display:flex; align-items:baseline; gap:10px; margin-bottom:8px; }
+  .card-nebius-row { display:flex; align-items:baseline; gap:8px; margin-bottom:8px; }
+  .card-nebius-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--accent); opacity:.7; flex-shrink:0; }
   .card-nebius-price { font-size:22px; font-weight:700; font-family:monospace; color:var(--accent); }
   .card-nebius-price.watch { color:var(--amber); }
   .card-nebius-price.risk  { color:var(--red); }
@@ -131,8 +132,9 @@
   .trust-note .trust-icon { flex-shrink:0; opacity:.6; }
 
   /* ══════════════ TRENDS TAB ══════════════ */
-  .trends-layout { display:flex; flex:1; overflow:hidden; height:420px; min-height:320px; max-height:540px; }
-  .chart-wrap { flex:1; position:relative; padding:16px 16px 8px 20px; min-width:0; overflow:hidden; }
+  .trends-layout { display:flex; flex:1; overflow:hidden; height:440px; min-height:320px; max-height:560px; }
+  .chart-wrap { flex:1; position:relative; padding:16px 16px 8px 20px; min-width:0; overflow:hidden; display:flex; flex-direction:column; }
+  #chart-trends { flex:1; min-height:0; }
   .focus-chip { position:absolute; top:20px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--border); border-radius:20px; padding:4px 14px; font-size:12px; color:var(--text); pointer-events:none; opacity:0; transition:opacity .15s; white-space:nowrap; z-index:10; }
   .focus-chip.visible { opacity:1; }
   #no-data { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; }
@@ -198,23 +200,32 @@
   footer { padding:8px 24px 14px; color:var(--muted); font-size:11px; border-top:1px solid var(--border); margin-top:auto; display:flex; gap:12px; flex-wrap:wrap; }
   footer a { color:var(--accent); text-decoration:none; }
 
-  /* ── Mobile toggle for chart ── */
-  .show-chart-btn { display:none; background:var(--card); border:1px solid var(--border); color:var(--muted); border-radius:6px; padding:7px 14px; font-size:12px; cursor:pointer; width:100%; text-align:center; }
+  /* ── Position chart toggle (both desktop and mobile) ── */
+  .show-chart-btn { display:block; background:var(--card); border:1px solid var(--border); color:var(--muted); border-radius:6px; padding:7px 14px; font-size:12px; cursor:pointer; width:100%; text-align:center; }
   .show-chart-btn:hover { border-color:var(--accent); color:var(--text); }
+  /* Chart is collapsed by default; .visible class reveals it */
+  #pos-chart-wrap { display:none; }
+  #pos-chart-wrap.visible { display:block; }
 
   /* ══════════════ MOBILE ══════════════ */
   @media (max-width: 700px) {
-    header { padding:12px 16px 0; }
+    header { padding:12px 16px 10px; flex-direction:column; align-items:stretch; gap:10px; }
     .header-title h1 { font-size:15px; }
-    .tab-btn { padding:5px 12px; font-size:12px; }
+    .tab-bar { width:100%; justify-content:stretch; }
+    .tab-btn { flex:1; padding:7px 8px; font-size:13px; text-align:center; }
 
-    #exec-band { padding:8px 16px; gap:4px; overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
-    #exec-band::-webkit-scrollbar { display:none; }
-    .exec-stat { padding:2px 8px 2px 0; min-width:fit-content; }
+    #exec-band {
+      padding:10px 16px; gap:0;
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      overflow-x:visible; flex-wrap:unset;
+    }
+    .exec-sep { display:none; }
+    .exec-stat { padding:2px 6px 6px 0; min-width:0; }
     .exec-stat-label { font-size:9px; }
-    .exec-stat-val { font-size:12px; }
-    .exec-sep { height:22px; margin:0 2px 0 8px; }
-    .exec-position-group { margin-left:0; }
+    .exec-stat-val { font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .exec-position-group { grid-column:1 / -1; width:100%; display:flex; gap:16px; margin-top:6px; padding-top:8px; border-top:1px solid var(--border); margin-left:0; }
+    .exec-position-group .exec-stat { flex:1; }
 
     .filters-bar { padding:10px 16px; gap:8px; flex-wrap:nowrap; overflow-x:auto; }
     .filter-sep { display:none; }
@@ -222,12 +233,9 @@
     .pos-layout { padding:12px 16px 16px; gap:14px; }
     .gpu-cards { grid-template-columns:1fr; }
 
-    .pos-chart-section .pos-chart-wrap { display:none; }
-    .pos-chart-section .pos-chart-wrap.visible { display:block; }
-    .show-chart-btn { display:block; }
-
     .trends-layout { flex-direction:column; height:auto; max-height:none; overflow:visible; }
-    .chart-wrap { padding:12px 12px 6px; height:300px; overflow:hidden; }
+    .chart-wrap { padding:12px 12px 6px; height:300px; min-height:300px; flex-direction:row; overflow:hidden; }
+    #chart-trends { flex:none; height:100%; }
     .legend-panel { width:100% !important; border-left:none; border-top:1px solid var(--border); max-height:0; overflow:hidden; transition:max-height .25s; }
     .legend-panel.mobile-open { max-height:300px; }
     .legend-collapse-btn { display:none; }
@@ -284,6 +292,10 @@
     <div class="exec-stat">
       <span class="exec-stat-label">Watch / Risk</span>
       <div class="exec-tag-list" id="exec-watch">—</div>
+    </div>
+    <div class="exec-stat">
+      <span class="exec-stat-label">No Nebius price</span>
+      <div class="exec-tag-list" id="exec-gaps">—</div>
     </div>
   </div>
 </div>
@@ -348,7 +360,7 @@
     <label class="intel-wrap" title="Overlay field intel deal quotes on chart">
       <input type="checkbox" class="toggle-cb" id="intel-toggle">
       <span class="toggle-track" role="switch" aria-label="Field intel overlay"></span>
-      <span class="label"><span class="diamond-icon" aria-hidden="true"></span> Overlay</span>
+      <span class="label"><span class="diamond-icon" aria-hidden="true"></span> Intel <span id="intel-overlay-count" style="opacity:.6"></span></span>
     </label>
   </div>
   <div class="trends-layout" style="position:relative">
@@ -698,25 +710,37 @@ function initTabSwitcher() {
 function updateExecBand(snapRows) {
   const strongEl = document.getElementById("exec-strong");
   const watchEl  = document.getElementById("exec-watch");
+  const gapsEl   = document.getElementById("exec-gaps");
   strongEl.innerHTML = "";
   watchEl.innerHTML  = "";
+  gapsEl.innerHTML   = "";
 
-  const gpusWithData = GPU_ORDER.filter(g=>snapRows.some(r=>r.gpu_model===g));
-  let hasStrong=false, hasWatch=false;
+  // All GPUs that appear anywhere in history (not just current snap)
+  const allGpus = GPU_ORDER.filter(g=>allRows.some(r=>r.gpu_model===g));
+  let hasStrong=false, hasWatch=false, hasGaps=false;
 
-  for (const gpu of gpusWithData) {
-    const stats = computeGpuStats(gpu, snapRows);
+  for (const gpu of allGpus) {
+    const stats  = computeGpuStats(gpu, snapRows);
     const status = getStatus(stats);
-    if (status==="good") {
+    if (status==="nodata") {
+      // Check if this GPU has any Nebius data in the whole history
+      const nebHasAny = allRows.some(r=>r.gpu_model===gpu && r.provider==="nebius");
+      const t=document.createElement("span");
+      t.className="exec-tag"; t.style.cssText="background:var(--border);color:var(--muted)";
+      t.textContent=gpu;
+      t.title=nebHasAny?"Not available for this pricing type":"No Nebius data for this GPU";
+      gapsEl.appendChild(t); hasGaps=true;
+    } else if (status==="good") {
       const t=document.createElement("span"); t.className="exec-tag good"; t.textContent=gpu;
       strongEl.appendChild(t); hasStrong=true;
-    } else if (status==="watch"||status==="risk") {
-      const t=document.createElement("span"); t.className=`exec-tag ${status}`; t.textContent=gpu;
+    } else if (status==="watch"||status==="risk"||status==="thin") {
+      const t=document.createElement("span"); t.className=`exec-tag ${status==="thin"?"watch":status}`; t.textContent=gpu;
       watchEl.appendChild(t); hasWatch=true;
     }
   }
   if (!hasStrong) strongEl.textContent="—";
   if (!hasWatch)  watchEl.textContent="—";
+  if (!hasGaps)   gapsEl.textContent="—";
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -867,6 +891,7 @@ function buildCard(gpu, stats, status) {
       <span class="card-status-badge ${status}">${statusLabel}</span>
     </div>
     <div class="card-nebius-row">
+      <span class="card-nebius-label">Nebius</span>
       <span class="card-nebius-price ${nebPriceCls}">$${nebRow.price.toFixed(2)}</span>
       <span class="card-rank"><span class="rank-badge ${rankCls}">#${nebRank} of ${total}</span></span>
     </div>
@@ -1046,7 +1071,7 @@ function initTrendsChart() {
     type:"line",
     data:{ datasets:[] },
     options:{
-      responsive:true, animation:{ duration:200 },
+      responsive:true, maintainAspectRatio:false, animation:{ duration:200 },
       interaction:{ mode:"dataset", intersect:false },
       plugins:{
         legend:{ display:false },
@@ -1192,6 +1217,19 @@ function renderTrends() {
   chartTrends.update();
   updateLegendPrices();
   updateLegendCount();
+  updateIntelOverlayCount();
+}
+
+function updateIntelOverlayCount() {
+  const xRange   = getTrendsXRange();
+  const gpuIntel = intelRows.filter(r=>{
+    if (r.gpu_model!==tr.gpu || r.provider_type==="nebius") return false;
+    if (xRange.min && r.message_date < xRange.min) return false;
+    if (xRange.max && r.message_date > xRange.max) return false;
+    return true;
+  });
+  const el = document.getElementById("intel-overlay-count");
+  if (el) el.textContent = gpuIntel.length ? `(${gpuIntel.length})` : "";
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
