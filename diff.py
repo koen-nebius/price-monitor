@@ -289,6 +289,27 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
     3. Significant price moves (>threshold)
     4. Link to full Confluence table
     """
+    # ── Early exit: no price changes today ───────────────────────────────────
+    significant = [
+        d for d in diffs
+        if d.change_type == "price_change"
+        and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
+                                          "enterprise_gpu_cloud")
+        and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
+    ]
+    minor = [
+        d for d in diffs
+        if d.change_type == "price_change"
+        and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
+                                          "enterprise_gpu_cloud")
+    ]
+    if not significant and not minor:
+        return (
+            f"*GPU Competitor Pricing — {run_date}*\n"
+            f"_No price changes detected on tracked providers today._\n"
+            f"Full benchmark table: {confluence_url}"
+        )
+
     lines = [f"*GPU Competitor Pricing — {run_date}*"]
 
     def _pname(p: str) -> str:
@@ -362,13 +383,7 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
     # Raw diffs contain one entry per (instance_type × region × ct). Group them
     # so "AWS L40S reserved -17% across 6 instance types × 5 regions" becomes
     # one readable line, not 90 separate bullets.
-    significant = [
-        d for d in diffs
-        if d.change_type == "price_change"
-        and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
-                                          "enterprise_gpu_cloud")
-        and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
-    ]
+    # (significant and minor are already computed at the top of this function)
 
     if significant:
         # Group: (provider, gpu_model, ct_bucket, direction) → list of deltas
@@ -422,15 +437,9 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
         if len(sorted_groups) > 15:
             lines.append(f"_…and {len(sorted_groups) - 15} more provider/GPU groups_")
     else:
-        # Check if there were any price changes below threshold
-        minor = [d for d in diffs if d.change_type == "price_change"
-                 and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
-                                                    "enterprise_gpu_cloud")]
-        if minor:
-            lines.append(f"\n_No significant price moves today "
-                         f"({len(minor)} minor changes below {ALERT_THRESHOLD_PCT:.0f}% threshold)._")
-        else:
-            lines.append("\n_No price changes detected on tracked providers today._")
+        # Minor changes only (below alert threshold) — note them briefly
+        lines.append(f"\n_No significant price moves today "
+                     f"({len(minor)} minor changes below {ALERT_THRESHOLD_PCT:.0f}% threshold)._")
 
     lines.append(f"\nFull benchmark table: {confluence_url}")
     return "\n".join(lines)
