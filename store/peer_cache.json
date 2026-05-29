@@ -11,7 +11,7 @@
       "price_per_gpu_hour_usd": 10.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -25,7 +25,7 @@
       "price_per_gpu_hour_usd": 4.48,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -39,7 +39,7 @@
       "price_per_gpu_hour_usd": 8.6,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -53,7 +53,7 @@
       "price_per_gpu_hour_usd": 4.26375,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -67,7 +67,7 @@
       "price_per_gpu_hour_usd": 6.155,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -81,7 +81,7 @@
       "price_per_gpu_hour_usd": 2.46375,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -95,7 +95,7 @@
       "price_per_gpu_hour_usd": 6.305,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -109,7 +109,7 @@
       "price_per_gpu_hour_usd": 2.61625,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -123,7 +123,7 @@
       "price_per_gpu_hour_usd": 2.25,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -137,7 +137,7 @@
       "price_per_gpu_hour_usd": 0.985,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -151,7 +151,7 @@
       "price_per_gpu_hour_usd": 10.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -165,7 +165,7 @@
       "price_per_gpu_hour_usd": 8.6,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -179,7 +179,7 @@
       "price_per_gpu_hour_usd": 4.35875,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -193,7 +193,7 @@
       "price_per_gpu_hour_usd": 6.155,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -207,7 +207,7 @@
       "price_per_gpu_hour_usd": 2.43875,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -221,7 +221,7 @@
       "price_per_gpu_hour_usd": 6.305,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -235,7 +235,7 @@
       "price_per_gpu_hour_usd": 2.58,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     },
     {
@@ -249,7 +249,7 @@
       "price_per_gpu_hour_usd": 2.25,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.520259+00:00",
+      "fetched_at": "2026-05-29T09:56:15.011327+00:00",
       "source_url": "https://www.coreweave.com/gpu-cloud-pricing"
     }
   ],
@@ -265,7 +265,7 @@
       "price_per_gpu_hour_usd": 6.69,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.924944+00:00",
+      "fetched_at": "2026-05-29T09:56:15.398605+00:00",
       "source_url": "https://lambda.ai/instances"
     },
     {
@@ -279,7 +279,7 @@
       "price_per_gpu_hour_usd": 3.99,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.924944+00:00",
+      "fetched_at": "2026-05-29T09:56:15.398605+00:00",
       "source_url": "https://lambda.ai/instances"
     },
     {
@@ -293,7 +293,7 @@
       "price_per_gpu_hour_usd": 6.79,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.924944+00:00",
+      "fetched_at": "2026-05-29T09:56:15.398605+00:00",
       "source_url": "https://lambda.ai/instances"
     },
     {
@@ -307,7 +307,7 @@
       "price_per_gpu_hour_usd": 4.09,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.924944+00:00",
+      "fetched_at": "2026-05-29T09:56:15.398605+00:00",
       "source_url": "https://lambda.ai/instances"
     },
     {
@@ -321,7 +321,7 @@
       "price_per_gpu_hour_usd": 6.89,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.924944+00:00",
+      "fetched_at": "2026-05-29T09:56:15.398605+00:00",
       "source_url": "https://lambda.ai/instances"
     },
     {
@@ -335,7 +335,7 @@
       "price_per_gpu_hour_usd": 4.19,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.924944+00:00",
+      "fetched_at": "2026-05-29T09:56:15.398605+00:00",
       "source_url": "https://lambda.ai/instances"
     },
     {
@@ -349,7 +349,7 @@
       "price_per_gpu_hour_usd": 6.99,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.924944+00:00",
+      "fetched_at": "2026-05-29T09:56:15.398605+00:00",
       "source_url": "https://lambda.ai/instances"
     },
     {
@@ -363,7 +363,7 @@
       "price_per_gpu_hour_usd": 4.29,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.924944+00:00",
+      "fetched_at": "2026-05-29T09:56:15.398605+00:00",
       "source_url": "https://lambda.ai/instances"
     },
     {
@@ -377,7 +377,7 @@
       "price_per_gpu_hour_usd": 3.29,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.924944+00:00",
+      "fetched_at": "2026-05-29T09:56:15.398605+00:00",
       "source_url": "https://lambda.ai/instances"
     }
   ],
@@ -393,7 +393,7 @@
       "price_per_gpu_hour_usd": 4.29,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.996977+00:00",
+      "fetched_at": "2026-05-29T09:56:15.632605+00:00",
       "source_url": "https://crusoe.ai/cloud/pricing/"
     },
     {
@@ -407,7 +407,7 @@
       "price_per_gpu_hour_usd": 3.9,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:12.996977+00:00",
+      "fetched_at": "2026-05-29T09:56:15.632605+00:00",
       "source_url": "https://crusoe.ai/cloud/pricing/"
     }
   ],
@@ -423,7 +423,7 @@
       "price_per_gpu_hour_usd": 3.4,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:13.282550+00:00",
+      "fetched_at": "2026-05-29T09:56:16.076232+00:00",
       "source_url": "https://nebius.com/prices"
     },
     {
@@ -437,7 +437,7 @@
       "price_per_gpu_hour_usd": 6.1,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:13.282550+00:00",
+      "fetched_at": "2026-05-29T09:56:16.076232+00:00",
       "source_url": "https://nebius.com/prices"
     },
     {
@@ -451,7 +451,7 @@
       "price_per_gpu_hour_usd": 2.9,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:13.282550+00:00",
+      "fetched_at": "2026-05-29T09:56:16.076232+00:00",
       "source_url": "https://nebius.com/prices"
     },
     {
@@ -465,7 +465,7 @@
       "price_per_gpu_hour_usd": 5.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:13.282550+00:00",
+      "fetched_at": "2026-05-29T09:56:16.076232+00:00",
       "source_url": "https://nebius.com/prices"
     },
     {
@@ -479,7 +479,7 @@
       "price_per_gpu_hour_usd": 1.45,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:13.282550+00:00",
+      "fetched_at": "2026-05-29T09:56:16.076232+00:00",
       "source_url": "https://nebius.com/prices"
     },
     {
@@ -493,7 +493,7 @@
       "price_per_gpu_hour_usd": 3.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:13.282550+00:00",
+      "fetched_at": "2026-05-29T09:56:16.076232+00:00",
       "source_url": "https://nebius.com/prices"
     },
     {
@@ -507,7 +507,7 @@
       "price_per_gpu_hour_usd": 1.25,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:13.282550+00:00",
+      "fetched_at": "2026-05-29T09:56:16.076232+00:00",
       "source_url": "https://nebius.com/prices"
     },
     {
@@ -521,7 +521,7 @@
       "price_per_gpu_hour_usd": 2.95,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:13.282550+00:00",
+      "fetched_at": "2026-05-29T09:56:16.076232+00:00",
       "source_url": "https://nebius.com/prices"
     },
     {
@@ -535,7 +535,7 @@
       "price_per_gpu_hour_usd": 0.9,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:13.282550+00:00",
+      "fetched_at": "2026-05-29T09:56:16.076232+00:00",
       "source_url": "https://nebius.com/prices"
     },
     {
@@ -549,7 +549,7 @@
       "price_per_gpu_hour_usd": 1.82,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:13.282550+00:00",
+      "fetched_at": "2026-05-29T09:56:16.076232+00:00",
       "source_url": "https://nebius.com/prices"
     }
   ],
@@ -565,7 +565,7 @@
       "price_per_gpu_hour_usd": 1.79,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://deepinfra.com/pricing"
     },
     {
@@ -579,7 +579,7 @@
       "price_per_gpu_hour_usd": 2.178,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.oblivus.com/pricing/"
     },
     {
@@ -593,7 +593,7 @@
       "price_per_gpu_hour_usd": 2.69,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://runpod.io/?ref=fdhbgkyk"
     },
     {
@@ -607,7 +607,7 @@
       "price_per_gpu_hour_usd": 1.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://runpod.io/?ref=fdhbgkyk"
     },
     {
@@ -621,7 +621,7 @@
       "price_per_gpu_hour_usd": 2.0,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.gmicloud.ai/en/pricing"
     },
     {
@@ -635,7 +635,7 @@
       "price_per_gpu_hour_usd": 2.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.koyeb.com/pricing"
     },
     {
@@ -649,7 +649,7 @@
       "price_per_gpu_hour_usd": 1.9,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://shadeform.com/directory/instances?cloud=hyperstack&gputype=H100&numgpus=1&referral=6B321750"
     },
     {
@@ -663,7 +663,7 @@
       "price_per_gpu_hour_usd": 2.0755,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://upcloud.com/pricing/"
     },
     {
@@ -677,7 +677,7 @@
       "price_per_gpu_hour_usd": 1.99,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://shadeform.com/directory/instances?cloud=voltagepark&gputype=H100&numgpus=1&referral=6B321750"
     },
     {
@@ -691,7 +691,7 @@
       "price_per_gpu_hour_usd": 2.99,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.digitalocean.com/pricing/gpu-droplets?refcode=6dc17d11e796"
     },
     {
@@ -705,7 +705,7 @@
       "price_per_gpu_hour_usd": 2.19,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.genesiscloud.com/pricing"
     },
     {
@@ -719,7 +719,7 @@
       "price_per_gpu_hour_usd": 1.89,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.genesiscloud.com/pricing"
     },
     {
@@ -733,7 +733,7 @@
       "price_per_gpu_hour_usd": 1.75,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.genesiscloud.com/pricing"
     },
     {
@@ -747,7 +747,7 @@
       "price_per_gpu_hour_usd": 2.69,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://jarvislabs.ai/pricing"
     },
     {
@@ -761,7 +761,7 @@
       "price_per_gpu_hour_usd": 2.95,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.atlascloud.ai/pricing/gpu"
     },
     {
@@ -771,11 +771,11 @@
       "instance_type": "seeweb-h100-1x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 2.1994,
-      "price_per_gpu_hour_usd": 2.1994,
+      "price_per_hour_usd": 2.1956,
+      "price_per_gpu_hour_usd": 2.1956,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.seeweb.it/prodotti/cloud-server-gpu"
     },
     {
@@ -789,7 +789,7 @@
       "price_per_gpu_hour_usd": 1.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.hyperbolic.ai/marketplace"
     },
     {
@@ -803,22 +803,22 @@
       "price_per_gpu_hour_usd": 5.7445,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://acecloud.ai/pricing/"
     },
     {
       "provider": "cp_scaleway",
       "gpu_model": "H100",
-      "gpu_count": 1,
-      "instance_type": "scaleway-h100-1x",
+      "gpu_count": 8,
+      "instance_type": "scaleway-h100-8x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 3.3,
-      "price_per_gpu_hour_usd": 3.3,
+      "price_per_hour_usd": 26.752,
+      "price_per_gpu_hour_usd": 3.344,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
-      "source_url": "https://shadeform.com/directory/instances?cloud=scaleway&gputype=H100&numgpus=1&referral=6B321750"
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
+      "source_url": "https://www.scaleway.com/en/pricing/gpu/"
     },
     {
       "provider": "cp_together-ai",
@@ -831,7 +831,7 @@
       "price_per_gpu_hour_usd": 6.489,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.together.ai/pricing"
     },
     {
@@ -845,7 +845,7 @@
       "price_per_gpu_hour_usd": 3.45,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.together.ai/pricing"
     },
     {
@@ -859,21 +859,21 @@
       "price_per_gpu_hour_usd": 10.0,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://apexapps.oracle.com/pls/apex/cetools/api/v1/products/"
     },
     {
       "provider": "cp_paperspace",
       "gpu_model": "H100",
-      "gpu_count": 8,
-      "instance_type": "paperspace-h100-8x",
+      "gpu_count": 1,
+      "instance_type": "paperspace-h100-1x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 47.6,
+      "price_per_hour_usd": 5.95,
       "price_per_gpu_hour_usd": 5.95,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://paperspace.com/pricing"
     },
     {
@@ -887,7 +887,7 @@
       "price_per_gpu_hour_usd": 2.24,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.paperspace.com/pricing"
     },
     {
@@ -901,7 +901,7 @@
       "price_per_gpu_hour_usd": 2.3,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.denvr.com/pricing"
     },
     {
@@ -915,7 +915,7 @@
       "price_per_gpu_hour_usd": 2.99,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -929,7 +929,7 @@
       "price_per_gpu_hour_usd": 2.79,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -943,7 +943,7 @@
       "price_per_gpu_hour_usd": 2.69,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -957,7 +957,7 @@
       "price_per_gpu_hour_usd": 2.59,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -971,7 +971,7 @@
       "price_per_gpu_hour_usd": 2.49,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -985,22 +985,22 @@
       "price_per_gpu_hour_usd": 1.89,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://fal.ai/pricing"
     },
     {
       "provider": "cp_massedcompute",
       "gpu_model": "H100",
-      "gpu_count": 8,
-      "instance_type": "massedcompute-h100-8x",
+      "gpu_count": 1,
+      "instance_type": "massedcompute-h100-1x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 22.0,
-      "price_per_gpu_hour_usd": 2.75,
+      "price_per_hour_usd": 2.4,
+      "price_per_gpu_hour_usd": 2.4,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
-      "source_url": "https://shadeform.com/directory/instances?cloud=massedcompute&gputype=H100&numgpus=8&referral=6B321750"
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
+      "source_url": "https://vm.massedcompute.com/api/v1/gpu-inventory"
     },
     {
       "provider": "cp_massedcompute",
@@ -1013,7 +1013,7 @@
       "price_per_gpu_hour_usd": 1.98,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://vm.massedcompute.com/api/v1/gpu-inventory"
     },
     {
@@ -1027,7 +1027,7 @@
       "price_per_gpu_hour_usd": 1.826,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://docs.sesterce.com/api-reference/gpu-cloud-instances"
     },
     {
@@ -1041,7 +1041,7 @@
       "price_per_gpu_hour_usd": 1.66,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://shadeform.com/directory/instances?cloud=latitude&gputype=H100&numgpus=1&referral=6B321750"
     },
     {
@@ -1055,21 +1055,21 @@
       "price_per_gpu_hour_usd": 1.9899999999999998,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://dashboard.tensordock.com/api/v2/hostnodes"
     },
     {
       "provider": "cp_gcore",
       "gpu_model": "H100",
-      "gpu_count": 1,
-      "instance_type": "gcore-h100-1x",
+      "gpu_count": 8,
+      "instance_type": "gcore-h100-8x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 1.9186,
-      "price_per_gpu_hour_usd": 1.9186,
+      "price_per_hour_usd": 14.2192,
+      "price_per_gpu_hour_usd": 1.7774,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://gcore.com/pricing"
     },
     {
@@ -1083,7 +1083,7 @@
       "price_per_gpu_hour_usd": 2.146,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://gcore.com/pricing"
     },
     {
@@ -1097,7 +1097,7 @@
       "price_per_gpu_hour_usd": 16.24,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://gcore.com/pricing"
     },
     {
@@ -1111,7 +1111,7 @@
       "price_per_gpu_hour_usd": 3.25,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     },
     {
@@ -1125,7 +1125,7 @@
       "price_per_gpu_hour_usd": 0.8015,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     },
     {
@@ -1139,7 +1139,7 @@
       "price_per_gpu_hour_usd": 2.19,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://deepinfra.com/pricing"
     },
     {
@@ -1153,7 +1153,7 @@
       "price_per_gpu_hour_usd": 3.99,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.oblivus.com/pricing/"
     },
     {
@@ -1167,7 +1167,7 @@
       "price_per_gpu_hour_usd": 3.59,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://runpod.io/?ref=fdhbgkyk"
     },
     {
@@ -1181,8 +1181,22 @@
       "price_per_gpu_hour_usd": 2.6,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.gmicloud.ai/en/pricing"
+    },
+    {
+      "provider": "cp_vast",
+      "gpu_model": "H200",
+      "gpu_count": 1,
+      "instance_type": "vast-h200-1x",
+      "region": "global",
+      "consumption_type": "on_demand",
+      "price_per_hour_usd": 4.212,
+      "price_per_gpu_hour_usd": 4.212,
+      "vcpu": null,
+      "ram_gb": null,
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
+      "source_url": "https://cloud.vast.ai/?ref_id=236521"
     },
     {
       "provider": "cp_koyeb",
@@ -1195,7 +1209,7 @@
       "price_per_gpu_hour_usd": 3.0,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.koyeb.com/pricing"
     },
     {
@@ -1209,7 +1223,7 @@
       "price_per_gpu_hour_usd": 3.44,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.digitalocean.com/pricing/gpu-droplets?refcode=6dc17d11e796"
     },
     {
@@ -1223,7 +1237,7 @@
       "price_per_gpu_hour_usd": 2.8,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.genesiscloud.com/pricing"
     },
     {
@@ -1237,7 +1251,7 @@
       "price_per_gpu_hour_usd": 3.8,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://jarvislabs.ai/pricing"
     },
     {
@@ -1251,7 +1265,7 @@
       "price_per_gpu_hour_usd": 3.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.atlascloud.ai/pricing/gpu"
     },
     {
@@ -1261,11 +1275,11 @@
       "instance_type": "seeweb-h200-1x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 3.0256,
-      "price_per_gpu_hour_usd": 3.0256,
+      "price_per_hour_usd": 3.0204,
+      "price_per_gpu_hour_usd": 3.0204,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.seeweb.it/prodotti/cloud-server-gpu"
     },
     {
@@ -1279,7 +1293,7 @@
       "price_per_gpu_hour_usd": 2.4,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.hyperbolic.ai/marketplace"
     },
     {
@@ -1293,7 +1307,7 @@
       "price_per_gpu_hour_usd": 3.385,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://acecloud.ai/pricing/"
     },
     {
@@ -1307,7 +1321,7 @@
       "price_per_gpu_hour_usd": 7.89,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.together.ai/pricing"
     },
     {
@@ -1321,7 +1335,7 @@
       "price_per_gpu_hour_usd": 3.99,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.together.ai/pricing"
     },
     {
@@ -1335,7 +1349,7 @@
       "price_per_gpu_hour_usd": 10.0,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://apexapps.oracle.com/pls/apex/cetools/api/v1/products/"
     },
     {
@@ -1349,7 +1363,7 @@
       "price_per_gpu_hour_usd": 2.29,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.thetaedgecloud.com/resource/vm/list"
     },
     {
@@ -1363,7 +1377,7 @@
       "price_per_gpu_hour_usd": 3.49,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -1377,7 +1391,7 @@
       "price_per_gpu_hour_usd": 3.29,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -1391,7 +1405,7 @@
       "price_per_gpu_hour_usd": 3.19,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -1405,7 +1419,7 @@
       "price_per_gpu_hour_usd": 3.09,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -1419,7 +1433,7 @@
       "price_per_gpu_hour_usd": 2.99,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -1433,7 +1447,7 @@
       "price_per_gpu_hour_usd": 2.1,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://fal.ai/pricing"
     },
     {
@@ -1447,7 +1461,7 @@
       "price_per_gpu_hour_usd": 2.83,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://vm.massedcompute.com/api/v1/gpu-inventory"
     },
     {
@@ -1461,7 +1475,7 @@
       "price_per_gpu_hour_usd": 2.31,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://vm.massedcompute.com/api/v1/gpu-inventory"
     },
     {
@@ -1475,7 +1489,7 @@
       "price_per_gpu_hour_usd": 2.09,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://docs.sesterce.com/api-reference/gpu-cloud-instances"
     },
     {
@@ -1485,11 +1499,11 @@
       "instance_type": "gcore-h200-8x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 20.9576,
-      "price_per_gpu_hour_usd": 2.6197,
+      "price_per_hour_usd": 20.9104,
+      "price_per_gpu_hour_usd": 2.6138,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://gcore.com/pricing"
     },
     {
@@ -1503,7 +1517,7 @@
       "price_per_gpu_hour_usd": 19.2096,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://gcore.com/pricing"
     },
     {
@@ -1517,7 +1531,7 @@
       "price_per_gpu_hour_usd": 18.3744,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://gcore.com/pricing"
     },
     {
@@ -1531,7 +1545,7 @@
       "price_per_gpu_hour_usd": 4.0,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     },
     {
@@ -1545,7 +1559,7 @@
       "price_per_gpu_hour_usd": 1.1865,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     },
     {
@@ -1559,8 +1573,8 @@
       "price_per_gpu_hour_usd": 2.79,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
-      "source_url": "https://deepinfra.com/gpu-instances"
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
+      "source_url": "https://deepinfra.com/pricing"
     },
     {
       "provider": "cp_runpod",
@@ -1573,7 +1587,7 @@
       "price_per_gpu_hour_usd": 5.98,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://runpod.io/?ref=fdhbgkyk"
     },
     {
@@ -1587,8 +1601,22 @@
       "price_per_gpu_hour_usd": 4.0,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.gmicloud.ai/en/pricing"
+    },
+    {
+      "provider": "cp_vast",
+      "gpu_model": "B200",
+      "gpu_count": 1,
+      "instance_type": "vast-b200-1x",
+      "region": "global",
+      "consumption_type": "on_demand",
+      "price_per_hour_usd": 4.2329,
+      "price_per_gpu_hour_usd": 4.2329,
+      "vcpu": null,
+      "ram_gb": null,
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
+      "source_url": "https://cloud.vast.ai/?ref_id=236521"
     },
     {
       "provider": "cp_koyeb",
@@ -1601,7 +1629,7 @@
       "price_per_gpu_hour_usd": 5.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.koyeb.com/pricing"
     },
     {
@@ -1615,7 +1643,7 @@
       "price_per_gpu_hour_usd": 5.2178,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://upcloud.com/pricing/"
     },
     {
@@ -1629,7 +1657,7 @@
       "price_per_gpu_hour_usd": 5.1,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.beyond.pl/en/services/gpu-as-a-service-gpuaas/"
     },
     {
@@ -1643,7 +1671,7 @@
       "price_per_gpu_hour_usd": 3.75,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.genesiscloud.com/pricing"
     },
     {
@@ -1657,7 +1685,7 @@
       "price_per_gpu_hour_usd": 2.8,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.genesiscloud.com/pricing"
     },
     {
@@ -1671,7 +1699,7 @@
       "price_per_gpu_hour_usd": 3.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.hyperbolic.ai/marketplace"
     },
     {
@@ -1685,7 +1713,7 @@
       "price_per_gpu_hour_usd": 5.9745,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.together.ai/pricing"
     },
     {
@@ -1699,7 +1727,7 @@
       "price_per_gpu_hour_usd": 9.65,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.together.ai/pricing"
     },
     {
@@ -1713,7 +1741,7 @@
       "price_per_gpu_hour_usd": 14.0,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://apexapps.oracle.com/pls/apex/cetools/api/v1/products/"
     },
     {
@@ -1727,7 +1755,7 @@
       "price_per_gpu_hour_usd": 4.49,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -1741,7 +1769,7 @@
       "price_per_gpu_hour_usd": 3.99,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -1755,7 +1783,7 @@
       "price_per_gpu_hour_usd": 3.79,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -1769,22 +1797,8 @@
       "price_per_gpu_hour_usd": 4.114,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://docs.sesterce.com/api-reference/gpu-cloud-instances"
-    },
-    {
-      "provider": "cp_packet-ai",
-      "gpu_model": "B200",
-      "gpu_count": 1,
-      "instance_type": "packet-ai-b200-1x",
-      "region": "global",
-      "consumption_type": "on_demand",
-      "price_per_hour_usd": 3.75,
-      "price_per_gpu_hour_usd": 3.75,
-      "vcpu": null,
-      "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
-      "source_url": "https://packet.ai/#pricing"
     },
     {
       "provider": "cp_verda",
@@ -1797,7 +1811,7 @@
       "price_per_gpu_hour_usd": 6.11,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     },
     {
@@ -1811,7 +1825,7 @@
       "price_per_gpu_hour_usd": 2.1385,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     },
     {
@@ -1825,7 +1839,7 @@
       "price_per_gpu_hour_usd": 4.2,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://deepinfra.com/pricing"
     },
     {
@@ -1839,7 +1853,7 @@
       "price_per_gpu_hour_usd": 6.94,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://runpod.io/?ref=fdhbgkyk"
     },
     {
@@ -1849,12 +1863,12 @@
       "instance_type": "scaleway-b300-8x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 72.06,
-      "price_per_gpu_hour_usd": 9.0075,
+      "price_per_hour_usd": 69.7024,
+      "price_per_gpu_hour_usd": 8.7128,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
-      "source_url": "https://shadeform.com/directory/instances?cloud=scaleway&gputype=B300&numgpus=8&referral=6B321750"
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
+      "source_url": "https://www.scaleway.com/en/pricing/gpu/"
     },
     {
       "provider": "cp_oracle",
@@ -1867,7 +1881,7 @@
       "price_per_gpu_hour_usd": 15.0,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://apexapps.oracle.com/pls/apex/cetools/api/v1/products/"
     },
     {
@@ -1881,7 +1895,7 @@
       "price_per_gpu_hour_usd": 7.9145,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://docs.sesterce.com/api-reference/gpu-cloud-instances"
     },
     {
@@ -1895,7 +1909,7 @@
       "price_per_gpu_hour_usd": 7.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     },
     {
@@ -1909,7 +1923,7 @@
       "price_per_gpu_hour_usd": 2.625,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     },
     {
@@ -1923,7 +1937,7 @@
       "price_per_gpu_hour_usd": 8.0,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.gmicloud.ai/en/pricing"
     },
     {
@@ -1937,7 +1951,7 @@
       "price_per_gpu_hour_usd": 16.0,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://apexapps.oracle.com/pls/apex/cetools/api/v1/products/"
     },
     {
@@ -1951,7 +1965,7 @@
       "price_per_gpu_hour_usd": 18.0,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://apexapps.oracle.com/pls/apex/cetools/api/v1/products/"
     },
     {
@@ -1965,7 +1979,7 @@
       "price_per_gpu_hour_usd": 8.62,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     },
     {
@@ -1979,7 +1993,7 @@
       "price_per_gpu_hour_usd": 3.017,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     },
     {
@@ -1993,7 +2007,7 @@
       "price_per_gpu_hour_usd": 0.79,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://runpod.io/?ref=fdhbgkyk"
     },
     {
@@ -2007,7 +2021,7 @@
       "price_per_gpu_hour_usd": 0.67,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://runpod.io/?ref=fdhbgkyk"
     },
     {
@@ -2017,11 +2031,11 @@
       "instance_type": "vast-l40s-1x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 1.0037,
-      "price_per_gpu_hour_usd": 1.0037,
+      "price_per_hour_usd": 1.2074,
+      "price_per_gpu_hour_usd": 1.2074,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://cloud.vast.ai/?ref_id=236521"
     },
     {
@@ -2035,7 +2049,7 @@
       "price_per_gpu_hour_usd": 1.2,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.koyeb.com/pricing"
     },
     {
@@ -2049,7 +2063,7 @@
       "price_per_gpu_hour_usd": 1.2059,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://upcloud.com/pricing/"
     },
     {
@@ -2063,7 +2077,7 @@
       "price_per_gpu_hour_usd": 1.57,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.digitalocean.com/pricing/gpu-droplets?refcode=6dc17d11e796"
     },
     {
@@ -2073,11 +2087,11 @@
       "instance_type": "seeweb-l40s-1x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 0.9891,
-      "price_per_gpu_hour_usd": 0.9891,
+      "price_per_hour_usd": 0.9874,
+      "price_per_gpu_hour_usd": 0.9874,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.seeweb.it/prodotti/cloud-server-gpu"
     },
     {
@@ -2091,7 +2105,7 @@
       "price_per_gpu_hour_usd": 1.1567,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://acecloud.ai/pricing/"
     },
     {
@@ -2101,12 +2115,12 @@
       "instance_type": "scaleway-l40s-1x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 1.7,
-      "price_per_gpu_hour_usd": 1.7,
+      "price_per_hour_usd": 1.6264,
+      "price_per_gpu_hour_usd": 1.6264,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
-      "source_url": "https://shadeform.com/directory/instances?cloud=scaleway&gputype=L40S&numgpus=1&referral=6B321750"
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
+      "source_url": "https://www.scaleway.com/en/pricing/gpu/"
     },
     {
       "provider": "cp_vultr",
@@ -2119,7 +2133,7 @@
       "price_per_gpu_hour_usd": 1.671,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.vultr.com/pricing/"
     },
     {
@@ -2133,7 +2147,7 @@
       "price_per_gpu_hour_usd": 1.05,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.together.ai/pricing"
     },
     {
@@ -2147,7 +2161,7 @@
       "price_per_gpu_hour_usd": 3.5,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://apexapps.oracle.com/pls/apex/cetools/api/v1/products/"
     },
     {
@@ -2161,7 +2175,7 @@
       "price_per_gpu_hour_usd": 1.29,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -2175,7 +2189,7 @@
       "price_per_gpu_hour_usd": 1.19,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -2189,7 +2203,7 @@
       "price_per_gpu_hour_usd": 1.09,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -2203,7 +2217,7 @@
       "price_per_gpu_hour_usd": 0.99,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -2217,7 +2231,7 @@
       "price_per_gpu_hour_usd": 0.89,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://www.civo.com/pricing"
     },
     {
@@ -2231,8 +2245,8 @@
       "price_per_gpu_hour_usd": 0.88,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
-      "source_url": "https://shadeform.com/directory/instances?cloud=massedcompute&gputype=L40S&numgpus=1&referral=6B321750"
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
+      "source_url": "https://vm.massedcompute.com/api/v1/gpu-inventory"
     },
     {
       "provider": "cp_sesterce",
@@ -2245,7 +2259,7 @@
       "price_per_gpu_hour_usd": 0.759,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://docs.sesterce.com/api-reference/gpu-cloud-instances"
     },
     {
@@ -2259,7 +2273,7 @@
       "price_per_gpu_hour_usd": 0.74,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://shadeform.com/directory/instances?cloud=latitude&gputype=L40S&numgpus=1&referral=6B321750"
     },
     {
@@ -2273,7 +2287,7 @@
       "price_per_gpu_hour_usd": 0.475,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://dashboard.tensordock.com/api/v2/hostnodes"
     },
     {
@@ -2283,11 +2297,11 @@
       "instance_type": "gcore-l40s-8x",
       "region": "global",
       "consumption_type": "on_demand",
-      "price_per_hour_usd": 15.3488,
-      "price_per_gpu_hour_usd": 1.9186,
+      "price_per_hour_usd": 10.0368,
+      "price_per_gpu_hour_usd": 1.2546,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://gcore.com/pricing"
     },
     {
@@ -2301,7 +2315,7 @@
       "price_per_gpu_hour_usd": 1.044,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://gcore.com/pricing"
     },
     {
@@ -2315,7 +2329,7 @@
       "price_per_gpu_hour_usd": 0.9396,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://gcore.com/pricing"
     },
     {
@@ -2329,7 +2343,7 @@
       "price_per_gpu_hour_usd": 0.92,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://packet.ai/#pricing"
     },
     {
@@ -2343,7 +2357,7 @@
       "price_per_gpu_hour_usd": 1.37,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     },
     {
@@ -2357,7 +2371,7 @@
       "price_per_gpu_hour_usd": 0.32,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-28T10:04:14.565051+00:00",
+      "fetched_at": "2026-05-29T09:56:17.359944+00:00",
       "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types"
     }
   ],
@@ -2373,7 +2387,7 @@
       "price_per_gpu_hour_usd": 7.07453,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2387,7 +2401,7 @@
       "price_per_gpu_hour_usd": 8.39404,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2401,7 +2415,7 @@
       "price_per_gpu_hour_usd": 12.735516,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2415,7 +2429,7 @@
       "price_per_gpu_hour_usd": 5.07388,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2429,7 +2443,7 @@
       "price_per_gpu_hour_usd": 2.511,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2443,7 +2457,7 @@
       "price_per_gpu_hour_usd": 9.796551000000001,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2457,7 +2471,7 @@
       "price_per_gpu_hour_usd": 3.306,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2471,7 +2485,7 @@
       "price_per_gpu_hour_usd": 4.49131,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2485,7 +2499,7 @@
       "price_per_gpu_hour_usd": 4.842976,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2499,7 +2513,7 @@
       "price_per_gpu_hour_usd": 2.4219,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2513,7 +2527,7 @@
       "price_per_gpu_hour_usd": 11.55993,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2527,7 +2541,7 @@
       "price_per_gpu_hour_usd": 4.2998985659999995,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2541,7 +2555,7 @@
       "price_per_gpu_hour_usd": 4.2998985659999995,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2555,7 +2569,7 @@
       "price_per_gpu_hour_usd": 6.79880857,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2569,7 +2583,7 @@
       "price_per_gpu_hour_usd": 6.79880857,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2583,7 +2597,7 @@
       "price_per_gpu_hour_usd": 10.25316,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2597,7 +2611,7 @@
       "price_per_gpu_hour_usd": 7.113593,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2611,7 +2625,7 @@
       "price_per_gpu_hour_usd": 4.299899,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2625,7 +2639,7 @@
       "price_per_gpu_hour_usd": 13.44756,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2639,7 +2653,7 @@
       "price_per_gpu_hour_usd": 5.589868,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2653,7 +2667,7 @@
       "price_per_gpu_hour_usd": 9.31174,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2667,7 +2681,7 @@
       "price_per_gpu_hour_usd": 9.31174,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2681,7 +2695,7 @@
       "price_per_gpu_hour_usd": 10.34428,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2695,7 +2709,7 @@
       "price_per_gpu_hour_usd": 1.955,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2709,7 +2723,7 @@
       "price_per_gpu_hour_usd": 13.44756,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2723,7 +2737,7 @@
       "price_per_gpu_hour_usd": 9.31174,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2737,7 +2751,7 @@
       "price_per_gpu_hour_usd": 8.838451,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2751,7 +2765,7 @@
       "price_per_gpu_hour_usd": 3.1387,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2765,7 +2779,7 @@
       "price_per_gpu_hour_usd": 5.848679,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2779,7 +2793,7 @@
       "price_per_gpu_hour_usd": 4.1214,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2793,7 +2807,7 @@
       "price_per_gpu_hour_usd": 4.4958,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2807,7 +2821,7 @@
       "price_per_gpu_hour_usd": 4.2736,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2821,7 +2835,7 @@
       "price_per_gpu_hour_usd": 3.5427999999999997,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2835,7 +2849,7 @@
       "price_per_gpu_hour_usd": 3.8395,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2849,7 +2863,7 @@
       "price_per_gpu_hour_usd": 4.6559,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2863,7 +2877,7 @@
       "price_per_gpu_hour_usd": 4.6559,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2877,7 +2891,7 @@
       "price_per_gpu_hour_usd": 8.838451,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2891,7 +2905,7 @@
       "price_per_gpu_hour_usd": 7.486168,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2905,7 +2919,7 @@
       "price_per_gpu_hour_usd": 6.43139,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2919,7 +2933,7 @@
       "price_per_gpu_hour_usd": 6.43139,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2933,7 +2947,7 @@
       "price_per_gpu_hour_usd": 9.2476714,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2947,7 +2961,7 @@
       "price_per_gpu_hour_usd": 4.2014,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2961,7 +2975,7 @@
       "price_per_gpu_hour_usd": 4.2014,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2975,7 +2989,7 @@
       "price_per_gpu_hour_usd": 8.01204,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -2989,7 +3003,7 @@
       "price_per_gpu_hour_usd": 10.344275712,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3003,7 +3017,7 @@
       "price_per_gpu_hour_usd": 10.344275712,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3017,7 +3031,7 @@
       "price_per_gpu_hour_usd": 10.78698,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3031,7 +3045,7 @@
       "price_per_gpu_hour_usd": 4.5138,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3045,7 +3059,7 @@
       "price_per_gpu_hour_usd": 5.777595,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3059,7 +3073,7 @@
       "price_per_gpu_hour_usd": 5.067206,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3073,7 +3087,7 @@
       "price_per_gpu_hour_usd": 9.135277,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3087,7 +3101,7 @@
       "price_per_gpu_hour_usd": 9.247671,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3101,7 +3115,7 @@
       "price_per_gpu_hour_usd": 3.9013,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3115,7 +3129,7 @@
       "price_per_gpu_hour_usd": 5.1266,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3129,7 +3143,7 @@
       "price_per_gpu_hour_usd": 5.308801,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3143,7 +3157,7 @@
       "price_per_gpu_hour_usd": 12.735516,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3157,7 +3171,7 @@
       "price_per_gpu_hour_usd": 7.832778,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3171,7 +3185,7 @@
       "price_per_gpu_hour_usd": 2.202,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3185,7 +3199,7 @@
       "price_per_gpu_hour_usd": 4.08301,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3199,7 +3213,7 @@
       "price_per_gpu_hour_usd": 4.08301,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3213,7 +3227,7 @@
       "price_per_gpu_hour_usd": 3.4901,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3227,7 +3241,7 @@
       "price_per_gpu_hour_usd": 11.65076,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3241,7 +3255,7 @@
       "price_per_gpu_hour_usd": 6.43139,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3255,7 +3269,7 @@
       "price_per_gpu_hour_usd": 8.022594,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3269,7 +3283,7 @@
       "price_per_gpu_hour_usd": 4.08301,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3283,7 +3297,7 @@
       "price_per_gpu_hour_usd": 5.1203,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3297,7 +3311,7 @@
       "price_per_gpu_hour_usd": 4.953831,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3311,7 +3325,7 @@
       "price_per_gpu_hour_usd": 11.39008,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3325,7 +3339,7 @@
       "price_per_gpu_hour_usd": 4.498984,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3339,7 +3353,7 @@
       "price_per_gpu_hour_usd": 9.858272,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3353,7 +3367,7 @@
       "price_per_gpu_hour_usd": 7.0816,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3367,7 +3381,7 @@
       "price_per_gpu_hour_usd": 5.848679,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3381,7 +3395,7 @@
       "price_per_gpu_hour_usd": 6.234853,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3395,7 +3409,7 @@
       "price_per_gpu_hour_usd": 5.589868,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3409,7 +3423,7 @@
       "price_per_gpu_hour_usd": 3.3806,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3423,7 +3437,7 @@
       "price_per_gpu_hour_usd": 12.20625,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3437,7 +3451,7 @@
       "price_per_gpu_hour_usd": 14.204998,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3451,7 +3465,7 @@
       "price_per_gpu_hour_usd": 3.347,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3465,7 +3479,7 @@
       "price_per_gpu_hour_usd": 4.734618,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3479,7 +3493,7 @@
       "price_per_gpu_hour_usd": 13.28412,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3493,7 +3507,7 @@
       "price_per_gpu_hour_usd": 6.798809,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3507,7 +3521,7 @@
       "price_per_gpu_hour_usd": 7.657498,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     },
     {
@@ -3521,7 +3535,7 @@
       "price_per_gpu_hour_usd": 11.03385,
       "vcpu": null,
       "ram_gb": null,
-      "fetched_at": "2026-05-29T07:04:19.017877+00:00",
+      "fetched_at": "2026-05-29T09:56:06.854562+00:00",
       "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones"
     }
   ]
