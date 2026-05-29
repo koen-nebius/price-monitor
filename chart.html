@@ -204,6 +204,57 @@
       width: 100% !important;
     }
 
+    /* ── Intel toggle ────────────────────────────────────────────────────── */
+    .intel-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .intel-toggle input[type="checkbox"] {
+      appearance: none;
+      width: 32px; height: 18px;
+      border-radius: 9px;
+      background: var(--border);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .intel-toggle input[type="checkbox"]::after {
+      content: "";
+      position: absolute;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--muted);
+      top: 3px; left: 3px;
+      transition: left 0.2s, background 0.2s;
+    }
+    .intel-toggle input[type="checkbox"]:checked {
+      background: #ffd70033;
+      border: 1px solid #ffd700;
+    }
+    .intel-toggle input[type="checkbox"]:checked::after {
+      left: 15px;
+      background: #ffd700;
+    }
+    .intel-toggle-label {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .intel-diamond {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border: 2px solid #ffd700;
+      background: transparent;
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
+
     /* ── Footer note ─────────────────────────────────────────────────────── */
     footer {
       padding: 8px 24px 20px;
@@ -230,6 +281,13 @@
     <label>Pricing type</label>
     <select id="ct-select"></select>
   </div>
+  <label class="intel-toggle" title="Show deal quotes from #price-intelligence channel (not public rack rates)">
+    <input type="checkbox" id="intel-toggle" checked>
+    <span class="intel-toggle-label">
+      <span class="intel-diamond"></span>
+      Field intelligence
+    </span>
+  </label>
 </div>
 
 <div id="provider-panel">
@@ -248,14 +306,16 @@
 </div>
 
 <footer>
-  Each point = cheapest price observed that day across all regions/SKUs for that provider.
-  Data sourced from provider APIs and public pricing pages.
-  Full benchmark: <a href="https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/" target="_blank">Confluence →</a>
+  Line data: cheapest price per provider per day across all regions/SKUs, from public APIs and pricing pages. &nbsp;|&nbsp;
+  <span class="intel-diamond" style="display:inline-block;width:8px;height:8px;border:1.5px solid #ffd700;transform:rotate(45deg);margin-bottom:-1px"></span>
+  Field intelligence: deal-specific quotes reported in <strong>#price-intelligence</strong> — reflect volume, relationship, and timing. Hover for terms.
+  &nbsp;|&nbsp; Full benchmark: <a href="https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/" target="_blank">Confluence →</a>
 </footer>
 
 <script>
 // ── Config ────────────────────────────────────────────────────────────────────
-const CSV_URL = "store/history.csv";
+const CSV_URL      = "store/history.csv";
+const INTEL_CSV_URL = "store/intel.csv";
 
 const CONSUMPTION_LABELS = {
   on_demand:      "On-demand",
@@ -354,25 +414,34 @@ function autoColor(provider, index) {
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let allRows   = [];   // parsed CSV rows
-let chart     = null;
-let allProviders = []; // sorted provider list
+let allRows      = [];   // parsed history.csv rows
+let intelRows    = [];   // parsed intel.csv rows
+let chart        = null;
+let allProviders = [];   // sorted provider list
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
-Papa.parse(CSV_URL, {
-  download: true,
-  header: true,
-  skipEmptyLines: true,
-  complete({ data }) {
-    allRows = data;
-    boot(data);
-  },
-  error(err) {
-    document.getElementById("data-range").textContent = "Error loading data: " + err.message;
+// ── Boot — load both CSVs in parallel ─────────────────────────────────────────
+function parseCsv(url) {
+  return new Promise((resolve) => {
+    Papa.parse(url, {
+      download: true, header: true, skipEmptyLines: true,
+      complete: ({ data }) => resolve(data),
+      error: ()           => resolve([]),
+    });
+  });
+}
+
+Promise.all([parseCsv(CSV_URL), parseCsv(INTEL_CSV_URL)]).then(([history, intel]) => {
+  allRows   = history;
+  intelRows = intel;
+  if (!allRows.length) {
+    document.getElementById("data-range").textContent = "No data loaded.";
+    return;
   }
+  boot();
 });
 
-function boot(rows) {
+function boot() {
+  const rows = allRows;
   // Dates
   const dates = [...new Set(rows.map(r => r.snapshot_date))].sort();
   const first = dates[0], last = dates[dates.length - 1];
@@ -417,6 +486,7 @@ function boot(rows) {
   document.getElementById("btn-key").addEventListener("click", () => setProviders("key"));
   document.getElementById("btn-all").addEventListener("click", () => setProviders("all"));
   document.getElementById("btn-none").addEventListener("click", () => setProviders("none"));
+  document.getElementById("intel-toggle").addEventListener("change", updateChart);
 }
 
 function buildCtDropdown(gpu) {
@@ -570,6 +640,14 @@ function initChart() {
           bodyColor: "#9ca3b0",
           callbacks: {
             label(ctx) {
+              const pt = ctx.raw;
+              if (pt && pt._provider !== undefined) {
+                // Intel scatter point
+                const parts = [`  ◇ ${pt._provider}  $${ctx.parsed.y.toFixed(2)}/GPU-hr`];
+                parts.push(`    Term: ${pt._term}  ·  Prepay: ${pt._prepay}`);
+                if (pt._notes) parts.push(`    ${pt._notes}`);
+                return parts;
+              }
               return `  ${ctx.dataset.label}: $${ctx.parsed.y.toFixed(2)}/GPU-hr`;
             }
           }
@@ -637,24 +715,79 @@ function updateChart() {
   // Build datasets — key providers first in legend
   const orderedProviders = allProviders.filter(p => byProvider[p]);
 
-  chart.data.datasets = orderedProviders.map((p, i) => {
+  const lineDatasets = orderedProviders.map((p, i) => {
     const color = autoColor(p, allProviders.indexOf(p));
     const isNebius = p === "nebius";
     return {
-      label:           providerDisplay(p),
-      data:            byProvider[p],
-      borderColor:     color,
-      backgroundColor: color + "22",
+      label:                providerDisplay(p),
+      data:                 byProvider[p],
+      borderColor:          color,
+      backgroundColor:      color + "22",
       pointBackgroundColor: color,
-      borderWidth:     isNebius ? 2.5 : 1.5,
-      pointRadius:     isNebius ? 5 : 3.5,
-      pointHoverRadius: 6,
-      tension:         0.15,
-      spanGaps:        false,
-      hidden:          !selected.has(p),
+      borderWidth:          isNebius ? 2.5 : 1.5,
+      pointRadius:          isNebius ? 5 : 3.5,
+      pointHoverRadius:     6,
+      tension:              0.15,
+      spanGaps:             false,
+      hidden:               !selected.has(p),
     };
   });
 
+  // ── Intel scatter overlay ────────────────────────────────────────────────
+  const showIntel = document.getElementById("intel-toggle").checked;
+  const intelDatasets = [];
+
+  if (showIntel && intelRows.length) {
+    // Filter intel rows to selected GPU; always show regardless of CT
+    // (intel quotes have their own term/prepay — shown in tooltip)
+    const gpuIntel = intelRows.filter(r => r.gpu_model === gpu && r.provider_type !== "nebius");
+
+    if (gpuIntel.length) {
+      // Group by provider_name so we can show them in legend
+      const byProvName = {};
+      for (const r of gpuIntel) {
+        const key = r.provider_name || "Undisclosed";
+        if (!byProvName[key]) byProvName[key] = [];
+        byProvName[key].push(r);
+      }
+
+      for (const [provName, pts] of Object.entries(byProvName)) {
+        const scatterPts = pts.map(r => {
+          const termMo = parseInt(r.term_months) || 0;
+          const termStr = termMo === 0 ? "On-demand"
+            : termMo < 12 ? `${termMo}mo`
+            : `${Math.floor(termMo/12)}yr${termMo%12 ? ` ${termMo%12}mo` : ""}`;
+          return {
+            x:         r.message_date,
+            y:         parseFloat(r.price_per_gpu_hour_usd),
+            // extra metadata for tooltip
+            _provider: provName,
+            _term:     termStr,
+            _prepay:   `${r.prepay_pct || 0}%`,
+            _notes:    r.notes || "",
+          };
+        });
+
+        intelDatasets.push({
+          type:                 "scatter",
+          label:                `◇ ${provName}`,
+          data:                 scatterPts,
+          borderColor:          "#ffd700",
+          backgroundColor:      "transparent",
+          pointStyle:           "rectRot",   // diamond
+          pointRadius:          6,
+          pointHoverRadius:     8,
+          pointBorderWidth:     2,
+          pointBorderColor:     "#ffd700",
+          pointBackgroundColor: "transparent",
+          showLine:             false,
+          hidden:               false,
+        });
+      }
+    }
+  }
+
+  chart.data.datasets = [...lineDatasets, ...intelDatasets];
   chart.update();
 }
 </script>

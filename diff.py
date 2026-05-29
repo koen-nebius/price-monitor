@@ -1,12 +1,17 @@
 """
 Compute price changes between two snapshots and format outputs.
 """
+import csv
 import statistics
 from collections import defaultdict
+from datetime import date, timedelta
+from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 
 from schema import PriceRecord, DiffEntry
 from config import provider_tier, ALERT_THRESHOLD_PCT, PROVIDER_TIERS
+
+INTEL_CSV = Path(__file__).parent / "store" / "intel.csv"
 
 CHANGE_THRESHOLD = 0.001   # 0.1% — ignore floating-point noise in diff detection
 
@@ -523,6 +528,135 @@ def _build_committed_implication(records: List[PriceRecord]) -> str:
     )
 
 
+def _load_intel(days: int = 60) -> List[Dict]:
+    """Load recent rows from intel.csv. Returns [] if file missing or empty."""
+    if not INTEL_CSV.exists():
+        return []
+    cutoff = (date.today() - timedelta(days=days)).isoformat()
+    rows = []
+    try:
+        with open(INTEL_CSV, newline="") as f:
+            for row in csv.DictReader(f):
+                if row.get("message_date", "") >= cutoff:
+                    rows.append(row)
+    except Exception:
+        pass
+    return rows
+
+
+def _build_field_intel_callout(records: List[PriceRecord]) -> str:
+    """
+    HTML section: recent field intel quotes from #price-intelligence vs Nebius pricing.
+    Shows deal-specific quotes (committed terms, volume discounts) flagging material gaps.
+    """
+    intel_rows = _load_intel(days=60)
+    if not intel_rows:
+        return ""
+
+    # Nebius lookup helpers
+    def _neb_on_demand(gpu: str) -> Optional[float]:
+        recs = [r for r in records if r.provider == "nebius"
+                and r.gpu_model == gpu and r.consumption_type == "on_demand"]
+        return min((r.price_per_gpu_hour_usd for r in recs), default=None)
+
+    def _neb_committed(gpu: str, term_months: int) -> Optional[float]:
+        """Best Nebius committed price at the closest available tier."""
+        if term_months <= 0:
+            return _neb_on_demand(gpu)
+        if term_months <= 10:
+            cts = {"committed_9mo"}
+        elif term_months <= 15:
+            cts = {"reserved_1yr", "committed_1yr"}
+        elif term_months <= 21:
+            cts = {"committed_18mo"}
+        elif term_months <= 30:
+            cts = {"committed_2yr", "reserved_2yr"}
+        else:
+            cts = {"reserved_3yr", "committed_3yr"}
+        recs = [r for r in records if r.provider == "nebius"
+                and r.gpu_model == gpu and r.consumption_type in cts]
+        return min((r.price_per_gpu_hour_usd for r in recs), default=None)
+
+    def _term_str(months: int) -> str:
+        if months <= 0:   return "On-demand"
+        if months == 1:   return "Monthly"
+        if months < 12:   return f"{months}mo"
+        yrs = months // 12
+        rem = months % 12
+        return f"{yrs}yr" + (f" {rem}mo" if rem else "")
+
+    def _gap_cell(comp_px: float, neb_px: Optional[float]) -> str:
+        if neb_px is None:
+            return "<td>—</td>"
+        gap = (comp_px - neb_px) / neb_px * 100  # negative = competitor cheaper
+        label = f"{gap:+.0f}% vs Nebius ${neb_px:.2f}"
+        if gap < -15:
+            return f'<td><strong style="color:#e05252">{label}</strong></td>'
+        if gap < -5:
+            return f'<td style="color:#f0a030">{label}</td>'
+        return f"<td>{label}</td>"
+
+    # Group by GPU, sorted by date desc
+    by_gpu: Dict[str, list] = defaultdict(list)
+    for row in intel_rows:
+        # skip Nebius own quotes from the comparison table
+        if row.get("provider_type") == "nebius":
+            continue
+        by_gpu[row["gpu_model"]].append(row)
+
+    html = []
+    html.append('<h2>Field Intelligence — Recent Market Quotes</h2>')
+    html.append(
+        '<p><em>Sourced from Nebius sales team reports in <strong>#price-intelligence</strong>. '
+        'These are deal-specific quotes reflecting volume, relationship, and timing — '
+        'not public rack rates. Customer names removed. '
+        '"vs Nebius" compares against Nebius committed pricing at the closest matching term.</em></p>'
+    )
+
+    has_data = False
+    for gpu in GPU_ORDER:
+        rows = sorted(by_gpu.get(gpu, []), key=lambda r: r["message_date"], reverse=True)
+        if not rows:
+            continue
+        has_data = True
+
+        html.append(f"<h3>{gpu}</h3>")
+        html.append(
+            "<table><thead><tr>"
+            "<th>Date</th><th>Provider</th><th>$/GPU-hr</th>"
+            "<th>Term</th><th>Prepay</th><th>vs Nebius</th><th>Context</th>"
+            "</tr></thead><tbody>"
+        )
+
+        for row in rows[:12]:
+            price    = float(row["price_per_gpu_hour_usd"])
+            term     = int(row.get("term_months", 0))
+            prepay   = int(row.get("prepay_pct", 0))
+            provider = row.get("provider_name", "Unknown")
+            notes    = row.get("notes", "")
+            dt       = row.get("message_date", "")
+            prepay_str = f"{prepay}% upfront" if prepay > 0 else "0% / monthly"
+            neb_px   = _neb_committed(gpu, term)
+            html.append(
+                f"<tr>"
+                f"<td>{dt}</td>"
+                f"<td>{provider}</td>"
+                f"<td><strong>${price:.2f}</strong></td>"
+                f"<td>{_term_str(term)}</td>"
+                f"<td>{prepay_str}</td>"
+                + _gap_cell(price, neb_px) +
+                f"<td><em>{notes}</em></td>"
+                f"</tr>"
+            )
+
+        html.append("</tbody></table>")
+
+    if not has_data:
+        return ""
+
+    return "\n".join(html)
+
+
 def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
     html = []
 
@@ -576,6 +710,11 @@ def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
         'On-demand, spot, and committed tiers shown separately.</p>'
     )
     html.append(_build_hyperscaler_tables(records))
+
+    # ── Section 5: Field intelligence ───────────────────────────────────────
+    intel_html = _build_field_intel_callout(records)
+    if intel_html:
+        html.append(intel_html)
 
     return "\n".join(html)
 

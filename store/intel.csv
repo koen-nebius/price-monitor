@@ -1,0 +1,35 @@
+message_ts,message_date,gpu_model,price_per_gpu_hour_usd,term_months,prepay_pct,provider_type,provider_name,notes
+seed_20260528_01,2026-05-28,B200,3.68,36,0,hyperscaler,Oracle,3yr 0% prepay committed deal
+seed_20260522_01,2026-05-22,B300,3.60,60,25,undisclosed,Undisclosed,5yr 25% prepay large cluster
+seed_20260519_01,2026-05-19,H100,1.80,12,0,hyperscaler,AWS,1yr 0% down 232-GPU cluster
+seed_20260518_01,2026-05-18,B200,3.68,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay quote
+seed_20260515_01,2026-05-15,B200,4.36,12,100,broker,Axe Compute,63-node bare metal 100% down 12m Canada
+seed_20260515_02,2026-05-15,B200,4.46,24,25,broker,Axe Compute,63-node bare metal 25% down 24m Canada
+seed_20260514_01,2026-05-14,B300,4.00,36,20,hyperscaler,AWS,3yr 20% prepay indicative
+seed_20260514_02,2026-05-14,GB300,5.00,24,40,undisclosed,Undisclosed,2yr 40% prepay delivery June
+seed_20260514_03,2026-05-14,GB300,4.30,36,35,undisclosed_neocloud,Undisclosed EU neocloud,3yr 30-40 rack cluster H2 availability
+seed_20260513_01,2026-05-13,B300,4.30,18,50,undisclosed,Undisclosed,18mo 50% upfront 80-GPU European deal
+seed_20260511_01,2026-05-11,B200,4.00,12,100,hyperscaler,AWS,1yr 100% prepay 400-GPU APAC deal
+seed_20260511_02,2026-05-11,B300,4.20,12,100,neocloud,Lambda,1yr 100% prepay 1024-GPU deal
+seed_20260508_01,2026-05-08,B200,3.20,24,0,hyperscaler,GCP,2yr 0% prepay
+seed_20260508_02,2026-05-08,B200,3.70,12,0,hyperscaler,GCP,1yr 0% prepay
+seed_20260508_03,2026-05-08,H200,2.00,12,0,hyperscaler,AWS,1yr 0% prepay
+seed_20260508_04,2026-05-08,B300,3.50,36,0,hyperscaler,Azure,3yr committed 5000-GPU lost deal
+seed_20260508_05,2026-05-08,B300,3.70,24,0,neocloud,CoreWeave,2yr 0% prepay APAC deal
+seed_20260508_06,2026-05-08,B300,3.80,12,0,neocloud,CoreWeave,1yr 0% prepay APAC deal
+seed_20260508_07,2026-05-08,B300,4.00,0,0,hyperscaler,AWS,monthly payment terms large cluster
+seed_20260505_01,2026-05-05,B200,4.25,12,40,broker,Blue Sky Compute,1yr 40% prepay 256-GPU 4-8wk go-live
+seed_20260505_02,2026-05-05,B300,4.75,24,25,undisclosed,Undisclosed,2yr 25% prepay leading provider
+seed_20260501_01,2026-05-01,GB300,3.09,60,100,undisclosed,Undisclosed,5yr 100% upfront UAE market
+seed_20260501_02,2026-05-01,GB300,3.50,36,100,undisclosed,Undisclosed,3yr 100% upfront UAE market
+seed_20260501_03,2026-05-01,GB300,4.00,36,50,undisclosed,Undisclosed,3yr 50% upfront UAE market
+seed_20260428_01,2026-04-28,GB300,6.18,12,30,nebius,Nebius,Nebius own quote for reference 30% down 1yr
+seed_20260414_01,2026-04-14,B200,3.45,0,0,undisclosed,Undisclosed,on-demand 600-GPU deal
+seed_20260414_02,2026-04-14,B200,4.25,0,25,hyperscaler,AWS,through reseller 25% down
+seed_20260413_01,2026-04-13,GB200,4.75,36,25,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 25% prepay Vera Rubin GPU deal
+seed_20260413_02,2026-04-13,B300,3.95,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay biotech deal
+seed_20260409_01,2026-04-09,B300,3.98,36,25,neocloud,CoreWeave,3yr 25% down Jan 2027 earliest delivery
+seed_20260402_01,2026-04-02,GB300,4.00,36,0,neocloud,CoreWeave (unconfirmed),3yr 0% upfront 5000-GPU deal
+seed_20260402_02,2026-04-02,H100,2.35,12,0,undisclosed,Undisclosed,$2.00-$2.70 range 1yr reservation
+seed_20260313_01,2026-03-13,B200,2.85,24,0,undisclosed,Undisclosed,$2.80-$2.90 range multiyear with prepay
+seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-node broker offer
