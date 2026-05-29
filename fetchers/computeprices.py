@@ -79,6 +79,27 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
             best[key] = r
     records = list(best.values())
 
+    # Sanity filter: drop reserved records where price > on_demand for the same provider+GPU.
+    # ComputePrices occasionally returns inverted reserved pricing (e.g. Gcore H100 reserved_3yr
+    # at $16.24 vs on_demand $1.78). These are data quality issues in the upstream source.
+    od_prices: Dict[tuple, float] = {
+        (r.provider, r.gpu_model): r.price_per_gpu_hour_usd
+        for r in records if r.consumption_type == "on_demand"
+    }
+    filtered = []
+    for r in records:
+        if "reserved" in r.consumption_type or "committed" in r.consumption_type:
+            od = od_prices.get((r.provider, r.gpu_model))
+            if od is not None and r.price_per_gpu_hour_usd > od:
+                logger.warning(
+                    f"  computeprices: dropping inverted reserved price — "
+                    f"{r.provider} {r.gpu_model} {r.consumption_type} "
+                    f"${r.price_per_gpu_hour_usd:.2f} > on_demand ${od:.2f}"
+                )
+                continue
+        filtered.append(r)
+    records = filtered
+
     logger.info(f"ComputePrices: {len(records)} records from {len(GPU_SLUGS)} GPU slugs")
     return records
 
