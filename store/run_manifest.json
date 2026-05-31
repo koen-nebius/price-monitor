@@ -1,7 +1,7 @@
 {
-  "run_date": "2026-05-30",
-  "started_at": "2026-05-30T07:02:48.886841+00:00",
-  "completed_at": "2026-05-30T07:04:07.027866+00:00",
+  "run_date": "2026-05-31",
+  "started_at": "2026-05-31T07:03:56.592329+00:00",
+  "completed_at": "2026-05-31T07:05:57.412337+00:00",
   "status": "partial",
   "record_count": 782,
   "raw_record_count": 782,
@@ -33,7 +33,7 @@
     "coreweave": {
       "status": "cache",
       "record_count": 10,
-      "cache_age_hours": 14.1
+      "cache_age_hours": 22.6
     },
     "lambda": {
       "status": "fallback",
@@ -43,12 +43,12 @@
     "crusoe": {
       "status": "cache",
       "record_count": 2,
-      "cache_age_hours": 14.1
+      "cache_age_hours": 22.6
     },
     "nebius": {
       "status": "cache",
       "record_count": 10,
-      "cache_age_hours": 14.1
+      "cache_age_hours": 22.6
     },
     "nebius_committed": {
       "status": "live",
@@ -57,7 +57,7 @@
     "computeprices": {
       "status": "cache",
       "record_count": 117,
-      "cache_age_hours": 14.1
+      "cache_age_hours": 22.6
     },
     "oracle": {
       "status": "live",
@@ -73,7 +73,7 @@
     }
   },
   "warnings": [
-    "Nebius committed prices in config.py were last verified 37 days ago \u2014 verify against current pricing sheet."
+    "Nebius committed prices in config.py were last verified 38 days ago \u2014 verify against current pricing sheet."
   ],
   "generated_outputs": {
     "slack_message": true,
