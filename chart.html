@@ -551,7 +551,10 @@ function pctDiff(a, b) {
 // GPU stats computation
 // ─────────────────────────────────────────────────────────────────────────────
 function computeGpuStats(gpu, snapRows) {
-  const gpuRows = snapRows.filter(r=>r.gpu_model===gpu);
+  // Status, rank, median, and floor are all computed against KEY_PROVIDERS only.
+  // This prevents cheap aggregator prices from skewing the median and making
+  // Nebius look "above market" when it's actually competitive.
+  const gpuRows = snapRows.filter(r=>r.gpu_model===gpu && KEY_PROVIDERS.has(r.provider));
   if (!gpuRows.length) return null;
 
   const byProv = {};
