@@ -1,7 +1,7 @@
 {
   "run_date": "2026-06-03",
-  "started_at": "2026-06-03T07:03:20.674909+00:00",
-  "completed_at": "2026-06-03T07:04:50.553144+00:00",
+  "started_at": "2026-06-03T07:59:57.891460+00:00",
+  "completed_at": "2026-06-03T08:01:38.445167+00:00",
   "status": "partial",
   "record_count": 782,
   "raw_record_count": 782,
@@ -33,7 +33,7 @@
     "coreweave": {
       "status": "cache",
       "record_count": 10,
-      "cache_age_hours": 20.7
+      "cache_age_hours": 21.6
     },
     "lambda": {
       "status": "fallback",
@@ -43,12 +43,12 @@
     "crusoe": {
       "status": "cache",
       "record_count": 2,
-      "cache_age_hours": 20.7
+      "cache_age_hours": 21.6
     },
     "nebius": {
       "status": "cache",
       "record_count": 10,
-      "cache_age_hours": 20.7
+      "cache_age_hours": 21.6
     },
     "nebius_committed": {
       "status": "live",
@@ -57,7 +57,7 @@
     "computeprices": {
       "status": "cache",
       "record_count": 117,
-      "cache_age_hours": 20.7
+      "cache_age_hours": 21.6
     },
     "oracle": {
       "status": "live",
