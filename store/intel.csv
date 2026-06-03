@@ -109,3 +109,5 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1751284703.625259,2025-06-30,H200,2.0,12,0,neocloud,Horizon Compute,32-GPU H200 reservation rate
 1750799264.405269,2025-06-24,GB200,4.0,0,0,hyperscaler,ByteDance,Asia/Europe on-demand starting price
 1750787590.055599,2025-06-24,B200,4.0,12,0,neocloud,Vultr,1yr minimum $4-6 range lower bound
+1780422932.324229,2026-06-02,B300,4.25,24,100,neocloud,Verda,24m 100% prepaid 64 GPUs joint offer
+1780422932.324229,2026-06-02,B300,4.25,24,100,neocloud,CIVO,24m 100% prepaid 64 GPUs joint offer
