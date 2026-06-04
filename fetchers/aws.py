@@ -199,6 +199,12 @@ SPOT_INDEX_URL = "https://spot-price.s3.amazonaws.com/spot.js"
 SPOT_REGIONAL_BASE = "https://spot-price.s3.amazonaws.com"
 SPOT_SOURCE_URL = "https://aws.amazon.com/ec2/spot/pricing/"
 
+# Instance types NOT in the public S3 spot feed — need boto3 credentials
+_BOTO3_SPOT_INSTANCE_TYPES = {
+    it for it, (_, _) in _ALL_INSTANCE_TYPES.items()
+    if any(it.startswith(p) for p in ("p5en.", "p6-b200.", "p6-b300."))
+}
+
 
 def _fetch_spot(regions: List[str], fetched_at: str) -> List[PriceRecord]:
     """
@@ -275,4 +281,102 @@ def _fetch_spot(regions: List[str], fetched_at: str) -> List[PriceRecord]:
                 ))
 
     logger.info(f"AWS spot: {len(records)} records via public S3 feed")
+
+    # Supplement with boto3 for newer instance families not in the S3 feed
+    boto3_records = _fetch_spot_boto3(regions, fetched_at)
+    records.extend(boto3_records)
+
+    return records
+
+
+def _fetch_spot_boto3(regions: List[str], fetched_at: str) -> List[PriceRecord]:
+    """
+    Fetch spot prices for newer instance families (p5en/H200, p6-b200/B200, p6-b300/B300)
+    using the EC2 describe-spot-price-history API.
+
+    Requires AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY env vars (or any boto3-supported
+    credential source). Gracefully returns [] if credentials are missing or boto3 unavailable.
+    """
+    try:
+        import boto3
+        import botocore.exceptions
+    except ImportError:
+        logger.debug("boto3 not installed — skipping spot prices for H200/B200/B300")
+        return []
+
+    import os
+    if not os.environ.get("AWS_ACCESS_KEY_ID"):
+        logger.debug("AWS_ACCESS_KEY_ID not set — skipping boto3 spot fetch")
+        return []
+
+    instance_types = list(_BOTO3_SPOT_INSTANCE_TYPES)
+    if not instance_types:
+        return []
+
+    records = []
+    seen: set = set()
+
+    for region in regions:
+        try:
+            client = boto3.client(
+                "ec2",
+                region_name=region,
+                aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+                aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
+            )
+            paginator = client.get_paginator("describe_spot_price_history")
+            pages = paginator.paginate(
+                InstanceTypes=instance_types,
+                ProductDescriptions=["Linux/UNIX"],
+                PaginationConfig={"MaxItems": 500},
+            )
+            # Collect cheapest price per instance type across all AZs in this region
+            best: dict = {}  # instance_type → price
+            for page in pages:
+                for entry in page.get("SpotPriceHistory", []):
+                    it = entry.get("InstanceType", "")
+                    try:
+                        price = float(entry.get("SpotPrice", 0))
+                    except (ValueError, TypeError):
+                        continue
+                    if price > 0 and (it not in best or price < best[it]):
+                        best[it] = price
+
+            for it, price in best.items():
+                if it not in _ALL_INSTANCE_TYPES:
+                    continue
+                key = (region, it)
+                if key in seen:
+                    continue
+                seen.add(key)
+                gpu_model, spec = _ALL_INSTANCE_TYPES[it]
+                records.append(PriceRecord(
+                    provider="aws",
+                    gpu_model=gpu_model,
+                    gpu_count=spec["gpu_count"],
+                    instance_type=it,
+                    region=region,
+                    consumption_type="spot",
+                    price_per_hour_usd=price,
+                    price_per_gpu_hour_usd=price / spec["gpu_count"],
+                    vcpu=spec.get("vcpu"),
+                    ram_gb=spec.get("ram_gb"),
+                    fetched_at=fetched_at,
+                    source_url=SPOT_SOURCE_URL,
+                    data_source="official_api",
+                ))
+        except Exception as e:
+            logger.warning(f"AWS boto3 spot {region} failed: {e}")
+
+    if records:
+        gpu_summary = {}
+        for r in records:
+            gpu_summary.setdefault(r.gpu_model, []).append(r.price_per_gpu_hour_usd)
+        summary = ", ".join(
+            f"{g} ${min(ps):.2f}-${max(ps):.2f}" for g, ps in sorted(gpu_summary.items())
+        )
+        logger.info(f"AWS spot (boto3): {len(records)} records — {summary}")
+    else:
+        logger.debug("AWS spot (boto3): 0 records")
+
     return records
