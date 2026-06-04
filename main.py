@@ -54,18 +54,24 @@ def validate_prices(new_records: List[PriceRecord], old_records: List[PriceRecor
     Flags:
       - Best new price < $0.20 or > $200 per GPU-hr (implausible range)
       - Best new price changed > ±40% vs best old price (day-over-day spike)
+        UNLESS the total instance cost (price_per_hour_usd) is stable — which
+        means only the GPU count per instance changed, not the actual price.
+        e.g. Together.ai H200: 1×$7.89 → 2×$3.95 = same $7.89/hr total, not a drop.
     """
     # Build best-price lookup per (provider, gpu_model, consumption_type)
+    # Also track the total hourly cost for the best record, to detect instance-size changes
     def best_per_combo(records):
-        lookup = {}
+        lookup = {}       # key → price_per_gpu_hour_usd
+        total_lookup = {} # key → price_per_hour_usd of the best record
         for r in records:
             key = (r.provider, r.gpu_model, r.consumption_type)
             if key not in lookup or r.price_per_gpu_hour_usd < lookup[key]:
                 lookup[key] = r.price_per_gpu_hour_usd
-        return lookup
+                total_lookup[key] = r.price_per_hour_usd
+        return lookup, total_lookup
 
-    old_lookup = best_per_combo(old_records)
-    new_lookup = best_per_combo(new_records)
+    old_lookup, old_total = best_per_combo(old_records)
+    new_lookup, new_total = best_per_combo(new_records)
 
     anomalies = []
     for (provider, gpu, ct), p in sorted(new_lookup.items()):
@@ -82,10 +88,20 @@ def validate_prices(new_records: List[PriceRecord], old_records: List[PriceRecor
             continue
 
         # Day-over-day change check (best vs best)
-        old_price = old_lookup.get((provider, gpu, ct))
+        key = (provider, gpu, ct)
+        old_price = old_lookup.get(key)
         if old_price is not None and old_price > 0:
             change_pct = (p - old_price) / old_price * 100
             if abs(change_pct) > 40.0:
+                # Check if the total hourly cost is stable — if so, only the instance
+                # size changed (e.g. 1×$7.89 → 2×$3.95), not the actual price.
+                old_hr = old_total.get(key, 0)
+                new_hr = new_total.get(key, 0)
+                if old_hr > 0 and new_hr > 0:
+                    total_change_pct = abs((new_hr - old_hr) / old_hr * 100)
+                    if total_change_pct < 5.0:
+                        # Total cost unchanged — instance size artifact, not a real move
+                        continue
                 anomalies.append(
                     f"{provider} {gpu} {ct}: "
                     f"${old_price:.2f} → ${p:.2f} ({change_pct:+.1f}%) ⚠ price anomaly"
