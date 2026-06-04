@@ -1737,6 +1737,10 @@ snapshot_date,provider,gpu_model,consumption_type,region,instance_type,gpu_count
 2026-06-04,cp_vultr,L40S,on_demand,global,vultr-l40s-1x,1,1.671,1.671,aggregator
 2026-06-04,crusoe,H100,on_demand,us-east,crusoe-h100,1,3.9,3.9,web_scrape
 2026-06-04,crusoe,H200,on_demand,us-east,crusoe-h200,1,4.29,4.29,web_scrape
+2026-06-04,gcp,B200,committed_1yr,us-west1,a4-highgpu-8g,8,11.1159,88.9272,official_api
+2026-06-04,gcp,B200,committed_3yr,us-west1,a4-highgpu-8g,8,7.0884,56.7072,official_api
+2026-06-04,gcp,B200,on_demand,us-west1,a4-highgpu-8g,8,16.11,128.88,official_api
+2026-06-04,gcp,B200,spot,us-west4,a4-highgpu-8g,8,2.3416,18.7328,official_api
 2026-06-04,gcp,H100,committed_1yr,us-central1,a3-highgpu-8g,8,6.7988,54.3905,official_api
 2026-06-04,gcp,H100,committed_3yr,us-central1,a3-highgpu-8g,8,4.2999,34.3992,official_api
 2026-06-04,gcp,H100,on_demand,us-east4,a3-highgpu-8g,8,9.7966,78.3724,official_api
@@ -1745,6 +1749,10 @@ snapshot_date,provider,gpu_model,consumption_type,region,instance_type,gpu_count
 2026-06-04,gcp,H200,committed_3yr,us-west1,a3-ultragpu-8g,8,4.083,32.6641,official_api
 2026-06-04,gcp,H200,on_demand,us-west1,a3-ultragpu-8g,8,9.3117,74.4939,official_api
 2026-06-04,gcp,H200,spot,us-east4,a3-ultragpu-8g,8,3.8395,30.716,official_api
+2026-06-04,gcp,L4,committed_1yr,us-east4,g2-standard,1,0.3517,0.3517,official_api
+2026-06-04,gcp,L4,committed_3yr,us-east4,g2-standard,1,0.2512,0.2512,official_api
+2026-06-04,gcp,L4,on_demand,us-east4,g2-standard,1,0.5582,0.5582,official_api
+2026-06-04,gcp,L4,spot,us-east4,g2-standard,1,0.2345,0.2345,official_api
 2026-06-04,lambda,B200,on_demand,us-east,lambda-b200-sxm6-8x,8,6.69,53.52,web_scrape
 2026-06-04,lambda,H100,on_demand,us-east,lambda-h100-pcie-1x,1,3.29,3.29,web_scrape
 2026-06-04,nebius,B200,committed_1yr,global,nebius-b200-12mo-100pct-ent,1,4.89,4.89,manual
