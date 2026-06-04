@@ -1,11 +1,11 @@
 {
   "run_date": "2026-06-04",
-  "started_at": "2026-06-04T13:11:04.794912+00:00",
-  "completed_at": "2026-06-04T13:13:31.101197+00:00",
+  "started_at": "2026-06-04T14:15:56.554678+00:00",
+  "completed_at": "2026-06-04T14:19:51.031583+00:00",
   "status": "partial",
   "record_count": 796,
   "raw_record_count": 796,
-  "anomaly_count": 2,
+  "anomaly_count": 1,
   "quarantined_count": 0,
   "diff_count": 83,
   "failed_providers": [],
@@ -63,8 +63,6 @@
     }
   },
   "warnings": [
-    "Nebius committed prices in config.py were last verified 42 days ago \u2014 verify against current pricing sheet.",
-    "cp_together-ai H200 on_demand: $7.89 \u2192 $3.94 (-50.0%) \u26a0 price anomaly",
     "cp_verda H100 spot: $0.80 \u2192 $1.14 (+41.9%) \u26a0 price anomaly"
   ],
   "generated_outputs": {
