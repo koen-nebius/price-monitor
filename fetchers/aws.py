@@ -194,81 +194,77 @@ SPOT_SOURCE_URL = "https://aws.amazon.com/ec2/spot/pricing/"
 
 def _fetch_spot(regions: List[str], fetched_at: str) -> List[PriceRecord]:
     """
-    Fetch AWS spot prices using the public S3 JSON feed (no credentials required).
-    The index is a JSONP file; each regional URL returns instance spot price data.
+    Fetch AWS spot prices using the public S3 JSONP feed (no credentials required).
+
+    The feed structure is:
+      callback({ "config": { "regions": [ { "region": "us-east-1",
+        "instanceTypes": [ { "type": "...", "sizes": [
+          { "size": "p5.48xlarge", "valueColumns": [{"name":"linux","prices":{"USD":"57.76"}}] }
+        ]}]}]}});
+
+    Note: newer instance families (p5en/H200, p6-b200/B200, p6-b300/B300) are not yet
+    in this feed — they use a separate pricing mechanism. Only p5/H100, g6e/L40S etc.
+    are available here.
     """
     try:
         with urllib.request.urlopen(SPOT_INDEX_URL, timeout=30) as resp:
             raw = resp.read().decode("utf-8", errors="replace")
-        # Strip JSONP wrapper: callback({...});
         m = re.search(r'\w+\((.*)\)\s*;?\s*$', raw, re.DOTALL)
         if not m:
             logger.warning("AWS spot: could not parse JSONP wrapper")
             return []
-        index_data = json.loads(m.group(1))
+        feed_data = json.loads(m.group(1))
     except Exception as e:
-        logger.warning(f"AWS spot index fetch failed: {e}")
+        logger.warning(f"AWS spot fetch failed: {e}")
         return []
 
-    enabled_regions = index_data.get("spot", {}).get("enabledRegions", [])
+    region_list = feed_data.get("config", {}).get("regions", [])
     records = []
+    seen: set = set()  # (region, instance_type) dedup
 
-    for region_entry in enabled_regions:
+    for region_entry in region_list:
         region = region_entry.get("region", "")
         if region not in regions:
             continue
-        ranges = region_entry.get("ranges", [])
-        if not ranges:
-            continue
-        regional_url = SPOT_REGIONAL_BASE + ranges[0].get("url", "")
-        try:
-            with urllib.request.urlopen(regional_url, timeout=30) as resp:
-                regional_data = json.loads(resp.read())
-        except Exception as e:
-            logger.warning(f"AWS spot regional fetch {region} failed: {e}")
-            continue
-
-        seen = set()
-        for it_entry in regional_data.get("instanceTypes", []):
-            instance_type = it_entry.get("instanceType", "")
-            if instance_type not in _ALL_INSTANCE_TYPES:
-                continue
-            if instance_type in seen:
-                continue
-            # Find linux spot price
-            price = None
-            for os_entry in it_entry.get("operatingSystems", []):
-                if os_entry.get("name", "").lower() == "linux":
-                    for col in os_entry.get("valueColumns", []):
-                        raw_price = col.get("prices", {}).get("USD", "")
-                        try:
-                            p = float(raw_price)
-                            if p > 0:
-                                price = p
-                                break
-                        except (ValueError, TypeError):
-                            pass
-                if price is not None:
-                    break
-            if price is None:
-                continue
-            seen.add(instance_type)
-            gpu_model, spec = _ALL_INSTANCE_TYPES[instance_type]
-            records.append(PriceRecord(
-                provider="aws",
-                gpu_model=gpu_model,
-                gpu_count=spec["gpu_count"],
-                instance_type=instance_type,
-                region=region,
-                consumption_type="spot",
-                price_per_hour_usd=price,
-                price_per_gpu_hour_usd=price / spec["gpu_count"],
-                vcpu=spec.get("vcpu"),
-                ram_gb=spec.get("ram_gb"),
-                fetched_at=fetched_at,
-                source_url=SPOT_SOURCE_URL,
-                data_source="official_api",
-            ))
+        for it_group in region_entry.get("instanceTypes", []):
+            for size_entry in it_group.get("sizes", []):
+                instance_type = size_entry.get("size", "")
+                if instance_type not in _ALL_INSTANCE_TYPES:
+                    continue
+                key = (region, instance_type)
+                if key in seen:
+                    continue
+                # Extract linux spot price
+                price = None
+                for col in size_entry.get("valueColumns", []):
+                    if col.get("name", "").lower() != "linux":
+                        continue
+                    raw_price = col.get("prices", {}).get("USD", "")
+                    try:
+                        p = float(raw_price)
+                        if p > 0:
+                            price = p
+                    except (ValueError, TypeError):
+                        pass
+                if price is None:
+                    continue
+                seen.add(key)
+                gpu_model, spec = _ALL_INSTANCE_TYPES[instance_type]
+                records.append(PriceRecord(
+                    provider="aws",
+                    gpu_model=gpu_model,
+                    gpu_count=spec["gpu_count"],
+                    instance_type=instance_type,
+                    region=region,
+                    consumption_type="spot",
+                    price_per_hour_usd=price,
+                    price_per_gpu_hour_usd=price / spec["gpu_count"],
+                    vcpu=spec.get("vcpu"),
+                    ram_gb=spec.get("ram_gb"),
+                    fetched_at=fetched_at,
+                    source_url=SPOT_SOURCE_URL,
+                    data_source="official_api",
+                ))
 
     logger.info(f"AWS spot: {len(records)} records via public S3 feed")
     return records
