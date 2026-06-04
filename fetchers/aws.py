@@ -36,12 +36,29 @@ _ALL_INSTANCE_TYPES = {
 }
 
 # AWS pricing availability notes (verified June 2026):
-#   p5.48xlarge  (H100) — on_demand + reserved_1yr/3yr available in bulk JSON ✓
-#   p5en.48xlarge (H200) — on_demand available; reserved terms NOT YET PUBLISHED by AWS
-#   p6-b200.48xlarge (B200) — on_demand available; reserved terms NOT YET PUBLISHED
-#   p6-b300.48xlarge (B300) — on_demand available; reserved terms NOT YET PUBLISHED
+#   p5.48xlarge  (H100) — on_demand + reserved_1yr/3yr + capacity_block ✓
+#   p5en.48xlarge (H200) — on_demand + capacity_block; reserved NOT YET PUBLISHED by AWS
+#   p6-b200.48xlarge (B200) — on_demand + capacity_block; reserved NOT YET PUBLISHED
+#   p6-b300.48xlarge (B300) — on_demand + capacity_block; reserved NOT YET PUBLISHED
+#   p6e (GB200 UltraServer) — publicly listed + capacity_block; no on_demand pricing
+#   p6e-gb300 (GB300) — publicly listed; no public numeric capacity block price found
 #   Spot for H200/B200/B300 — not in the public S3 spot feed; requires
 #     EC2 describe-spot-price-history API with credentials (boto3 + IAM role).
+#
+# Capacity Blocks are public, capacity-guaranteed, time-bounded reservations (≤6 months).
+# Source: https://aws.amazon.com/ec2/capacityblocks/pricing/
+# They are NOT equivalent to 1yr/3yr Reserved Instances and should not be compared
+# directly to Nebius committed pricing or AWS traditional reserved pricing.
+# We store the cheapest available region as the canonical price.
+_CAPACITY_BLOCK_PRICES = {
+    # GPU      instance_type          gpu_count  $/GPU-hr  regions (cheapest)
+    "H100":  ("p5.48xlarge",           8,  3.933),  # us-east-1 / us-west-2
+    "H200":  ("p5e.48xlarge",          8,  4.975),  # us-west-2 / us-east-2 (P5e)
+    "B200":  ("p6-b200.48xlarge",      8, 10.296),  # us-east-2 / us-east-1 / us-west-2
+    "B300":  ("p6-b300.48xlarge",      8, 11.70),   # us-east-1 / us-west-2
+    "GB200": ("p6e.36xlarge",         36, 10.582),  # us-east-1 Dallas Local Zone (UltraServer)
+}
+CAPACITY_BLOCK_SOURCE_URL = "https://aws.amazon.com/ec2/capacityblocks/pricing/"
 
 
 def fetch(regions: List[str] = None) -> List[PriceRecord]:
@@ -60,6 +77,41 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
     spot_records = _fetch_spot(regions, now)
     records.extend(spot_records)
 
+    cb_records = _fetch_capacity_blocks(now)
+    records.extend(cb_records)
+
+    return records
+
+
+def _fetch_capacity_blocks(fetched_at: str) -> List[PriceRecord]:
+    """
+    Return AWS Capacity Block effective hourly prices as PriceRecords.
+
+    Capacity Blocks are public, capacity-guaranteed reservations (≤6 months).
+    Prices are manually maintained from the public pricing page:
+      https://aws.amazon.com/ec2/capacityblocks/pricing/
+
+    IMPORTANT: These are NOT comparable to traditional reserved instances or Nebius
+    committed pricing. Use a separate 'capacity_block' consumption type so they
+    are never accidentally compared in the same column.
+    """
+    records = []
+    for gpu_model, (instance_type, gpu_count, price_per_gpu) in _CAPACITY_BLOCK_PRICES.items():
+        records.append(PriceRecord(
+            provider="aws",
+            gpu_model=gpu_model,
+            gpu_count=gpu_count,
+            instance_type=instance_type,
+            region="us-east-1",   # cheapest available region
+            consumption_type="capacity_block",
+            price_per_hour_usd=price_per_gpu * gpu_count,
+            price_per_gpu_hour_usd=price_per_gpu,
+            fetched_at=fetched_at,
+            source_url=CAPACITY_BLOCK_SOURCE_URL,
+            data_source="official_api",
+        ))
+
+    logger.info(f"AWS capacity blocks: {len(records)} records (static, from public pricing page)")
     return records
 
 

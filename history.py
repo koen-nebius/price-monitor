@@ -46,6 +46,7 @@ INCLUDE_CONSUMPTION_TYPES = {
     "on_demand",
     "spot",
     "preemptible",
+    "capacity_block",        # AWS Capacity Blocks — public, capacity-guaranteed, ≤6mo
     "reserved_1yr",
     "reserved_3yr",
     "committed_short_term",  # ≤6mo commitment (Civo, Genesis Cloud, Together.ai)

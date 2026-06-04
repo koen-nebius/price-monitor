@@ -1,13 +1,13 @@
 {
   "run_date": "2026-06-04",
-  "started_at": "2026-06-04T14:15:56.554678+00:00",
-  "completed_at": "2026-06-04T14:19:51.031583+00:00",
+  "started_at": "2026-06-04T15:07:02.974349+00:00",
+  "completed_at": "2026-06-04T15:10:41.919534+00:00",
   "status": "partial",
-  "record_count": 796,
-  "raw_record_count": 796,
+  "record_count": 801,
+  "raw_record_count": 801,
   "anomaly_count": 1,
   "quarantined_count": 0,
-  "diff_count": 83,
+  "diff_count": 88,
   "failed_providers": [],
   "stale_providers": [
     "hyperstack"
@@ -15,7 +15,7 @@
   "provider_status": {
     "aws": {
       "status": "live",
-      "record_count": 317
+      "record_count": 322
     },
     "gcp": {
       "status": "live",

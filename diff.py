@@ -742,6 +742,7 @@ def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
         'Standard tier (&lt;512 GPU) is ~5–10% higher.</p>'
     )
     html.append(_build_committed_gap_table(records))
+    html.append(_build_capacity_block_section(records))
     html.append(_build_committed_implication(records))
 
     # ── Section 3: Full peer price table by GPU ──────────────────────────────
@@ -875,7 +876,8 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
     COMMITTED_TABLE_EXCLUDE = {
         "cp_genesis",    # in liquidation since 2025 — prices stale and unreliable
         "cp_paperspace", # consumer ML platform (DigitalOcean), not enterprise GPU cloud
-        "cp_civo",       # Kubernetes-first cloud, not a GPU compute competitor
+        # cp_civo intentionally included: public 36mo B200 @ $3.79 is below Nebius $4.15
+        # and gives a rare public neocloud committed benchmark for Blackwell
     }
 
     # Column definitions: (display header, CT set)
@@ -998,9 +1000,84 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
         'until verified against OCI directly. Oracle does not publish committed GPU pricing publicly. '
         'Nebius: internal pricing model effective April 23rd 2026; enterprise tier (512+ GPU, 100% upfront). '
         'Standard tier (&lt;512 GPU) ~5–10% higher; 36-month H100/H200 available on request. '
-        'Peer providers (Vultr) sourced from ComputePrices.com. '
+        'Peer providers (Civo, Vultr) sourced from ComputePrices.com. '
+        'Civo committed rates are public list prices, not negotiated. '
         'Nebius prices from EU (eu-north1); US pricing typically 5–10% lower.'
         '</em></p>'
+    )
+    return "\n".join(html)
+
+
+def _build_capacity_block_section(records: List[PriceRecord]) -> str:
+    """
+    AWS Capacity Block effective hourly prices — a separate section because
+    Capacity Blocks are capacity-guaranteed, time-bounded reservations (≤6 months),
+    not traditional reserved instances. Not comparable to Nebius committed pricing.
+    """
+    cb = {r.gpu_model: r for r in records
+          if r.provider == "aws" and r.consumption_type == "capacity_block"}
+    if not cb:
+        return ""
+
+    GPUS = ["H100", "H200", "B200", "B300", "GB200"]
+    rows_with_data = [g for g in GPUS if g in cb]
+    if not rows_with_data:
+        return ""
+
+    html = [
+        '<h3>AWS Capacity Blocks — Effective Hourly Rate</h3>',
+        '<p>Capacity Blocks are public, capacity-guaranteed reservations of up to 6 months. '
+        'Supported instance families: P5 (H100), P5e/P5en (H200), P6-B200, P6-B300, P6e-GB200. '
+        'Prices shown are the cheapest available region. '
+        '<strong>These are not comparable to 3yr Reserved Instances or Nebius committed pricing</strong> — '
+        'they are a separate product class. Useful as a capacity-guarantee reference for enterprise RFPs.</p>',
+        '<table data-layout="full-width"><tbody>',
+        '<tr><th>GPU</th><th>Instance</th><th>AWS Capacity Block ($/GPU-hr)</th>'
+        '<th>vs AWS on-demand</th><th>vs Nebius on-demand</th></tr>',
+    ]
+
+    # Get AWS on-demand and Nebius on-demand for comparison
+    aws_od = {r.gpu_model: r.price_per_gpu_hour_usd for r in records
+              if r.provider == "aws" and r.consumption_type == "on_demand"}
+    neb_od = {r.gpu_model: r.price_per_gpu_hour_usd for r in records
+              if r.provider == "nebius" and r.consumption_type == "on_demand"}
+
+    for gpu in rows_with_data:
+        r = cb[gpu]
+        p = r.price_per_gpu_hour_usd
+
+        aws_od_p = aws_od.get(gpu)
+        neb_od_p = neb_od.get(gpu)
+
+        vs_aws = ""
+        if aws_od_p:
+            pct = (p - aws_od_p) / aws_od_p * 100
+            sign = "+" if pct >= 0 else ""
+            color = "green" if pct < 0 else "yellow"
+            vs_aws = f'<span data-type="status" data-color="{color}">{sign}{pct:.0f}% vs OD ${aws_od_p:.2f}</span>'
+
+        vs_neb = ""
+        if neb_od_p:
+            pct = (p - neb_od_p) / neb_od_p * 100
+            sign = "+" if pct >= 0 else ""
+            color = "red" if pct > 20 else ("yellow" if pct > 0 else "green")
+            vs_neb = f'<span data-type="status" data-color="{color}">{sign}{pct:.0f}% vs Nebius ${neb_od_p:.2f}</span>'
+
+        html.append(
+            f'<tr><td><strong>{gpu}</strong></td>'
+            f'<td><em>{r.instance_type}</em></td>'
+            f'<td><strong>${p:.3f}</strong></td>'
+            f'<td>{vs_aws}</td>'
+            f'<td>{vs_neb}</td></tr>'
+        )
+    html.append('</tbody></table>')
+    html.append(
+        '<p><em>Source: <a href="https://aws.amazon.com/ec2/capacityblocks/pricing/">'
+        'aws.amazon.com/ec2/capacityblocks/pricing</a>. '
+        'GB200 = P6e UltraServer (36-GPU node, Dallas Local Zone). '
+        'B300 = P6-B300 (Oregon/N. Virginia). B200 = P6-B200 (Ohio/N. Virginia/Oregon). '
+        'H200 = P5e (multiple regions). H100 = P5 (multiple regions). '
+        'Prices verified June 2026.</em></p>'
     )
     return "\n".join(html)
 
