@@ -645,9 +645,9 @@ def _build_field_intel_callout(records: List[PriceRecord]) -> str:
         gap = (comp_px - neb_px) / neb_px * 100  # negative = competitor cheaper
         label = f"{gap:+.0f}% vs Nebius ${neb_px:.2f}"
         if gap < -15:
-            return f'<td><strong style="color:#e05252">{label}</strong></td>'
+            return f'<td><span data-type="status" data-color="red">{label}</span></td>'
         if gap < -5:
-            return f'<td style="color:#f0a030">{label}</td>'
+            return f'<td><span data-type="status" data-color="yellow">{label}</span></td>'
         return f"<td>{label}</td>"
 
     # Group by GPU, sorted by date desc
