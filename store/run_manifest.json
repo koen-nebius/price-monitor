@@ -1,67 +1,59 @@
 {
   "run_date": "2026-06-04",
-  "started_at": "2026-06-04T07:03:16.319652+00:00",
-  "completed_at": "2026-06-04T07:05:23.362234+00:00",
+  "started_at": "2026-06-04T08:51:45.111400+00:00",
+  "completed_at": "2026-06-04T08:54:09.437282+00:00",
   "status": "partial",
-  "record_count": 781,
-  "raw_record_count": 781,
-  "anomaly_count": 0,
+  "record_count": 735,
+  "raw_record_count": 735,
+  "anomaly_count": 2,
   "quarantined_count": 0,
-  "diff_count": 257,
+  "diff_count": 22,
   "failed_providers": [],
   "stale_providers": [
-    "coreweave",
-    "lambda",
-    "crusoe",
-    "nebius",
-    "computeprices",
+    "gcp",
     "hyperstack"
   ],
   "provider_status": {
     "aws": {
       "status": "live",
-      "record_count": 314
+      "record_count": 317
     },
     "gcp": {
-      "status": "live",
-      "record_count": 83
+      "status": "cache",
+      "record_count": 83,
+      "cache_age_hours": 1.8
     },
     "azure": {
       "status": "live",
-      "record_count": 0
+      "record_count": 72
     },
     "coreweave": {
-      "status": "cache",
-      "record_count": 10,
-      "cache_age_hours": 20.1
+      "status": "live",
+      "record_count": 10
     },
     "lambda": {
-      "status": "fallback",
-      "record_count": 153,
-      "fallback_source": "skypilot_catalog"
+      "status": "live",
+      "record_count": 9
     },
     "crusoe": {
-      "status": "cache",
-      "record_count": 2,
-      "cache_age_hours": 20.1
+      "status": "live",
+      "record_count": 2
     },
     "nebius": {
-      "status": "cache",
-      "record_count": 10,
-      "cache_age_hours": 20.1
+      "status": "live",
+      "record_count": 10
     },
     "nebius_committed": {
       "status": "live",
       "record_count": 93
     },
     "computeprices": {
-      "status": "cache",
-      "record_count": 116,
-      "cache_age_hours": 20.1
+      "status": "live",
+      "record_count": 116
     },
     "oracle": {
       "status": "live",
-      "record_count": 0
+      "record_count": 8
     },
     "hyperstack": {
       "status": "missing",
@@ -69,11 +61,13 @@
     },
     "runpod": {
       "status": "live",
-      "record_count": 0
+      "record_count": 15
     }
   },
   "warnings": [
-    "Nebius committed prices in config.py were last verified 42 days ago \u2014 verify against current pricing sheet."
+    "Nebius committed prices in config.py were last verified 42 days ago \u2014 verify against current pricing sheet.",
+    "cp_together-ai H200 on_demand: $7.89 \u2192 $3.94 (-50.0%) \u26a0 price anomaly",
+    "cp_verda H100 spot: $0.80 \u2192 $1.14 (+41.9%) \u26a0 price anomaly"
   ],
   "generated_outputs": {
     "slack_message": true,
