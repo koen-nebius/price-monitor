@@ -1,16 +1,15 @@
 {
   "run_date": "2026-06-04",
-  "started_at": "2026-06-04T08:51:45.111400+00:00",
-  "completed_at": "2026-06-04T08:54:09.437282+00:00",
+  "started_at": "2026-06-04T13:11:04.794912+00:00",
+  "completed_at": "2026-06-04T13:13:31.101197+00:00",
   "status": "partial",
-  "record_count": 735,
-  "raw_record_count": 735,
+  "record_count": 796,
+  "raw_record_count": 796,
   "anomaly_count": 2,
   "quarantined_count": 0,
-  "diff_count": 22,
+  "diff_count": 83,
   "failed_providers": [],
   "stale_providers": [
-    "gcp",
     "hyperstack"
   ],
   "provider_status": {
@@ -19,9 +18,8 @@
       "record_count": 317
     },
     "gcp": {
-      "status": "cache",
-      "record_count": 83,
-      "cache_age_hours": 1.8
+      "status": "live",
+      "record_count": 144
     },
     "azure": {
       "status": "live",

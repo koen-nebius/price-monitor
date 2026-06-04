@@ -419,11 +419,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 const CSV_URL       = "store/history.csv";
 const INTEL_CSV_URL = "store/intel.csv";
-const GPU_ORDER     = ["H100","H200","B200","B300","GB200","GB300","L40S"];
+const GPU_ORDER     = ["H100","H200","B200","B300","GB200","GB300","L40S","L4"];
 
 const POS_CT_PILLS = [
   { label:"On-demand",     cts:["on_demand"] },
   { label:"Spot",          cts:["spot","preemptible"] },
+  { label:"Short commit",  cts:["committed_short_term"] },
   { label:"1yr commit",    cts:["committed_1yr","reserved_1yr"] },
   { label:"2yr commit",    cts:["committed_2yr"] },
   { label:"3yr commit",    cts:["committed_3yr","reserved_3yr"] },
@@ -431,11 +432,13 @@ const POS_CT_PILLS = [
 const TREND_CT_PILLS = [
   { label:"On-demand",     cts:["on_demand"] },
   { label:"Spot",          cts:["spot","preemptible"] },
+  { label:"Short commit",  cts:["committed_short_term"] },
   { label:"9mo commit",    cts:["committed_9mo"] },
   { label:"1yr commit",    cts:["committed_1yr","reserved_1yr"] },
   { label:"18mo commit",   cts:["committed_18mo"] },
   { label:"2yr commit",    cts:["committed_2yr"] },
   { label:"3yr commit",    cts:["committed_3yr","reserved_3yr"] },
+  { label:"4yr commit",    cts:["committed_4yr"] },
 ];
 
 const PROVIDER_DISPLAY = {

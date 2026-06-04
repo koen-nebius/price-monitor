@@ -48,11 +48,13 @@ INCLUDE_CONSUMPTION_TYPES = {
     "preemptible",
     "reserved_1yr",
     "reserved_3yr",
+    "committed_short_term",  # ≤6mo commitment (Civo, Genesis Cloud, Together.ai)
     "committed_9mo",
     "committed_1yr",
     "committed_18mo",
     "committed_2yr",
     "committed_3yr",
+    "committed_4yr",         # 48mo (Vultr)
 }
 
 
