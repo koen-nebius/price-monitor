@@ -107,19 +107,23 @@ def run(providers=None, test=False):
     provider_status: Dict[str, dict] = {}
 
     # ── Nebius committed prices staleness check ──────────────────────────────
+    # Warn in logs after 60 days. Only surface in Slack on the first crossing
+    # and then weekly (every 7 days), to avoid nagging every single day.
     nebius_date_warning = None
     try:
         from config import NEBIUS_COMMITTED_PRICES_VERIFIED_DATE
         verified = datetime.strptime(NEBIUS_COMMITTED_PRICES_VERIFIED_DATE, "%Y-%m-%d").date()
         days_old = (date.today() - verified).days
-        if days_old > 30:
+        if days_old > 60:
             msg = (
                 f"Nebius committed prices in config.py were last verified {days_old} days ago "
                 f"— verify against current pricing sheet."
             )
             logger.warning(msg)
-            nebius_date_warning = f"_⚠ Nebius committed prices last verified {days_old} days ago — check config.py_"
             warnings.append(msg)
+            # Surface in Slack on day 61, then every 7 days after that
+            if (days_old - 61) % 7 == 0:
+                nebius_date_warning = f"_⚠ Nebius committed prices last verified {days_old} days ago — check config.py_"
     except Exception as e:
         logger.debug(f"Could not check NEBIUS_COMMITTED_PRICES_VERIFIED_DATE: {e}")
 
@@ -245,9 +249,13 @@ def run(providers=None, test=False):
     )
 
     # Prepend anomaly and staleness warnings
+    # Only surface truly implausible prices (absolute range violations) in the Slack
+    # anomaly header. Day-over-day ±40% swings are real market moves that already
+    # appear in the "Price moves" section — flagging them as anomalies is misleading.
     slack_prefix_parts = []
-    if anomalies:
-        anomaly_lines = "\n".join(f"• {a}" for a in anomalies)
+    implausible = [a for a in anomalies if "implausibly" in a]
+    if implausible:
+        anomaly_lines = "\n".join(f"• {a}" for a in implausible)
         slack_prefix_parts.append(f"⚠ *Data anomaly detected*\n{anomaly_lines}")
     if nebius_date_warning:
         slack_prefix_parts.append(nebius_date_warning)
