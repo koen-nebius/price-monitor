@@ -66,6 +66,9 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
             records = _parse_api_data(data, now)
             if records:
                 logger.info(f"Lambda Labs API: {len(records)} records")
+                # Supplement with SkyPilot catalog for any GPU models the API didn't return
+                # (e.g. L40S which is not always listed in the API response)
+                records = _supplement_with_skypilot(records, now)
                 return records
         except Exception as e:
             logger.info(f"Lambda Labs API failed ({e})")
@@ -73,11 +76,36 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
     # Tier 2: Web scrape (blocked by Cloudflare in cloud environments)
     records = _scrape_pricing_page(now)
     if records:
+        # Supplement with SkyPilot catalog for GPU models missing from the scrape
+        # (e.g. L40S is not listed on lambda.ai/instances as of mid-2025)
+        records = _supplement_with_skypilot(records, now)
         return records
 
     # Tier 3: SkyPilot catalog fallback — public GitHub CSV, no Cloudflare
     logger.warning("Lambda Labs: scrape returned 0 records — trying SkyPilot catalog fallback")
     return _fetch_skypilot_catalog(now)
+
+
+def _supplement_with_skypilot(records: List[PriceRecord], now: str) -> List[PriceRecord]:
+    """
+    Supplement existing records with SkyPilot catalog data for GPU models not yet covered.
+    This handles cases like L40S, which is not listed on lambda.ai/instances but appears
+    in Lambda's API (when available) and in the SkyPilot community catalog.
+    Only adds records for GPU models completely absent from `records`.
+    """
+    covered_models = {r.gpu_model for r in records}
+    missing_models = NEBIUS_GPUS - covered_models
+    if not missing_models:
+        return records
+
+    catalog = _fetch_skypilot_catalog(now)
+    added = [r for r in catalog if r.gpu_model in missing_models]
+    if added:
+        logger.info(
+            f"Lambda Labs: SkyPilot supplement added {len(added)} records "
+            f"for {sorted(missing_models)} not found in primary source"
+        )
+    return records + added
 
 
 def _fetch_skypilot_catalog(now: str) -> List[PriceRecord]:

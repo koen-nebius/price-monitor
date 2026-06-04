@@ -75,48 +75,69 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
     records = []
     seen = set()
 
-    # Webflow pattern: <h4>NVIDIA H100</h4> ... <div class="pricing-rich ..."><p>$X.XX/GPU-hr</p></div>
-    pattern = re.compile(
+    # Webflow pattern: <h4>NVIDIA H100</h4> ... price div or "Contact sales" link.
+    # Captures GPU name + the text block that follows (up to the next GPU heading).
+    gpu_section_pattern = re.compile(
         r'<h4[^>]*>\s*(?:NVIDIA\s+)?([A-Z0-9\s]+?)\s*</h4>'
-        r'(?:(?!<h4).)*?'
-        r'<div class="pricing-rich[^"]*"[^>]*><p>\$([0-9.]+)/GPU-hr</p>',
+        r'((?:(?!<h4).)*?)'
+        r'(?=<h4|$)',
         re.DOTALL,
     )
 
-    for m in pattern.finditer(html):
+    # Price patterns to try against the section body
+    price_pattern = re.compile(r'\$([0-9]+\.[0-9]+)/GPU-hr', re.DOTALL)
+    # Detect "Contact sales" — price not published on page
+    contact_pattern = re.compile(r'contact.?sales', re.IGNORECASE)
+
+    for m in gpu_section_pattern.finditer(html):
         gpu_raw = m.group(1).strip()
         gpu_model = _match_gpu(gpu_raw)
         if gpu_model is None:
             continue
-        try:
-            price = float(m.group(2))
-        except ValueError:
-            continue
-        if price <= 0:
-            continue
 
-        ctx = html[max(0, m.start() - 800): m.end() + 100]
-        ct = _detect_ct(ctx)
-        key = (gpu_model, ct)
-        if key in seen:
-            continue
-        seen.add(key)
+        section = m.group(2)
 
-        records.append(PriceRecord(
-            provider="crusoe",
-            gpu_model=gpu_model,
-            gpu_count=1,
-            instance_type=f"crusoe-{gpu_model.lower()}",
-            region="us-east",
-            consumption_type=ct,
-            price_per_hour_usd=price,
-            price_per_gpu_hour_usd=price,
-            fetched_at=now,
-            source_url=SOURCE_URL,
-            data_source="web_scrape",
-        ))
+        # Try to find a numeric price in this section
+        price_match = price_pattern.search(section)
+        if price_match:
+            try:
+                price = float(price_match.group(1))
+            except ValueError:
+                continue
+            if price <= 0:
+                continue
 
-    # Fallback regex
+            ctx = html[max(0, m.start() - 800): m.end() + 100]
+            ct = _detect_ct(ctx)
+            key = (gpu_model, ct)
+            if key in seen:
+                continue
+            seen.add(key)
+
+            records.append(PriceRecord(
+                provider="crusoe",
+                gpu_model=gpu_model,
+                gpu_count=1,
+                instance_type=f"crusoe-{gpu_model.lower()}",
+                region="us-east",
+                consumption_type=ct,
+                price_per_hour_usd=price,
+                price_per_gpu_hour_usd=price,
+                fetched_at=now,
+                source_url=SOURCE_URL,
+                data_source="web_scrape",
+            ))
+        elif contact_pattern.search(section):
+            # GPU is listed but pricing requires contacting sales — not a scrape failure
+            logger.debug(
+                f"Crusoe: {gpu_model} found on pricing page but price is 'Contact sales' — "
+                f"add to MANUAL_PRICES in config.py when a quote is obtained"
+            )
+        else:
+            # Section found but no price and no "contact sales" indicator — try broader regex
+            pass
+
+    # Fallback: broader regex in case page structure changed
     if not records:
         for m in re.finditer(r'(H100|H200|B200|B300|GB200|GB300|L40S)[^<]{0,500}?\$([0-9.]+)/GPU-hr', html, re.IGNORECASE | re.DOTALL):
             gpu_model = _match_gpu(m.group(1))

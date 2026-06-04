@@ -20,6 +20,14 @@ COMPUTE_SERVICE_ID = "6F81-5844-456A"
 
 # Map description fragment → (gpu_model, instance_type hint)
 # Order matters: check more-specific patterns first
+#
+# Notes on GCP GPU naming:
+#   - GCP calls their Ada Lovelace card "Nvidia L4 GPU" (24GB), not "L40S".
+#     L4 and L40S are different products. We track it as "L4" to avoid conflating
+#     with the 48GB L40S offered by CoreWeave, RunPod, etc.
+#   - B200 SKUs are live in the billing API as "A4 Nvidia B200 (1 gpu slice)" —
+#     the "(1 gpu slice)" means 1 full GPU; price is quoted per-GPU.
+#   - GB200, B300, GB300 SKUs are not yet live in the billing catalog (as of June 2026).
 GPU_DESC_PATTERNS = [
     ("gb300",          "GB300", "a4x-maxgpu-4g"),
     ("gb200",          "GB200", "a4x-highgpu-4g"),
@@ -29,7 +37,7 @@ GPU_DESC_PATTERNS = [
     ("h100 80gb mega", "H100",  "a3-megagpu-8g"),
     ("h100 80gb",      "H100",  "a3-highgpu-8g"),
     ("h100",           "H100",  "a3-highgpu-8g"),
-    ("l40s",           "L40S",  "g2-standard"),
+    ("nvidia l4",      "L4",    "g2-standard"),   # GCP's Ada Lovelace 24GB card (≠ L40S)
 ]
 
 # GPU counts per instance type (used for price_per_hour calculation)
@@ -108,7 +116,10 @@ def _parse_sku(sku: dict, fetched_at: str, seen: set) -> List[PriceRecord]:
 
     # Skip RAM/CPU/license/storage SKUs — we only want GPU accelerator SKUs
     skip_terms = ["ram", "cpu", "core", "license", "storage", "local ssd",
-                  "calendar mode", "dws defined", "gpu slice", "flex"]
+                  "calendar mode", "dws defined", "flex"]
+    # Note: "gpu slice" intentionally removed — B200 SKUs use "(1 gpu slice)" to
+    # mean 1 full GPU, and we want those. Fractional MIG slices don't match our
+    # GPU_DESC_PATTERNS so they're naturally excluded.
     if any(t in desc_lower for t in skip_terms):
         return []
 

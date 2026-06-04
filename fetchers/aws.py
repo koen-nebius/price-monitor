@@ -35,6 +35,14 @@ _ALL_INSTANCE_TYPES = {
     for spec in specs
 }
 
+# AWS pricing availability notes (verified June 2026):
+#   p5.48xlarge  (H100) — on_demand + reserved_1yr/3yr available in bulk JSON ✓
+#   p5en.48xlarge (H200) — on_demand available; reserved terms NOT YET PUBLISHED by AWS
+#   p6-b200.48xlarge (B200) — on_demand available; reserved terms NOT YET PUBLISHED
+#   p6-b300.48xlarge (B300) — on_demand available; reserved terms NOT YET PUBLISHED
+#   Spot for H200/B200/B300 — not in the public S3 spot feed; requires
+#     EC2 describe-spot-price-history API with credentials (boto3 + IAM role).
+
 
 def fetch(regions: List[str] = None) -> List[PriceRecord]:
     regions = regions or AWS_REGIONS
