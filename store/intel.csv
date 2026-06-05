@@ -111,3 +111,7 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1750787590.055599,2025-06-24,B200,4.0,12,0,neocloud,Vultr,1yr minimum $4-6 range lower bound
 1780422932.324229,2026-06-02,B300,4.25,24,100,neocloud,Verda,24m 100% prepaid 64 GPUs joint offer
 1780422932.324229,2026-06-02,B300,4.25,24,100,neocloud,CIVO,24m 100% prepaid 64 GPUs joint offer
+1780592471.289529,2026-06-04,GB300,3.80,36,0,neocloud,BoostRun,20k GPUs US Q4 3yr high $3/hr range
+1780592471.289529,2026-06-04,GB300,3.80,36,0,neocloud,Nscale,15k GPUs EU Q1 3yr high $3/hr range
+1780592471.289529,2026-06-04,B300,3.80,0,0,neocloud,BoostRun (unconfirmed),5k GPUs recently signed deal
+1780592471.289529,2026-06-04,GB300,3.50,36,0,hyperscaler,GCP,3yr 0% prepay signed deal

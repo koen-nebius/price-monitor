@@ -1,15 +1,20 @@
 {
-  "run_date": "2026-06-04",
-  "started_at": "2026-06-04T15:07:02.974349+00:00",
-  "completed_at": "2026-06-04T15:10:41.919534+00:00",
+  "run_date": "2026-06-05",
+  "started_at": "2026-06-05T07:03:44.108566+00:00",
+  "completed_at": "2026-06-05T07:05:39.431112+00:00",
   "status": "partial",
-  "record_count": 801,
-  "raw_record_count": 801,
-  "anomaly_count": 1,
+  "record_count": 850,
+  "raw_record_count": 850,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 88,
+  "diff_count": 257,
   "failed_providers": [],
   "stale_providers": [
+    "coreweave",
+    "lambda",
+    "crusoe",
+    "nebius",
+    "computeprices",
     "hyperstack"
   ],
   "provider_status": {
@@ -23,35 +28,40 @@
     },
     "azure": {
       "status": "live",
-      "record_count": 72
+      "record_count": 0
     },
     "coreweave": {
-      "status": "live",
-      "record_count": 10
+      "status": "cache",
+      "record_count": 10,
+      "cache_age_hours": 15.9
     },
     "lambda": {
-      "status": "live",
-      "record_count": 9
+      "status": "fallback",
+      "record_count": 153,
+      "fallback_source": "skypilot_catalog"
     },
     "crusoe": {
-      "status": "live",
-      "record_count": 2
+      "status": "cache",
+      "record_count": 2,
+      "cache_age_hours": 15.9
     },
     "nebius": {
-      "status": "live",
-      "record_count": 10
+      "status": "cache",
+      "record_count": 10,
+      "cache_age_hours": 15.9
     },
     "nebius_committed": {
       "status": "live",
       "record_count": 93
     },
     "computeprices": {
-      "status": "live",
-      "record_count": 116
+      "status": "cache",
+      "record_count": 116,
+      "cache_age_hours": 15.9
     },
     "oracle": {
       "status": "live",
-      "record_count": 8
+      "record_count": 0
     },
     "hyperstack": {
       "status": "missing",
@@ -59,12 +69,10 @@
     },
     "runpod": {
       "status": "live",
-      "record_count": 15
+      "record_count": 0
     }
   },
-  "warnings": [
-    "cp_verda H100 spot: $0.80 \u2192 $1.14 (+41.9%) \u26a0 price anomaly"
-  ],
+  "warnings": [],
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
