@@ -1,0 +1,146 @@
+=== 2026-05-15 16:24:34 UTC ===
+2026-05-15 17:24:45,756 INFO fetchers.aws — AWS us-east-1: 79 records
+2026-05-15 17:24:55,462 INFO fetchers.aws — AWS us-east-2: 79 records
+2026-05-15 17:25:06,436 INFO fetchers.aws — AWS us-west-2: 79 records
+2026-05-15 17:25:16,577 INFO fetchers.aws — AWS eu-west-1: 0 records
+2026-05-15 17:25:23,351 INFO fetchers.aws — AWS eu-west-2: 7 records
+2026-05-15 17:25:34,025 INFO fetchers.aws — AWS eu-central-1: 72 records
+2026-05-15 17:25:42,953 INFO fetchers.aws — AWS ap-southeast-1: 0 records
+2026-05-15 17:25:53,876 INFO fetchers.aws — AWS ap-northeast-1: 79 records
+2026-05-15 17:25:53,878 INFO fetchers.aws — boto3 not installed — skipping spot prices
+2026-05-15 17:25:53,878 INFO main — aws: 395 records
+2026-05-15 17:25:53,879 INFO fetchers.gcp — GCP_API_KEY not set — using public pricing calculator JSON
+2026-05-15 17:25:53,932 ERROR fetchers.gcp — GCP calculator fallback failed: HTTP Error 404: Not Found
+2026-05-15 17:25:53,933 INFO main — gcp: 0 records
+2026-05-15 17:25:56,316 INFO fetchers.azure — Azure: 160 records total
+2026-05-15 17:25:56,317 INFO main — azure: 160 records
+2026-05-15 17:25:57,240 INFO fetchers.coreweave — CoreWeave: 7 records
+2026-05-15 17:25:57,240 INFO main — coreweave: 7 records
+2026-05-15 17:25:57,390 INFO fetchers.lambda_labs — Lambda Labs scrape: 9 records
+2026-05-15 17:25:57,390 INFO main — lambda: 9 records
+2026-05-15 17:25:57,842 INFO fetchers.crusoe — Crusoe: 2 records
+2026-05-15 17:25:57,844 INFO main — crusoe: 2 records
+2026-05-15 17:25:58,627 INFO fetchers.nebius — Nebius: 5 records
+2026-05-15 17:25:58,627 INFO main — nebius: 5 records
+2026-05-15 17:25:58,679 INFO store — Saved 578 records to /Users/koenbrormann/Claude PM/price-monitor/store/2026-05-15.json
+2026-05-15 17:25:58,679 INFO main — Saved 578 total records for 2026-05-15
+2026-05-15 17:25:58,679 INFO main — No previous snapshot — skipping diff (first run)
+2026-05-15 17:25:58,682 INFO main — Output files written to /Users/koenbrormann/Claude PM/price-monitor/store
+
+=== Run complete ===
+Records: 578
+Changes: 0
+
+--- Slack message ---
+*GPU Pricing Monitor — May 15, 2026*
+No price changes detected today across all providers.
+Full overview: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
+Error: Claude Code cannot be launched inside another Claude Code session.
+Nested sessions share runtime resources and will crash all active sessions.
+To bypass this check, unset the CLAUDECODE environment variable.
+=== 2026-06-01 05:00:00 UTC ===
+2026-06-01 07:00:01,973 WARNING main — Nebius committed prices in config.py were last verified 39 days ago — verify against current pricing sheet.
+2026-06-01 07:26:57,112 WARNING fetchers.aws — AWS us-east-1 failed: [Errno 54] Connection reset by peer
+2026-06-01 07:27:20,991 INFO fetchers.aws — AWS us-east-2: 63 records
+2026-06-01 07:27:38,331 INFO fetchers.aws — AWS us-west-2: 64 records
+2026-06-01 07:45:06,449 WARNING fetchers.aws — AWS eu-west-1 failed: [Errno 54] Connection reset by peer
+2026-06-01 07:45:17,527 INFO fetchers.aws — AWS eu-west-2: 7 records
+2026-06-01 07:45:35,272 INFO fetchers.aws — AWS eu-central-1: 54 records
+2026-06-01 07:45:47,038 INFO fetchers.aws — AWS ap-southeast-1: 0 records
+2026-06-01 08:02:46,254 INFO fetchers.aws — AWS ap-northeast-1: 62 records
+2026-06-01 08:02:47,712 INFO fetchers.aws — AWS spot: 0 records via public S3 feed
+2026-06-01 08:02:47,719 INFO main — aws: 250 records (live)
+2026-06-01 08:03:01,409 INFO fetchers.gcp — GCP: 83 records
+2026-06-01 08:03:01,444 INFO store —   peer_cache: updated 'gcp' with 83 records
+2026-06-01 08:03:01,444 INFO main — gcp: 83 records (live)
+2026-06-01 08:03:04,151 INFO fetchers.azure — Azure: 72 records total
+2026-06-01 08:03:04,151 INFO main — azure: 72 records (live)
+2026-06-01 08:03:05,247 INFO fetchers.coreweave — CoreWeave: 10 records
+2026-06-01 08:03:05,277 INFO store —   peer_cache: updated 'coreweave' with 10 records
+2026-06-01 08:03:05,278 INFO main — coreweave: 10 records (live)
+2026-06-01 08:03:05,446 INFO fetchers.lambda_labs — Lambda Labs scrape: 9 records
+2026-06-01 08:03:05,483 INFO store —   peer_cache: updated 'lambda' with 9 records
+2026-06-01 08:03:05,484 INFO main — lambda: 9 records (live)
+2026-06-01 08:03:06,194 INFO fetchers.crusoe — Crusoe: 2 scraped + 0 manual = 2 records
+2026-06-01 08:03:06,223 INFO store —   peer_cache: updated 'crusoe' with 2 records
+2026-06-01 08:03:06,224 INFO main — crusoe: 2 records (live)
+2026-06-01 08:03:07,395 INFO fetchers.nebius — Nebius: 10 records
+2026-06-01 08:03:07,427 INFO store —   peer_cache: updated 'nebius' with 10 records
+2026-06-01 08:03:07,427 INFO main — nebius: 10 records (live)
+2026-06-01 08:03:07,438 INFO fetchers.nebius_committed — Nebius committed: 93 records across 5 GPU models
+2026-06-01 08:03:07,438 INFO main — nebius_committed: 93 records (live)
+2026-06-01 08:03:10,802 WARNING fetchers.computeprices —   computeprices: dropping inverted reserved price — cp_gcore H100 reserved_1yr $2.15 > on_demand $1.92
+2026-06-01 08:03:10,802 WARNING fetchers.computeprices —   computeprices: dropping inverted reserved price — cp_gcore H100 reserved_3yr $16.24 > on_demand $1.92
+2026-06-01 08:03:10,803 WARNING fetchers.computeprices —   computeprices: dropping inverted reserved price — cp_gcore H200 reserved_1yr $19.28 > on_demand $2.62
+2026-06-01 08:03:10,803 WARNING fetchers.computeprices —   computeprices: dropping inverted reserved price — cp_gcore H200 reserved_3yr $18.44 > on_demand $2.62
+2026-06-01 08:03:10,803 WARNING fetchers.computeprices —   computeprices: dropping inverted reserved price — cp_together-ai B200 committed_short_term $9.65 > on_demand $5.97
+2026-06-01 08:03:10,803 INFO fetchers.computeprices — ComputePrices: 117 records from 7 GPU slugs
+2026-06-01 08:03:10,842 INFO store —   peer_cache: updated 'computeprices' with 117 records
+2026-06-01 08:03:10,842 INFO main — computeprices: 117 records (live)
+2026-06-01 08:03:11,695 INFO fetchers.oracle — Oracle: 8 records
+2026-06-01 08:03:11,696 INFO main — oracle: 8 records (live)
+2026-06-01 08:03:12,001 INFO fetchers.hyperstack — Hyperstack API fetch failed: HTTP Error 404: Not Found
+2026-06-01 08:03:12,004 INFO fetchers.hyperstack — Hyperstack API unavailable — trying web scrape fallback
+2026-06-01 08:03:12,526 WARNING fetchers.hyperstack — Hyperstack scrape failed: HTTP Error 404: Not Found
+2026-06-01 08:03:12,552 WARNING main — hyperstack: live fetch returned 0 records and no cache available. Run main.py locally once to populate peer_cache.json.
+2026-06-01 08:03:12,826 INFO fetchers.runpod — RunPod: 15 records
+2026-06-01 08:03:12,827 INFO main — runpod: 15 records (live)
+2026-06-01 08:03:12,827 INFO main — Fetched 669 total records for 2026-06-01
+2026-06-01 08:03:12,867 WARNING main — Price anomaly: cp_verda L40S spot: $0.32 → $0.48 (+49.8%) ⚠ price anomaly
+2026-06-01 08:03:12,867 WARNING main — Price anomaly: nebius H100 preemptible: $1.25 → $2.15 (+72.0%) ⚠ price anomaly
+2026-06-01 08:03:12,867 WARNING main — Price anomaly: nebius H200 preemptible: $1.45 → $2.45 (+69.0%) ⚠ price anomaly
+2026-06-01 08:03:12,936 INFO store — Saved 669 records to /Users/koenbrormann/Claude PM/price-monitor/store/2026-06-01.json
+2026-06-01 08:03:12,985 INFO store — Saved 669 records to last_snapshot.json
+2026-06-01 08:03:13,005 INFO history — history.csv: appended 198 rows for 2026-06-01 (from validated records)
+2026-06-01 08:03:13,012 INFO main — Diff vs 2026-05-29: 89 changes
+2026-06-01 08:03:13,056 INFO main — Output files written to /Users/koenbrormann/Claude PM/price-monitor/store
+2026-06-01 08:03:13,083 INFO store — Run manifest written: status=partial records=669
+
+=== Run complete ===
+Records: 669
+Changes: 89
+
+--- Slack message ---
+⚠ *Data anomaly detected*
+• cp_verda L40S spot: $0.32 → $0.48 (+49.8%) ⚠ price anomaly
+• nebius H100 preemptible: $1.25 → $2.15 (+72.0%) ⚠ price anomaly
+• nebius H200 preemptible: $1.45 → $2.45 (+69.0%) ⚠ price anomaly
+
+_⚠ Nebius committed prices last verified 39 days ago — check config.py_
+
+*GPU Competitor Pricing — June 01, 2026*
+
+*vs GPU cloud peers (on-demand):*
+`H100 ` Nebius $3.85  +17% vs median  |  5/7 peers cheaper  |  floor: Gcore $1.92
+`H200 ` Nebius $4.50  +30% vs median  |  3/4 peers cheaper  |  floor: GMI Cloud $2.60
+`B200 ` Nebius $7.15  +7% vs median  |  2/3 peers cheaper  |  floor: GMI Cloud $4.00
+`B300 ` Nebius $7.85  |  1 peer: Scaleway $8.73
+`L40S ` Nebius $1.82  +12% vs median  |  2/3 peers cheaper  |  floor: Gcore $1.26
+
+*vs cheapest hyperscaler on-demand rack rate:*
+`H100 ` Nebius $3.85  vs  AWS $6.88  →  Nebius 44% cheaper
+`H200 ` Nebius $4.50  vs  AWS $7.91  →  Nebius 43% cheaper
+`B200 ` Nebius $7.15  vs  Oracle $14.00  →  Nebius 49% cheaper
+`B300 ` Nebius $7.85  vs  Oracle $15.00  →  Nebius 48% cheaper
+`L40S ` Nebius $1.82  vs  AWS $1.86  →  Nebius 2% cheaper  ⚠️ narrow gap
+
+*Committed pricing (H100 benchmark):*
+• H100 12-month: Nebius $2.30 vs AWS $2.58 (-11%)
+• H100 24-month: Nebius $2.05/GPU-hr
+• AWS H100 3yr: $1.38 vs Nebius on-demand $3.85 (2.8× difference)
+
+*Price moves ≥3%:*
+🔺 *Nebius* H100 spot: $1.25→$2.15/GPU-hr (+72.0% (eu-north1))
+🔺 *Nebius* H200 spot: $1.45→$2.45/GPU-hr (+69.0% (eu-north1))
+🔺 *Nebius* B200 spot: $2.90→$3.95/GPU-hr (+36.2% (eu-north1))
+🔻 *Vast* L40S on-demand: $1.21→$0.80/GPU-hr (-33.6% (global))
+🔺 *Nebius* H100 on-demand: $2.95→$3.85/GPU-hr (+30.5% (eu-north1))
+🔺 *Nebius* B200 on-demand: $5.50→$7.15/GPU-hr (+30.0% (eu-north1))
+🔺 *Nebius* B300 on-demand: $6.10→$7.85/GPU-hr (+28.7% (eu-north1))
+🔺 *Nebius* H200 on-demand: $3.50→$4.50/GPU-hr (+28.6% (eu-north1))
+🔺 *Nebius* B300 spot: $3.40→$4.30/GPU-hr (+26.5% (eu-north1))
+🔻 *Vast* H200 on-demand: $4.21→$4.00/GPU-hr (-5.0% (global))
+
+Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
+_Data freshness: hyperstack no data_
+Not logged in · Please run /login
