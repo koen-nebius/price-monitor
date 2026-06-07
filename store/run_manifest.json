@@ -1,10 +1,10 @@
 {
-  "run_date": "2026-06-06",
-  "started_at": "2026-06-06T07:04:23.176819+00:00",
-  "completed_at": "2026-06-06T07:06:08.729038+00:00",
+  "run_date": "2026-06-07",
+  "started_at": "2026-06-07T07:04:30.294399+00:00",
+  "completed_at": "2026-06-07T07:05:50.602008+00:00",
   "status": "partial",
-  "record_count": 859,
-  "raw_record_count": 859,
+  "record_count": 861,
+  "raw_record_count": 861,
   "anomaly_count": 0,
   "quarantined_count": 0,
   "diff_count": 266,
@@ -33,7 +33,7 @@
     "coreweave": {
       "status": "cache",
       "record_count": 10,
-      "cache_age_hours": 21.2
+      "cache_age_hours": 22.5
     },
     "lambda": {
       "status": "fallback",
@@ -42,13 +42,13 @@
     },
     "crusoe": {
       "status": "cache",
-      "record_count": 2,
-      "cache_age_hours": 21.2
+      "record_count": 3,
+      "cache_age_hours": 22.5
     },
     "nebius": {
       "status": "cache",
       "record_count": 10,
-      "cache_age_hours": 21.2
+      "cache_age_hours": 22.5
     },
     "nebius_committed": {
       "status": "live",
@@ -56,8 +56,8 @@
     },
     "computeprices": {
       "status": "cache",
-      "record_count": 120,
-      "cache_age_hours": 21.2
+      "record_count": 121,
+      "cache_age_hours": 22.5
     },
     "oracle": {
       "status": "live",
@@ -66,7 +66,7 @@
     "hyperstack": {
       "status": "cache",
       "record_count": 5,
-      "cache_age_hours": 21.2
+      "cache_age_hours": 22.5
     },
     "runpod": {
       "status": "live",
