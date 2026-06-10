@@ -452,15 +452,27 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
             sign = "+" if avg_pct > 0 else ""
             tier_tag = " _(hyperscaler)_" if provider_tier(prov) == "hyperscaler" else ""
             sku_count = len(set((d.instance_type, d.region) for d in items))
-            sku_note = f" across {sku_count} SKUs" if sku_count > 1 else \
-                       f" ({items[0].region})"
-            # Sample old→new from the most impactful SKU
+            # Most impactful SKU (largest % change)
             best = max(items, key=lambda d: abs(d.delta_pct or 0))
-            lines.append(
-                f"{arrow} *{_display_prov(prov)}*{tier_tag} {gpu} {bucket}: "
-                f"${best.old_price:.2f}→${best.new_price:.2f}/GPU-hr "
-                f"({sign}{avg_pct:.1f}%{sku_note})"
-            )
+            best_pct = best.delta_pct or 0
+            best_sign = "+" if best_pct > 0 else ""
+            if sku_count > 1:
+                # Show avg% as headline; call out worst-case SKU separately so the
+                # two numbers are self-consistent (old→new % matches the printed %).
+                # Previously "$2.42→$4.50 (+11.8%)" was confusing because the example
+                # SKU was +86% but the label showed the average.
+                lines.append(
+                    f"{arrow} *{_display_prov(prov)}*{tier_tag} {gpu} {bucket}: "
+                    f"{sign}{avg_pct:.1f}% avg across {sku_count} SKUs "
+                    f"(peak: ${best.old_price:.2f}→${best.new_price:.2f} {best.region}, "
+                    f"{best_sign}{best_pct:.1f}%)"
+                )
+            else:
+                lines.append(
+                    f"{arrow} *{_display_prov(prov)}*{tier_tag} {gpu} {bucket}: "
+                    f"${best.old_price:.2f}→${best.new_price:.2f}/GPU-hr "
+                    f"({best_sign}{best_pct:.1f}% {items[0].region})"
+                )
         if len(sorted_groups) > 15:
             lines.append(f"_…and {len(sorted_groups) - 15} more provider/GPU groups_")
     else:
