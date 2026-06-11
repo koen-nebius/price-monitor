@@ -18,10 +18,21 @@ files and uses MCP tools to post to Slack and update Confluence.
 import argparse
 import json
 import logging
+import os
 import sys
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
+
+# Load .env so local runs get the same API keys GHA injects from secrets.
+# Existing env vars win — .env only fills gaps.
+_env_file = Path(__file__).parent / ".env"
+if _env_file.exists():
+    for _line in _env_file.read_text().splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _, _v = _line.partition("=")
+            os.environ.setdefault(_k.strip(), _v.strip().strip('"').strip("'"))
 
 from store import (save_snapshot, load_snapshot, previous_snapshot_day, STORE_DIR,
                    WEB_SCRAPED_PROVIDERS, get_cached_records, update_peer_cache,
