@@ -340,7 +340,7 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
     lines = [f"*GPU Competitor Pricing — {run_date}*"]
 
     def _pname(p: str) -> str:
-        _KEEP_UPPER = {"aws", "gcp", "azure", "gpu", "gmi"}
+        _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi"}
         name = p.replace("cp_", "").replace("-", " ")
         return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
                         for w in name.split())
@@ -399,6 +399,47 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                     f"  →  Nebius {cheaper_pct:.0f}% cheaper{flag}"
                 )
 
+        # ── 1c. spot/preemptible floor vs hyperscaler spot ───────────────────
+        # The on-demand story flips at the spot tier: hyperscaler spot floors
+        # often undercut Nebius preemptible. Show it so the digest isn't one-sided.
+        spot_rows = []
+        for gpu in GPU_ORDER:
+            neb_candidates = [r for r in records if r.provider == "nebius"
+                              and r.gpu_model == gpu
+                              and r.consumption_type in INTERRUPTIBLE_CTS]
+            neb_rec = min(neb_candidates, key=lambda r: r.price_per_gpu_hour_usd) \
+                if neb_candidates else None
+            hyp_candidates = [r for r in records
+                              if r.gpu_model == gpu
+                              and r.consumption_type in INTERRUPTIBLE_CTS
+                              and provider_tier(r.provider) == "hyperscaler"]
+            hyp_best = min(hyp_candidates, key=lambda r: r.price_per_gpu_hour_usd) \
+                if hyp_candidates else None
+            if neb_rec and hyp_best:
+                spot_rows.append((gpu, neb_rec.price_per_gpu_hour_usd,
+                                  hyp_best.provider, hyp_best.price_per_gpu_hour_usd,
+                                  hyp_best.region))
+            elif neb_rec:
+                spot_rows.append((gpu, neb_rec.price_per_gpu_hour_usd, None, None, None))
+
+        if spot_rows:
+            lines.append("\n*Spot / preemptible (vs cheapest hyperscaler spot, single best region):*")
+            for gpu, neb_px, hyp_prov, hyp_px, hyp_region in spot_rows:
+                if hyp_px is None:
+                    lines.append(f"`{gpu:<5}` Nebius ${neb_px:.2f}  |  no hyperscaler spot published")
+                    continue
+                delta_pct = (neb_px - hyp_px) / hyp_px * 100  # positive = Nebius pricier
+                if delta_pct > 0:
+                    pos = f"Nebius {delta_pct:.0f}% above"
+                else:
+                    pos = f"Nebius {-delta_pct:.0f}% cheaper"
+                lines.append(
+                    f"`{gpu:<5}` Nebius ${neb_px:.2f}  vs  {_pname(hyp_prov)} ${hyp_px:.2f}"
+                    f" ({hyp_region})  →  {pos}"
+                )
+            lines.append("_Hyperscaler spot is interruptible, capacity not guaranteed; "
+                         "floors are single-region best prices._")
+
         # ── 2. Committed pricing benchmark ───────────────────────────────────
         _committed = _format_committed_callout(records)
         if _committed:
@@ -439,7 +480,7 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
 
         def _display_prov(p: str) -> str:
             """Clean provider name for display: strip cp_ prefix, title-case."""
-            _KEEP_UPPER = {"aws", "gcp", "azure", "gpu", "gmi"}
+            _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi"}
             name = p.replace("cp_", "").replace("-", " ")
             return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
                             for w in name.split())
