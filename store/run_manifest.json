@@ -1,26 +1,23 @@
 {
   "run_date": "2026-06-11",
-  "started_at": "2026-06-11T14:35:47.916752+00:00",
-  "completed_at": "2026-06-11T14:38:04.695029+00:00",
-  "status": "partial",
+  "started_at": "2026-06-11T14:48:41.274983+00:00",
+  "completed_at": "2026-06-11T14:51:05.396705+00:00",
+  "status": "success",
   "record_count": 880,
   "raw_record_count": 880,
   "anomaly_count": 3,
   "quarantined_count": 0,
   "diff_count": 118,
   "failed_providers": [],
-  "stale_providers": [
-    "gcp"
-  ],
+  "stale_providers": [],
   "provider_status": {
     "aws": {
       "status": "live",
       "record_count": 322
     },
     "gcp": {
-      "status": "cache",
-      "record_count": 144,
-      "cache_age_hours": 31.5
+      "status": "live",
+      "record_count": 144
     },
     "azure": {
       "status": "live",
