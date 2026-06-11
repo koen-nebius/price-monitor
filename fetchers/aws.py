@@ -368,6 +368,26 @@ def _fetch_spot_boto3(regions: List[str], fetched_at: str) -> List[PriceRecord]:
     records = []
     seen: set = set()
 
+    def _query(client, types: list) -> dict:
+        """Cheapest spot price per instance type across all AZs in one region."""
+        paginator = client.get_paginator("describe_spot_price_history")
+        pages = paginator.paginate(
+            InstanceTypes=types,
+            ProductDescriptions=["Linux/UNIX"],
+            PaginationConfig={"MaxItems": 500},
+        )
+        best: dict = {}
+        for page in pages:
+            for entry in page.get("SpotPriceHistory", []):
+                it = entry.get("InstanceType", "")
+                try:
+                    price = float(entry.get("SpotPrice", 0))
+                except (ValueError, TypeError):
+                    continue
+                if price > 0 and (it not in best or price < best[it]):
+                    best[it] = price
+        return best
+
     for region in regions:
         try:
             client = boto3.client(
@@ -376,23 +396,21 @@ def _fetch_spot_boto3(regions: List[str], fetched_at: str) -> List[PriceRecord]:
                 aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
                 aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"],
             )
-            paginator = client.get_paginator("describe_spot_price_history")
-            pages = paginator.paginate(
-                InstanceTypes=instance_types,
-                ProductDescriptions=["Linux/UNIX"],
-                PaginationConfig={"MaxItems": 500},
-            )
-            # Collect cheapest price per instance type across all AZs in this region
-            best: dict = {}  # instance_type → price
-            for page in pages:
-                for entry in page.get("SpotPriceHistory", []):
-                    it = entry.get("InstanceType", "")
+            try:
+                best = _query(client, instance_types)
+            except botocore.exceptions.ClientError as e:
+                # One unrecognized instance type name (e.g. a GPU family not yet
+                # GA in EC2) fails the WHOLE batch call. Retry per-type so the
+                # valid families still return prices.
+                if e.response.get("Error", {}).get("Code") != "InvalidParameterValue":
+                    raise
+                logger.warning(f"AWS boto3 spot {region}: batch rejected ({e}) — retrying per-type")
+                best = {}
+                for it in instance_types:
                     try:
-                        price = float(entry.get("SpotPrice", 0))
-                    except (ValueError, TypeError):
-                        continue
-                    if price > 0 and (it not in best or price < best[it]):
-                        best[it] = price
+                        best.update(_query(client, [it]))
+                    except botocore.exceptions.ClientError as e2:
+                        logger.warning(f"AWS boto3 spot {region} {it}: {e2}")
 
             for it, price in best.items():
                 if it not in _ALL_INSTANCE_TYPES:

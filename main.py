@@ -154,13 +154,16 @@ def run(providers=None, test=False):
             records = []
 
         if records:
-            # Live fetch succeeded — update peer cache for web-scraped providers
-            if provider in WEB_SCRAPED_PROVIDERS:
-                update_peer_cache(provider, records)
+            # Live fetch succeeded — update peer cache so a future empty/blocked
+            # run (e.g. GHA runner IPs blocked by Azure/Oracle/RunPod) can fall back
+            update_peer_cache(provider, records)
             logger.info(f"{provider}: {len(records)} records (live)")
             provider_status[provider] = {"status": "live", "record_count": len(records)}
-        elif provider in WEB_SCRAPED_PROVIDERS:
-            # Web scrape returned nothing — fall back to peer_cache.json
+        else:
+            # Fetch returned nothing — fall back to peer_cache.json.
+            # Applies to ALL providers, not just web scrapes: API providers also
+            # return 0 when GHA runner IPs are blocked, and 0 records with status
+            # "live" silently drops the provider from the snapshot.
             cache_age = get_cache_age_hours(provider)
             records = get_cached_records(provider)
             if records:
@@ -174,20 +177,12 @@ def run(providers=None, test=False):
                     "record_count": len(records),
                     "cache_age_hours": round(cache_age, 1) if cache_age is not None else None,
                 }
-            else:
+            elif provider_status.get(provider, {}).get("status") != "error":
                 logger.warning(
                     f"{provider}: live fetch returned 0 records and no cache available. "
                     f"Run main.py locally once to populate peer_cache.json."
                 )
                 provider_status[provider] = {"status": "missing", "record_count": 0}
-        elif provider not in provider_status:
-            # Non-web-scraped provider with 0 records (e.g. hyperstack, manual providers)
-            logger.info(f"{provider}: {len(records)} records")
-            # Detect SkyPilot fallback: lambda records with data_source="aggregator"
-            if provider == "lambda" and not records:
-                provider_status[provider] = {"status": "missing", "record_count": 0}
-            else:
-                provider_status[provider] = {"status": "live", "record_count": len(records)}
 
         # Detect SkyPilot fallback for lambda (all records have data_source="aggregator")
         if provider == "lambda" and records and all(
