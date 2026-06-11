@@ -144,3 +144,22 @@ _⚠ Nebius committed prices last verified 39 days ago — check config.py_
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
 _Data freshness: hyperstack no data_
 Not logged in · Please run /login
+=== 2026-06-11 13:29:49 UTC ===
+Error: Claude Code cannot be launched inside another Claude Code session.
+Nested sessions share runtime resources and will crash all active sessions.
+To bypass this check, unset the CLAUDECODE environment variable.
+=== 2026-06-11 13:47:11 UTC ===
+export CONFLUENCE_EMAIL="your@email.com"
+export CONFLUENCE_API_TOKEN="your-atlassian-api-token"
+```
+
+Once those are set, `notify.py` will handle both posts automatically (it already has the correct logic for channel `C0B4Y471YN4` and page `1831469419`).
+=== done ===
+=== 2026-06-11 14:27:24 UTC ===
+2026-06-11 16:27:24,878 WARNING Slack: no credentials set (SLACK_WEBHOOK_URL or SLACK_BOT_TOKEN) — skipping
+2026-06-11 16:27:24,878 WARNING Confluence: no credentials set (CONFLUENCE_EMAIL + CONFLUENCE_API_TOKEN) — skipping
+=== done ===
+=== 2026-06-11 14:30:24 UTC ===
+2026-06-11 16:30:24,907 WARNING Slack: no credentials set (SLACK_WEBHOOK_URL or SLACK_BOT_TOKEN) — skipping
+2026-06-11 16:30:24,907 WARNING Confluence: no credentials set (CONFLUENCE_EMAIL + CONFLUENCE_API_TOKEN) — skipping
+=== done ===

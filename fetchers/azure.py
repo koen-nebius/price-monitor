@@ -12,6 +12,7 @@ from typing import List, Optional
 
 from schema import PriceRecord
 from config import AZURE_REGIONS, GPU_MAP
+from fetchers._http import http_get
 
 logger = logging.getLogger(__name__)
 
@@ -66,8 +67,7 @@ def _fetch_instance(
     url = f"{API_BASE}?{urllib.parse.urlencode(params)}"
 
     while url:
-        with urllib.request.urlopen(url, timeout=30) as resp:
-            data = json.loads(resp.read())
+        data = json.loads(http_get(url, timeout=30))
 
         for item in data.get("Items", []):
             arm_region = item.get("armRegionName", "")

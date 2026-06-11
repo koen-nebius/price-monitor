@@ -1,13 +1,13 @@
 {
   "run_date": "2026-06-11",
-  "started_at": "2026-06-11T11:22:19.040063+00:00",
-  "completed_at": "2026-06-11T11:24:29.094684+00:00",
+  "started_at": "2026-06-11T14:35:47.916752+00:00",
+  "completed_at": "2026-06-11T14:38:04.695029+00:00",
   "status": "partial",
-  "record_count": 820,
-  "raw_record_count": 820,
-  "anomaly_count": 2,
+  "record_count": 880,
+  "raw_record_count": 880,
+  "anomaly_count": 3,
   "quarantined_count": 0,
-  "diff_count": 58,
+  "diff_count": 118,
   "failed_providers": [],
   "stale_providers": [
     "gcp"
@@ -20,11 +20,11 @@
     "gcp": {
       "status": "cache",
       "record_count": 144,
-      "cache_age_hours": 28.3
+      "cache_age_hours": 31.5
     },
     "azure": {
       "status": "live",
-      "record_count": 72
+      "record_count": 132
     },
     "coreweave": {
       "status": "live",
@@ -64,6 +64,7 @@
     }
   },
   "warnings": [
+    "azure H100 on_demand: $12.29 \u2192 $6.98 (-43.2%) \u26a0 price anomaly",
     "cp_acecloud H200 on_demand: $3.38 \u2192 $6.27 (+85.2%) \u26a0 price anomaly",
     "cp_together-ai B200 on_demand: $5.97 \u2192 $11.95 (+100.0%) \u26a0 price anomaly"
   ],

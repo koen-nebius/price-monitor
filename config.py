@@ -43,6 +43,10 @@ GPU_MAP = {
     "azure": {
         "H100": [
             {"instance_type": "Standard_ND96isr_H100_v5", "gpu_count": 8, "vcpu": 96, "ram_gb": 900},
+            # Cheapest Azure H100 entry point: 1× H100 NVL 94GB, no InfiniBand
+            {"instance_type": "Standard_NC40ads_H100_v5", "gpu_count": 1, "vcpu": 40, "ram_gb": 320},
+            # 8× H100 without InfiniBand — cheaper than the isr (IB) variant
+            {"instance_type": "Standard_ND96is_H100_v5",  "gpu_count": 8, "vcpu": 96, "ram_gb": 900},
             # MI300X removed — AMD GPU, not H100
         ],
         "H200": [
@@ -264,6 +268,9 @@ NEBIUS_COMMITTED_CT_MAP = {
 }
 
 CONFLUENCE_CLOUD_ID = "3213098a-816e-4aeb-8073-44b4d40f3fdc"
+# Site base URL — Basic auth (email + API token) works against the site domain,
+# not the api.atlassian.com/ex/ OAuth gateway.
+CONFLUENCE_BASE_URL = "https://nebius.atlassian.net/wiki"
 CONFLUENCE_SPACE_KEY = "PR"
 CONFLUENCE_PAGE_ID = "1831469419"
 CONFLUENCE_PAGE_TITLE = "GPU Competitor Pricing — Live Overview"

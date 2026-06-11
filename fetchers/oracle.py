@@ -49,12 +49,8 @@ OCI_SKIP_KEYWORDS = [
 def fetch(regions: List[str] = None) -> List[PriceRecord]:
     now = datetime.now(timezone.utc).isoformat()
     try:
-        req = urllib.request.Request(
-            API_URL,
-            headers={"User-Agent": "Mozilla/5.0 (price-monitor/1.0)", "Accept": "application/json"},
-        )
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read())
+        from fetchers._http import http_get
+        data = json.loads(http_get(API_URL, headers={"Accept": "application/json"}, timeout=30))
     except Exception as e:
         logger.warning(f"Oracle API fetch failed: {e}")
         return []

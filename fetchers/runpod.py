@@ -56,17 +56,13 @@ _QUERY = """
 def fetch(regions: List[str] = None) -> List[PriceRecord]:
     now = datetime.now(timezone.utc).isoformat()
     try:
+        from fetchers._http import http_get
         body = json.dumps({"query": _QUERY}).encode()
-        req = urllib.request.Request(
-            GRAPHQL_URL,
-            data=body,
-            headers={
-                "Content-Type": "application/json",
-                "User-Agent": "Mozilla/5.0 (price-monitor/1.0)",
-            },
-        )
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            data = json.loads(resp.read())
+        data = json.loads(http_get(
+            GRAPHQL_URL, data=body,
+            headers={"Content-Type": "application/json"},
+            timeout=20,
+        ))
     except Exception as e:
         logger.error(f"RunPod GraphQL fetch failed: {e}")
         return []

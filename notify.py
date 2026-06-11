@@ -14,7 +14,7 @@ import sys
 import urllib.request
 from pathlib import Path
 
-from config import CONFLUENCE_CLOUD_ID, CONFLUENCE_PAGE_ID, CONFLUENCE_PAGE_TITLE
+from config import CONFLUENCE_BASE_URL, CONFLUENCE_PAGE_ID, CONFLUENCE_PAGE_TITLE
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ STORE_DIR = Path(__file__).parent / "store"
 SLACK_MSG_FILE = STORE_DIR / "slack_message.txt"
 CONFLUENCE_BODY_FILE = STORE_DIR / "confluence_body.html"
 
-CONFLUENCE_API = f"https://api.atlassian.com/ex/confluence/{CONFLUENCE_CLOUD_ID}/wiki/rest/api/content/{CONFLUENCE_PAGE_ID}"
+CONFLUENCE_API = f"{CONFLUENCE_BASE_URL}/rest/api/content/{CONFLUENCE_PAGE_ID}"
 
 
 def _auth_header() -> str:
@@ -114,8 +114,11 @@ def main() -> None:
     else:
         logger.warning(f"No Slack message file at {SLACK_MSG_FILE}")
 
-    # Confluence
-    if CONFLUENCE_BODY_FILE.exists():
+    # Confluence (optional — skip gracefully if no credentials configured)
+    confluence_configured = os.environ.get("CONFLUENCE_EMAIL") and os.environ.get("CONFLUENCE_API_TOKEN")
+    if not confluence_configured:
+        logger.warning("Confluence: no credentials set (CONFLUENCE_EMAIL + CONFLUENCE_API_TOKEN) — skipping")
+    elif CONFLUENCE_BODY_FILE.exists():
         try:
             update_confluence(CONFLUENCE_BODY_FILE.read_text())
         except Exception as e:
