@@ -2900,8 +2900,10 @@ snapshot_date,provider,gpu_model,consumption_type,region,instance_type,gpu_count
 2026-06-11,runpod,L40S,spot,global,runpod-l40s-spot,1,0.86,0.86,official_api
 2026-06-12,aws,B200,capacity_block,us-east-1,p6-b200.48xlarge,8,10.296,82.368,official_api
 2026-06-12,aws,B200,on_demand,us-east-1,p6-b200.48xlarge,8,14.2416,113.9328,official_api
+2026-06-12,aws,B200,spot,us-east-2,p6-b200.48xlarge,8,1.6013,12.8104,official_api
 2026-06-12,aws,B300,capacity_block,us-east-1,p6-b300.48xlarge,8,11.7,93.6,official_api
 2026-06-12,aws,B300,on_demand,us-east-1,p6-b300.48xlarge,8,17.802,142.416,official_api
+2026-06-12,aws,B300,spot,us-east-1,p6-b300.48xlarge,8,2.635,21.0798,official_api
 2026-06-12,aws,GB200,capacity_block,us-east-1,p6e.36xlarge,36,10.582,380.952,official_api
 2026-06-12,aws,H100,capacity_block,us-east-1,p5.48xlarge,8,3.933,31.464,official_api
 2026-06-12,aws,H100,on_demand,us-east-1,p5.48xlarge,8,6.88,55.04,official_api
@@ -2910,6 +2912,7 @@ snapshot_date,provider,gpu_model,consumption_type,region,instance_type,gpu_count
 2026-06-12,aws,H100,spot,us-west-2,p5.48xlarge,8,3.9123,31.2985,official_api
 2026-06-12,aws,H200,capacity_block,us-east-1,p5e.48xlarge,8,4.975,39.8,official_api
 2026-06-12,aws,H200,on_demand,us-east-1,p5en.48xlarge,8,7.912,63.296,official_api
+2026-06-12,aws,H200,spot,us-east-2,p5en.48xlarge,8,0.7912,6.3296,official_api
 2026-06-12,aws,L40S,on_demand,us-east-1,g6e.xlarge,1,1.861,1.861,official_api
 2026-06-12,aws,L40S,reserved_1yr,us-east-1,g6e.xlarge,1,0.5583,0.5583,official_api
 2026-06-12,aws,L40S,reserved_3yr,us-east-1,g6e.xlarge,1,0.3722,0.3722,official_api
@@ -3082,8 +3085,8 @@ snapshot_date,provider,gpu_model,consumption_type,region,instance_type,gpu_count
 2026-06-12,hyperstack,H100,spot,global,hyperstack-h100,1,1.52,1.52,web_scrape
 2026-06-12,hyperstack,H200,on_demand,global,hyperstack-h200,1,3.5,3.5,web_scrape
 2026-06-12,hyperstack,H200,reserved_1yr,global,hyperstack-h200,1,2.45,2.45,web_scrape
-2026-06-12,lambda,B200,on_demand,europe-central-1,gpu_8x_b200_sxm6,8,6.69,53.52,aggregator
-2026-06-12,lambda,H100,on_demand,europe-central-1,gpu_1x_h100_pcie,1,3.29,3.29,aggregator
+2026-06-12,lambda,B200,on_demand,us-east,lambda-b200-sxm6-8x,8,6.69,53.52,web_scrape
+2026-06-12,lambda,H100,on_demand,us-east,lambda-h100-pcie-1x,1,3.29,3.29,web_scrape
 2026-06-12,nebius,B200,committed_1yr,global,nebius-b200-12mo-100pct-ent,1,4.89,4.89,manual
 2026-06-12,nebius,B200,committed_2yr,global,nebius-b200-24mo-100pct-ent,1,4.55,4.55,manual
 2026-06-12,nebius,B200,committed_3yr,global,nebius-b200-36mo-100pct-ent,1,4.15,4.15,manual
