@@ -292,7 +292,7 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
     watch items, link.
     """
     def _pname(p: str) -> str:
-        _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi"}
+        _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi", "ai"}
         name = p.replace("cp_", "").replace("-", " ")
         return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
                         for w in name.split())
@@ -316,11 +316,20 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
             groups[(d.provider, d.gpu_model, d.consumption_type,
                     interruptible, direction)].append(d)
 
+        # Signal weighting: a CoreWeave or AWS repricing is a market signal; a
+        # small provider with a few thousand GPUs moving price is not. Tier-2
+        # (hyperscaler + enterprise neocloud) moves outrank small-provider moves
+        # regardless of magnitude; spot jitter ranks below list-price changes.
+        def _high_signal(prov: str) -> bool:
+            # Direct membership test — provider_tier() returns raw_gpu_cloud for
+            # providers that appear in both lists (coreweave, lambda, crusoe, ...)
+            return (provider_tier(prov) == "hyperscaler"
+                    or prov.lower() in PROVIDER_TIERS.get("enterprise_gpu_cloud", []))
+
         def _signal_rank(kv):
             (prov, gpu, ct, interruptible, _dir), items = kv
             pcts = [abs(d.delta_pct or 0) for d in items]
-            # Non-spot competitor repricings outrank spot jitter regardless of size
-            return (interruptible, -statistics.median(pcts))
+            return (not _high_signal(prov), interruptible, -statistics.median(pcts))
 
         ranked = sorted(groups.items(), key=_signal_rank)
         (prov, gpu, ct, interruptible, direction), items = ranked[0]
@@ -331,13 +340,27 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
         ct_label = "spot" if interruptible else \
             ct.replace("on_demand", "on-demand").replace("_", " ").replace("reserved 1yr", "reserved")
         sku_note = f" across {len(items)} SKUs" if len(items) > 1 else ""
-        lines.append(
-            f"\n*Today's signal:* {_pname(prov)} {verb} {gpu} {ct_label} "
-            f"{avg:+.0f}%{sku_note} (${best.old_price:.2f}→${best.new_price:.2f})"
-        )
-        n_other = len(ranked) - 1
-        if n_other:
-            lines[-1] += f" · {n_other} smaller move{'s' if n_other > 1 else ''} in thread"
+        if _high_signal(prov):
+            lines.append(
+                f"\n*Today's signal:* {_pname(prov)} {verb} {gpu} {ct_label} "
+                f"{avg:+.0f}%{sku_note} (${best.old_price:.2f}→${best.new_price:.2f})"
+            )
+        else:
+            # Only small-provider moves today — say so instead of promoting one
+            lines.append(
+                f"\n*Today's signal:* no moves from hyperscalers or major neoclouds — "
+                f"largest small-provider move: {_pname(prov)} {gpu} {ct_label} {avg:+.0f}%"
+            )
+        rest = ranked[1:]
+        n_major = sum(1 for (p, *_), _ in rest if _high_signal(p))
+        n_small = len(rest) - n_major
+        rest_parts = []
+        if n_major:
+            rest_parts.append(f"{n_major} more major-provider move{'s' if n_major > 1 else ''}")
+        if n_small:
+            rest_parts.append(f"{n_small} small-provider move{'s' if n_small > 1 else ''}")
+        if rest_parts:
+            lines[-1] += f" · {' + '.join(rest_parts)} in thread"
     else:
         lines.append("\n*Today's signal:* no significant price moves "
                      f"(≥{ALERT_THRESHOLD_PCT:.0f}%) on tracked providers")
@@ -473,7 +496,7 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
     lines = [f"*GPU Competitor Pricing — {run_date}*"]
 
     def _pname(p: str) -> str:
-        _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi"}
+        _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi", "ai"}
         name = p.replace("cp_", "").replace("-", " ")
         return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
                         for w in name.split())
@@ -613,7 +636,7 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
 
         def _display_prov(p: str) -> str:
             """Clean provider name for display: strip cp_ prefix, title-case."""
-            _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi"}
+            _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi", "ai"}
             name = p.replace("cp_", "").replace("-", " ")
             return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
                             for w in name.split())
@@ -624,7 +647,10 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
             pcts = [d.delta_pct or 0 for d in items]
             avg_pct = statistics.mean(pcts)
             sign = "+" if avg_pct > 0 else ""
-            tier_tag = " _(hyperscaler)_" if provider_tier(prov) == "hyperscaler" else ""
+            tier_tag = (" _(hyperscaler)_" if provider_tier(prov) == "hyperscaler"
+                        else " _(major neocloud)_"
+                        if prov.lower() in PROVIDER_TIERS.get("enterprise_gpu_cloud", [])
+                        else " _(small provider)_")
             sku_count = len(set((d.instance_type, d.region) for d in items))
             # Most impactful SKU (largest % change)
             best = max(items, key=lambda d: abs(d.delta_pct or 0))

@@ -127,24 +127,36 @@ PROVIDER_TIERS = {
     # Named enterprise GPU cloud peers — used in Slack positioning and the executive
     # benchmark table. Criteria: GPU-first or significant GPU cloud business, meaningful
     # owned capacity (1,000+ GPUs), enterprise SLAs, active and solvent.
+    # Validated by deep research 2026-06-12 (SemiAnalysis ClusterMAX 2.0/2.1, SEC filings,
+    # funding disclosures).
     #
     # Excluded from enterprise tier:
-    #   - Genesis Cloud (cp_genesis): confirmed in liquidation 2025 — pricing stale/unreliable
+    #   - Gcore (cp_gcore): demoted 2026-06-12 — CDN/edge company, only $60M Series A
+    #     (first raise in 10+ yrs, led by Wargaming), no disclosed GPU fleet/MW/revenue;
+    #     known deployments small (320 H100 Korea, ~1MW Helsinki). Not a price-setter.
+    #     Still tracked in raw_gpu_cloud market sweep.
+    #   - Genesis Cloud (cp_genesis): in liquidation ("GmbH i.L." since Aug 2025) but
+    #     still publishing live prices — dropped at fetch in computeprices.py
     #   - Sesterce (cp_sesterce): broker/aggregator reselling spare capacity, no owned infra
     #   - Denvr Dataworks (cp_denvr-dataworks): only $10.8M raised, ~1,024 H100s — too small
     #   - Commodity GPU rental marketplaces (TensorDock, Vast.ai, RunPod)
     #   - General VPS providers (DigitalOcean, Vultr, UpCloud) — GPU is a side product
     #   - Kubernetes-first clouds (Civo) not competing in raw GPU workloads
     #   - Developer ML platforms (Paperspace/DO) targeting hobbyists, not enterprise
-    # IREN: GPU cloud competitor named in sales calls; not yet on ComputePrices.com.
-    #   Add to this list once pricing is confirmed.
+    # IREN: tier-2-scale competitor ($3.1B contracted ARR, ~74k GPUs, 480MW) but prices
+    #   via bilateral contracts only — no list prices to scrape. Track via field intel.
+    # Nscale / Fluidstack: strategically significant (Fluidstack = ClusterMAX Gold) but
+    #   publish no public list prices — track qualitatively, not in the daily monitor.
     "enterprise_gpu_cloud": [
-        "nebius", "coreweave", "lambda", "crusoe",
+        "nebius",
+        "coreweave",           # ClusterMAX Platinum; $2.08B Q1'26 rev, $99.4B backlog, >1GW active
+        "lambda",              # ClusterMAX Silver
+        "crusoe",              # ClusterMAX Gold (same tier as Nebius/Oracle/Azure)
+        "cp_together-ai",      # ClusterMAX Silver (alongside AWS/Google) — also in managed_inference
         "cp_hyperstack",       # NexGen Cloud — $1B AI Supercloud, thousands of H100s, UK
-        "cp_voltage",          # Voltage Park — 24,000 H100s, $1B Navigation Fund, US
+        "cp_voltage",          # Voltage Park — 24,000 H100s, $1B Navigation Fund; merged w/ Lightning AI
         "cp_gmi-cloud",        # GMI Cloud — $12B sovereign AI initiative, NVIDIA partner, APAC
         "cp_scaleway",         # Scaleway (Iliad Group) — serious European cloud, up to 504-GPU clusters
-        "cp_gcore",            # Gcore — expanding European GPU cloud, Luxembourg/Helsinki/Portugal
     ],
     "managed_inference": [
         "cp_deep-infra", "cp_fal-ai", "cp_together-ai",

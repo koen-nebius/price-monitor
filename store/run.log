@@ -163,3 +163,67 @@ Once those are set, `notify.py` will handle both posts automatically (it already
 2026-06-11 16:30:24,907 WARNING Slack: no credentials set (SLACK_WEBHOOK_URL or SLACK_BOT_TOKEN) — skipping
 2026-06-11 16:30:24,907 WARNING Confluence: no credentials set (CONFLUENCE_EMAIL + CONFLUENCE_API_TOKEN) — skipping
 === done ===
+=== 2026-06-12 05:09:28 UTC ===
+2026-06-12 07:26:55,657 WARNING fetchers.aws — AWS us-east-1 failed: [Errno 54] Connection reset by peer
+2026-06-12 08:30:18,552 WARNING fetchers.aws — AWS us-east-2 failed: The read operation timed out
+2026-06-12 08:48:10,758 WARNING fetchers.aws — AWS us-west-2 failed: [Errno 54] Connection reset by peer
+2026-06-12 09:05:47,872 WARNING fetchers.aws — AWS eu-west-1 failed: [Errno 54] Connection reset by peer
+2026-06-12 09:16:42,158 WARNING fetchers.aws — AWS eu-west-2 failed: [Errno 54] Connection reset by peer
+2026-06-12 09:17:20,573 INFO fetchers.aws — AWS eu-central-1: 54 records
+2026-06-12 09:17:28,564 INFO fetchers.aws — AWS ap-southeast-1: 0 records
+2026-06-12 09:17:36,807 INFO fetchers.aws — AWS ap-northeast-1: 62 records
+2026-06-12 09:17:38,225 INFO fetchers.aws — AWS spot: 3 records via public S3 feed
+2026-06-12 09:17:39,126 INFO fetchers.aws — AWS capacity blocks: 5 records (static, from public pricing page)
+2026-06-12 09:17:39,216 INFO store —   peer_cache: updated 'aws' with 124 records
+2026-06-12 09:17:39,217 INFO main — aws: 124 records (live)
+2026-06-12 09:17:48,836 INFO fetchers.gcp — GCP: 144 records
+2026-06-12 09:17:48,873 INFO store —   peer_cache: updated 'gcp' with 144 records
+2026-06-12 09:17:48,873 INFO main — gcp: 144 records (live)
+2026-06-12 09:17:50,439 INFO fetchers.azure — Azure: 132 records total
+2026-06-12 09:17:50,495 INFO store —   peer_cache: updated 'azure' with 132 records
+2026-06-12 09:17:50,495 INFO main — azure: 132 records (live)
+2026-06-12 09:17:51,476 INFO fetchers.coreweave — CoreWeave: 10 records
+2026-06-12 09:17:51,523 INFO store —   peer_cache: updated 'coreweave' with 10 records
+2026-06-12 09:17:51,524 INFO main — coreweave: 10 records (live)
+2026-06-12 09:17:51,685 INFO fetchers.lambda_labs — Lambda Labs scrape: 9 records
+2026-06-12 09:17:51,987 INFO fetchers.lambda_labs — Lambda Labs SkyPilot fallback: 153 records
+2026-06-12 09:17:52,039 INFO store —   peer_cache: updated 'lambda' with 9 records
+2026-06-12 09:17:52,039 INFO main — lambda: 9 records (live)
+2026-06-12 09:17:52,725 INFO fetchers.crusoe — Crusoe: 3 scraped + 0 manual = 3 records
+2026-06-12 09:17:52,775 INFO store —   peer_cache: updated 'crusoe' with 3 records
+2026-06-12 09:17:52,776 INFO main — crusoe: 3 records (live)
+2026-06-12 09:17:52,987 INFO fetchers.nebius — Nebius: 10 records
+2026-06-12 09:17:53,034 INFO store —   peer_cache: updated 'nebius' with 10 records
+2026-06-12 09:17:53,035 INFO main — nebius: 10 records (live)
+2026-06-12 09:17:53,048 INFO fetchers.nebius_committed — Nebius committed: 93 records across 5 GPU models
+2026-06-12 09:17:53,086 INFO store —   peer_cache: updated 'nebius_committed' with 93 records
+2026-06-12 09:17:53,087 INFO main — nebius_committed: 93 records (live)
+2026-06-12 09:17:56,652 WARNING fetchers.computeprices —   computeprices: dropping inverted reserved price — cp_gcore H100 reserved_1yr $2.15 > on_demand $1.78
+2026-06-12 09:17:56,652 WARNING fetchers.computeprices —   computeprices: dropping inverted reserved price — cp_gcore H100 reserved_3yr $16.24 > on_demand $1.78
+2026-06-12 09:17:56,652 WARNING fetchers.computeprices —   computeprices: dropping inverted reserved price — cp_gcore H200 reserved_1yr $19.28 > on_demand $3.18
+2026-06-12 09:17:56,652 WARNING fetchers.computeprices —   computeprices: dropping inverted reserved price — cp_gcore H200 reserved_3yr $18.44 > on_demand $3.18
+2026-06-12 09:17:56,653 INFO fetchers.computeprices — ComputePrices: 129 records from 7 GPU slugs
+2026-06-12 09:17:56,707 INFO store —   peer_cache: updated 'computeprices' with 129 records
+2026-06-12 09:17:56,707 INFO main — computeprices: 129 records (live)
+2026-06-12 09:17:57,552 INFO fetchers.oracle — Oracle: 8 records
+2026-06-12 09:17:57,601 INFO store —   peer_cache: updated 'oracle' with 8 records
+2026-06-12 09:17:57,602 INFO main — oracle: 8 records (live)
+2026-06-12 09:17:57,803 INFO fetchers.hyperstack — Hyperstack scrape: 5 records
+2026-06-12 09:17:57,850 INFO store —   peer_cache: updated 'hyperstack' with 5 records
+2026-06-12 09:17:57,851 INFO main — hyperstack: 5 records (live)
+2026-06-12 09:17:58,123 INFO fetchers.runpod — RunPod: 15 records
+2026-06-12 09:17:58,175 INFO store —   peer_cache: updated 'runpod' with 15 records
+2026-06-12 09:17:58,176 INFO main — runpod: 15 records (live)
+2026-06-12 09:17:58,176 INFO main — Fetched 682 total records for 2026-06-12
+2026-06-12 09:17:58,275 INFO store — Saved 682 records to /Users/koenbrormann/Claude PM/price-monitor/store/2026-06-12.json
+2026-06-12 09:17:58,313 INFO store — Saved 682 records to last_snapshot.json
+2026-06-12 09:17:58,336 INFO history — history.csv: replaced 234 rows for 2026-06-12 (from validated records)
+2026-06-12 09:17:58,342 INFO main — Diff vs 2026-06-11: 201 changes
+2026-06-12 09:17:58,376 INFO main — Output files written to /Users/koenbrormann/Claude PM/price-monitor/store
+2026-06-12 09:17:58,384 INFO store — Run manifest written: status=success records=682
+Traceback (most recent call last):
+  File "/Users/koenbrormann/Claude PM/price-monitor/main.py", line 383, in <module>
+    result = run(providers=args.provider, test=args.test)
+  File "/Users/koenbrormann/Claude PM/price-monitor/main.py", line 341, in run
+    "slack_message": slack_msg,
+NameError: name 'slack_msg' is not defined

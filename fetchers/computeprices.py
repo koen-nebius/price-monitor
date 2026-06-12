@@ -32,6 +32,9 @@ SKIP_PROVIDERS = {
     "hyperstack",
     "nexgencloud",
     "runpod",   # direct fetcher via runpod.py — skip to avoid double-counting
+    # Distressed — prices unreliable, would pollute the benchmark:
+    "genesis cloud",   # in liquidation ("GmbH i.L." since Aug 2025) yet still lists prices
+    "genesis",
 }
 
 # ComputePrices GPU name → our normalized model name

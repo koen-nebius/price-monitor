@@ -1,25 +1,15 @@
 {
   "run_date": "2026-06-12",
-  "started_at": "2026-06-12T07:03:56.464699+00:00",
-  "completed_at": "2026-06-12T07:06:14.741447+00:00",
-  "status": "partial",
-  "record_count": 1024,
-  "raw_record_count": 1024,
+  "started_at": "2026-06-12T08:53:34.683730+00:00",
+  "completed_at": "2026-06-12T08:55:22.460625+00:00",
+  "status": "success",
+  "record_count": 874,
+  "raw_record_count": 874,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 162,
+  "diff_count": 9,
   "failed_providers": [],
-  "stale_providers": [
-    "azure",
-    "coreweave",
-    "lambda",
-    "crusoe",
-    "nebius",
-    "computeprices",
-    "oracle",
-    "hyperstack",
-    "runpod"
-  ],
+  "stale_providers": [],
   "provider_status": {
     "aws": {
       "status": "live",
@@ -30,53 +20,44 @@
       "record_count": 144
     },
     "azure": {
-      "status": "cache",
-      "record_count": 132,
-      "cache_age_hours": 16.3
+      "status": "live",
+      "record_count": 132
     },
     "coreweave": {
-      "status": "cache",
-      "record_count": 10,
-      "cache_age_hours": 16.3
+      "status": "live",
+      "record_count": 10
     },
     "lambda": {
-      "status": "fallback",
-      "record_count": 153,
-      "fallback_source": "skypilot_catalog"
+      "status": "live",
+      "record_count": 9
     },
     "crusoe": {
-      "status": "cache",
-      "record_count": 3,
-      "cache_age_hours": 16.3
+      "status": "live",
+      "record_count": 3
     },
     "nebius": {
-      "status": "cache",
-      "record_count": 10,
-      "cache_age_hours": 16.3
+      "status": "live",
+      "record_count": 10
     },
     "nebius_committed": {
       "status": "live",
       "record_count": 93
     },
     "computeprices": {
-      "status": "cache",
-      "record_count": 129,
-      "cache_age_hours": 16.3
+      "status": "live",
+      "record_count": 123
     },
     "oracle": {
-      "status": "cache",
-      "record_count": 8,
-      "cache_age_hours": 16.3
+      "status": "live",
+      "record_count": 8
     },
     "hyperstack": {
-      "status": "cache",
-      "record_count": 5,
-      "cache_age_hours": 16.3
+      "status": "live",
+      "record_count": 5
     },
     "runpod": {
-      "status": "cache",
-      "record_count": 15,
-      "cache_age_hours": 16.3
+      "status": "live",
+      "record_count": 15
     }
   },
   "warnings": [],
