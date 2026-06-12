@@ -338,7 +338,7 @@ def run(providers=None, test=False):
         "records": len(accepted_records),
         "diffs": len(diffs),
         "errors": errors,
-        "slack_message": slack_msg,
+        "slack_message": slack_summary,
         "confluence_body": confluence_body,
         "manifest": manifest,
     }
