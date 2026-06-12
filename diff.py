@@ -354,16 +354,17 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
                 pct = (hyp.price_per_gpu_hour_usd - neb.price_per_gpu_hour_usd) \
                       / hyp.price_per_gpu_hour_usd * 100
                 gaps.append((gpu, pct, hyp))
-        wide   = [(g, p) for g, p, _ in gaps if p >= 5]
-        narrow = [(g, p, h) for g, p, h in gaps if p < 5]
-        if wide:
-            lo, hi = min(p for _, p in wide), max(p for _, p in wide)
-            lines.append(f"\n*Position:* ahead of hyperscalers on every GPU "
-                         f"({lo:.0f}–{hi:.0f}% cheaper on-demand)")
+        # Neutral framing: report where Nebius prices sit, no better/worse language.
+        # Lower is not inherently good — premium pricing can reflect product strength;
+        # this digest informs pricing decisions in both directions.
+        if gaps:
+            lo, hi = min(p for _, p, _ in gaps), max(p for _, p, _ in gaps)
+            lines.append(f"\n*Position:* Nebius on-demand sits {lo:.0f}–{hi:.0f}% "
+                         f"below hyperscaler rack rates")
 
         # vs peer median (on-demand)
         position = compute_position(records)
-        above, at_med = [], []
+        above, at_med, below = [], [], []
         for row in position:
             if row["tier_label"] != "on_demand" or row["nebius_price"] is None:
                 continue
@@ -372,20 +373,25 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
             pct = (row["nebius_price"] - row["median_peer"]) / row["median_peer"] * 100
             if pct >= 3:
                 above.append(f"{row['gpu']} +{pct:.0f}%")
-            elif abs(pct) < 3:
+            elif pct <= -3:
+                below.append(f"{row['gpu']} {pct:.0f}%")
+            else:
                 at_med.append(row["gpu"])
         peer_parts = []
         if above:
-            peer_parts.append(f"above peer median on {', '.join(above)}")
+            peer_parts.append(f"premium to peer median on {', '.join(above)}")
+        if below:
+            peer_parts.append(f"below median on {', '.join(below)}")
         if at_med:
             peer_parts.append(f"at median on {', '.join(at_med)}")
         if peer_parts:
             lines.append("Vs GPU clouds: " + "; ".join(peer_parts))
 
-        # Watch items: narrow hyperscaler gaps + spot floor disadvantage
-        watch = []
-        for gpu, pct, hyp in narrow:
-            watch.append(f"{gpu} only {pct:.0f}% below {_pname(hyp.provider)}")
+        # Reference points worth knowing when setting price — neutral observations
+        notes = []
+        for gpu, pct, hyp in gaps:
+            if pct < 5:
+                notes.append(f"{gpu} within {pct:.0f}% of {_pname(hyp.provider)} on-demand")
         neb_pre = next((r for r in sorted(records, key=lambda x: x.price_per_gpu_hour_usd)
                         if r.provider == "nebius" and r.gpu_model == "H100"
                         and r.consumption_type in INTERRUPTIBLE_CTS), None)
@@ -393,14 +399,17 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
                         and r.consumption_type in INTERRUPTIBLE_CTS
                         and provider_tier(r.provider) == "hyperscaler"),
                        key=lambda r: r.price_per_gpu_hour_usd, default=None)
-        if neb_pre and hyp_spot and hyp_spot.price_per_gpu_hour_usd < neb_pre.price_per_gpu_hour_usd:
-            watch.append(
-                f"hyperscaler spot undercuts our preemptible "
-                f"(H100: {_pname(hyp_spot.provider)} ${hyp_spot.price_per_gpu_hour_usd:.2f} "
-                f"vs our ${neb_pre.price_per_gpu_hour_usd:.2f})"
+        if neb_pre and hyp_spot:
+            rel = (neb_pre.price_per_gpu_hour_usd - hyp_spot.price_per_gpu_hour_usd) \
+                  / hyp_spot.price_per_gpu_hour_usd * 100
+            sign = "+" if rel > 0 else ""
+            notes.append(
+                f"H100 interruptible: our ${neb_pre.price_per_gpu_hour_usd:.2f} vs "
+                f"{_pname(hyp_spot.provider)} spot ${hyp_spot.price_per_gpu_hour_usd:.2f} "
+                f"({sign}{rel:.0f}%)"
             )
-        if watch:
-            lines.append("⚠ Watch: " + " · ".join(watch))
+        if notes:
+            lines.append("Reference: " + " · ".join(notes))
 
     lines.append(f"\nFull tables in thread ↓ · <{confluence_url}|Confluence benchmark>")
     return "\n".join(lines)
@@ -517,10 +526,10 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
         if hyp_rows:
             lines.append("\n*vs cheapest hyperscaler on-demand rack rate:*")
             for gpu, neb_px, hyp_prov, hyp_px, cheaper_pct in hyp_rows:
-                flag = "  ⚠️ narrow gap" if cheaper_pct < 5 else ""
+                flag = "  — near parity" if cheaper_pct < 5 else ""
                 lines.append(
                     f"`{gpu:<5}` Nebius ${neb_px:.2f}  vs  {_pname(hyp_prov)} ${hyp_px:.2f}"
-                    f"  →  Nebius {cheaper_pct:.0f}% cheaper{flag}"
+                    f"  →  Nebius {cheaper_pct:.0f}% below{flag}"
                 )
 
         # ── 1c. spot/preemptible floor vs hyperscaler spot ───────────────────
@@ -556,7 +565,7 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                 if delta_pct > 0:
                     pos = f"Nebius {delta_pct:.0f}% above"
                 else:
-                    pos = f"Nebius {-delta_pct:.0f}% cheaper"
+                    pos = f"Nebius {-delta_pct:.0f}% below"
                 lines.append(
                     f"`{gpu:<5}` Nebius ${neb_px:.2f}  vs  {_pname(hyp_prov)} ${hyp_px:.2f}"
                     f" ({hyp_region})  →  {pos}"
