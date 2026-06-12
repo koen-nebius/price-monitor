@@ -282,6 +282,130 @@ def _format_committed_callout(records: List[PriceRecord]) -> str:
 # Slack message — executive brief
 # ---------------------------------------------------------------------------
 
+def format_slack_summary(diffs: List[DiffEntry], run_date: str,
+                         confluence_url: str, records: List[PriceRecord] = None,
+                         provider_status: dict = None) -> str:
+    """
+    Short headline digest posted to the channel. Full tables go to a thread
+    reply (format_slack_message). Three parts: today's signal (most important
+    competitor move), Nebius position in one line each for on-demand and
+    watch items, link.
+    """
+    def _pname(p: str) -> str:
+        _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi"}
+        name = p.replace("cp_", "").replace("-", " ")
+        return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
+                        for w in name.split())
+
+    lines = [f"*GPU Pricing Daily — {run_date}*"]
+
+    # ── Today's signal: most important grouped price move ────────────────────
+    significant = [
+        d for d in diffs
+        if d.change_type == "price_change"
+        and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
+                                          "enterprise_gpu_cloud")
+        and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
+    ]
+    if significant:
+        from collections import defaultdict as _dd
+        groups: Dict[tuple, list] = _dd(list)
+        for d in significant:
+            interruptible = d.consumption_type in INTERRUPTIBLE_CTS
+            direction = "up" if (d.delta_pct or 0) > 0 else "down"
+            groups[(d.provider, d.gpu_model, d.consumption_type,
+                    interruptible, direction)].append(d)
+
+        def _signal_rank(kv):
+            (prov, gpu, ct, interruptible, _dir), items = kv
+            pcts = [abs(d.delta_pct or 0) for d in items]
+            # Non-spot competitor repricings outrank spot jitter regardless of size
+            return (interruptible, -statistics.median(pcts))
+
+        ranked = sorted(groups.items(), key=_signal_rank)
+        (prov, gpu, ct, interruptible, direction), items = ranked[0]
+        pcts = [d.delta_pct or 0 for d in items]
+        avg = statistics.mean(pcts)
+        verb = "raised" if avg > 0 else "cut"
+        best = max(items, key=lambda d: abs(d.delta_pct or 0))
+        ct_label = "spot" if interruptible else \
+            ct.replace("on_demand", "on-demand").replace("_", " ").replace("reserved 1yr", "reserved")
+        sku_note = f" across {len(items)} SKUs" if len(items) > 1 else ""
+        lines.append(
+            f"\n*Today's signal:* {_pname(prov)} {verb} {gpu} {ct_label} "
+            f"{avg:+.0f}%{sku_note} (${best.old_price:.2f}→${best.new_price:.2f})"
+        )
+        n_other = len(ranked) - 1
+        if n_other:
+            lines[-1] += f" · {n_other} smaller move{'s' if n_other > 1 else ''} in thread"
+    else:
+        lines.append("\n*Today's signal:* no significant price moves "
+                     f"(≥{ALERT_THRESHOLD_PCT:.0f}%) on tracked providers")
+
+    # ── Position: one line for hyperscalers, one for peers ──────────────────
+    if records:
+        # vs hyperscalers (on-demand)
+        gaps = []
+        for gpu in GPU_ORDER:
+            neb = next((r for r in records if r.provider == "nebius"
+                        and r.gpu_model == gpu and r.consumption_type == "on_demand"), None)
+            hyp = _best_price(records, gpu, "on_demand", tiers=["hyperscaler"])
+            if neb and hyp:
+                pct = (hyp.price_per_gpu_hour_usd - neb.price_per_gpu_hour_usd) \
+                      / hyp.price_per_gpu_hour_usd * 100
+                gaps.append((gpu, pct, hyp))
+        wide   = [(g, p) for g, p, _ in gaps if p >= 5]
+        narrow = [(g, p, h) for g, p, h in gaps if p < 5]
+        if wide:
+            lo, hi = min(p for _, p in wide), max(p for _, p in wide)
+            lines.append(f"\n*Position:* ahead of hyperscalers on every GPU "
+                         f"({lo:.0f}–{hi:.0f}% cheaper on-demand)")
+
+        # vs peer median (on-demand)
+        position = compute_position(records)
+        above, at_med = [], []
+        for row in position:
+            if row["tier_label"] != "on_demand" or row["nebius_price"] is None:
+                continue
+            if row["total_peers"] < 2 or row["median_peer"] is None:
+                continue
+            pct = (row["nebius_price"] - row["median_peer"]) / row["median_peer"] * 100
+            if pct >= 3:
+                above.append(f"{row['gpu']} +{pct:.0f}%")
+            elif abs(pct) < 3:
+                at_med.append(row["gpu"])
+        peer_parts = []
+        if above:
+            peer_parts.append(f"above peer median on {', '.join(above)}")
+        if at_med:
+            peer_parts.append(f"at median on {', '.join(at_med)}")
+        if peer_parts:
+            lines.append("Vs GPU clouds: " + "; ".join(peer_parts))
+
+        # Watch items: narrow hyperscaler gaps + spot floor disadvantage
+        watch = []
+        for gpu, pct, hyp in narrow:
+            watch.append(f"{gpu} only {pct:.0f}% below {_pname(hyp.provider)}")
+        neb_pre = next((r for r in sorted(records, key=lambda x: x.price_per_gpu_hour_usd)
+                        if r.provider == "nebius" and r.gpu_model == "H100"
+                        and r.consumption_type in INTERRUPTIBLE_CTS), None)
+        hyp_spot = min((r for r in records if r.gpu_model == "H100"
+                        and r.consumption_type in INTERRUPTIBLE_CTS
+                        and provider_tier(r.provider) == "hyperscaler"),
+                       key=lambda r: r.price_per_gpu_hour_usd, default=None)
+        if neb_pre and hyp_spot and hyp_spot.price_per_gpu_hour_usd < neb_pre.price_per_gpu_hour_usd:
+            watch.append(
+                f"hyperscaler spot undercuts our preemptible "
+                f"(H100: {_pname(hyp_spot.provider)} ${hyp_spot.price_per_gpu_hour_usd:.2f} "
+                f"vs our ${neb_pre.price_per_gpu_hour_usd:.2f})"
+            )
+        if watch:
+            lines.append("⚠ Watch: " + " · ".join(watch))
+
+    lines.append(f"\nFull tables in thread ↓ · <{confluence_url}|Confluence benchmark>")
+    return "\n".join(lines)
+
+
 def format_slack_message(diffs: List[DiffEntry], run_date: str,
                          confluence_url: str, records: List[PriceRecord] = None,
                          provider_status: dict = None) -> str:

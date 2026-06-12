@@ -38,7 +38,8 @@ from store import (save_snapshot, load_snapshot, previous_snapshot_day, STORE_DI
                    WEB_SCRAPED_PROVIDERS, get_cached_records, update_peer_cache,
                    load_last_snapshot, save_last_snapshot,
                    get_cache_age_hours, save_run_manifest)
-from diff import compute_diff, format_slack_message, format_confluence_table
+from diff import (compute_diff, format_slack_message, format_slack_summary,
+                  format_confluence_table)
 from history import append_records as append_history_records
 from config import PROVIDERS
 from schema import PriceRecord
@@ -263,14 +264,21 @@ def run(providers=None, test=False):
         logger.info("No previous snapshot — skipping diff (first run)")
 
     # ── Format outputs ────────────────────────────────────────────────────────
+    # slack_message.txt  → short headline summary, posted to the channel
+    # slack_thread.txt   → full tables, posted as a thread reply to the summary
     run_date = today.strftime("%B %d, %Y")
-    slack_msg = format_slack_message(
+    slack_summary = format_slack_summary(
+        diffs, run_date, CONFLUENCE_PAGE_URL,
+        records=accepted_records,
+        provider_status=provider_status,
+    )
+    slack_thread = format_slack_message(
         diffs, run_date, CONFLUENCE_PAGE_URL,
         records=accepted_records,
         provider_status=provider_status,
     )
 
-    # Prepend anomaly and staleness warnings
+    # Prepend anomaly and staleness warnings to the channel summary
     # Only surface truly implausible prices (absolute range violations) in the Slack
     # anomaly header. Day-over-day ±40% swings are real market moves that already
     # appear in the "Price moves" section — flagging them as anomalies is misleading.
@@ -282,11 +290,14 @@ def run(providers=None, test=False):
     if nebius_date_warning:
         slack_prefix_parts.append(nebius_date_warning)
     if slack_prefix_parts:
-        slack_msg = "\n\n".join(slack_prefix_parts) + "\n\n" + slack_msg
+        slack_summary = "\n\n".join(slack_prefix_parts) + "\n\n" + slack_summary
 
     slack_path = STORE_DIR / "slack_message.txt"
     with open(slack_path, "w") as f:
-        f.write(slack_msg)
+        f.write(slack_summary)
+    thread_path = STORE_DIR / "slack_thread.txt"
+    with open(thread_path, "w") as f:
+        f.write(slack_thread)
 
     confluence_body = format_confluence_table(accepted_records, run_date)
     conf_path = STORE_DIR / "confluence_body.html"
