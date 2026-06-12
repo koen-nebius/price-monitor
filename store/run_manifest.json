@@ -1,15 +1,25 @@
 {
-  "run_date": "2026-06-11",
-  "started_at": "2026-06-11T14:48:41.274983+00:00",
-  "completed_at": "2026-06-11T14:51:05.396705+00:00",
-  "status": "success",
-  "record_count": 880,
-  "raw_record_count": 880,
-  "anomaly_count": 3,
+  "run_date": "2026-06-12",
+  "started_at": "2026-06-12T07:03:56.464699+00:00",
+  "completed_at": "2026-06-12T07:06:14.741447+00:00",
+  "status": "partial",
+  "record_count": 1024,
+  "raw_record_count": 1024,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 118,
+  "diff_count": 162,
   "failed_providers": [],
-  "stale_providers": [],
+  "stale_providers": [
+    "azure",
+    "coreweave",
+    "lambda",
+    "crusoe",
+    "nebius",
+    "computeprices",
+    "oracle",
+    "hyperstack",
+    "runpod"
+  ],
   "provider_status": {
     "aws": {
       "status": "live",
@@ -20,51 +30,56 @@
       "record_count": 144
     },
     "azure": {
-      "status": "live",
-      "record_count": 132
+      "status": "cache",
+      "record_count": 132,
+      "cache_age_hours": 16.3
     },
     "coreweave": {
-      "status": "live",
-      "record_count": 10
+      "status": "cache",
+      "record_count": 10,
+      "cache_age_hours": 16.3
     },
     "lambda": {
-      "status": "live",
-      "record_count": 9
+      "status": "fallback",
+      "record_count": 153,
+      "fallback_source": "skypilot_catalog"
     },
     "crusoe": {
-      "status": "live",
-      "record_count": 3
+      "status": "cache",
+      "record_count": 3,
+      "cache_age_hours": 16.3
     },
     "nebius": {
-      "status": "live",
-      "record_count": 10
+      "status": "cache",
+      "record_count": 10,
+      "cache_age_hours": 16.3
     },
     "nebius_committed": {
       "status": "live",
       "record_count": 93
     },
     "computeprices": {
-      "status": "live",
-      "record_count": 129
+      "status": "cache",
+      "record_count": 129,
+      "cache_age_hours": 16.3
     },
     "oracle": {
-      "status": "live",
-      "record_count": 8
+      "status": "cache",
+      "record_count": 8,
+      "cache_age_hours": 16.3
     },
     "hyperstack": {
-      "status": "live",
-      "record_count": 5
+      "status": "cache",
+      "record_count": 5,
+      "cache_age_hours": 16.3
     },
     "runpod": {
-      "status": "live",
-      "record_count": 15
+      "status": "cache",
+      "record_count": 15,
+      "cache_age_hours": 16.3
     }
   },
-  "warnings": [
-    "azure H100 on_demand: $12.29 \u2192 $6.98 (-43.2%) \u26a0 price anomaly",
-    "cp_acecloud H200 on_demand: $3.38 \u2192 $6.27 (+85.2%) \u26a0 price anomaly",
-    "cp_together-ai B200 on_demand: $5.97 \u2192 $11.95 (+100.0%) \u26a0 price anomaly"
-  ],
+  "warnings": [],
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
