@@ -1,16 +1,22 @@
 name: Scrape peer pricing
 
-# Runs at 06:00 UTC — one hour before the CCR posting routine (07:00 UTC).
-# Fetches all web-scraped providers and updates store/peer_cache.json.
-# The CCR routine then clones the repo with a fresh cache and posts to
-# Slack / Confluence with up-to-date peer data.
+# Runs at 01:23 UTC — WELL BEFORE the CCR posting routine (07:00 UTC).
+# GitHub Actions runners use GitHub's own IPs, which are NOT blocked by the
+# Cloudflare/WAF rules that block Anthropic CCR IPs — so this run fetches ALL
+# providers live. It generates the ready-to-post artifacts (slack_message.txt,
+# slack_thread.txt, confluence_body.html) and commits them. The 07:00 CCR
+# routine then just POSTS those fresh, all-live artifacts — it no longer needs
+# to re-fetch from blocked IPs (which is why the digest used to show
+# "cached 22h ago" for ~9 providers).
 #
-# GitHub Actions runners use GitHub's own IPs, which are much less aggressively
-# blocked by Cloudflare than Anthropic CCR IPs.
+# Timing: scheduled GitHub crons can lag 2-4h at busy times. 01:23 UTC gives a
+# ~5h buffer before the 07:00 CCR so today's fresh data is always ready in time.
+# (Previously scheduled 06:00 → actually ran ~09:30 → AFTER the 07:00 CCR, so
+# the CCR always read the PRIOR day's cache.) Odd minute avoids :00 congestion.
 
 on:
   schedule:
-    - cron: "0 6 * * *"   # 06:00 UTC daily
+    - cron: "23 1 * * *"   # 01:23 UTC daily
   workflow_dispatch:       # allow manual trigger from GitHub UI
 
 jobs:
@@ -38,23 +44,29 @@ jobs:
           GCP_API_KEY: ${{ secrets.GCP_API_KEY }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
         run: |
-          # Run all providers (hyperscalers + peers) to build a complete snapshot.
-          # This updates peer_cache.json AND last_snapshot.json, which the CCR
-          # routine at 07:00 UTC uses as the diff baseline.
+          # All-live run from non-blocked GitHub IPs. main.py writes the daily
+          # snapshot, diff, run_manifest, AND the ready-to-post artifacts
+          # (slack_message.txt, slack_thread.txt, confluence_body.html).
           python3 main.py 2>&1 | tee /tmp/scrape.log
           echo "--- Pipeline complete ---"
           cat /tmp/scrape.log | grep -E "records|WARNING|ERROR|Diff" || true
 
-      - name: Commit updated cache and snapshot if changed
+      - name: Commit fresh data + ready-to-post artifacts if changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add store/peer_cache.json store/last_snapshot.json store/history.csv
+          # Commit both the data files AND the generated post artifacts so the
+          # 07:00 CCR can post them verbatim without re-fetching. run_manifest
+          # carries run_date so the CCR can confirm the artifacts are today's.
+          git add store/peer_cache.json store/last_snapshot.json store/history.csv \
+                  store/run_manifest.json store/slack_message.txt \
+                  store/slack_thread.txt store/confluence_body.html
           if git diff --cached --quiet; then
             echo "No changes — no commit needed"
           else
-            git commit -m "chore: update peer_cache + last_snapshot + history [skip ci]"
+            git commit -m "chore: fresh data + post artifacts (all-live GHA run) [skip ci]"
             git push
-            echo "Cache, snapshot, and history updated and pushed"
+            echo "Data and post artifacts updated and pushed"
           fi

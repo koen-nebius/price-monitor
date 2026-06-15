@@ -9,4 +9,9 @@ store/latest.json
 # Update it by running main.py locally, then git add store/peer_cache.json && git push
 store/*.txt
 store/*.html
+# ...but DO commit the ready-to-post artifacts: the 01:23 UTC GHA run generates
+# these all-live and the 07:00 CCR posts them verbatim (no re-fetch).
+!store/slack_message.txt
+!store/slack_thread.txt
+!store/confluence_body.html
 .DS_Store

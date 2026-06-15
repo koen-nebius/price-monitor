@@ -1,0 +1,9 @@
+*GPU Pricing Daily — June 15, 2026*
+
+*Today's signal:* no significant price moves (≥3%) on tracked providers
+
+*Position:* Nebius on-demand sits 2–49% below hyperscaler rack rates
+Vs GPU clouds: premium to peer median on H100 +16%; below median on H200 -15%, B200 -6%, L40S -4%
+Reference: L40S within 2% of AWS on-demand · H100 interruptible: our $2.15 vs Azure spot $1.40 (+54%)
+
+Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>

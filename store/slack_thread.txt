@@ -1,0 +1,32 @@
+*GPU Competitor Pricing — June 15, 2026*
+
+*vs GPU cloud peers (on-demand):*
+`H100 ` Nebius $3.85  +16% vs median  |  4/7 peers cheaper  |  floor: Voltage $1.99
+`H200 ` Nebius $4.50  -15% vs median  |  2/4 peers cheaper  |  floor: GMI Cloud $2.60
+`B200 ` Nebius $7.15  -6% vs median  |  2/4 peers cheaper  |  floor: GMI Cloud $4.00
+`B300 ` Nebius $7.85  |  1 peer: Scaleway $8.68
+`L40S ` Nebius $1.82  -4% vs median  |  2/4 peers cheaper  |  floor: Crusoe $1.50
+
+*vs cheapest hyperscaler on-demand rack rate:*
+`H100 ` Nebius $3.85  vs  AWS $6.88  →  Nebius 44% below
+`H200 ` Nebius $4.50  vs  AWS $7.91  →  Nebius 43% below
+`B200 ` Nebius $7.15  vs  Oracle $14.00  →  Nebius 49% below
+`B300 ` Nebius $7.85  vs  Oracle $15.00  →  Nebius 48% below
+`L40S ` Nebius $1.82  vs  AWS $1.86  →  Nebius 2% below  — near parity
+
+*Spot / preemptible (vs cheapest hyperscaler spot, single best region):*
+`H100 ` Nebius $2.15  vs  Azure $1.40 (eastus)  →  Nebius 54% above
+`H200 ` Nebius $2.45  vs  Azure $2.12 (eastus2)  →  Nebius 16% above
+`B200 ` Nebius $3.95  vs  GCP $2.34 (us-west4)  →  Nebius 69% above
+`B300 ` Nebius $4.30  |  no hyperscaler spot published
+`L40S ` Nebius $0.90  |  no hyperscaler spot published
+_Hyperscaler spot is interruptible, capacity not guaranteed; floors are single-region best prices._
+
+*Committed pricing (H100 benchmark):*
+• H100 12-month: Nebius $2.30 vs AWS $2.58 (-11%)
+• H100 24-month: Nebius $2.05/GPU-hr
+• AWS H100 3yr: $1.38 vs Nebius on-demand $3.85 (2.8× difference)
+
+_No significant price moves today (0 minor changes below 3% threshold)._
+
+Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
