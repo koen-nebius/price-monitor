@@ -122,7 +122,7 @@ PROVIDER_TIERS = {
         "cp_scaleway", "cp_paperspace", "cp_jarvis", "cp_sesterce",
         "cp_upcloud", "cp_beyond-pl", "cp_koyeb", "cp_ionet",
         "cp_vast", "cp_vultr", "cp_verda", "cp_akamai",
-        "cp_packet-ai", "cp_gcore",
+        "cp_packet-ai", "cp_gcore", "cp_together-ai",  # Together also in enterprise + managed_inference
     ],
     # Named enterprise GPU cloud peers — used in Slack positioning and the executive
     # benchmark table. Criteria: GPU-first or significant GPU cloud business, meaningful

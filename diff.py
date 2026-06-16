@@ -1041,7 +1041,8 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
         '<strong>Enterprise GPU cloud</strong> peers are the direct competitive set '
         '(named providers with enterprise SLAs; commodity rental marketplaces excluded). '
         'Hyperscaler column shows rack-rate list price — enterprise customers pay 40–57% less at 3yr committed. '
-        'Nebius prices are EU (eu-north1); US pricing typically 5–10% lower.</p>'
+        'Nebius on-demand prices are uniform across regions (no US discount); availability by GPU: '
+        'H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private).</p>'
     )
     html.append(_build_executive_table(records))
 
@@ -1152,20 +1153,27 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         )
 
     rows.append('</tbody></table>')
+    # Generate the peer list from the tier registry so it can't go stale (e.g. it
+    # used to hardcode "Gcore", which was demoted, and omitted Together AI).
+    ent_peers = ", ".join(_provider_display(p)
+                          for p in PROVIDER_TIERS["enterprise_gpu_cloud"] if p != "nebius")
     rows.append(
         '<p><em>'
-        'Enterprise peers: CoreWeave, Lambda, Crusoe, Hyperstack (NexGen Cloud), '
-        'Voltage Park, GMI Cloud, Scaleway, Gcore. '
+        f'Enterprise peers (from tier registry): {ent_peers}. '
         'Criteria: GPU-first business, meaningful owned capacity (1,000+ GPUs), enterprise SLAs, active. '
         'Excluded: Genesis Cloud (in liquidation 2025), Sesterce (broker/reseller model), '
         'Denvr Dataworks (too small). '
         'Hyperscaler column = cheapest of AWS / GCP / Azure / Oracle (on-demand list price; '
         'enterprise customers typically pay 40–57% less at 3yr committed). '
-        'Nebius prices are from EU (eu-north1); US pricing typically 5–10% lower. '
+        'Nebius on-demand prices are uniform across regions (no US discount); availability by GPU: '
+        'H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private). '
         'IREN: competitor named in enterprise sales calls; not yet tracked (no public pricing). '
         '⚠️ L40S pricing risk: Nebius on-demand ($1.82) is only 2% below AWS on-demand ($1.86); '
         'AWS L40S drops to ~$0.37 at 3yr committed — a 5× gap that Nebius has no committed L40S tier to counter. '
-        'GB200/GB300: Nebius has committed pricing for these GPUs (see table below) but no published on-demand rate.'
+        'GB200/GB300: Nebius has committed pricing for these GPUs (see table below) but no published on-demand rate. '
+        'Coverage: current-gen datacenter GPUs (H100, H200, B200, B300, L40S, GB200, GB300). '
+        'A100 (prior-gen) is excluded as demand has shifted to Hopper/Blackwell; AMD MI300X/MI325X '
+        'excluded as a separate ecosystem. Both can be added on request.'
         '</em></p>'
     )
     return "\n".join(rows)
@@ -1321,7 +1329,8 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
         'Standard tier (&lt;512 GPU) ~5–10% higher; 36-month H100/H200 available on request. '
         'Peer providers (Civo, Vultr) sourced from ComputePrices.com. '
         'Civo committed rates are public list prices, not negotiated. '
-        'Nebius prices from EU (eu-north1); US pricing typically 5–10% lower.'
+        'Nebius on-demand prices are uniform across regions (no US discount); availability by GPU: '
+        'H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private).'
         '</em></p>'
     )
     return "\n".join(html)
@@ -1666,7 +1675,8 @@ def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
         'Each cell shows the cheapest price for that provider in any region within that geography. '
         'AWS: standard reserved partial-upfront. GCP: Committed Use Discount (no upfront). '
         'Azure: partial-upfront capacity reservation. '
-        '*Nebius on-demand prices are EU (eu-north1); US pricing typically 5–10% lower. '
+        '*Nebius on-demand prices are uniform across regions (no US discount); availability by GPU: '
+        'H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private). '
         'Nebius committed = internal pricing model (enterprise tier, 100% upfront). '
         'CoreWeave and Lambda: US regions only currently. '
         '†Oracle on-demand prices sourced directly from the OCI price-list API; '
