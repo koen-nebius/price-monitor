@@ -13,6 +13,7 @@ from config import provider_tier, ALERT_THRESHOLD_PCT, PROVIDER_TIERS
 from comparability import enrich_comparability, is_cluster_class
 
 INTEL_CSV = Path(__file__).parent / "store" / "intel.csv"
+HISTORY_CSV = Path(__file__).parent / "store" / "history.csv"
 
 CHANGE_THRESHOLD = 0.001   # 0.1% — ignore floating-point noise in diff detection
 
@@ -1019,6 +1020,161 @@ def _run_health_line(provider_status: dict) -> str:
     return f'<p><em>Data freshness: </em>{banner}<em>{detail}</em></p>'
 
 
+def _market_trend(gpu: str, days: int, records: List[PriceRecord]):
+    """
+    Trend of today's cheapest enterprise-peer's OWN on-demand price over up to `days`.
+    Returns (pct_change, span_days) or None.
+
+    We track the current floor provider's own price path rather than min-across-peers,
+    because the latter is contaminated by coverage backfill — early history captured
+    fewer peers, so "cheapest peer" drops as the pipeline adds providers, not because
+    the market moved. Tracking one provider's series isolates real price movement, and
+    we label the actual span (history is only ~1 month old, so a true 30d isn't always
+    available; <5 clean days → None so the cell reads "building").
+    """
+    if not HISTORY_CSV.exists():
+        return None
+    ent = set(PROVIDER_TIERS.get("enterprise_gpu_cloud", []))
+    cands = [r for r in records if r.gpu_model == gpu and r.consumption_type == "on_demand"
+             and r.provider in ent]
+    if not cands:
+        return None
+    prov = min(cands, key=lambda r: r.price_per_gpu_hour_usd).provider
+    series: Dict[str, float] = {}
+    try:
+        with open(HISTORY_CSV, newline="") as f:
+            for r in csv.DictReader(f):
+                if (r.get("provider") == prov and r.get("gpu_model") == gpu
+                        and r.get("consumption_type") == "on_demand"):
+                    try:
+                        series[r["snapshot_date"]] = float(r["price_per_gpu_hour_usd"])
+                    except (ValueError, KeyError):
+                        pass
+    except Exception:
+        return None
+    if len(series) < 2:
+        return None
+    dates = sorted(series)
+    latest = dates[-1]
+    target = date.fromisoformat(latest) - timedelta(days=days)
+    prior = [d for d in dates if date.fromisoformat(d) <= target]
+    base_date = prior[-1] if prior else dates[0]   # earliest available if window not full
+    span = (date.fromisoformat(latest) - date.fromisoformat(base_date)).days
+    if span < 5 or series[base_date] <= 0:
+        return None
+    return (series[latest] - series[base_date]) / series[base_date] * 100, span
+
+
+def _trend_cell(gpu: str, records: List[PriceRecord]) -> str:
+    """Market-trend cell labeled with the real span (history is <90d old)."""
+    t = _market_trend(gpu, 30, records)
+    if t is None:
+        return '<td><em>building</em></td>'
+    pct, span = t
+    sign = "+" if pct >= 0 else ""
+    color = "yellow" if abs(pct) >= 5 else "green"
+    return f'<td><span data-type="status" data-color="{color}">{sign}{pct:.0f}% / {span}d</span></td>'
+
+
+def _recommended_action(delta_vs_median: Optional[float], near_hyperscaler: bool,
+                        trend30: Optional[float]) -> str:
+    """Neutral, decision-oriented action. Lower is not assumed good; a premium is a
+    valid position to hold. Phrasing prompts a decision, doesn't prescribe a cut."""
+    if delta_vs_median is None:
+        primary = "Establish peer benchmark"
+    elif delta_vs_median >= 15:
+        primary = "Review premium vs value"
+    elif delta_vs_median <= -5:
+        primary = "Headroom to hold or raise"
+    else:
+        primary = "Hold; monitor"
+    mods = []
+    if near_hyperscaler:
+        mods.append("watch hyperscaler parity")
+    if trend30 is not None and trend30 <= -5:
+        mods.append("market softening")
+    elif trend30 is not None and trend30 >= 5:
+        mods.append("market firming")
+    return primary + (f" ({'; '.join(mods)})" if mods else "")
+
+
+def _build_decision_trigger_table(records: List[PriceRecord]) -> str:
+    """
+    Phase 3.2: the actionable core. One row per GPU with the competitive position,
+    30d market trend, and a recommended action + owner/review/margin columns.
+    Owner/review/margin are operational placeholders for the pricing team to fill;
+    margin is never invented (cost data is out of this pipeline's scope).
+    """
+    position = {row["gpu"]: row for row in compute_position(records)
+                if row["tier_label"] == "on_demand"}
+    if not position:
+        return ""
+
+    html = [
+        '<h2>Decision Triggers — Pricing / Finance</h2>',
+        '<p>Per-GPU competitive position with a recommended action. '
+        '<strong>Neutral framing:</strong> a premium to the market can be a deliberate, '
+        'defensible position; these triggers prompt a pricing decision, they do not assume '
+        'lower is better. Owner / review-by / margin-risk are for the pricing team to fill '
+        '(margin/cost data is out of this tool\'s scope and never auto-populated).</p>',
+        '<table data-layout="full-width"><tbody>',
+        '<tr><th>GPU</th><th>Nebius OD</th><th>vs peer median</th><th>Cheapest peer</th>'
+        '<th>Cheapest hyperscaler (SXM cluster)</th><th>Market 30d</th>'
+        '<th>Recommended action</th><th>Owner</th><th>Review by</th><th>Margin risk</th></tr>',
+    ]
+
+    for gpu in GPU_ORDER:
+        row = position.get(gpu)
+        if not row or row.get("nebius_price") is None:
+            continue
+        neb = row["nebius_price"]
+        median = row.get("median_peer")
+        delta = ((neb - median) / median * 100) if median else None
+
+        detail = row.get("cheapest_peers_detail") or []
+        floor_n, floor_p = detail[0] if detail else (None, None)
+        floor_cell = (f'${floor_p:.2f} <em>({_provider_display(floor_n)})</em>'
+                      if floor_p is not None else '—')
+
+        hyp = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
+        near_hyp = False
+        if hyp:
+            hyp_cell = f'${hyp.price_per_gpu_hour_usd:.2f} <em>({_provider_display(hyp.provider)})</em>'
+            near_hyp = (hyp.price_per_gpu_hour_usd - neb) / hyp.price_per_gpu_hour_usd * 100 < 5
+        else:
+            hyp_cell = '—'
+
+        if delta is None:
+            vs_cell = '<td>—</td>'
+        else:
+            c = "red" if delta > 15 else ("yellow" if delta > 0 else "green")
+            s = "+" if delta >= 0 else ""
+            vs_cell = f'<td><span data-type="status" data-color="{c}">{s}{delta:.0f}%</span></td>'
+
+        _t = _market_trend(gpu, 30, records)
+        t30 = _t[0] if _t else None
+        action = _recommended_action(delta, near_hyp, t30)
+
+        html.append(
+            f'<tr><td><strong>{gpu}</strong></td>'
+            f'<td>${neb:.2f}</td>'
+            f'{vs_cell}'
+            f'<td>{floor_cell}</td>'
+            f'<td>{hyp_cell}</td>'
+            f'{_trend_cell(gpu, records)}'
+            f'<td>{action}</td>'
+            f'<td><em>Pricing PM</em></td>'
+            f'<td>—</td>'
+            f'<td>—</td></tr>'
+        )
+
+    html.append('</tbody></table>')
+    html.append('<p><em>Market 30d = change in the cheapest enterprise-peer on-demand '
+                'price over the last 30 days (90d trend appears once ≥90 days of history '
+                'accrues). "Cheapest hyperscaler" is the like-for-like 8×SXM cluster SKU.</em></p>')
+    return "\n".join(html)
+
+
 def format_confluence_table(records: List[PriceRecord], run_date: str,
                             provider_status: dict = None) -> str:
     html = []
@@ -1047,6 +1203,11 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
         'H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private).</p>'
     )
     html.append(_build_executive_table(records))
+
+    # ── Section 1b: Decision triggers (actionable core, Phase 3.2) ──────────
+    dt = _build_decision_trigger_table(records)
+    if dt:
+        html.append(dt)
 
     # ── Section 2: Committed pricing comparison ─────────────────────────────
     html.append('<h2>Committed Pricing Comparison</h2>')
