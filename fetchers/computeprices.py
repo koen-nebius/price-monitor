@@ -32,6 +32,8 @@ SKIP_PROVIDERS = {
     "hyperstack",
     "nexgencloud",
     "runpod",   # direct fetcher via runpod.py — skip to avoid double-counting
+    "oracle cloud",   # direct fetcher via oracle.py (official_api) — prefer it over aggregator
+    "oracle",
     # Distressed — prices unreliable, would pollute the benchmark:
     "genesis cloud",   # in liquidation ("GmbH i.L." since Aug 2025) yet still lists prices
     "genesis",

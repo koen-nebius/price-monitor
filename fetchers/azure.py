@@ -139,7 +139,11 @@ def _map_consumption_type(price_type: str, sku_name: str, reservation_term: str 
     if "spot" in t or "spot" in s:
         return "spot"
     if "low priority" in s:
-        return "spot"
+        # Legacy Azure "Low Priority" meter — deprecated, and a deeper discount than
+        # the current Spot meter. Keep it DISTINCT (not "spot") so it can't undercut
+        # the true Spot price in the interruptible comparison (Phase 1.6). It is not
+        # in INTERRUPTIBLE_CTS, so it never feeds the spot/preemptible benchmark.
+        return "low_priority"
     if "reservation" in t or "reserved" in t:
         # Skip 5yr and 10yr — niche tiers that distort the reserved_1yr bucket
         if reservation_term in ("5 Years", "10 Years"):

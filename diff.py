@@ -836,16 +836,39 @@ def _build_committed_implication(records: List[PriceRecord]) -> str:
 
 
 def _load_intel(days: int = 60) -> List[Dict]:
-    """Load recent rows from intel.csv. Returns [] if file missing or empty."""
+    """
+    Load recent rows from intel.csv, deduplicated (Phase 1.8). Returns [] if file
+    missing or empty. Collapses near-identical quotes (the same deal logged twice
+    with slightly different notes — e.g. the AWS $1.80 232-GPU deal appearing as
+    both '...cluster' and '...deal') by content key: date + gpu + rounded price +
+    term + prepay + provider. Keeps the first occurrence.
+    """
     if not INTEL_CSV.exists():
         return []
     cutoff = (date.today() - timedelta(days=days)).isoformat()
     rows = []
+    seen = set()
     try:
         with open(INTEL_CSV, newline="") as f:
             for row in csv.DictReader(f):
-                if row.get("message_date", "") >= cutoff:
-                    rows.append(row)
+                if row.get("message_date", "") < cutoff:
+                    continue
+                try:
+                    px_key = round(float(row.get("price_per_gpu_hour_usd", "")), 2)
+                except (ValueError, TypeError):
+                    px_key = row.get("price_per_gpu_hour_usd", "")
+                key = (
+                    row.get("message_date", ""),
+                    (row.get("gpu_model", "") or "").upper(),
+                    px_key,
+                    str(row.get("term_months", "")),
+                    str(row.get("prepay_pct", "")),
+                    (row.get("provider_name", "") or "").strip().lower(),
+                )
+                if key in seen:
+                    continue
+                seen.add(key)
+                rows.append(row)
     except Exception:
         pass
     return rows
@@ -1076,9 +1099,14 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         # Cheapest hyperscaler on-demand — like-for-like 8×SXM cluster SKU only
         # (excludes single-GPU NVL/PCIe entry SKUs such as Azure NC40ads).
         hyp_best = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
-        hyp_td = (f'<td>${hyp_best.price_per_gpu_hour_usd:.2f} '
-                  f'<em>({_provider_display(hyp_best.provider)}, {hyp_best.form_factor})</em></td>') \
-                 if hyp_best else '<td>—</td>'
+        if hyp_best:
+            # Directional badge (1.7): aggregator-sourced cells aren't provider-verified.
+            badge = (' <span data-type="status" data-color="yellow">directional</span>'
+                     if getattr(hyp_best, "source_type", "") == "aggregator" else '')
+            hyp_td = (f'<td>${hyp_best.price_per_gpu_hour_usd:.2f} '
+                      f'<em>({_provider_display(hyp_best.provider)}, {hyp_best.form_factor})</em>{badge}</td>')
+        else:
+            hyp_td = '<td>—</td>'
 
         med_td = f'<td>${row["median_peer"]:.2f}</td>' if row and row["median_peer"] else '<td>—</td>'
         count_td = f'<td>{row["total_peers"] + 1 if row else 0}</td>'  # +1 for Nebius
@@ -1252,8 +1280,8 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
         'H100 1yr: Convertible class only (Standard 1yr not available for p5 family). '
         'Azure: partial-upfront capacity reservation. '
         'GCP: Committed Use Discount (no upfront, usage commitment, no capacity guarantee). '
-        'Oracle: on-demand prices sourced from ComputePrices.com — treat as directional estimates '
-        'until verified against OCI directly. Oracle does not publish committed GPU pricing publicly. '
+        'Oracle: on-demand prices now sourced directly from the OCI price-list API '
+        '(api). Oracle does not publish committed GPU pricing publicly. '
         'Nebius: internal pricing model effective April 23rd 2026; enterprise tier (512+ GPU, 100% upfront). '
         'Standard tier (&lt;512 GPU) ~5–10% higher; 36-month H100/H200 available on request. '
         'Peer providers (Civo, Vultr) sourced from ComputePrices.com. '
@@ -1597,8 +1625,8 @@ def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
         '*Nebius on-demand prices are EU (eu-north1); US pricing typically 5–10% lower. '
         'Nebius committed = internal pricing model (enterprise tier, 100% upfront). '
         'CoreWeave and Lambda: US regions only currently. '
-        '†Oracle prices sourced from ComputePrices.com (no region breakdown available) — '
-        'treat as directional estimates; Oracle does not publish GPU committed pricing publicly. '
+        '†Oracle on-demand prices sourced directly from the OCI price-list API; '
+        'Oracle does not publish GPU committed pricing publicly. '
         'Geography buckets: US includes us-east/us-west/us-central; '
         'Europe includes eu-west/eu-central/eu-north/northeurope/westeurope; '
         'APAC includes ap-northeast/ap-southeast/asia-northeast/japaneast.'
