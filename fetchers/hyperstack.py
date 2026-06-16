@@ -17,6 +17,13 @@ Three pricing sections parsed from stripped page text:
   Reserved:  "NVIDIA H200 SXM $2.45 Reserve here"
              (GPU name | starting-from $/GPU-hr | "Reserve here")
   Spot VM:   "NVIDIA H100 PCIe $1.52" (under "Spot VM Pricing" header)
+
+H100 ships in several form factors that all map to our single "H100" model
+(on-demand: SXM $2.40, NVLink $1.95, PCIe/plain $1.90). ComputePrices and
+main.py's Phase 1.9 cross-check both collapse variants to the CHEAPEST on-demand
+price per (provider, gpu_model). We do the same here: keep the lowest price per
+(gpu_model, consumption_type). Keeping the first DOM row instead picked the
+priciest variant (SXM) and made Hyperstack look ~21% over its true cheapest price.
 """
 import logging
 import re
@@ -67,8 +74,17 @@ def _scrape_pricing(now: str) -> List[PriceRecord]:
     text = re.sub(r'&nbsp;', ' ', text)
     text = re.sub(r'\s+', ' ', text).strip()
 
-    records = []
-    seen: set = set()
+    # (gpu_model, consumption_type) -> cheapest price seen. Multiple H100 form
+    # factors collapse to one model; keep the lowest, matching how ComputePrices
+    # and main.py's cross-check normalize variants (see module docstring).
+    best: dict = {}
+
+    def _offer(gpu_model: str, ct: str, price: float) -> None:
+        if not (0.5 <= price <= 20):
+            return
+        key = (gpu_model, ct)
+        if key not in best or price < best[key]:
+            best[key] = price
 
     # ── On-demand: distinctive pattern "NVIDIA <GPU> <vram> <vcpu> <ram> $<price>" ──
     # Three numbers between GPU name and price distinguish on-demand rows from
@@ -81,17 +97,11 @@ def _scrape_pricing(now: str) -> List[PriceRecord]:
         if not gpu_model:
             continue
         try:
-            price = float(m.group(2))
+            _offer(gpu_model, "on_demand", float(m.group(2)))
         except ValueError:
             continue
-        if not (0.5 <= price <= 20):
-            continue
-        key = (gpu_model, "on_demand")
-        if key not in seen:
-            seen.add(key)
-            records.append(_make_record(gpu_model, "on_demand", price, now))
 
-    # ── Reserved: "NVIDIA <GPU> $<price> Reserve here" ──
+    # ── Reserved: "NVIDIA <GPU> $<price> Reserve here" (starting-from price) ──
     for m in re.finditer(
         r'NVIDIA\s+((?:H100|H200)(?:\s+\w+)?)\s+\$?\s*([\d.]+)\s+Reserve\s+here',
         text, re.IGNORECASE
@@ -100,15 +110,9 @@ def _scrape_pricing(now: str) -> List[PriceRecord]:
         if not gpu_model:
             continue
         try:
-            price = float(m.group(2))
+            _offer(gpu_model, "reserved_1yr", float(m.group(2)))
         except ValueError:
             continue
-        if not (0.5 <= price <= 20):
-            continue
-        key = (gpu_model, "reserved_1yr")
-        if key not in seen:
-            seen.add(key)
-            records.append(_make_record(gpu_model, "reserved_1yr", price, now))
 
     # ── Spot VM: after "Spot VM Pricing" header (not the nav "Spot VMs" menu) ──
     # Use rfind-style: find the occurrence that's followed by prices
@@ -125,16 +129,14 @@ def _scrape_pricing(now: str) -> List[PriceRecord]:
             if not gpu_model:
                 continue
             try:
-                price = float(m.group(2))
+                _offer(gpu_model, "spot", float(m.group(2)))
             except ValueError:
                 continue
-            if not (0.5 <= price <= 20):
-                continue
-            key = (gpu_model, "spot")
-            if key not in seen:
-                seen.add(key)
-                records.append(_make_record(gpu_model, "spot", price, now))
 
+    records = [
+        _make_record(gpu_model, ct, price, now)
+        for (gpu_model, ct), price in best.items()
+    ]
     logger.info(f"Hyperstack scrape: {len(records)} records")
     return records
 
