@@ -397,6 +397,23 @@ def run(providers=None, test=False):
     stale_providers = [p for p, s in provider_status.items() if s["status"] in ("cache", "fallback", "missing")]
     run_status = "failed" if len(errors) >= len(providers) // 2 else \
                  "partial" if (errors or stale_providers) else "success"
+
+    # ── Post-worthiness (Phase 3.6: alert-on-change) ─────────────────────────
+    # Always post the short summary daily (channel presence + run-health). Post the
+    # full thread (tables) only when there's something to dig into — a significant
+    # move — or on the Monday weekly digest. Quiet days stay summary-only.
+    from config import ALERT_THRESHOLD_PCT, provider_tier
+    _tracked = ("hyperscaler", "raw_gpu_cloud", "enterprise_gpu_cloud")
+    significant_moves = [
+        d for d in diffs
+        if d.change_type == "price_change" and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
+        and provider_tier(d.provider) in _tracked
+    ]
+    new_entries = [d for d in diffs if d.change_type == "added"
+                   and provider_tier(d.provider) in _tracked]
+    is_weekly = today.weekday() == 0  # Monday
+    post_thread = bool(significant_moves) or bool(new_entries) or is_weekly
+
     manifest = {
         "run_date":          today.isoformat(),
         "started_at":        started_at,
@@ -411,6 +428,10 @@ def run(providers=None, test=False):
         "stale_providers":   stale_providers,
         "provider_status":   provider_status,
         "warnings":          warnings,
+        # Phase 3.6: posting hints for the CCR routine.
+        "post_thread":       post_thread,   # post full tables thread? (change or weekly)
+        "is_weekly":         is_weekly,     # Monday weekly digest
+        "significant_moves": len(significant_moves),
         "generated_outputs": {
             "slack_message":    True,
             "confluence_body":  True,
