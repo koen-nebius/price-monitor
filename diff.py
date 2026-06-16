@@ -1175,6 +1175,189 @@ def _build_decision_trigger_table(records: List[PriceRecord]) -> str:
     return "\n".join(html)
 
 
+def _cheapest(records, provider, gpu, cts) -> Optional[float]:
+    ps = [r.price_per_gpu_hour_usd for r in records
+          if r.provider == provider and r.gpu_model == gpu and r.consumption_type in cts]
+    return min(ps) if ps else None
+
+
+def _build_tldr(records: List[PriceRecord]) -> str:
+    """Phase 3.1: top-of-page per-stakeholder readout (computed from live data)."""
+    pos = {r["gpu"]: r for r in compute_position(records) if r["tier_label"] == "on_demand"}
+    gaps = []
+    for gpu in GPU_ORDER:
+        row = pos.get(gpu)
+        neb = row["nebius_price"] if row else None
+        hyp = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
+        if neb and hyp:
+            gaps.append((hyp.price_per_gpu_hour_usd - neb) / hyp.price_per_gpu_hour_usd * 100)
+    gap_lo, gap_hi = (min(gaps), max(gaps)) if gaps else (0, 0)
+    h100 = pos.get("H100")
+    h100_prem = (((h100["nebius_price"] - h100["median_peer"]) / h100["median_peer"] * 100)
+                 if h100 and h100.get("median_peer") else None)
+    neb1 = _cheapest(records, "nebius", "H100", RESERVED_1YR_CTS)
+    aws1 = _cheapest(records, "aws", "H100", {"reserved_1yr"})
+
+    fin = f"Committed: Nebius H100 1yr ${neb1:.2f}" if neb1 else "Committed: see table"
+    if neb1 and aws1:
+        fin += f" ({(neb1 - aws1) / aws1 * 100:+.0f}% vs AWS list, all-upfront)"
+    fin += "; AWS negotiated 1yr deals seen at $1.80 (field intel)."
+    payg = f"On-demand sits {gap_lo:.0f}–{gap_hi:.0f}% below hyperscaler SXM clusters"
+    if h100_prem is not None:
+        payg += f"; H100 {h100_prem:+.0f}% vs peer median (premium is a position, not a problem)"
+    payg += "."
+    cap = ("Nebius B300 is UK-private (sales-gated); GB200/GB300 are contact-sales. "
+           "Market broadly capacity-constrained (on-demand reportedly sold out across GPU types, Apr 2026).")
+    sales = ("Strong vs hyperscaler rack rates and ~49% below Oracle B200. Watch: AWS 3yr all-upfront "
+             "and negotiated 1yr deals, plus hyperscaler spot floors below our preemptible.")
+
+    rows = [
+        '<h2>TL;DR by Stakeholder</h2>',
+        '<table data-layout="full-width"><tbody>',
+        '<tr><th>For</th><th>Today\'s read</th><th>Detail in</th></tr>',
+        f'<tr><td><strong>Finance</strong></td><td>{fin}</td><td>Committed Pricing</td></tr>',
+        f'<tr><td><strong>PAYG Product</strong></td><td>{payg}</td><td>Decision Triggers + Product Gaps</td></tr>',
+        f'<tr><td><strong>Capacity</strong></td><td>{cap}</td><td>Availability</td></tr>',
+        f'<tr><td><strong>Sales</strong></td><td>{sales}</td><td>Battlecards</td></tr>',
+        '</tbody></table>',
+    ]
+    return "\n".join(rows)
+
+
+def _build_payg_gap_table(records: List[PriceRecord]) -> str:
+    """
+    Phase 3.3: pricing-MODEL coverage — where competitors offer a consumption model
+    Nebius lacks. This is a product-model overview (does provider X offer model Y),
+    not a live price feed; specifics should be validated before external use.
+    """
+    cols = ["Model", "Nebius", "AWS", "GCP", "Azure", "CoreWeave"]
+    rows = [
+        ("On-demand", "Yes", "Yes", "Yes", "Yes", "Yes"),
+        ("Spot / preemptible", "Yes", "Yes", "Yes", "Yes", "Yes"),
+        ("Bid / max-price spot", "No", "Yes", "No", "Yes", "—"),
+        ("Capacity blocks (short-term guaranteed)", "No", "Yes", "Yes (DWS)", "Yes (cap. res.)", "—"),
+        ("Committed reserved (1–3yr)", "Yes (≤2–3yr)", "Yes", "Yes (CUD)", "Yes", "Yes"),
+        ("Flexible savings plan (spend commit)", "No", "Yes", "No", "No", "—"),
+        ("Short-term cluster (days–weeks)", "Partial", "No", "No", "No", "Yes"),
+    ]
+    html = [
+        '<h2>PAYG Product-Model Gaps</h2>',
+        '<p>Consumption models offered per provider. <strong>Nebius gaps</strong> (models '
+        'competitors sell that Nebius does not) are highlighted — these are product '
+        'opportunities, not price gaps. Product-model overview; validate specifics before '
+        'external use. "—" = not confirmed.</p>',
+        '<table data-layout="full-width"><tbody>',
+        '<tr>' + "".join(f'<th>{c}</th>' for c in cols) + '</tr>',
+    ]
+    for model, neb, aws, gcp, az, cw in rows:
+        neb_cell = (f'<td><span data-type="status" data-color="red">{neb}</span></td>'
+                    if neb == "No" else f'<td>{neb}</td>')
+        html.append(f'<tr><td><strong>{model}</strong></td>{neb_cell}'
+                    f'<td>{aws}</td><td>{gcp}</td><td>{az}</td><td>{cw}</td></tr>')
+    html.append('</tbody></table>')
+    html.append('<p><em>Actionable gaps: Nebius has no bid/max-price spot, no short-term '
+                'capacity-block product, and no flexible spend-commit savings plan — each is a '
+                'model competitors use to capture price-sensitive or capacity-anxious demand.</em></p>')
+    return "\n".join(html)
+
+
+def _build_battlecards(records: List[PriceRecord]) -> str:
+    """Phase 3.5: per-objection sales battlecards with reconciled numbers + talk track."""
+    aws3nu = _cheapest(records, "aws", "H100", {"reserved_3yr_no_upfront"})
+    aws3au = _cheapest(records, "aws", "H100", {"reserved_3yr"})
+    neb2 = _cheapest(records, "nebius", "H100", RESERVED_2YR_CTS)
+    azspot = _cheapest(records, "azure", "H100", {"spot"})
+    nebpre = _cheapest(records, "nebius", "H100", INTERRUPTIBLE_CTS)
+    nebl = _cheapest(records, "nebius", "L40S", {"on_demand"})
+    awsl = _cheapest(records, "aws", "L40S", {"on_demand"})
+    awsl3 = _cheapest(records, "aws", "L40S", {"reserved_3yr"})
+    orab = _cheapest(records, "oracle", "B200", {"on_demand"}) or _cheapest(records, "cp_oracle", "B200", {"on_demand"})
+    nebb = _cheapest(records, "nebius", "B200", {"on_demand"})
+
+    cards = []
+    if (aws3nu or aws3au) and neb2:
+        parts = []
+        if aws3nu:
+            parts.append(f"${aws3nu:.2f} no-upfront")
+        if aws3au:
+            parts.append(f"${aws3au:.2f} 100%-prepaid")
+        cards.append((
+            '"AWS 3-year is cheaper"',
+            f"True at the extreme: AWS H100 3yr is {' / '.join(parts)}. But that locks 3 years"
+            + (" and full prepayment" if aws3au else "")
+            + f". Nebius 2yr ${neb2:.2f} needs no 3rd-year lock or 100% upfront, and on-demand has no "
+            f"commitment at all. Sell flexibility, not the headline rate.", "high"))
+    if azspot and nebpre:
+        cards.append((
+            '"Azure spot is cheaper"',
+            f"Azure H100 spot (${azspot:.2f}) is interruptible, no capacity guarantee, single best region. "
+            f"Nebius preemptible is ${nebpre:.2f}; for production training the relevant comparison is our "
+            f"guaranteed on-demand/committed capacity, not scavenger spot.", "high"))
+    if nebl and awsl:
+        c = f"Nebius L40S ${nebl:.2f} vs AWS ${awsl:.2f} on-demand — only {((awsl - nebl) / awsl * 100):.0f}% apart, our one near-parity SKU."
+        if awsl3:
+            c += (f" AWS L40S falls to ~${awsl3:.2f} at 3yr committed — a gap we can't match (no Nebius "
+                  f"committed L40S). Acknowledge it; pivot to flexibility and bundled value.")
+        cards.append(('"L40S is near AWS parity"', c, "high"))
+    if orab and nebb:
+        cards.append((
+            '"Oracle\'s B200 undercuts us"',
+            f"Not on list: Oracle B200 on-demand is ${orab:.2f} vs Nebius ${nebb:.2f} — we are "
+            f"{((orab - nebb) / orab * 100):.0f}% BELOW Oracle. A lower Oracle number is a negotiated/committed "
+            f"deal; ask for the term + prepay to compare like-for-like.", "med"))
+
+    if not cards:
+        return ""
+    html = [
+        '<h2>Sales Battlecards</h2>',
+        '<p>Reconciled numbers and approved talk tracks for common objections. Customer names omitted. '
+        'Neutral framing: where a competitor genuinely wins (e.g. L40S 3yr), we acknowledge and pivot.</p>',
+        '<table data-layout="full-width"><tbody>',
+        '<tr><th>Objection</th><th>Response (with the number)</th><th>Confidence</th></tr>',
+    ]
+    for obj, resp, conf in cards:
+        color = {"high": "green", "med": "yellow", "low": "red"}.get(conf, "yellow")
+        html.append(f'<tr><td><strong>{obj}</strong></td><td>{resp}</td>'
+                    f'<td><span data-type="status" data-color="{color}">{conf}</span></td></tr>')
+    html.append('</tbody></table>')
+    return "\n".join(html)
+
+
+def _build_availability_note(records: List[PriceRecord]) -> str:
+    """
+    Phase 3.4: capacity/availability signal per Nebius SKU (from verified region data).
+    A low competitor price isn't actionable if capacity is unavailable. We only have
+    authoritative availability for our own SKUs; competitor real-time availability has
+    no public feed, so we don't assert it.
+    """
+    avail = [
+        ("H100", "Available", "green", "eu-north1 (Finland) only"),
+        ("H200", "Available", "green", "eu-north1, eu-north2, eu-west1, us-central1"),
+        ("B200", "Available", "green", "us-central1, me-west1 (no EU region)"),
+        ("B300", "Sales-gated", "yellow", "uk-south1 private region (existing deployments only)"),
+        ("L40S", "Available", "green", "eu-north1"),
+        ("GB200", "Contact sales", "yellow", "no public on-demand rate"),
+        ("GB300", "Contact sales", "yellow", "no public on-demand rate"),
+    ]
+    html = [
+        '<h2>Availability &amp; Access</h2>',
+        '<p>Capacity signal by Nebius SKU (from official region data). A cheaper competitor '
+        'quote is not actionable if the capacity is unavailable. Competitor real-time '
+        'availability is not tracked here (no public feed).</p>',
+        '<table data-layout="full-width"><tbody>',
+        '<tr><th>GPU</th><th>Nebius availability</th><th>Where</th></tr>',
+    ]
+    for gpu, status, color, where in avail:
+        html.append(f'<tr><td><strong>{gpu}</strong></td>'
+                    f'<td><span data-type="status" data-color="{color}">{status}</span></td>'
+                    f'<td>{where}</td></tr>')
+    html.append('</tbody></table>')
+    html.append('<p><em>Market context: SemiAnalysis reported on-demand GPU capacity sold out '
+                'across all GPU types as of April 2026 — list prices currently reflect scarcity, '
+                'so a cheaper competitor quote may not come with available capacity.</em></p>')
+    return "\n".join(html)
+
+
 def format_confluence_table(records: List[PriceRecord], run_date: str,
                             provider_status: dict = None) -> str:
     html = []
@@ -1191,6 +1374,10 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
     rh = _run_health_line(provider_status)
     if rh:
         html.append(rh)
+
+    # ── Section 0: TL;DR by stakeholder (Phase 3.1) ─────────────────────────
+    if records:
+        html.append(_build_tldr(records))
 
     # ── Section 1: Executive benchmark ──────────────────────────────────────
     html.append('<h2>Executive Benchmark — Nebius vs Market</h2>')
@@ -1209,6 +1396,14 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
     if dt:
         html.append(dt)
 
+    # ── Section 1c: PAYG product-model gaps (Phase 3.3) ─────────────────────
+    if records:
+        html.append(_build_payg_gap_table(records))
+
+    # ── Section 1d: Availability & access (Phase 3.4) ───────────────────────
+    if records:
+        html.append(_build_availability_note(records))
+
     # ── Section 2: Committed pricing comparison ─────────────────────────────
     html.append('<h2>Committed Pricing Comparison</h2>')
     html.append(
@@ -1221,6 +1416,12 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
     html.append(_build_committed_gap_table(records))
     html.append(_build_capacity_block_section(records))
     html.append(_build_committed_implication(records))
+
+    # ── Section 2b: Sales battlecards (Phase 3.5) ───────────────────────────
+    if records:
+        bc = _build_battlecards(records)
+        if bc:
+            html.append(bc)
 
     # ── Section 3: Full peer price table by GPU ──────────────────────────────
     html.append('<h2>Complete Market Sweep — On-Demand by GPU</h2>')
