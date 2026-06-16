@@ -59,6 +59,8 @@ _PROVIDER_DISPLAY: Dict[str, str] = {
     "cp_civo":        "Civo",
     "cp_paperspace":  "Paperspace",
     "cp_vultr":       "Vultr",
+    "oracle":         "Oracle",
+    "sfcompute":      "SF Compute",
 }
 
 def _provider_display(p: str) -> str:

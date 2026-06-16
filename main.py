@@ -389,6 +389,8 @@ def _fetch_provider(provider: str):
         from fetchers.hyperstack import fetch
     elif provider == "runpod":
         from fetchers.runpod import fetch
+    elif provider == "sfcompute":
+        from fetchers.sfcompute import fetch
     else:
         raise ValueError(f"Unknown provider: {provider}")
     return fetch()
