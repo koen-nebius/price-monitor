@@ -265,6 +265,70 @@ def run(providers=None, test=False):
     except Exception as e:
         logger.debug(f"consistency check skipped: {e}")
 
+    # ── Independent price cross-check (Phase 1.9) ────────────────────────────
+    # Validate our directly-fetched on-demand prices against ComputePrices as an
+    # independent second source. >5% disagreement → flag in manifest + downgrade the
+    # affected records' confidence to "low". Replaces ad-hoc verification agents with
+    # a standing daily check. Graceful: any failure just skips.
+    try:
+        from fetchers.computeprices import fetch_crosscheck
+        xcheck = fetch_crosscheck()
+        if xcheck:
+            # Plausibility floor per GPU — below this, ComputePrices is the suspect
+            # source (it carries occasional absurd values and committed-as-on-demand
+            # mislabels), so we flag CP rather than undermining our own number.
+            _CP_FLOOR = {"H100": 0.8, "H200": 1.0, "B200": 2.0, "B300": 2.5,
+                         "GB200": 2.0, "GB300": 3.0, "L40S": 0.25}
+            # cheapest direct on-demand price + its source per (provider, gpu).
+            # Skip Nebius: it's our own product (we have verified internal prices);
+            # an aggregator's third-hand Nebius data isn't a valid check on us.
+            ours: Dict[tuple, tuple] = {}
+            for r in accepted_records:
+                if r.provider == "nebius":
+                    continue
+                if r.consumption_type == "on_demand" and r.data_source in ("official_api", "web_scrape"):
+                    k = (r.provider, r.gpu_model)
+                    if k not in ours or r.price_per_gpu_hour_usd < ours[k][0]:
+                        ours[k] = (r.price_per_gpu_hour_usd, r.data_source)
+            n_flagged = 0
+            for k, (our_px, src) in ours.items():
+                xp = xcheck.get(k)
+                if not xp or our_px <= 0:
+                    continue
+                gap = abs(our_px - xp) / our_px * 100
+                is_scrape = (src == "web_scrape")
+                cp_implausible = xp < _CP_FLOOR.get(k[1], 0)
+                if cp_implausible:
+                    # CP value is below a sane floor — treat CP as the bad source.
+                    if gap > 15:
+                        n_flagged += 1
+                        msg = (f"{k[0]} {k[1]} on-demand: ComputePrices ${xp:.2f} is implausibly "
+                               f"low vs ours ${our_px:.2f} — ignoring CP (likely error/mislabel)")
+                        logger.warning(f"Cross-check: {msg}")
+                        warnings.append(f"cross-check: {msg}")
+                    continue
+                # Our scrapes can be mis-parsed → tight threshold + downgrade.
+                # Our provider-API prices are authoritative → only flag a LARGE gap,
+                # never downgrade because a flaky aggregator disagrees.
+                threshold = 5 if is_scrape else 15
+                if gap > threshold:
+                    n_flagged += 1
+                    note = ("our scrape may be mis-parsed — verify" if is_scrape
+                            else "ComputePrices likely off (provider API is authoritative)")
+                    msg = (f"{k[0]} {k[1]} on-demand: ours ${our_px:.2f} ({'scrape' if is_scrape else 'api'}) "
+                           f"vs ComputePrices ${xp:.2f} ({gap:.0f}% gap) — {note}")
+                    logger.warning(f"Cross-check disagreement: {msg}")
+                    warnings.append(f"cross-check: {msg}")
+                    if is_scrape:
+                        for r in accepted_records:
+                            if (r.provider == k[0] and r.gpu_model == k[1]
+                                    and r.consumption_type == "on_demand"):
+                                r.confidence = "low"
+            logger.info(f"Cross-check: {len(ours)} direct on-demand prices vs ComputePrices — "
+                        f"{n_flagged} flagged")
+    except Exception as e:
+        logger.debug(f"cross-check skipped: {e}")
+
     # ── Write canonical outputs (using validated records) ────────────────────
     save_snapshot(all_records, today)              # raw snapshot — includes everything
     save_last_snapshot(accepted_records)           # baseline for next diff — accepted only

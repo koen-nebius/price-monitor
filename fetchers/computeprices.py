@@ -59,6 +59,65 @@ GPU_NAME_MAP = {
 GPU_SLUGS = ["h100", "h200", "b200", "hgx-b300", "gb200", "gb300", "l40s"]
 
 
+# ComputePrices provider name → our direct-fetch provider key. Used by the 1.9
+# cross-check: these providers are skipped in the benchmark (we fetch them directly),
+# but ComputePrices is a useful INDEPENDENT second source to validate our numbers.
+_XCHECK_NAME_MAP = {
+    "amazon aws": "aws", "aws": "aws",
+    "google cloud": "gcp", "gcp": "gcp",
+    "microsoft azure": "azure", "azure": "azure",
+    "coreweave": "coreweave",
+    "lambda labs": "lambda",
+    "crusoe": "crusoe",
+    "nebius": "nebius",
+    "oracle cloud": "oracle", "oracle": "oracle",
+    "hyperstack": "hyperstack", "nexgencloud": "hyperstack",
+    "runpod": "runpod",
+}
+
+
+def fetch_crosscheck() -> Dict[tuple, float]:
+    """
+    Phase 1.9: return {(direct_provider_key, gpu_model): cheapest on_demand $/GPU-hr}
+    from ComputePrices for the providers we fetch DIRECTLY — an independent second
+    source to validate our primary numbers. Does NOT enter the benchmark. Graceful:
+    returns {} on any network/parse failure.
+    """
+    api_key = os.environ.get("COMPUTEPRICES_API_KEY")
+    out: Dict[tuple, float] = {}
+    for slug in GPU_SLUGS:
+        try:
+            params: dict = {"gpu": slug}
+            if api_key:
+                params["api_key"] = api_key
+            url = f"{API_BASE}?{urllib.parse.urlencode(params)}"
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (price-monitor/1.0)"})
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read())
+        except Exception as e:
+            logger.warning(f"crosscheck slug={slug} failed: {e}")
+            continue
+        for item in data.get("data", []):
+            key_prov = _XCHECK_NAME_MAP.get((item.get("provider", "") or "").lower())
+            if not key_prov:
+                continue
+            if (item.get("pricing_type") or "on_demand") != "on_demand":
+                continue
+            gpu_model = GPU_NAME_MAP.get((item.get("gpu", "") or "").lower())
+            if not gpu_model:
+                continue
+            gc = item.get("gpu_count") or 1
+            total = item.get("total_hourly_usd") or 0
+            pph = item.get("price_per_hour_usd") or 0
+            px = (total / gc) if total > 0 else pph
+            if px <= 0:
+                continue
+            k = (key_prov, gpu_model)
+            if k not in out or px < out[k]:
+                out[k] = px
+    return out
+
+
 def fetch(regions: List[str] = None) -> List[PriceRecord]:
     now = datetime.now(timezone.utc).isoformat()
     api_key = os.environ.get("COMPUTEPRICES_API_KEY")
