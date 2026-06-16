@@ -1085,10 +1085,51 @@ def _trend_cell(gpu: str, records: List[PriceRecord]) -> str:
     return f'<td><span data-type="status" data-color="{color}">{sign}{pct:.0f}% / {span}d</span></td>'
 
 
+def _field_intel_floor(gpu: str):
+    """
+    Lowest real competitive deal for a GPU from #price-intelligence (intel.csv).
+    This is the ground-truth signal for next-gen GPUs (B200/B300/GB200/GB300) where
+    public list prices barely exist. Returns {price, term, label, prepay, is_loss} or None.
+    is_loss = the quote was logged as a competitive loss/win against Nebius.
+    """
+    def _is_loss(notes: str) -> bool:
+        n = (notes or "").lower()
+        return "vs ne" in n or "win vs" in n or "lost" in n or "loss" in n
+
+    best = None
+    any_loss = False
+    for r in _load_intel(days=90):
+        if r.get("gpu_model") != gpu:
+            continue
+        try:
+            px = float(r["price_per_gpu_hour_usd"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        if px <= 0:
+            continue
+        if _is_loss(r.get("notes", "")):
+            any_loss = True
+        if best is None or px < best["price"]:
+            try:
+                term = int(float(r.get("term_months", "0") or 0))
+            except (ValueError, TypeError):
+                term = 0
+            best = {
+                "price": px, "term": term,
+                "label": (r.get("provider_name") or r.get("provider_type") or "undisclosed"),
+            }
+    if best is not None:
+        best["is_loss"] = any_loss  # any recorded loss for this GPU, not just the cheapest quote
+    return best
+
+
 def _recommended_action(delta_vs_median: Optional[float], near_hyperscaler: bool,
-                        trend30: Optional[float]) -> str:
+                        trend30: Optional[float], field_loss: bool = False) -> str:
     """Neutral, decision-oriented action. Lower is not assumed good; a premium is a
-    valid position to hold. Phrasing prompts a decision, doesn't prescribe a cut."""
+    valid position to hold. Phrasing prompts a decision, doesn't prescribe a cut.
+    A recorded competitive LOSS is the strongest trigger and leads the action."""
+    if field_loss:
+        return "Lost a deal at the field price — review committed pricing for this SKU"
     if delta_vs_median is None:
         primary = "Establish peer benchmark"
     elif delta_vs_median >= 15:
@@ -1105,6 +1146,14 @@ def _recommended_action(delta_vs_median: Optional[float], near_hyperscaler: bool
     elif trend30 is not None and trend30 >= 5:
         mods.append("market firming")
     return primary + (f" ({'; '.join(mods)})" if mods else "")
+
+
+def _term_label(term: int) -> str:
+    if not term:
+        return "on-demand"
+    if term % 12 == 0:
+        return f"{term // 12}yr"
+    return f"{term}mo"
 
 
 def _build_decision_trigger_table(records: List[PriceRecord]) -> str:
@@ -1128,7 +1177,7 @@ def _build_decision_trigger_table(records: List[PriceRecord]) -> str:
         '(margin/cost data is out of this tool\'s scope and never auto-populated).</p>',
         '<table data-layout="full-width"><tbody>',
         '<tr><th>GPU</th><th>Nebius OD</th><th>vs peer median</th><th>Cheapest peer</th>'
-        '<th>Cheapest hyperscaler (SXM cluster)</th><th>Market 30d</th>'
+        '<th>Cheapest hyperscaler (SXM cluster)</th><th>Competitor field deal</th><th>Market 30d</th>'
         '<th>Recommended action</th><th>Owner</th><th>Review by</th><th>Margin risk</th></tr>',
     ]
 
@@ -1160,9 +1209,20 @@ def _build_decision_trigger_table(records: List[PriceRecord]) -> str:
             s = "+" if delta >= 0 else ""
             vs_cell = f'<td><span data-type="status" data-color="{c}">{s}{delta:.0f}%</span></td>'
 
+        # Competitor field deal (real negotiated quote from #price-intelligence) —
+        # the only real signal for next-gen GPUs where public list prices barely exist.
+        fi = _field_intel_floor(gpu)
+        if fi:
+            loss_badge = (' <span data-type="status" data-color="red">lost deal</span>'
+                          if fi["is_loss"] else '')
+            field_cell = (f'${fi["price"]:.2f} <em>({_term_label(fi["term"])}, '
+                          f'{_provider_display(fi["label"]) if fi["label"] not in ("undisclosed",) else fi["label"]})</em>{loss_badge}')
+        else:
+            field_cell = '—'
+
         _t = _market_trend(gpu, 30, records)
         t30 = _t[0] if _t else None
-        action = _recommended_action(delta, near_hyp, t30)
+        action = _recommended_action(delta, near_hyp, t30, field_loss=bool(fi and fi["is_loss"]))
 
         html.append(
             f'<tr><td><strong>{gpu}</strong></td>'
@@ -1170,6 +1230,7 @@ def _build_decision_trigger_table(records: List[PriceRecord]) -> str:
             f'{vs_cell}'
             f'<td>{floor_cell}</td>'
             f'<td>{hyp_cell}</td>'
+            f'<td>{field_cell}</td>'
             f'{_trend_cell(gpu, records)}'
             f'<td>{action}</td>'
             f'<td><em>Pricing PM</em></td>'
@@ -1180,7 +1241,10 @@ def _build_decision_trigger_table(records: List[PriceRecord]) -> str:
     html.append('</tbody></table>')
     html.append('<p><em>Market 30d = change in the cheapest enterprise-peer on-demand '
                 'price over the last 30 days (90d trend appears once ≥90 days of history '
-                'accrues). "Cheapest hyperscaler" is the like-for-like 8×SXM cluster SKU.</em></p>')
+                'accrues). "Cheapest hyperscaler" is the like-for-like 8×SXM cluster SKU. '
+                '"Competitor field deal" is the lowest real negotiated quote from '
+                '#price-intelligence (term shown; may be committed, not on-demand) — the '
+                'primary signal for next-gen GPUs where public list prices are sparse.</em></p>')
     return "\n".join(html)
 
 
