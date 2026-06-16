@@ -211,6 +211,13 @@ def run(providers=None, test=False):
     today = date.today()
     logger.info(f"Fetched {len(all_records)} total records for {today}")
 
+    # ── Tag comparability (Phase 1.3/2.6) ────────────────────────────────────
+    # Stamp form_factor/interconnect so cluster-class (8×SXM HGX) SKUs can be
+    # compared like-for-like and single-GPU NVL/PCIe entry SKUs cannot masquerade
+    # as cluster prices. Done before snapshot save so the tags persist.
+    from comparability import enrich_comparability
+    enrich_comparability(all_records)
+
     # ── Load previous snapshot for diff and validation ───────────────────────
     prev_day = previous_snapshot_day()
     old_records: List[PriceRecord] = []

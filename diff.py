@@ -10,6 +10,7 @@ from typing import List, Dict, Optional, Tuple
 
 from schema import PriceRecord, DiffEntry
 from config import provider_tier, ALERT_THRESHOLD_PCT, PROVIDER_TIERS
+from comparability import enrich_comparability, is_cluster_class
 
 INTEL_CSV = Path(__file__).parent / "store" / "intel.csv"
 
@@ -135,14 +136,33 @@ def compute_diff(old: List[PriceRecord], new: List[PriceRecord]) -> List[DiffEnt
 # ---------------------------------------------------------------------------
 
 def _best_price(records: List[PriceRecord], gpu: str, ct: str,
-                tiers: Optional[List[str]] = None) -> Optional[PriceRecord]:
-    """Return the cheapest record for a given gpu/ct combination, optionally filtered by tier."""
+                tiers: Optional[List[str]] = None,
+                cluster_only: bool = False) -> Optional[PriceRecord]:
+    """
+    Return the cheapest record for a given gpu/ct combination, optionally filtered
+    by tier. cluster_only=True restricts to cluster-class (8×SXM HGX) SKUs so a
+    single-GPU NVL/PCIe entry SKU (Azure NC40ads, Lambda 1×PCIe) cannot be the
+    headline "cheapest" against a competitor's SXM training node.
+    """
     candidates = [
         r for r in records
         if r.gpu_model == gpu and r.consumption_type == ct
         and (tiers is None or provider_tier(r.provider) in tiers)
+        and (not cluster_only or is_cluster_class(r))
     ]
     return min(candidates, key=lambda r: r.price_per_gpu_hour_usd) if candidates else None
+
+
+def _best_comparable(records: List[PriceRecord], gpu: str, ct: str,
+                     tiers: Optional[List[str]] = None) -> Optional[PriceRecord]:
+    """
+    Cheapest like-for-like price: prefer a cluster-class (SXM) SKU so a single-GPU
+    NVL/PCIe entry SKU can't be the headline; fall back to the overall cheapest only
+    when no cluster SKU exists for that GPU (e.g. L40S, which is PCIe everywhere — a
+    Nebius-L40S-vs-AWS-L40S comparison is then genuinely like-for-like).
+    """
+    return (_best_price(records, gpu, ct, tiers=tiers, cluster_only=True)
+            or _best_price(records, gpu, ct, tiers=tiers))
 
 
 def _position_for_tier(records, gpu, cts, label):
@@ -367,12 +387,13 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
 
     # ── Position: one line for hyperscalers, one for peers ──────────────────
     if records:
-        # vs hyperscalers (on-demand)
+        enrich_comparability(records)  # ensure form_factor tags for cluster-class filtering
+        # vs hyperscalers (on-demand) — compare like-for-like cluster SKUs only
         gaps = []
         for gpu in GPU_ORDER:
             neb = next((r for r in records if r.provider == "nebius"
                         and r.gpu_model == gpu and r.consumption_type == "on_demand"), None)
-            hyp = _best_price(records, gpu, "on_demand", tiers=["hyperscaler"])
+            hyp = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
             if neb and hyp:
                 pct = (hyp.price_per_gpu_hour_usd - neb.price_per_gpu_hour_usd) \
                       / hyp.price_per_gpu_hour_usd * 100
@@ -478,6 +499,7 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                         for w in name.split())
 
     if records:
+        enrich_comparability(records)  # ensure form_factor tags for cluster-class filtering
         position = compute_position(records)
         od_rows = [r for r in position if r["tier_label"] == "on_demand"
                    and r["nebius_price"] is not None]  # skip GPUs with no Nebius price
@@ -510,26 +532,42 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                         f"|  {cheaper}/{total} peers cheaper  |  floor: {floor_str}"
                     )
 
-        # ── 1b. vs hyperscaler rack rate ─────────────────────────────────────
+        # ── 1b. vs hyperscaler rack rate (like-for-like SXM cluster SKUs) ─────
         hyp_rows = []
+        entry_notes = []
         for gpu in GPU_ORDER:
             neb_rec = next((r for r in records if r.provider == "nebius"
                             and r.gpu_model == gpu and r.consumption_type == "on_demand"), None)
-            hyp_best = _best_price(records, gpu, "on_demand", tiers=["hyperscaler"])
+            hyp_best = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
             if neb_rec and hyp_best:
                 neb_px  = neb_rec.price_per_gpu_hour_usd
                 hyp_px  = hyp_best.price_per_gpu_hour_usd
                 cheaper_pct = (hyp_px - neb_px) / hyp_px * 100  # positive = Nebius cheaper
                 hyp_rows.append((gpu, neb_px, hyp_best.provider, hyp_px, cheaper_pct))
+                # Transparency: if a hyperscaler's cheapest ENTRY (non-cluster) SKU
+                # undercuts its cluster price, surface it labeled — never hide it,
+                # but never let it be the headline comparison either.
+                entry = _best_price(records, gpu, "on_demand", tiers=["hyperscaler"])
+                if entry and is_cluster_class(entry) is False and \
+                   entry.price_per_gpu_hour_usd < hyp_px * 0.97:
+                    entry_notes.append(
+                        f"`{gpu:<5}` {_pname(entry.provider)} entry SKU "
+                        f"${entry.price_per_gpu_hour_usd:.2f} ({entry.form_factor}, "
+                        f"{entry.gpu_count}×, not a cluster)"
+                    )
 
         if hyp_rows:
-            lines.append("\n*vs cheapest hyperscaler on-demand rack rate:*")
+            lines.append("\n*vs cheapest hyperscaler on-demand (8×SXM cluster, like-for-like):*")
             for gpu, neb_px, hyp_prov, hyp_px, cheaper_pct in hyp_rows:
                 flag = "  — near parity" if cheaper_pct < 5 else ""
                 lines.append(
                     f"`{gpu:<5}` Nebius ${neb_px:.2f}  vs  {_pname(hyp_prov)} ${hyp_px:.2f}"
                     f"  →  Nebius {cheaper_pct:.0f}% below{flag}"
                 )
+            if entry_notes:
+                lines.append("_Cheaper non-cluster entry SKUs (single-GPU NVL/PCIe, "
+                             "not comparable to an SXM cluster):_")
+                lines.extend(entry_notes)
 
         # ── 1c. spot/preemptible floor vs hyperscaler spot ───────────────────
         # The on-demand story flips at the spot tier: hyperscaler spot floors
@@ -901,6 +939,8 @@ def _build_field_intel_callout(records: List[PriceRecord]) -> str:
 
 def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
     html = []
+    if records:
+        enrich_comparability(records)  # form_factor tags for cluster-class filtering
 
     html.append(
         f'<p><em>Last updated: {run_date}</em> — auto-refreshed daily. '
@@ -1006,10 +1046,11 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         else:
             vs_td = '<td>—</td>'
 
-        # Cheapest hyperscaler on-demand
-        hyp_best = _best_price(records, gpu, "on_demand", tiers=["hyperscaler"])
+        # Cheapest hyperscaler on-demand — like-for-like 8×SXM cluster SKU only
+        # (excludes single-GPU NVL/PCIe entry SKUs such as Azure NC40ads).
+        hyp_best = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
         hyp_td = (f'<td>${hyp_best.price_per_gpu_hour_usd:.2f} '
-                  f'<em>({_provider_display(hyp_best.provider)})</em></td>') \
+                  f'<em>({_provider_display(hyp_best.provider)}, {hyp_best.form_factor})</em></td>') \
                  if hyp_best else '<td>—</td>'
 
         med_td = f'<td>${row["median_peer"]:.2f}</td>' if row and row["median_peer"] else '<td>—</td>'
