@@ -38,6 +38,11 @@ COLUMNS = [
     "price_per_gpu_hour_usd",
     "price_per_hour_usd",
     "data_source",
+    # ── provenance + comparability (Phase 1.1) ──
+    "source_type",      # api | provider_page | aggregator | manual | field_quote
+    "confidence",       # high | med | low
+    "interconnect",     # IB | RoCE | Ethernet | NVLink | unknown
+    "form_factor",      # SXM | PCIe | NVL | unknown
 ]
 
 # Consumption types to include — exclude noisy sub-variants (50pct/30pct upfront)
@@ -94,6 +99,10 @@ def _rows_for_date(day: date) -> List[dict]:
             "price_per_gpu_hour_usd": round(r.price_per_gpu_hour_usd, 4),
             "price_per_hour_usd":     round(r.price_per_hour_usd, 4),
             "data_source":            getattr(r, "data_source", ""),
+            "source_type":            getattr(r, "source_type", ""),
+            "confidence":             getattr(r, "confidence", ""),
+            "interconnect":           getattr(r, "interconnect", ""),
+            "form_factor":            getattr(r, "form_factor", ""),
         })
     return rows
 
@@ -191,6 +200,10 @@ def append_records(records: List[PriceRecord], day: date = None) -> Path:
             "price_per_gpu_hour_usd": round(r.price_per_gpu_hour_usd, 4),
             "price_per_hour_usd":     round(r.price_per_hour_usd, 4),
             "data_source":            getattr(r, "data_source", ""),
+            "source_type":            getattr(r, "source_type", ""),
+            "confidence":             getattr(r, "confidence", ""),
+            "interconnect":           getattr(r, "interconnect", ""),
+            "form_factor":            getattr(r, "form_factor", ""),
         })
 
     if not new_rows:
