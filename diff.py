@@ -262,39 +262,66 @@ def _format_committed_callout(records: List[PriceRecord]) -> str:
 
     neb_1yr = _best("nebius", "H100", RESERVED_1YR_CTS)
     neb_2yr = _best("nebius", "H100", RESERVED_2YR_CTS)
-    aws_1yr = _best("aws",    "H100", RESERVED_1YR_CTS)
-    aws_3yr = _best("aws",    "H100", RESERVED_3YR_CTS)
+    aws_1yr_au = _best("aws", "H100", {"reserved_1yr"})              # all-upfront standard RI
+    aws_3yr_au = _best("aws", "H100", {"reserved_3yr"})             # all-upfront standard RI
+    aws_3yr_nu = _best("aws", "H100", {"reserved_3yr_no_upfront"})  # no-upfront standard RI
 
     parts = []
 
-    if neb_1yr and aws_1yr:
-        diff_pct = (neb_1yr - aws_1yr) / aws_1yr * 100
-        sign = "+" if diff_pct > 0 else ""
-        parts.append(
-            f"H100 12-month: Nebius ${neb_1yr:.2f} vs AWS ${aws_1yr:.2f} "
-            f"({sign}{diff_pct:.0f}%)"
-        )
+    # 1yr — compare like terms, but label AWS's prepay structure. AWS's list 1yr RI
+    # is ALL-UPFRONT; a no-prepay 1yr exists only as a pricier convertible RI. So
+    # "Nebius below AWS list" is true for the all-upfront list, not for what AWS
+    # actually charges negotiated accounts (see field-intel line below).
+    if neb_1yr and aws_1yr_au:
+        d = (neb_1yr - aws_1yr_au) / aws_1yr_au * 100
+        s = "+" if d > 0 else ""
+        parts.append(f"1yr: Nebius ${neb_1yr:.2f} vs AWS ${aws_1yr_au:.2f} "
+                     f"(AWS list, all-upfront) → Nebius {s}{d:.0f}% vs list")
     elif neb_1yr:
-        parts.append(f"H100 12-month: Nebius ${neb_1yr:.2f} (AWS: no data)")
+        parts.append(f"1yr: Nebius ${neb_1yr:.2f}")
 
     if neb_2yr:
-        parts.append(f"H100 24-month: Nebius ${neb_2yr:.2f}/GPU-hr")
+        parts.append(f"2yr: Nebius ${neb_2yr:.2f} (Nebius's deepest published H100 tier)")
 
-    if aws_3yr:
-        neb_od = _best("nebius", "H100", {"on_demand"})
-        if neb_od:
-            gap_mult = neb_od / aws_3yr
-            parts.append(
-                f"AWS H100 3yr: ${aws_3yr:.2f} vs Nebius on-demand ${neb_od:.2f} "
-                f"({gap_mult:.1f}× difference)"
-            )
-        else:
-            parts.append(f"AWS H100 3yr: ${aws_3yr:.2f}/GPU-hr")
+    # 3yr — Nebius has no 3yr H100, so do NOT compare to Nebius on-demand (the old
+    # "2.8× difference" line compared committed-vs-on-demand and headlined the
+    # all-upfront extreme). Show AWS's prepay structure honestly instead.
+    if aws_3yr_nu or aws_3yr_au:
+        struct = " / ".join(x for x in (
+            f"${aws_3yr_nu:.2f} no-upfront" if aws_3yr_nu else None,
+            f"${aws_3yr_au:.2f} 100%-prepaid" if aws_3yr_au else None,
+        ) if x)
+        note = ""
+        if aws_3yr_au and neb_2yr and aws_3yr_au < neb_2yr:
+            note = (f" — AWS 3yr all-upfront undercuts Nebius's 2yr ${neb_2yr:.2f}, "
+                    f"but locks 3 years + full prepayment")
+        parts.append(f"AWS 3yr (no Nebius 3yr): {struct}{note}")
+
+    # Field-intel reality check: negotiated AWS deals can sit below both list and
+    # Nebius. Surfaced so sales isn't blindsided by our own "below list" framing.
+    best_field = None
+    for r in _load_intel(days=90):
+        if r.get("gpu_model") != "H100":
+            continue
+        if "aws" not in (r.get("provider_name", "") + r.get("provider_type", "")).lower():
+            continue
+        try:
+            term = int(float(r.get("term_months", "0") or 0))
+            px = float(r.get("price_per_gpu_hour_usd"))
+        except (ValueError, TypeError):
+            continue
+        if 0 < term <= 36 and (best_field is None or px < best_field[0]):
+            best_field = (px, term, int(float(r.get("prepay_pct", "0") or 0)))
+    if best_field and neb_1yr and best_field[0] < neb_1yr:
+        px, term, prepay = best_field
+        parts.append(f"⚠ Field intel: AWS {term}mo deal seen at ${px:.2f} "
+                     f"({prepay}% prepay) — below Nebius; list comparisons understate "
+                     f"AWS's negotiated floor")
 
     if not parts:
         return ""
 
-    header = "*Committed pricing (H100 benchmark):*"
+    header = "*Committed pricing (H100 benchmark, $/GPU-hr):*"
     return header + "\n" + "\n".join(f"• {p}" for p in parts)
 
 
