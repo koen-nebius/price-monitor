@@ -156,6 +156,28 @@ def _best_price(records: List[PriceRecord], gpu: str, ct: str,
     return min(candidates, key=lambda r: r.price_per_gpu_hour_usd) if candidates else None
 
 
+def _representative_spot_floor(records: List[PriceRecord], gpu: str,
+                               tiers: Optional[List[str]] = None):
+    """
+    Representative cheapest spot price for a GPU: each provider's MEDIAN across its
+    zone observations, then the cheapest provider's median. Avoids a transient
+    single-zone outlier (e.g. AWS H200 spot dipping to $0.79 in one zone while the
+    other zones sit at $2.0–2.2) masquerading as "the spot floor".
+    Returns (provider, median_price, n_zones) or None.
+    """
+    from collections import defaultdict as _dd
+    by_prov = _dd(list)
+    for r in records:
+        if (r.gpu_model == gpu and r.consumption_type in INTERRUPTIBLE_CTS
+                and (tiers is None or provider_tier(r.provider) in tiers)):
+            by_prov[r.provider].append(r.price_per_gpu_hour_usd)
+    if not by_prov:
+        return None
+    prov_median = {p: statistics.median(v) for p, v in by_prov.items()}
+    best = min(prov_median, key=prov_median.get)
+    return best, prov_median[best], len(by_prov[best])
+
+
 def _best_comparable(records: List[PriceRecord], gpu: str, ct: str,
                      tiers: Optional[List[str]] = None) -> Optional[PriceRecord]:
     """
@@ -469,18 +491,14 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
         neb_pre = next((r for r in sorted(records, key=lambda x: x.price_per_gpu_hour_usd)
                         if r.provider == "nebius" and r.gpu_model == "H100"
                         and r.consumption_type in INTERRUPTIBLE_CTS), None)
-        hyp_spot = min((r for r in records if r.gpu_model == "H100"
-                        and r.consumption_type in INTERRUPTIBLE_CTS
-                        and provider_tier(r.provider) == "hyperscaler"),
-                       key=lambda r: r.price_per_gpu_hour_usd, default=None)
-        if neb_pre and hyp_spot:
-            rel = (neb_pre.price_per_gpu_hour_usd - hyp_spot.price_per_gpu_hour_usd) \
-                  / hyp_spot.price_per_gpu_hour_usd * 100
+        hyp_floor = _representative_spot_floor(records, "H100", tiers=["hyperscaler"])
+        if neb_pre and hyp_floor:
+            hyp_prov, hyp_px, _ = hyp_floor
+            rel = (neb_pre.price_per_gpu_hour_usd - hyp_px) / hyp_px * 100
             sign = "+" if rel > 0 else ""
             notes.append(
                 f"H100 interruptible: our ${neb_pre.price_per_gpu_hour_usd:.2f} vs "
-                f"{_pname(hyp_spot.provider)} spot ${hyp_spot.price_per_gpu_hour_usd:.2f} "
-                f"({sign}{rel:.0f}%)"
+                f"{_pname(hyp_prov)} spot ${hyp_px:.2f} (median) ({sign}{rel:.0f}%)"
             )
         if notes:
             lines.append("Reference: " + " · ".join(notes))
@@ -609,36 +627,27 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                               and r.consumption_type in INTERRUPTIBLE_CTS]
             neb_rec = min(neb_candidates, key=lambda r: r.price_per_gpu_hour_usd) \
                 if neb_candidates else None
-            hyp_candidates = [r for r in records
-                              if r.gpu_model == gpu
-                              and r.consumption_type in INTERRUPTIBLE_CTS
-                              and provider_tier(r.provider) == "hyperscaler"]
-            hyp_best = min(hyp_candidates, key=lambda r: r.price_per_gpu_hour_usd) \
-                if hyp_candidates else None
-            if neb_rec and hyp_best:
+            floor = _representative_spot_floor(records, gpu, tiers=["hyperscaler"])
+            if neb_rec and floor:
                 spot_rows.append((gpu, neb_rec.price_per_gpu_hour_usd,
-                                  hyp_best.provider, hyp_best.price_per_gpu_hour_usd,
-                                  hyp_best.region))
+                                  floor[0], floor[1], floor[2]))
             elif neb_rec:
                 spot_rows.append((gpu, neb_rec.price_per_gpu_hour_usd, None, None, None))
 
         if spot_rows:
-            lines.append("\n*Spot / preemptible (vs cheapest hyperscaler spot, single best region):*")
-            for gpu, neb_px, hyp_prov, hyp_px, hyp_region in spot_rows:
+            lines.append("\n*Spot / preemptible (vs cheapest hyperscaler spot, median across zones):*")
+            for gpu, neb_px, hyp_prov, hyp_px, n_zones in spot_rows:
                 if hyp_px is None:
                     lines.append(f"`{gpu:<5}` Nebius ${neb_px:.2f}  |  no hyperscaler spot published")
                     continue
                 delta_pct = (neb_px - hyp_px) / hyp_px * 100  # positive = Nebius pricier
-                if delta_pct > 0:
-                    pos = f"Nebius {delta_pct:.0f}% above"
-                else:
-                    pos = f"Nebius {-delta_pct:.0f}% below"
+                pos = f"Nebius {delta_pct:.0f}% above" if delta_pct > 0 else f"Nebius {-delta_pct:.0f}% below"
                 lines.append(
                     f"`{gpu:<5}` Nebius ${neb_px:.2f}  vs  {_pname(hyp_prov)} ${hyp_px:.2f}"
-                    f" ({hyp_region})  →  {pos}"
+                    f" (median, {n_zones} zones)  →  {pos}"
                 )
-            lines.append("_Hyperscaler spot is interruptible, capacity not guaranteed; "
-                         "floors are single-region best prices._")
+            lines.append("_Hyperscaler spot is interruptible, capacity not guaranteed; floors are "
+                         "the cheapest provider's median across zones (single-zone dips excluded)._")
 
         # ── 2. Committed pricing benchmark ───────────────────────────────────
         _committed = _format_committed_callout(records)
