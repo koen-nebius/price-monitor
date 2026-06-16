@@ -253,6 +253,18 @@ def run(providers=None, test=False):
     if quarantined_count:
         logger.warning(f"Quarantined {quarantined_count} records with implausible prices from history.csv")
 
+    # ── Cross-table consistency guard (Phase 1.5) ────────────────────────────
+    # Fail loudly (in the manifest) if the same (provider, gpu, on_demand) would
+    # render divergent values across sections without a region label.
+    try:
+        from test_consistency import check_cross_table_consistency
+        consistency_problems = check_cross_table_consistency(accepted_records)
+        for p in consistency_problems:
+            logger.warning(f"Cross-table inconsistency: {p}")
+        warnings.extend(consistency_problems)
+    except Exception as e:
+        logger.debug(f"consistency check skipped: {e}")
+
     # ── Write canonical outputs (using validated records) ────────────────────
     save_snapshot(all_records, today)              # raw snapshot — includes everything
     save_last_snapshot(accepted_records)           # baseline for next diff — accepted only
@@ -306,7 +318,8 @@ def run(providers=None, test=False):
     with open(thread_path, "w") as f:
         f.write(slack_thread)
 
-    confluence_body = format_confluence_table(accepted_records, run_date)
+    confluence_body = format_confluence_table(accepted_records, run_date,
+                                              provider_status=provider_status)
     conf_path = STORE_DIR / "confluence_body.html"
     with open(conf_path, "w") as f:
         f.write(confluence_body)

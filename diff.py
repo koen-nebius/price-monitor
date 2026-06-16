@@ -987,17 +987,52 @@ def _build_field_intel_callout(records: List[PriceRecord]) -> str:
     return "\n".join(html)
 
 
-def format_confluence_table(records: List[PriceRecord], run_date: str) -> str:
+def _run_health_line(provider_status: dict) -> str:
+    """
+    Run-health banner (Phase 1.10): X/Y sources live, which are stale and how old.
+    Honest about freshness so 'daily refreshed' isn't read as 'all live today'.
+    """
+    if not provider_status:
+        return ""
+    total = len(provider_status)
+    live = [p for p, s in provider_status.items() if s.get("status") == "live"]
+    stale = []
+    for p, s in sorted(provider_status.items()):
+        st = s.get("status")
+        if st == "live":
+            continue
+        age = s.get("cache_age_hours")
+        if st == "cache":
+            stale.append(f"{p} cached {age:.0f}h" if age is not None else f"{p} cached")
+        elif st == "fallback":
+            stale.append(f"{p} {s.get('fallback_source', 'fallback')}")
+        elif st == "missing":
+            stale.append(f"{p} no data")
+        elif st == "error":
+            stale.append(f"{p} error")
+    color = "green" if len(live) == total else ("yellow" if live else "red")
+    banner = (f'<span data-type="status" data-color="{color}">'
+              f'{len(live)}/{total} sources live</span>')
+    detail = f' — stale: {", ".join(stale)}' if stale else " — all sources live this run"
+    return f'<p><em>Data freshness: </em>{banner}<em>{detail}</em></p>'
+
+
+def format_confluence_table(records: List[PriceRecord], run_date: str,
+                            provider_status: dict = None) -> str:
     html = []
     if records:
         enrich_comparability(records)  # form_factor tags for cluster-class filtering
 
     html.append(
-        f'<p><em>Last updated: {run_date}</em> — auto-refreshed daily. '
+        f'<p><em>Last updated: {run_date}</em> — <strong>daily refreshed</strong> '
+        f'(point-in-time snapshot, not real-time). '
         f'All prices in <strong>$/GPU-hr</strong>. '
         f'Source: direct provider APIs/pages + '
         f'<a href="https://computeprices.com">ComputePrices.com</a>.</p>'
     )
+    rh = _run_health_line(provider_status)
+    if rh:
+        html.append(rh)
 
     # ── Section 1: Executive benchmark ──────────────────────────────────────
     html.append('<h2>Executive Benchmark — Nebius vs Market</h2>')
@@ -1317,14 +1352,23 @@ def _build_capacity_block_section(records: List[PriceRecord]) -> str:
         'they are a separate product class. Useful as a capacity-guarantee reference for enterprise RFPs.</p>',
         '<table data-layout="full-width"><tbody>',
         '<tr><th>GPU</th><th>Instance</th><th>AWS Capacity Block ($/GPU-hr)</th>'
-        '<th>vs AWS on-demand</th><th>vs Nebius on-demand</th></tr>',
+        '<th>vs AWS on-demand (cheapest region)</th><th>vs Nebius on-demand</th></tr>',
     ]
 
-    # Get AWS on-demand and Nebius on-demand for comparison
-    aws_od = {r.gpu_model: r.price_per_gpu_hour_usd for r in records
-              if r.provider == "aws" and r.consumption_type == "on_demand"}
-    neb_od = {r.gpu_model: r.price_per_gpu_hour_usd for r in records
-              if r.provider == "nebius" and r.consumption_type == "on_demand"}
+    # Get AWS on-demand and Nebius on-demand for comparison — use the CHEAPEST per
+    # GPU (same reference the executive table uses) so a cell never disagrees with
+    # the exec table for the same (provider, gpu, on_demand). Previously this took
+    # whichever region iterated last (e.g. ap-northeast $8.60), contradicting the
+    # exec's $6.88 (Phase 1.5).
+    def _cheapest_od(provider: str) -> dict:
+        out: dict = {}
+        for r in records:
+            if r.provider == provider and r.consumption_type == "on_demand":
+                if r.gpu_model not in out or r.price_per_gpu_hour_usd < out[r.gpu_model]:
+                    out[r.gpu_model] = r.price_per_gpu_hour_usd
+        return out
+    aws_od = _cheapest_od("aws")
+    neb_od = _cheapest_od("nebius")
 
     for gpu in rows_with_data:
         r = cb[gpu]
