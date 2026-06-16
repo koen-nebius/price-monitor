@@ -1,82 +1,63 @@
 {
-  "run_date": "2026-06-15",
-  "started_at": "2026-06-15T07:04:44.876200+00:00",
-  "completed_at": "2026-06-15T07:07:13.432845+00:00",
-  "status": "partial",
-  "record_count": 1011,
-  "raw_record_count": 1011,
+  "run_date": "2026-06-16",
+  "started_at": "2026-06-16T06:44:44.008283+00:00",
+  "completed_at": "2026-06-16T06:46:01.954316+00:00",
+  "status": "success",
+  "record_count": 876,
+  "raw_record_count": 876,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 171,
+  "diff_count": 177,
   "failed_providers": [],
-  "stale_providers": [
-    "azure",
-    "coreweave",
-    "lambda",
-    "crusoe",
-    "nebius",
-    "computeprices",
-    "oracle",
-    "hyperstack",
-    "runpod"
-  ],
+  "stale_providers": [],
   "provider_status": {
     "aws": {
       "status": "live",
-      "record_count": 322
+      "record_count": 331
     },
     "gcp": {
       "status": "live",
       "record_count": 144
     },
     "azure": {
-      "status": "cache",
-      "record_count": 132,
-      "cache_age_hours": 21.5
+      "status": "live",
+      "record_count": 132
     },
     "coreweave": {
-      "status": "cache",
-      "record_count": 10,
-      "cache_age_hours": 21.5
+      "status": "live",
+      "record_count": 10
     },
     "lambda": {
-      "status": "fallback",
-      "record_count": 153,
-      "fallback_source": "skypilot_catalog"
+      "status": "live",
+      "record_count": 9
     },
     "crusoe": {
-      "status": "cache",
-      "record_count": 3,
-      "cache_age_hours": 21.5
+      "status": "live",
+      "record_count": 3
     },
     "nebius": {
-      "status": "cache",
-      "record_count": 10,
-      "cache_age_hours": 21.5
+      "status": "live",
+      "record_count": 10
     },
     "nebius_committed": {
       "status": "live",
       "record_count": 93
     },
     "computeprices": {
-      "status": "cache",
-      "record_count": 116,
-      "cache_age_hours": 21.5
+      "status": "live",
+      "record_count": 116
     },
     "oracle": {
-      "status": "cache",
-      "record_count": 8,
-      "cache_age_hours": 21.5
+      "status": "live",
+      "record_count": 8
     },
     "hyperstack": {
-      "status": "cache",
-      "record_count": 5,
-      "cache_age_hours": 21.5
+      "status": "live",
+      "record_count": 5
     },
     "runpod": {
-      "status": "cache",
-      "record_count": 15,
-      "cache_age_hours": 21.5
+      "status": "live",
+      "record_count": 15
     }
   },
   "warnings": [],
