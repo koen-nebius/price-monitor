@@ -7,25 +7,26 @@
 `B300 ` Nebius $7.85  |  1 peer: Scaleway $8.71
 `L40S ` Nebius $1.82  -4% vs median  |  2/4 peers cheaper  |  floor: Crusoe $1.50
 
-*vs cheapest hyperscaler on-demand rack rate:*
+*vs cheapest hyperscaler on-demand (8×SXM cluster, like-for-like):*
 `H100 ` Nebius $3.85  vs  AWS $6.88  →  Nebius 44% below
 `H200 ` Nebius $4.50  vs  AWS $7.91  →  Nebius 43% below
 `B200 ` Nebius $7.15  vs  Oracle $14.00  →  Nebius 49% below
 `B300 ` Nebius $7.85  vs  Oracle $15.00  →  Nebius 48% below
 `L40S ` Nebius $1.82  vs  AWS $1.86  →  Nebius 2% below  — near parity
 
-*Spot / preemptible (vs cheapest hyperscaler spot, single best region):*
-`H100 ` Nebius $2.15  vs  Azure $1.40 (eastus)  →  Nebius 54% above
-`H200 ` Nebius $2.45  vs  AWS $0.79 (us-east-2)  →  Nebius 210% above
-`B200 ` Nebius $3.95  vs  AWS $1.60 (us-east-2)  →  Nebius 147% above
-`B300 ` Nebius $4.30  vs  AWS $2.63 (us-east-1)  →  Nebius 63% above
+*Spot / preemptible (vs cheapest hyperscaler spot, median across zones):*
+`H100 ` Nebius $2.15  vs  Azure $2.04 (median, 21 zones)  →  Nebius 5% above
+`H200 ` Nebius $2.45  vs  AWS $2.04 (median, 4 zones)  →  Nebius 20% above
+`B200 ` Nebius $3.95  vs  AWS $2.61 (median, 3 zones)  →  Nebius 51% above
+`B300 ` Nebius $4.30  vs  AWS $2.99 (median, 2 zones)  →  Nebius 44% above
 `L40S ` Nebius $0.90  |  no hyperscaler spot published
-_Hyperscaler spot is interruptible, capacity not guaranteed; floors are single-region best prices._
+_Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across zones (single-zone dips excluded)._
 
-*Committed pricing (H100 benchmark):*
-• H100 12-month: Nebius $2.30 vs AWS $2.58 (-11%)
-• H100 24-month: Nebius $2.05/GPU-hr
-• AWS H100 3yr: $1.38 vs Nebius on-demand $3.85 (2.8× difference)
+*Committed pricing (H100 benchmark, $/GPU-hr):*
+• 1yr: Nebius $2.30 vs AWS $2.58 (AWS list, all-upfront) → Nebius -11% vs list
+• 2yr: Nebius $2.05 (Nebius's deepest published H100 tier)
+• AWS 3yr (no Nebius 3yr): $2.97 no-upfront / $1.38 100%-prepaid — AWS 3yr all-upfront undercuts Nebius's 2yr $2.05, but locks 3 years + full prepayment
+• ⚠ Field intel: AWS 12mo deal seen at $1.80 (0% prepay) — below Nebius; list comparisons understate AWS's negotiated floor
 
 _No significant price moves today (6 minor changes below 3% threshold)._
 
