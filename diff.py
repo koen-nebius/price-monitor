@@ -24,8 +24,8 @@ CT_LABELS = {
     "on_demand":     "On-demand / PAYG",
     "spot":          "Spot / Preemptible (interruptible)",
     "preemptible":   "Spot / Preemptible (interruptible)",
-    "reserved_1yr":  "Reserved 1 yr (AWS/Azure: partial-upfront; GCP: Committed Use Discount)",
-    "reserved_3yr":  "Reserved 3 yr (AWS/Azure: partial-upfront; GCP: Committed Use Discount)",
+    "reserved_1yr":  "Reserved 1 yr (AWS all-upfront / Azure partial-upfront; GCP Committed Use Discount)",
+    "reserved_3yr":  "Reserved 3 yr (AWS all-upfront / Azure partial-upfront; GCP Committed Use Discount)",
     "committed_1yr": "Committed 1 yr (GCP Committed Use Discount — no upfront, usage commitment)",
     "committed_3yr": "Committed 3 yr (GCP Committed Use Discount — no upfront, usage commitment)",
 }
@@ -2113,7 +2113,8 @@ def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
     html.append(
         '<p><em>'
         'Each cell shows the cheapest price for that provider in any region within that geography. '
-        'AWS: standard reserved partial-upfront. GCP: Committed Use Discount (no upfront). '
+        'AWS: standard reserved, all-upfront effective rate (deepest discount, 100% prepaid). '
+        'GCP: Committed Use Discount (no upfront). '
         'Azure: partial-upfront capacity reservation. '
         '*Nebius on-demand prices are uniform across regions (no US discount); availability by GPU: '
         'H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private). '
