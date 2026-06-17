@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-06-16",
-  "started_at": "2026-06-16T06:44:44.008283+00:00",
-  "completed_at": "2026-06-16T06:46:01.954316+00:00",
+  "run_date": "2026-06-17",
+  "started_at": "2026-06-17T06:28:18.939518+00:00",
+  "completed_at": "2026-06-17T06:29:20.061970+00:00",
   "status": "success",
-  "record_count": 876,
-  "raw_record_count": 876,
-  "anomaly_count": 0,
+  "record_count": 891,
+  "raw_record_count": 891,
+  "anomaly_count": 1,
   "quarantined_count": 0,
-  "diff_count": 177,
+  "diff_count": 48,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -21,7 +21,7 @@
     },
     "azure": {
       "status": "live",
-      "record_count": 132
+      "record_count": 153
     },
     "coreweave": {
       "status": "live",
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 116
+      "record_count": 109
     },
     "oracle": {
       "status": "live",
@@ -58,9 +58,19 @@
     "runpod": {
       "status": "live",
       "record_count": 15
+    },
+    "sfcompute": {
+      "status": "live",
+      "record_count": 1
     }
   },
-  "warnings": [],
+  "warnings": [
+    "azure H200 spot: $2.12 \u2192 $10.60 (+400.0%) \u26a0 price anomaly",
+    "cross-check: coreweave GB200 on-demand: ComputePrices $1.02 is implausibly low vs ours $10.50 \u2014 ignoring CP (likely error/mislabel)"
+  ],
+  "post_thread": true,
+  "is_weekly": false,
+  "significant_moves": 12,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
