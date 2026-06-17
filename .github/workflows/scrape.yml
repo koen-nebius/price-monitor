@@ -62,7 +62,8 @@ jobs:
           # carries run_date so the CCR can confirm the artifacts are today's.
           git add store/peer_cache.json store/last_snapshot.json store/history.csv \
                   store/run_manifest.json store/slack_message.txt \
-                  store/slack_thread.txt store/confluence_body.html
+                  store/slack_thread.txt store/confluence_body.html \
+                  store/spot_auction_body.html
           if git diff --cached --quiet; then
             echo "No changes — no commit needed"
           else
