@@ -1684,11 +1684,14 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
                 if od and committed >= od:
                     del grouped[gpu][col_idx][prov]
                     continue
-                # Check 2: cross-provider floor — catch obvious data errors
-                # (e.g. Gcore H200 "reserved" at $19 when cheapest H200 on-demand is $7.91).
-                # Use a generous 4x multiple to only catch clear magnitude errors,
-                # not providers that are legitimately more expensive.
-                if global_floor and committed > global_floor * 4.0:
+                # Check 2: cross-provider floor — ONLY as a fallback when the provider
+                # has no on-demand record of its own (Check 1 can't run). Catches e.g.
+                # Gcore H200 "reserved" at $19 with no Gcore on-demand to compare to.
+                # Must NOT fire when the provider has its own on-demand (Check 1 already
+                # validated committed < own OD): the global floor includes cheap
+                # marketplace on-demand (~$1.66 H100), so 4× wrongly dropped GCP's
+                # legitimate H100 1yr $6.80 while AWS/Azure survived.
+                elif od is None and global_floor and committed > global_floor * 4.0:
                     del grouped[gpu][col_idx][prov]
 
     html = ['<table data-layout="full-width"><tbody>']
@@ -1756,8 +1759,8 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
     html.append('</tbody></table>')
     html.append(
         '<p><em>'
-        '¹ AWS: Standard reserved, partial-upfront (best discount for fixed commitment). '
-        'H100 1yr: Convertible class only (Standard 1yr not available for p5 family). '
+        '¹ AWS: Standard reserved, all-upfront effective rate (the deepest discount, requires '
+        '100% prepayment; the no-upfront 3yr rate is materially higher, e.g. H100 ~$2.97). '
         'Azure: partial-upfront capacity reservation. '
         'GCP: Committed Use Discount (no upfront, usage commitment, no capacity guarantee). '
         'Oracle: on-demand prices now sourced directly from the OCI price-list API '
