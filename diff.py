@@ -1431,6 +1431,71 @@ def _build_availability_note(records: List[PriceRecord]) -> str:
     return "\n".join(html)
 
 
+def format_spot_auction_page(records: List[PriceRecord], run_date: str) -> str:
+    """
+    Competitor Spot & Auction Pricing — a focused page for the PVM Auctions project,
+    separate from the main benchmark. Fuses the spot/auction signals we have:
+      - Nebius preemptible (our current spot-equivalent)
+      - cheapest hyperscaler spot (median across zones, not a single-zone outlier)
+      - SF Compute market clearing price (a rare public spot-market exchange)
+      - lowest negotiated/auction deal from #price-intelligence (term shown)
+    Most neoclouds gate spot/auction pricing, so for B-series the field-intel column is
+    the only signal — this page is directional, lower-confidence than the on-demand page.
+    """
+    if not records:
+        return ""
+    enrich_comparability(records)
+    GPUS = ["H100", "H200", "B200", "B300"]
+
+    html = [
+        f'<p><em>Last updated: {run_date}</em> — <strong>daily refreshed</strong>, directional. '
+        f'All prices in <strong>$/GPU-hr</strong>. Built as a competitive reference for the '
+        f'<strong>PVM Auctions</strong> floor/target discussion '
+        f'(<a href="https://nebius.atlassian.net/wiki/spaces/Billing/pages/1949172383">RFC 055</a>).</p>',
+        '<div data-type="panel-warning"><p><strong>Read me first.</strong> Spot/auction prices are '
+        'volatile and partly field-sourced. Most neoclouds gate spot/auction pricing ("contact us"), '
+        'so for B-series the only signal is negotiated deals from #price-intelligence (sales-reported, '
+        'often committed rather than pure spot). Treat this as a directional anchor for floor/target '
+        'setting, not as fixed competitor rates. The on-demand/committed benchmark is the higher-'
+        'confidence page.</p></div>',
+        '<h2>Competitor spot / auction reference</h2>',
+        '<table data-layout="full-width"><tbody>',
+        '<tr><th>GPU</th><th>Nebius preemptible</th><th>Cheapest hyperscaler spot (median across zones)</th>'
+        '<th>SF Compute market</th><th>Lowest field-intel deal (term)</th><th>Market floor reference</th></tr>',
+    ]
+    for gpu in GPUS:
+        neb = _cheapest(records, "nebius", gpu, INTERRUPTIBLE_CTS)
+        floor = _representative_spot_floor(records, gpu, tiers=["hyperscaler"])
+        sfc = _cheapest(records, "sfcompute", gpu, INTERRUPTIBLE_CTS)
+        fi = _field_intel_floor(gpu)
+        neb_c = f'${neb:.2f}' if neb else '—'
+        hyp_c = f'${floor[1]:.2f} <em>({_provider_display(floor[0])})</em>' if floor else '—'
+        sfc_c = f'${sfc:.2f}' if sfc else '—'
+        if fi:
+            label = _provider_display(fi["label"]) if fi["label"] != "undisclosed" else "undisclosed"
+            fi_c = f'${fi["price"]:.2f} <em>({_term_label(fi["term"])}, {label})</em>'
+        else:
+            fi_c = '—'
+        sigs = [x for x in [floor[1] if floor else None, sfc, fi["price"] if fi else None] if x]
+        ref = f'<strong>${min(sigs):.2f}</strong>' if sigs else '—'
+        html.append(f'<tr><td><strong>{gpu}</strong></td><td>{neb_c}</td><td>{hyp_c}</td>'
+                    f'<td>{sfc_c}</td><td>{fi_c}</td><td>{ref}</td></tr>')
+    html.append('</tbody></table>')
+    html.append('<p><em>"Market floor reference" = the lowest real competitor spot/auction signal '
+                'observed (hyperscaler spot median, SF Compute market price, or a field-intel deal) — '
+                'the closest proxy for where competitor auction/spot clears, and a sensible anchor for '
+                'a PVM target price. The cost-based floor (electricity + overhead, ~$0.40 for Hoppers '
+                'in discussion) is a separate, lower bound. Hyperscaler spot is interruptible with no '
+                'capacity guarantee; field-intel deals are sales-reported and often committed, not pure '
+                'spot. SF Compute is one of the few public spot-market exchanges (H100 only so far; '
+                'B300 "coming this fall").</em></p>')
+    html.append('<p><em>Note: a true like-for-like — competitor GPU <strong>auctions</strong> — barely '
+                'exists; Azure is the only major cloud with GPU spot bidding, and SF Compute is a market '
+                'exchange. Nebius launching auctions would be largely unique, so "spot" is the nearest '
+                'comparable.</em></p>')
+    return "\n".join(html)
+
+
 def format_confluence_table(records: List[PriceRecord], run_date: str,
                             provider_status: dict = None) -> str:
     html = []

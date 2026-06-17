@@ -39,7 +39,7 @@ from store import (save_snapshot, load_snapshot, previous_snapshot_day, STORE_DI
                    load_last_snapshot, save_last_snapshot,
                    get_cache_age_hours, save_run_manifest)
 from diff import (compute_diff, format_slack_message, format_slack_summary,
-                  format_confluence_table)
+                  format_confluence_table, format_spot_auction_page)
 from history import append_records as append_history_records
 from config import PROVIDERS
 from schema import PriceRecord
@@ -384,6 +384,10 @@ def run(providers=None, test=False):
 
     confluence_body = format_confluence_table(accepted_records, run_date,
                                               provider_status=provider_status)
+    # Separate competitor spot/auction page for the PVM Auctions project (own pipeline output)
+    spot_auction_body = format_spot_auction_page(accepted_records, run_date)
+    with open(STORE_DIR / "spot_auction_body.html", "w") as f:
+        f.write(spot_auction_body)
     conf_path = STORE_DIR / "confluence_body.html"
     with open(conf_path, "w") as f:
         f.write(confluence_body)
