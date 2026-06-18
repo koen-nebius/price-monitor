@@ -1,10 +1,10 @@
-<p><em>Last updated: June 17, 2026</em> — <strong>daily refreshed</strong> (point-in-time snapshot, not real-time). All prices in <strong>$/GPU-hr</strong>. Source: direct provider APIs/pages + <a href="https://computeprices.com">ComputePrices.com</a>.</p>
+<p><em>Last updated: June 18, 2026</em> — <strong>daily refreshed</strong> (point-in-time snapshot, not real-time). All prices in <strong>$/GPU-hr</strong>. Source: direct provider APIs/pages + <a href="https://computeprices.com">ComputePrices.com</a>.</p>
 <p><em>Data freshness: </em><span data-type="status" data-color="green">13/13 sources live</span><em> — all sources live this run</em></p>
 <h2>TL;DR by Stakeholder</h2>
 <table data-layout="full-width"><tbody>
 <tr><th>For</th><th>Today's read</th><th>Detail in</th></tr>
 <tr><td><strong>Finance</strong></td><td>Committed: Nebius H100 1yr $2.30 (-11% vs AWS list, all-upfront); AWS negotiated 1yr deals seen at $1.80 (field intel).</td><td>Committed Pricing</td></tr>
-<tr><td><strong>PAYG Product</strong></td><td>On-demand sits 2–49% below hyperscaler SXM clusters; H100 +16% vs peer median (premium is a position, not a problem).</td><td>Decision Triggers + Product Gaps</td></tr>
+<tr><td><strong>PAYG Product</strong></td><td>On-demand sits 2–49% below hyperscaler SXM clusters; H100 +17% vs peer median (premium is a position, not a problem).</td><td>Decision Triggers + Product Gaps</td></tr>
 <tr><td><strong>Capacity</strong></td><td>Nebius B300 is UK-private (sales-gated); GB200/GB300 are contact-sales. Market broadly capacity-constrained (on-demand reportedly sold out across GPU types, Apr 2026).</td><td>Availability</td></tr>
 <tr><td><strong>Sales</strong></td><td>Strong vs hyperscaler rack rates and ~49% below Oracle B200. Watch: AWS 3yr all-upfront and negotiated 1yr deals, plus hyperscaler spot floors below our preemptible.</td><td>Battlecards</td></tr>
 </tbody></table>
@@ -12,10 +12,10 @@
 <p>On-demand prices, cheapest available per provider. <strong>Enterprise GPU cloud</strong> peers are the direct competitive set (named providers with enterprise SLAs; commodity rental marketplaces excluded). Hyperscaler column shows rack-rate list price — enterprise customers pay 40–57% less at 3yr committed. Nebius on-demand prices are uniform across regions (no US discount); availability by GPU: H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private).</p>
 <table data-layout="full-width"><tbody>
 <tr><th>GPU</th><th>Nebius (on-demand)</th><th>Cheapest enterprise peer</th><th>vs peer median</th><th>Cheapest hyperscaler (on-demand)</th><th>Enterprise peer median</th><th>Enterprise peers tracked</th></tr>
-<tr><td><strong>H100</strong></td><td><strong>$3.85</strong></td><td>$1.99 <em>(Voltage Park)</em></td><td><span data-type="status" data-color="red">+16% vs median</span></td><td>$6.88 <em>(AWS, SXM)</em></td><td>$3.32</td><td>8</td></tr>
+<tr><td><strong>H100</strong></td><td><strong>$3.85</strong></td><td>$1.99 <em>(Voltage Park)</em></td><td><span data-type="status" data-color="red">+17% vs median</span></td><td>$6.88 <em>(AWS, SXM)</em></td><td>$3.30</td><td>8</td></tr>
 <tr><td><strong>H200</strong></td><td><strong>$4.50</strong></td><td>$2.60 <em>(GMI Cloud)</em></td><td><span data-type="status" data-color="green">-15% vs median</span></td><td>$7.91 <em>(AWS, SXM)</em></td><td>$5.30</td><td>5</td></tr>
 <tr><td><strong>B200</strong></td><td><strong>$7.15</strong></td><td>$4.00 <em>(GMI Cloud)</em></td><td><span data-type="status" data-color="green">-6% vs median</span></td><td>$14.00 <em>(Oracle, SXM)</em></td><td>$7.64</td><td>5</td></tr>
-<tr><td><strong>B300</strong></td><td><strong>$7.85</strong></td><td>$8.70 <em>(Scaleway)</em></td><td><span data-type="status" data-color="green">-10% vs median</span></td><td>$15.00 <em>(Oracle, SXM)</em></td><td>$8.70</td><td>2</td></tr>
+<tr><td><strong>B300</strong></td><td><strong>$7.85</strong></td><td>$9.01 <em>(Scaleway)</em></td><td><span data-type="status" data-color="green">-13% vs median</span></td><td>$15.00 <em>(Oracle, SXM)</em></td><td>$9.01</td><td>2</td></tr>
 <tr><td><strong>GB200</strong></td><td>—</td><td>$8.00 <em>(GMI Cloud)</em></td><td>—</td><td>$16.00 <em>(Oracle, SXM)</em></td><td>$9.25</td><td>3</td></tr>
 <tr><td><strong>GB300</strong></td><td>—</td><td>—</td><td>—</td><td>$18.00 <em>(Oracle, SXM)</em></td><td>—</td><td>0</td></tr>
 <tr><td><strong>L40S</strong></td><td><strong>$1.82</strong></td><td>$1.50 <em>(Crusoe)</em></td><td><span data-type="status" data-color="green">-4% vs median</span></td><td>$1.86 <em>(AWS, PCIe)</em></td><td>$1.90</td><td>5</td></tr>
@@ -25,11 +25,11 @@
 <p>Per-GPU competitive position with a recommended action. <strong>Neutral framing:</strong> a premium to the market can be a deliberate, defensible position; these triggers prompt a pricing decision, they do not assume lower is better. Owner / review-by / margin-risk are for the pricing team to fill (margin/cost data is out of this tool's scope and never auto-populated).</p>
 <table data-layout="full-width"><tbody>
 <tr><th>GPU</th><th>Nebius OD</th><th>vs peer median</th><th>Cheapest peer</th><th>Cheapest hyperscaler (SXM cluster)</th><th>Competitor field deal</th><th>Market 30d</th><th>Recommended action</th><th>Owner</th><th>Review by</th><th>Margin risk</th></tr>
-<tr><td><strong>H100</strong></td><td>$3.85</td><td><span data-type="status" data-color="red">+16%</span></td><td>$1.99 <em>(Voltage Park)</em></td><td>$6.88 <em>(AWS)</em></td><td>$1.80 <em>(1yr, AWS)</em></td><td><span data-type="status" data-color="green">+0% / 27d</span></td><td>Review premium vs value</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
-<tr><td><strong>H200</strong></td><td>$4.50</td><td><span data-type="status" data-color="green">-15%</span></td><td>$2.60 <em>(GMI Cloud)</em></td><td>$7.91 <em>(AWS)</em></td><td>$2.00 <em>(1yr, AWS)</em></td><td><span data-type="status" data-color="green">+0% / 27d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
-<tr><td><strong>B200</strong></td><td>$7.15</td><td><span data-type="status" data-color="green">-6%</span></td><td>$4.00 <em>(GMI Cloud)</em></td><td>$14.00 <em>(Oracle)</em></td><td>$3.20 <em>(2yr, GCP)</em></td><td><span data-type="status" data-color="green">+0% / 27d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
-<tr><td><strong>B300</strong></td><td>$7.85</td><td><span data-type="status" data-color="green">-10%</span></td><td>$8.70 <em>(Scaleway)</em></td><td>$15.00 <em>(Oracle)</em></td><td>$3.50 <em>(3yr, Azure)</em> <span data-type="status" data-color="red">lost deal</span></td><td><span data-type="status" data-color="yellow">+29% / 30d</span></td><td>Lost a deal at the field price — review committed pricing for this SKU</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
-<tr><td><strong>L40S</strong></td><td>$1.82</td><td><span data-type="status" data-color="green">-4%</span></td><td>$1.50 <em>(Crusoe)</em></td><td>$1.86 <em>(AWS)</em></td><td>—</td><td><span data-type="status" data-color="green">+0% / 11d</span></td><td>Hold; monitor (watch hyperscaler parity)</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
+<tr><td><strong>H100</strong></td><td>$3.85</td><td><span data-type="status" data-color="red">+17%</span></td><td>$1.99 <em>(Voltage Park)</em></td><td>$6.88 <em>(AWS)</em></td><td>$1.80 <em>(1yr, AWS)</em></td><td><span data-type="status" data-color="green">+0% / 28d</span></td><td>Review premium vs value</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
+<tr><td><strong>H200</strong></td><td>$4.50</td><td><span data-type="status" data-color="green">-15%</span></td><td>$2.60 <em>(GMI Cloud)</em></td><td>$7.91 <em>(AWS)</em></td><td>$2.00 <em>(1yr, AWS)</em></td><td><span data-type="status" data-color="green">+0% / 28d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
+<tr><td><strong>B200</strong></td><td>$7.15</td><td><span data-type="status" data-color="green">-6%</span></td><td>$4.00 <em>(GMI Cloud)</em></td><td>$14.00 <em>(Oracle)</em></td><td>$3.20 <em>(2yr, GCP)</em></td><td><span data-type="status" data-color="green">+0% / 28d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
+<tr><td><strong>B300</strong></td><td>$7.85</td><td><span data-type="status" data-color="green">-13%</span></td><td>$9.01 <em>(Scaleway)</em></td><td>$15.00 <em>(Oracle)</em></td><td>$3.50 <em>(3yr, Azure)</em> <span data-type="status" data-color="red">lost deal</span></td><td><span data-type="status" data-color="yellow">+29% / 31d</span></td><td>Lost a deal at the field price — review committed pricing for this SKU</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
+<tr><td><strong>L40S</strong></td><td>$1.82</td><td><span data-type="status" data-color="green">-4%</span></td><td>$1.50 <em>(Crusoe)</em></td><td>$1.86 <em>(AWS)</em></td><td>—</td><td><span data-type="status" data-color="green">+0% / 12d</span></td><td>Hold; monitor (watch hyperscaler parity)</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 </tbody></table>
 <p><em>Market 30d = change in the cheapest enterprise-peer on-demand price over the last 30 days (90d trend appears once ≥90 days of history accrues). "Cheapest hyperscaler" is the like-for-like 8×SXM cluster SKU. "Competitor field deal" is the lowest real negotiated quote from #price-intelligence (term shown; may be committed, not on-demand) — the primary signal for next-gen GPUs where public list prices are sparse.</em></p>
 <h2>PAYG Product-Model Gaps</h2>
@@ -134,10 +134,10 @@
 <tr><td>Civo</td><td><strong>$2.99</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-22%</span></td></tr>
 <tr><td>Verda</td><td><strong>$3.25</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-16%</span></td></tr>
 <tr><td>Lambda</td><td><strong>$3.29</strong></td><td>1× GPU</td><td>us-east</td><td><span data-type="status" data-color="red">-15%</span></td></tr>
-<tr><td>Scaleway</td><td><strong>$3.32</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-14%</span></td></tr>
+<tr><td>Scaleway</td><td><strong>$3.30</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-14%</span></td></tr>
 <tr><td><strong>Nebius ★</strong></td><td><strong>$3.85</strong></td><td>1× GPU</td><td>eu-north1</td><td>—</td></tr>
 <tr><td>Crusoe</td><td><strong>$3.90</strong></td><td>1× GPU</td><td>us-east</td><td><span data-type="status" data-color="green">+1%</span></td></tr>
-<tr><td>Paperspace</td><td><strong>$5.95</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+55%</span></td></tr>
+<tr><td>Paperspace</td><td><strong>$5.95</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="green">+55%</span></td></tr>
 <tr><td>Coreweave</td><td><strong>$6.16</strong></td><td>8× GPU</td><td>us-central-1</td><td><span data-type="status" data-color="green">+60%</span></td></tr>
 <tr><td>Together Ai</td><td><strong>$6.49</strong></td><td>2× GPU</td><td>global</td><td><span data-type="status" data-color="green">+69%</span></td></tr>
 </tbody></table>
@@ -187,7 +187,7 @@
 <tr><td>Verda</td><td><strong>$7.50</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-4%</span></td></tr>
 <tr><td><strong>Nebius ★</strong></td><td><strong>$7.85</strong></td><td>1× GPU</td><td>eu-north1</td><td>—</td></tr>
 <tr><td>Sesterce</td><td><strong>$8.48</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="green">+8%</span></td></tr>
-<tr><td>Scaleway</td><td><strong>$8.70</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="green">+11%</span></td></tr>
+<tr><td>Scaleway</td><td><strong>$9.01</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="green">+15%</span></td></tr>
 </tbody></table>
 <h3>GB200 — On-demand (raw GPU cloud, sorted by price)</h3>
 <table data-layout="full-width"><tbody>
@@ -219,7 +219,7 @@
 <tr><td>Crusoe</td><td><strong>$1.50</strong></td><td>1× GPU</td><td>us-east</td><td><span data-type="status" data-color="red">-18%</span></td></tr>
 <tr><td>Digitalocean</td><td><strong>$1.57</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-14%</span></td></tr>
 <tr><td>Vultr</td><td><strong>$1.67</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-8%</span></td></tr>
-<tr><td>Scaleway</td><td><strong>$1.70</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-6%</span></td></tr>
+<tr><td>Scaleway</td><td><strong>$1.70</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-7%</span></td></tr>
 <tr><td><strong>Nebius ★</strong></td><td><strong>$1.82</strong></td><td>1× GPU</td><td>eu-north1</td><td>—</td></tr>
 <tr><td>Together Ai</td><td><strong>$2.10</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+15%</span></td></tr>
 <tr><td>Coreweave</td><td><strong>$2.25</strong></td><td>8× GPU</td><td>us-central-1</td><td><span data-type="status" data-color="green">+24%</span></td></tr>
@@ -268,7 +268,7 @@
 <tr><th>Geography</th><th>Nebius*</th><th>AWS</th><th>GCP</th><th>AZURE</th><th>COREWEAVE</th><th>LAMBDA</th><th>CRUSOE</th><th>Oracle†</th></tr>
 <tr><td><strong>US</strong></td><td><strong>$2.45</strong></td><td>$0.79</td><td>$3.84</td><td>$10.60</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 <tr><td><strong>Europe</strong></td><td><strong>$2.45</strong></td><td>—</td><td>$5.12</td><td>$12.72</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td><strong>APAC</strong></td><td><strong>$2.45</strong></td><td>$2.10</td><td>—</td><td>$13.25</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><strong>APAC</strong></td><td><strong>$2.45</strong></td><td>$2.14</td><td>—</td><td>$13.25</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 </tbody></table>
 <h4>Reserved / Committed 1 yr</h4>
 <table data-layout="full-width"><tbody>
@@ -295,7 +295,7 @@
 <h4>Spot / Preemptible</h4>
 <table data-layout="full-width"><tbody>
 <tr><th>Geography</th><th>Nebius*</th><th>AWS</th><th>GCP</th><th>AZURE</th><th>COREWEAVE</th><th>LAMBDA</th><th>CRUSOE</th><th>Oracle†</th></tr>
-<tr><td><strong>US</strong></td><td><strong>$3.95</strong></td><td>$1.60</td><td>$2.34</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><strong>US</strong></td><td><strong>$3.95</strong></td><td>$1.65</td><td>$2.34</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 <tr><td><strong>Europe</strong></td><td><strong>$3.95</strong></td><td>—</td><td>$2.58</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 <tr><td><strong>APAC</strong></td><td><strong>$3.95</strong></td><td>—</td><td>$4.67</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 </tbody></table>
@@ -324,7 +324,7 @@
 <h4>Spot / Preemptible</h4>
 <table data-layout="full-width"><tbody>
 <tr><th>Geography</th><th>Nebius*</th><th>AWS</th><th>GCP</th><th>AZURE</th><th>COREWEAVE</th><th>LAMBDA</th><th>CRUSOE</th><th>Oracle†</th></tr>
-<tr><td><strong>US</strong></td><td><strong>$4.30</strong></td><td>$2.63</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><strong>US</strong></td><td><strong>$4.30</strong></td><td>$2.64</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 <tr><td><strong>Europe</strong></td><td><strong>$4.30</strong></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 <tr><td><strong>APAC</strong></td><td><strong>$4.30</strong></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 </tbody></table>
