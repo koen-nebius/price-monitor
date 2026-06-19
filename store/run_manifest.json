@@ -1,7 +1,7 @@
 {
-  "run_date": "2026-06-18",
-  "started_at": "2026-06-18T06:11:49.912892+00:00",
-  "completed_at": "2026-06-18T06:13:03.861419+00:00",
+  "run_date": "2026-06-19",
+  "started_at": "2026-06-19T06:31:54.842445+00:00",
+  "completed_at": "2026-06-19T06:32:59.234563+00:00",
   "status": "success",
   "record_count": 891,
   "raw_record_count": 891,
@@ -64,9 +64,7 @@
       "record_count": 1
     }
   },
-  "warnings": [
-    "cross-check: lambda H100 on-demand: ours $3.29 (scrape) vs ComputePrices $3.99 (21% gap) \u2014 our scrape may be mis-parsed \u2014 verify"
-  ],
+  "warnings": [],
   "post_thread": true,
   "is_weekly": false,
   "significant_moves": 1,

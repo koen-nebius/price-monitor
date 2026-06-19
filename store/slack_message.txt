@@ -1,6 +1,6 @@
-*GPU Pricing Daily — June 18, 2026*
+*GPU Pricing Daily — June 19, 2026*
 
-*Today's signal:* Scaleway raised B300 on-demand +4% ($8.70→$9.01)
+*Today's signal:* no moves from hyperscalers or major neoclouds — largest small-provider move: Runpod L40S on-demand +15%
 
 *Position:* Nebius on-demand sits 2–49% below hyperscaler rack rates
 Vs GPU clouds: premium to peer median on H100 +17%; below median on H200 -15%, B200 -6%, L40S -4%
