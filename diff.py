@@ -857,6 +857,7 @@ def _load_intel(days: int = 60) -> List[Dict]:
     """
     if not INTEL_CSV.exists():
         return []
+    from intel_schema import is_valid
     cutoff = (date.today() - timedelta(days=days)).isoformat()
     rows = []
     seen = set()
@@ -865,6 +866,8 @@ def _load_intel(days: int = 60) -> List[Dict]:
             for row in csv.DictReader(f):
                 if row.get("message_date", "") < cutoff:
                     continue
+                if not is_valid(row):
+                    continue   # schema guard (Phase: forced-structured-output port)
                 try:
                     px_key = round(float(row.get("price_per_gpu_hour_usd", "")), 2)
                 except (ValueError, TypeError):

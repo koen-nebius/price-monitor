@@ -45,6 +45,9 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
+          # Tavily fallback for JS-rendered/blocked pricing pages (SF Compute, Hyperstack).
+          # Nebius-owned; add the secret to activate — without it the fallback no-ops.
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
         run: |
           # All-live run from non-blocked GitHub IPs. main.py writes the daily
           # snapshot, diff, run_manifest, AND the ready-to-post artifacts

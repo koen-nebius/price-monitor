@@ -21,36 +21,47 @@ from typing import List
 
 from schema import PriceRecord
 from fetchers._http import http_get
+from fetchers._tavily import fetch_text as tavily_fetch_text
 
 logger = logging.getLogger(__name__)
 
 URL = "https://sfcompute.com/"
 
 
-def fetch(regions: List[str] = None) -> List[PriceRecord]:
-    now = datetime.now(timezone.utc).isoformat()
-    try:
-        html = http_get(URL, timeout=20).decode("utf-8", errors="replace")
-    except Exception as e:
-        logger.warning(f"SF Compute fetch failed: {e}")
-        return []
-
-    text = re.sub(r"<[^>]+>", " ", html)
+def _parse_h100(raw: str) -> float:
+    """Extract the H100 clearing price from page text (raw HTML or Tavily markdown)."""
+    text = re.sub(r"<[^>]+>", " ", raw)
     text = re.sub(r"\s+", " ", text)
-
-    price = None
-    # Primary: the clearing-price chart label "Average prices for H100 nodes $ 1.95 average gpu/hr"
     m = re.search(r"Average prices for H100 nodes\s*\$\s*([\d.]+)\s*average", text, re.IGNORECASE)
     if not m:
-        # Fallback: the hero CTA "Buy H100s from $1.95/hr"
         m = re.search(r"Buy H100s from\s*\$\s*([\d.]+)\s*/?\s*hr", text, re.IGNORECASE)
     if m:
         try:
             v = float(m.group(1))
             if 0.3 <= v <= 6.0:   # sanity bound for an H100 $/GPU-hr
-                price = v
+                return v
         except ValueError:
             pass
+    return None
+
+
+def fetch(regions: List[str] = None) -> List[PriceRecord]:
+    now = datetime.now(timezone.utc).isoformat()
+    price = None
+    try:
+        html = http_get(URL, timeout=20).decode("utf-8", errors="replace")
+        price = _parse_h100(html)
+    except Exception as e:
+        logger.warning(f"SF Compute plain fetch failed: {e}")
+
+    if price is None:
+        # Escalate to Tavily — renders the Next.js page when the static parse misses
+        # (e.g. if SF Compute moves the price fully client-side, or for future B-series).
+        tav = tavily_fetch_text(URL)
+        if tav:
+            price = _parse_h100(tav)
+            if price is not None:
+                logger.info("SF Compute: parsed H100 clearing price via Tavily fallback")
 
     if price is None:
         logger.warning("SF Compute: could not parse H100 clearing price — skipping")

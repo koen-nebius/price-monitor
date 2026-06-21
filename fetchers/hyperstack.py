@@ -32,6 +32,7 @@ from datetime import datetime, timezone
 from typing import List, Optional
 
 from schema import PriceRecord
+from fetchers._tavily import fetch_text as tavily_fetch_text
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,7 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
 
 
 def _scrape_pricing(now: str) -> List[PriceRecord]:
+    html = ""
     try:
         req = urllib.request.Request(
             PRICING_URL,
@@ -64,14 +66,27 @@ def _scrape_pricing(now: str) -> List[PriceRecord]:
         with urllib.request.urlopen(req, timeout=20) as resp:
             html = resp.read().decode("utf-8", errors="replace")
     except Exception as e:
-        logger.warning(f"Hyperstack scrape failed: {e}")
-        return []
+        logger.warning(f"Hyperstack plain scrape failed: {e}")
 
-    # Strip scripts and styles, then all tags
-    text = re.sub(r'<script[^>]*>.*?</script>', ' ', html, flags=re.DOTALL)
+    records = _parse_pricing(html, now) if html else []
+    if not records:
+        # Escalate to Tavily — renders the JS pricing page the plain scrape can miss.
+        tav = tavily_fetch_text(PRICING_URL)
+        if tav:
+            records = _parse_pricing(tav, now)
+            if records:
+                logger.info("Hyperstack: parsed pricing via Tavily fallback")
+    logger.info(f"Hyperstack scrape: {len(records)} records")
+    return records
+
+
+def _parse_pricing(raw: str, now: str) -> List[PriceRecord]:
+    # Strip scripts/styles/tags; normalize markdown pipes -> spaces so the same
+    # space-separated regexes match both raw HTML and Tavily markdown tables.
+    text = re.sub(r'<script[^>]*>.*?</script>', ' ', raw, flags=re.DOTALL)
     text = re.sub(r'<style[^>]*>.*?</style>',  ' ', text, flags=re.DOTALL)
     text = re.sub(r'<[^>]+>', ' ', text)
-    text = re.sub(r'&nbsp;', ' ', text)
+    text = text.replace('&nbsp;', ' ').replace('|', ' ')
     text = re.sub(r'\s+', ' ', text).strip()
 
     # (gpu_model, consumption_type) -> cheapest price seen. Multiple H100 form
@@ -133,12 +148,10 @@ def _scrape_pricing(now: str) -> List[PriceRecord]:
             except ValueError:
                 continue
 
-    records = [
+    return [
         _make_record(gpu_model, ct, price, now)
         for (gpu_model, ct), price in best.items()
     ]
-    logger.info(f"Hyperstack scrape: {len(records)} records")
-    return records
 
 
 def _make_record(gpu_model: str, ct: str, price: float, now: str) -> PriceRecord:
