@@ -1,0 +1,37 @@
+name: Tavily secret check
+
+# On-demand probe to confirm the TAVILY_API_KEY repo secret is set and the Tavily
+# REST API is reachable from the runner. Never prints the key (only its length).
+# Run from the Actions tab -> "Tavily secret check" -> Run workflow, or via API.
+# Safe to re-run anytime; touches nothing in the repo.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Probe Tavily
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os, sys
+          key = os.environ.get("TAVILY_API_KEY", "")
+          print(f"secret present: {bool(key)} | length: {len(key)} | prefix: {key[:8] + '...' if key else 'NONE'}")
+          if not key:
+              sys.exit("FAIL: TAVILY_API_KEY is not set in this runner")
+          from fetchers._tavily import available, fetch_text
+          print("ladder available():", available())
+          txt = fetch_text("https://www.together.ai/pricing", min_chars=300)
+          print("fetch_text chars:", len(txt))
+          ok = len(txt) > 1000 and "$" in txt
+          print("RESULT:", "PASS - Tavily reachable, returning real content"
+                if ok else "FAIL - call returned too little / no content")
+          sys.exit(0 if ok else 1)
+          PY
