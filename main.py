@@ -209,6 +209,19 @@ def run(providers=None, test=False):
         all_records.extend(records)
 
     today = date.today()
+
+    # ── Drop aggregator twins of providers we fetch directly ─────────────────
+    # ComputePrices SKIP_PROVIDERS prevents these on a LIVE fetch, but a ComputePrices
+    # outage triggers a cache fallback that can resurrect the stale cp_* twin, double-
+    # counting against the direct fetcher (e.g. cp_together-ai alongside direct together).
+    # Drop them unconditionally at assembly so direct always wins.
+    SUPERSEDED_AGGREGATORS = {"cp_oracle", "cp_together-ai", "cp_hyperstack"}
+    _before = len(all_records)
+    all_records = [r for r in all_records if r.provider not in SUPERSEDED_AGGREGATORS]
+    if len(all_records) < _before:
+        logger.info(f"Dropped {_before - len(all_records)} superseded aggregator records "
+                    f"(direct fetchers exist): {sorted(SUPERSEDED_AGGREGATORS)}")
+
     logger.info(f"Fetched {len(all_records)} total records for {today}")
 
     # ── Tag comparability (Phase 1.3/2.6) ────────────────────────────────────
@@ -480,6 +493,8 @@ def _fetch_provider(provider: str):
         from fetchers.runpod import fetch
     elif provider == "sfcompute":
         from fetchers.sfcompute import fetch
+    elif provider == "together":
+        from fetchers.together import fetch
     else:
         raise ValueError(f"Unknown provider: {provider}")
     return fetch()

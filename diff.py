@@ -50,6 +50,8 @@ _PROVIDER_DISPLAY: Dict[str, str] = {
     "coreweave":      "CoreWeave",
     "lambda":         "Lambda",
     "crusoe":         "Crusoe",
+    "together":       "Together AI",
+    "oracle":         "Oracle",
     "cp_oracle":      "Oracle",
     "cp_hyperstack":  "Hyperstack",
     "cp_voltage":     "Voltage Park",

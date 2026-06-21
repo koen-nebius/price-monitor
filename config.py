@@ -82,7 +82,7 @@ AZURE_REGIONS = [
     "southeastasia", "japaneast",
 ]
 
-PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices", "oracle", "hyperstack", "runpod", "sfcompute"]
+PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices", "oracle", "hyperstack", "runpod", "sfcompute", "together"]
 # Note: set LAMBDA_API_KEY in the routine's environment variables for reliable Lambda Labs
 # API-based pricing. Without it, the scrape fallback is used.
 # Get a free key at: https://cloud.lambdalabs.com/api-keys
@@ -122,7 +122,7 @@ PROVIDER_TIERS = {
         "cp_scaleway", "cp_paperspace", "cp_jarvis", "cp_sesterce",
         "cp_upcloud", "cp_beyond-pl", "cp_koyeb", "cp_ionet",
         "cp_vast", "cp_vultr", "cp_verda", "cp_akamai",
-        "cp_packet-ai", "cp_gcore", "cp_together-ai",  # Together also in enterprise + managed_inference
+        "cp_packet-ai", "cp_gcore", "together",  # Together = direct fetcher (together.py); also enterprise tier
         "sfcompute",  # spot-market exchange (H100 clearing price) — distinct pricing mechanism
     ],
     # Named enterprise GPU cloud peers — used in Slack positioning and the executive
@@ -153,7 +153,7 @@ PROVIDER_TIERS = {
         "coreweave",           # ClusterMAX Platinum; $2.08B Q1'26 rev, $99.4B backlog, >1GW active
         "lambda",              # ClusterMAX Silver
         "crusoe",              # ClusterMAX Gold (same tier as Nebius/Oracle/Azure)
-        "cp_together-ai",      # ClusterMAX Silver (alongside AWS/Google) — also in managed_inference
+        "together",            # ClusterMAX Silver; direct fetcher (together.py), on-demand + reserved
         "cp_hyperstack",       # NexGen Cloud — $1B AI Supercloud, thousands of H100s, UK
         "cp_voltage",          # Voltage Park — 24,000 H100s, $1B Navigation Fund; merged w/ Lightning AI
         "cp_gmi-cloud",        # GMI Cloud — $12B sovereign AI initiative, NVIDIA partner, APAC

@@ -34,6 +34,8 @@ SKIP_PROVIDERS = {
     "runpod",   # direct fetcher via runpod.py — skip to avoid double-counting
     "oracle cloud",   # direct fetcher via oracle.py (official_api) — prefer it over aggregator
     "oracle",
+    "together ai",    # direct fetcher via together.py — aggregator mislabels its cluster rates
+    "together",
     # Distressed — prices unreliable, would pollute the benchmark:
     "genesis cloud",   # in liquidation ("GmbH i.L." since Aug 2025) yet still lists prices
     "genesis",
