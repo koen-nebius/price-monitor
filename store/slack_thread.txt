@@ -1,10 +1,10 @@
-*GPU Competitor Pricing — June 17, 2026*
+*GPU Competitor Pricing — June 21, 2026*
 
 *vs GPU cloud peers (on-demand):*
-`H100 ` Nebius $3.85  +16% vs median  |  4/7 peers cheaper  |  floor: Voltage $1.99
+`H100 ` Nebius $3.85  +17% vs median  |  4/7 peers cheaper  |  floor: Voltage $1.99
 `H200 ` Nebius $4.50  -15% vs median  |  2/4 peers cheaper  |  floor: GMI Cloud $2.60
 `B200 ` Nebius $7.15  -6% vs median  |  2/4 peers cheaper  |  floor: GMI Cloud $4.00
-`B300 ` Nebius $7.85  |  1 peer: Scaleway $8.70
+`B300 ` Nebius $7.85  |  1 peer: Scaleway $9.01
 `L40S ` Nebius $1.82  -4% vs median  |  2/4 peers cheaper  |  floor: Crusoe $1.50
 
 *vs cheapest hyperscaler on-demand (8×SXM cluster, like-for-like):*
@@ -16,9 +16,9 @@
 
 *Spot / preemptible (vs cheapest hyperscaler spot, median across zones):*
 `H100 ` Nebius $2.15  vs  Azure $2.39 (median, 21 zones)  →  Nebius 10% below
-`H200 ` Nebius $2.45  vs  AWS $2.05 (median, 4 zones)  →  Nebius 19% above
+`H200 ` Nebius $2.45  vs  AWS $2.10 (median, 4 zones)  →  Nebius 17% above
 `B200 ` Nebius $3.95  vs  AWS $2.61 (median, 3 zones)  →  Nebius 51% above
-`B300 ` Nebius $4.30  vs  AWS $2.99 (median, 2 zones)  →  Nebius 44% above
+`B300 ` Nebius $4.30  vs  AWS $3.00 (median, 2 zones)  →  Nebius 43% above
 `L40S ` Nebius $0.90  |  no hyperscaler spot published
 _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across zones (single-zone dips excluded)._
 
@@ -29,9 +29,8 @@ _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the chea
 • ⚠ Field intel: AWS 12mo deal seen at $1.80 (0% prepay) — below Nebius; list comparisons understate AWS's negotiated floor
 
 *Price moves ≥3%:*
-🔺 *Azure* _(hyperscaler)_ H200 spot: +400.0% avg across 2 SKUs (peak: $2.12→$10.60 westus3, +400.0%)
-🔺 *Azure* _(hyperscaler)_ H100 spot: +194.9% avg across 8 SKUs (peak: $1.82→$8.17 westeurope, +350.0%)
-🔻 *Hyperstack* _(small provider)_ H100 committed/reserved 1yr: $2.04→$1.33/GPU-hr (-34.8% global)
-🔻 *Hyperstack* _(small provider)_ H100 on-demand: $2.40→$1.90/GPU-hr (-20.8% global)
+🔺 *AWS* _(hyperscaler)_ B200 spot: $1.80→$1.91/GPU-hr (+5.9% us-east-2)
+🔺 *AWS* _(hyperscaler)_ H200 spot: $0.80→$0.83/GPU-hr (+3.5% us-east-2)
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
+_Data freshness: computeprices cached (25h ago)_

@@ -1,15 +1,17 @@
 {
-  "run_date": "2026-06-17",
-  "started_at": "2026-06-17T06:28:18.939518+00:00",
-  "completed_at": "2026-06-17T06:29:20.061970+00:00",
-  "status": "success",
-  "record_count": 891,
-  "raw_record_count": 891,
-  "anomaly_count": 1,
+  "run_date": "2026-06-21",
+  "started_at": "2026-06-21T06:19:04.830265+00:00",
+  "completed_at": "2026-06-21T06:20:16.923232+00:00",
+  "status": "partial",
+  "record_count": 890,
+  "raw_record_count": 890,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 48,
+  "diff_count": 3,
   "failed_providers": [],
-  "stale_providers": [],
+  "stale_providers": [
+    "computeprices"
+  ],
   "provider_status": {
     "aws": {
       "status": "live",
@@ -44,8 +46,9 @@
       "record_count": 93
     },
     "computeprices": {
-      "status": "live",
-      "record_count": 109
+      "status": "cache",
+      "record_count": 108,
+      "cache_age_hours": 24.6
     },
     "oracle": {
       "status": "live",
@@ -64,13 +67,10 @@
       "record_count": 1
     }
   },
-  "warnings": [
-    "azure H200 spot: $2.12 \u2192 $10.60 (+400.0%) \u26a0 price anomaly",
-    "cross-check: coreweave GB200 on-demand: ComputePrices $1.02 is implausibly low vs ours $10.50 \u2014 ignoring CP (likely error/mislabel)"
-  ],
+  "warnings": [],
   "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 12,
+  "significant_moves": 2,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true

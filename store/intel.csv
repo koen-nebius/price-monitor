@@ -119,3 +119,7 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1780998131.414069,2026-06-09,B300,3.81,36,0,neocloud,CoreWeave,3yr unknown prepay B300 deal end-of-year delivery
 1781225095.772999,2026-06-12,B300,3.80,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,"3yr 0% prepay competitive B300 win vs Nebius"
 1781559030.314519,2026-06-15,GB300,5.60,36,20,undisclosed_neocloud,Undisclosed neocloud,Vera Rubin Clustermax Gold-Tier+ quotes $5.60-$5.90 range
+1781806697.133429,2026-06-18,H100,1.95,12,0,hyperscaler,GCP,"Renewal, 1yr term"
+1782016770.454949,2026-06-21,B200,3.69,24,50,undisclosed_neocloud,Undisclosed neocloud,576 GPUs Aug delivery 24m 50% prepay competitive bid
+1782016770.454949,2026-06-21,B300,4.00,24,20,undisclosed_neocloud,Undisclosed neocloud,576 GPUs Q4 delivery 24m 20% prepay competitive bid
+1782016770.454949,2026-06-21,B300,4.95,36,50,undisclosed_hyperscaler,Undisclosed hyperscaler,512 GPUs Nov delivery 36m 50% prepay competitive bid
