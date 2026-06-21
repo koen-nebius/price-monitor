@@ -1,15 +1,17 @@
 {
-  "run_date": "2026-06-20",
-  "started_at": "2026-06-20T05:45:31.396477+00:00",
-  "completed_at": "2026-06-20T05:46:40.571352+00:00",
-  "status": "success",
+  "run_date": "2026-06-21",
+  "started_at": "2026-06-21T06:19:04.830265+00:00",
+  "completed_at": "2026-06-21T06:20:16.923232+00:00",
+  "status": "partial",
   "record_count": 890,
   "raw_record_count": 890,
-  "anomaly_count": 2,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 6,
+  "diff_count": 3,
   "failed_providers": [],
-  "stale_providers": [],
+  "stale_providers": [
+    "computeprices"
+  ],
   "provider_status": {
     "aws": {
       "status": "live",
@@ -44,8 +46,9 @@
       "record_count": 93
     },
     "computeprices": {
-      "status": "live",
-      "record_count": 108
+      "status": "cache",
+      "record_count": 108,
+      "cache_age_hours": 24.6
     },
     "oracle": {
       "status": "live",
@@ -64,10 +67,7 @@
       "record_count": 1
     }
   },
-  "warnings": [
-    "cp_fal-ai B200 on_demand: $3.49 \u2192 $6.25 (+79.1%) \u26a0 price anomaly",
-    "cp_fal-ai B300 on_demand: $4.49 \u2192 $8.50 (+89.3%) \u26a0 price anomaly"
-  ],
+  "warnings": [],
   "post_thread": true,
   "is_weekly": false,
   "significant_moves": 2,

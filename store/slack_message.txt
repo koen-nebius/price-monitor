@@ -1,6 +1,6 @@
-*GPU Pricing Daily — June 20, 2026*
+*GPU Pricing Daily — June 21, 2026*
 
-*Today's signal:* AWS raised B200 spot +8% ($1.66→$1.80) · 1 more major-provider move in thread
+*Today's signal:* AWS raised B200 spot +6% ($1.80→$1.91) · 1 more major-provider move in thread
 
 *Position:* Nebius on-demand sits 2–49% below hyperscaler rack rates
 Vs GPU clouds: premium to peer median on H100 +17%; below median on H200 -15%, B200 -6%, L40S -4%

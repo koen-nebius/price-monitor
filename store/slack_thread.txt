@@ -1,4 +1,4 @@
-*GPU Competitor Pricing — June 20, 2026*
+*GPU Competitor Pricing — June 21, 2026*
 
 *vs GPU cloud peers (on-demand):*
 `H100 ` Nebius $3.85  +17% vs median  |  4/7 peers cheaper  |  floor: Voltage $1.99
@@ -29,7 +29,8 @@ _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the chea
 • ⚠ Field intel: AWS 12mo deal seen at $1.80 (0% prepay) — below Nebius; list comparisons understate AWS's negotiated floor
 
 *Price moves ≥3%:*
-🔺 *AWS* _(hyperscaler)_ B200 spot: $1.66→$1.80/GPU-hr (+8.2% us-east-2)
-🔺 *AWS* _(hyperscaler)_ H200 spot: $2.15→$2.25/GPU-hr (+4.5% ap-northeast-1)
+🔺 *AWS* _(hyperscaler)_ B200 spot: $1.80→$1.91/GPU-hr (+5.9% us-east-2)
+🔺 *AWS* _(hyperscaler)_ H200 spot: $0.80→$0.83/GPU-hr (+3.5% us-east-2)
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
+_Data freshness: computeprices cached (25h ago)_
