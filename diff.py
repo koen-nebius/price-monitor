@@ -1555,6 +1555,8 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
         'Standard tier (&lt;512 GPU) is ~5–10% higher.</p>'
     )
     html.append(_build_committed_gap_table(records))
+    html.append(_build_prepay_note(records))
+    html.append(_build_field_committed_section(records))
     html.append(_build_capacity_block_section(records))
     html.append(_build_committed_implication(records))
 
@@ -1682,6 +1684,94 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         '</em></p>'
     )
     return "\n".join(rows)
+
+
+def _term_bucket_cts(term: int):
+    """Map a field-deal term (months) to the matching Nebius committed CT set."""
+    if 9 <= term <= 15:
+        return RESERVED_1YR_CTS, "1yr"
+    if 16 <= term <= 30:
+        return RESERVED_2YR_CTS, "2yr"
+    if 31 <= term <= 48:
+        return RESERVED_3YR_CTS, "3yr"
+    return None, f"{term}mo"
+
+
+def _build_field_committed_section(records: List[PriceRecord]) -> str:
+    """
+    Neocloud committed market from #price-intelligence (Phase: reserved-coverage).
+    Neoclouds rarely publish committed list prices, so the list table above is just
+    hyperscalers + Nebius (+ Civo). Their real reserved market is negotiated — and we
+    capture it. This surfaces the lowest committed deal per GPU as the realistic
+    reserved benchmark for the peers missing from the list table.
+    """
+    from collections import defaultdict as _dd
+    by_gpu = _dd(list)
+    for r in _load_intel(days=90):   # match the decision-trigger field-deal window
+        try:
+            term = int(float(r.get("term_months", "0") or 0))
+            px = float(r["price_per_gpu_hour_usd"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        if term <= 0 or px <= 0:
+            continue   # committed deals only
+        by_gpu[(r.get("gpu_model") or "").upper()].append(
+            (px, term, r.get("provider_name") or r.get("provider_type") or "?",
+             r.get("prepay_pct") or "?"))
+    present = [g for g in GPU_ORDER if by_gpu.get(g)]
+    if not present:
+        return ""
+    html = [
+        '<h3>Neocloud Committed — Negotiated Deals (field intel)</h3>',
+        '<p>Neoclouds rarely publish committed <em>list</em> prices, so the table above is '
+        'hyperscalers + Nebius. Their reserved market is negotiated — these are the lowest '
+        'committed deals seen in <strong>#price-intelligence</strong> (deal-specific, anonymized; '
+        'lower confidence than list prices), the realistic reserved benchmark for peers absent above.</p>',
+        '<table data-layout="full-width"><tbody>',
+        '<tr><th>GPU</th><th>Lowest committed deal</th><th>Term</th><th>Prepay</th><th>Source</th>'
+        '<th>Deals seen</th><th>vs Nebius committed (same term)</th></tr>',
+    ]
+    for g in present:
+        deals = by_gpu[g]
+        px, term, prov, prepay = min(deals, key=lambda x: x[0])
+        cts, term_label = _term_bucket_cts(term)
+        neb = _cheapest(records, "nebius", g, cts) if cts else None
+        if neb:
+            d = (px - neb) / neb * 100
+            color = "green" if d < 0 else "red"
+            vs = f'<span data-type="status" data-color="{color}">{d:+.0f}% vs Nebius ${neb:.2f}</span>'
+        else:
+            vs = '—'
+        prepay_str = f'{prepay}%' if str(prepay).isdigit() else str(prepay)
+        html.append(f'<tr><td><strong>{g}</strong></td><td><strong>${px:.2f}</strong></td>'
+                    f'<td>{term_label}</td><td>{prepay_str}</td>'
+                    f'<td><em>{_provider_display(prov)}</em></td><td>{len(deals)}</td><td>{vs}</td></tr>')
+    html.append('</tbody></table>')
+    return "\n".join(html)
+
+
+def _build_prepay_note(records: List[PriceRecord]) -> str:
+    """
+    Make the hyperscaler reserved prepay structure explicit (Phase: reserved depth).
+    The committed table shows the deepest (all-upfront) rate; this states the no-upfront
+    rate alongside so the comparison is apples-to-apples, not just the cheapest cell.
+    """
+    au3 = _cheapest(records, "aws", "H100", {"reserved_3yr"})
+    nu3 = _cheapest(records, "aws", "H100", {"reserved_3yr_no_upfront"})
+    au1 = _cheapest(records, "aws", "H100", {"reserved_1yr"})
+    nu1 = _cheapest(records, "aws", "H100", {"reserved_1yr_no_upfront_convertible"})
+    parts = []
+    if au3 and nu3:
+        parts.append(f"3yr ${au3:.2f} all-upfront vs ${nu3:.2f} no-upfront")
+    if au1 and nu1:
+        parts.append(f"1yr ${au1:.2f} all-upfront vs ${nu1:.2f} no-upfront (convertible)")
+    if not parts:
+        return ""
+    return ('<p><em><strong>Prepay structure:</strong> hyperscaler reserved cells above show the '
+            'deepest (all-upfront, 100%-prepaid) rate. AWS H100: ' + '; '.join(parts) + '. '
+            'No-upfront trades a higher rate for zero prepayment; GCP CUD is no-upfront by default; '
+            'Nebius committed shown is its 100%-upfront enterprise tier. A like-for-like comparison '
+            'should match prepay terms — the all-upfront vs no-upfront gap is ~2× on AWS 3yr.</em></p>')
 
 
 def _build_committed_gap_table(records: List[PriceRecord]) -> str:
