@@ -60,7 +60,15 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
     if api_key:
         try:
             creds = base64.b64encode(f"{api_key}:".encode()).decode()
-            req = urllib.request.Request(API_URL, headers={"Authorization": f"Basic {creds}"})
+            # The API sits behind Cloudflare, which 1010-bans requests with urllib's
+            # default User-Agent (browser-signature block) BEFORE the key is checked —
+            # so the key alone is not enough. Send a real browser UA + Accept.
+            req = urllib.request.Request(API_URL, headers={
+                "Authorization": f"Basic {creds}",
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                              "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+                "Accept": "application/json",
+            })
             with urllib.request.urlopen(req, timeout=30) as resp:
                 data = json.loads(resp.read())
             records = _parse_api_data(data, now)
@@ -276,11 +284,12 @@ def _parse_api_data(data: dict, now: str) -> List[PriceRecord]:
     for name, info in instance_types.items():
         mapping = INSTANCE_GPU_MAP.get(name)
         if mapping is None:
-            name_lower = name.lower()
-            gpu_model = next((g for g in NEBIUS_GPUS if g.lower() in name_lower), None)
+            # Route through _match_gpu so GH200 is excluded — its name contains
+            # "h200" as a substring, which a naive match would mislabel as H200.
+            gpu_model = _match_gpu(name)
             if not gpu_model:
                 continue
-            count = next((int(p) for p in name_lower.split("_") if p.isdigit()), 1)
+            count = next((int(p) for p in name.lower().split("_") if p.isdigit()), 1)
             mapping = {"gpu_model": gpu_model, "gpu_count": count}
 
         specs = info.get("instance_type", info)
@@ -289,13 +298,20 @@ def _parse_api_data(data: dict, now: str) -> List[PriceRecord]:
             continue
         price = price_cents / 100.0
 
-        regions_available = info.get("regions_with_capacity_available", [{"name": "us-east"}])
-        seen_regions = set()
+        # Lambda lists only regions where the instance is CURRENTLY available, but a
+        # sold-out instance still has a published price. Emit it regardless (region
+        # "global" when none are free) so prices never silently vanish and we don't
+        # fall back to the weeks-stale SkyPilot catalog just because capacity is tight.
+        regions_available = info.get("regions_with_capacity_available") or []
+        region_names, seen_regions = [], set()
         for region_info in regions_available:
-            region_name = region_info.get("name", "us-east")
-            if region_name in seen_regions:
-                continue
-            seen_regions.add(region_name)
+            rn = region_info.get("name", "us-east")
+            if rn not in seen_regions:
+                seen_regions.add(rn)
+                region_names.append(rn)
+        if not region_names:
+            region_names = ["global"]
+        for region_name in region_names:
             records.append(PriceRecord(
                 provider="lambda",
                 gpu_model=mapping["gpu_model"],
