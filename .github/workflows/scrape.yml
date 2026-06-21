@@ -47,7 +47,8 @@ jobs:
           LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
           # Tavily fallback for JS-rendered/blocked pricing pages (SF Compute, Hyperstack).
           # Nebius-owned; add the secret to activate — without it the fallback no-ops.
-          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          # NB: repo secret is named TAVILY; mapped here to the TAVILY_API_KEY env var the code reads.
+          TAVILY_API_KEY: ${{ secrets.TAVILY }}
         run: |
           # All-live run from non-blocked GitHub IPs. main.py writes the daily
           # snapshot, diff, run_manifest, AND the ready-to-post artifacts

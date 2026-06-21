@@ -18,7 +18,7 @@ jobs:
           python-version: "3.11"
       - name: Probe Tavily
         env:
-          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY }}
         run: |
           python3 - <<'PY'
           import os, sys
