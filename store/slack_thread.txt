@@ -3,7 +3,7 @@
 *vs GPU cloud peers (on-demand):*
 `H100 ` Nebius $3.85  +17% vs median  |  4/7 peers cheaper  |  floor: Voltage $1.99
 `H200 ` Nebius $4.50  -12% vs median  |  2/4 peers cheaper  |  floor: GMI Cloud $2.60
-`B200 ` Nebius $7.15  -4% vs median  |  2/4 peers cheaper  |  floor: GMI Cloud $4.00
+`B200 ` Nebius $7.15  -6% vs median  |  2/4 peers cheaper  |  floor: GMI Cloud $4.00
 `B300 ` Nebius $7.85  |  1 peer: Scaleway $9.01
 `L40S ` Nebius $1.82  +7% vs median  |  2/3 peers cheaper  |  floor: Crusoe $1.50
 
@@ -28,9 +28,7 @@ _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the chea
 • AWS 3yr (no Nebius 3yr): $2.97 no-upfront / $1.38 100%-prepaid — AWS 3yr all-upfront undercuts Nebius's 2yr $2.05, but locks 3 years + full prepayment
 • ⚠ Field intel: AWS 12mo deal seen at $1.80 (0% prepay) — below Nebius; list comparisons understate AWS's negotiated floor
 
-*Price moves ≥3%:*
-🔺 *AWS* _(hyperscaler)_ H200 spot: $0.83→$0.87/GPU-hr (+5.0% us-east-2)
-🔺 *AWS* _(hyperscaler)_ B300 spot: $3.35→$3.46/GPU-hr (+3.0% us-west-2)
+_No significant price moves today (0 minor changes below 3% threshold)._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
-_Data freshness: computeprices cached (49h ago)_
+_Data freshness: computeprices cached (50h ago)_
