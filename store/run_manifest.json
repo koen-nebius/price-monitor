@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-06-21",
-  "started_at": "2026-06-21T06:19:04.830265+00:00",
-  "completed_at": "2026-06-21T06:20:16.923232+00:00",
+  "run_date": "2026-06-22",
+  "started_at": "2026-06-22T06:42:04.460276+00:00",
+  "completed_at": "2026-06-22T06:43:16.211711+00:00",
   "status": "partial",
-  "record_count": 890,
-  "raw_record_count": 890,
+  "record_count": 892,
+  "raw_record_count": 892,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 3,
+  "diff_count": 15,
   "failed_providers": [],
   "stale_providers": [
     "computeprices"
@@ -48,7 +48,7 @@
     "computeprices": {
       "status": "cache",
       "record_count": 108,
-      "cache_age_hours": 24.6
+      "cache_age_hours": 48.9
     },
     "oracle": {
       "status": "live",
@@ -65,11 +65,15 @@
     "sfcompute": {
       "status": "live",
       "record_count": 1
+    },
+    "together": {
+      "status": "live",
+      "record_count": 6
     }
   },
   "warnings": [],
   "post_thread": true,
-  "is_weekly": false,
+  "is_weekly": true,
   "significant_moves": 2,
   "generated_outputs": {
     "slack_message": true,
