@@ -1,4 +1,4 @@
-*GPU Competitor Pricing — June 22, 2026*
+*GPU Competitor Pricing — June 23, 2026*
 
 *vs GPU cloud peers (on-demand):*
 `H100 ` Nebius $3.85  +17% vs median  |  4/7 peers cheaper  |  floor: Voltage $1.99
@@ -17,8 +17,8 @@
 *Spot / preemptible (vs cheapest hyperscaler spot, median across zones):*
 `H100 ` Nebius $2.15  vs  Azure $2.39 (median, 21 zones)  →  Nebius 10% below
 `H200 ` Nebius $2.45  vs  AWS $2.10 (median, 4 zones)  →  Nebius 17% above
-`B200 ` Nebius $3.95  vs  AWS $2.61 (median, 3 zones)  →  Nebius 51% above
-`B300 ` Nebius $4.30  vs  AWS $3.05 (median, 2 zones)  →  Nebius 41% above
+`B200 ` Nebius $3.95  vs  AWS $2.60 (median, 3 zones)  →  Nebius 52% above
+`B300 ` Nebius $4.30  vs  AWS $3.07 (median, 2 zones)  →  Nebius 40% above
 `L40S ` Nebius $0.90  |  no hyperscaler spot published
 _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across zones (single-zone dips excluded)._
 
@@ -28,7 +28,14 @@ _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the chea
 • AWS 3yr (no Nebius 3yr): $2.97 no-upfront / $1.38 100%-prepaid — AWS 3yr all-upfront undercuts Nebius's 2yr $2.05, but locks 3 years + full prepayment
 • ⚠ Field intel: AWS 12mo deal seen at $1.80 (0% prepay) — below Nebius; list comparisons understate AWS's negotiated floor
 
-_No significant price moves today (0 minor changes below 3% threshold)._
+*Price moves ≥3%:*
+🔺 *GCP* _(hyperscaler)_ H100 spot: +8.0% avg across 15 SKUs (peak: $4.41→$4.85 us-central1, +10.0%)
+🔺 *GCP* _(hyperscaler)_ H200 spot: +8.8% avg across 4 SKUs (peak: $4.66→$5.12 us-west1, +10.0%)
+🔺 *GCP* _(hyperscaler)_ L4 spot: +6.2% avg across 9 SKUs (peak: $0.34→$0.38 asia-southeast1, +10.0%)
+🔻 *GCP* _(hyperscaler)_ B200 spot: -5.0% avg across 3 SKUs (peak: $2.34→$2.22 us-west4, -5.0%)
+🔺 *GCP* _(hyperscaler)_ B200 spot: +5.0% avg across 3 SKUs (peak: $4.28→$4.49 us-west1, +5.0%)
+🔺 *AWS* _(hyperscaler)_ H200 spot: +3.9% avg across 2 SKUs (peak: $0.87→$0.91 us-east-2, +4.4%)
+🔺 *AWS* _(hyperscaler)_ B200 spot: $1.94→$2.00/GPU-hr (+3.2% us-east-2)
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
-_Data freshness: computeprices cached (50h ago)_
+_Data freshness: computeprices cached (72h ago)_

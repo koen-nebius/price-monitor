@@ -1,6 +1,8 @@
-*GPU Pricing Daily — June 22, 2026*
+_⚠ Nebius committed prices last verified 61 days ago — check config.py_
 
-*Today's signal:* no significant price moves (≥3%) on tracked providers
+*GPU Pricing Daily — June 23, 2026*
+
+*Today's signal:* GCP raised H100 spot +8% across 15 SKUs ($4.41→$4.85) · 6 more major-provider moves in thread
 
 *Position:* Nebius on-demand sits 2–49% below hyperscaler rack rates
 Vs GPU clouds: premium to peer median on H100 +17%, L40S +7%; below median on H200 -12%, B200 -6%
