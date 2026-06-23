@@ -195,6 +195,11 @@ MANUAL_PRICES = {
 # Source: internal Pricing Model AE sheet
 # Last verified against the internal AE pricing sheet — update this date when prices change.
 NEBIUS_COMMITTED_PRICES_VERIFIED_DATE = "2026-04-23"
+# Beyond this age the committed section is OMITTED from exec-facing output (Slack +
+# Confluence) rather than shown stale, and an internal-only staleness warning is logged.
+# Committed list prices change only at pricing decisions, so this is a safety gate, not a
+# freshness SLA. Re-verify against the AE sheet and bump the date above to restore it.
+NEBIUS_COMMITTED_STALE_DAYS = 45
 # Structure: gpu_model → volume_tier → commitment_months → prepayment_pct → $/GPU/hr
 # Prepayment options: "100pct" (all upfront), "50pct" (half upfront), "30pct" (30% upfront)
 # Volume tiers: "below_512" (standard, accessible to all) and "above_512" (enterprise)

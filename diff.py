@@ -273,11 +273,36 @@ def compute_position(records: List[PriceRecord]) -> List[dict]:
 # Committed pricing callout helper
 # ---------------------------------------------------------------------------
 
+def _committed_freshness():
+    """
+    (is_fresh, verified_date_str, days_old) for the Nebius committed list.
+    Fresh = verified within NEBIUS_COMMITTED_STALE_DAYS. The committed section is
+    exec-facing and the list is hand-maintained from the internal AE sheet, so when
+    it goes stale we OMIT the section rather than show numbers we can't vouch for.
+    Fails open (treats as fresh) only if the date constant is unreadable — a config
+    bug should surface loudly elsewhere, not silently delete the section forever.
+    """
+    try:
+        from datetime import datetime, date
+        from config import (NEBIUS_COMMITTED_PRICES_VERIFIED_DATE,
+                            NEBIUS_COMMITTED_STALE_DAYS)
+        v = datetime.strptime(NEBIUS_COMMITTED_PRICES_VERIFIED_DATE, "%Y-%m-%d").date()
+        days = (date.today() - v).days
+        return (days <= NEBIUS_COMMITTED_STALE_DAYS, NEBIUS_COMMITTED_PRICES_VERIFIED_DATE, days)
+    except Exception:
+        return (True, None, None)
+
+
 def _format_committed_callout(records: List[PriceRecord]) -> str:
     """
     Build the committed-tier summary line for the Slack message.
     Shows Nebius committed vs AWS committed for H100 — the key strategic comparison.
+    Omitted entirely when the Nebius committed list is stale (see _committed_freshness).
     """
+    # Stale list -> omit from exec output (main.py logs the internal staleness warning).
+    fresh, vdate, days_old = _committed_freshness()
+    if not fresh:
+        return ""
     def _best(provider, gpu, cts):
         prices = [
             r.price_per_gpu_hour_usd for r in records
@@ -349,7 +374,8 @@ def _format_committed_callout(records: List[PriceRecord]) -> str:
         return ""
 
     header = "*Committed pricing (H100 benchmark, $/GPU-hr):*"
-    return header + "\n" + "\n".join(f"• {p}" for p in parts)
+    footer = f"\n_Nebius committed list verified {vdate}._" if vdate else ""
+    return header + "\n" + "\n".join(f"• {p}" for p in parts) + footer
 
 
 # ---------------------------------------------------------------------------
@@ -1548,16 +1574,20 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
         html.append(_build_availability_note(records))
 
     # ── Section 2: Committed pricing comparison ─────────────────────────────
-    html.append('<h2>Committed Pricing Comparison</h2>')
-    html.append(
-        '<p>Nebius launched committed pricing on <strong>April 23rd 2026</strong> '
-        '(9-month to 36-month terms; 100%, 50%, and 30% upfront options). '
-        'The table below compares Nebius committed tiers against hyperscaler reserved pricing. '
-        'Nebius figures shown are enterprise tier (512+ GPUs), 100% upfront — the most aggressive available rate. '
-        'Standard tier (&lt;512 GPU) is ~5–10% higher.</p>'
-    )
-    html.append(_build_committed_gap_table(records))
-    html.append(_build_prepay_note(records))
+    # Omit entirely when the hand-maintained Nebius committed list is stale, rather
+    # than publish numbers we can't vouch for to an exec-facing page.
+    _cf_fresh, _cf_vdate, _cf_days = _committed_freshness()
+    if _cf_fresh:
+        html.append('<h2>Committed Pricing Comparison</h2>')
+        html.append(
+            '<p>Nebius committed pricing spans 9-month to 36-month terms (100%, 50%, and 30% '
+            'upfront options). The table below compares Nebius committed tiers against hyperscaler '
+            'reserved pricing. Nebius figures shown are enterprise tier (512+ GPUs), 100% upfront — '
+            'the most aggressive available rate. Standard tier (&lt;512 GPU) is ~5–10% higher. '
+            f'<em>Committed list verified {_cf_vdate}.</em></p>'
+        )
+        html.append(_build_committed_gap_table(records))
+        html.append(_build_prepay_note(records))
     html.append(_build_field_committed_section(records))
     html.append(_build_capacity_block_section(records))
     html.append(_build_committed_implication(records))

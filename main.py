@@ -134,24 +134,23 @@ def run(providers=None, test=False):
     # status: "live" | "cache" | "fallback" | "error" | "missing"
     provider_status: Dict[str, dict] = {}
 
-    # ── Nebius committed prices staleness check ──────────────────────────────
-    # Warn in logs after 60 days. Only surface in Slack on the first crossing
-    # and then weekly (every 7 days), to avoid nagging every single day.
-    nebius_date_warning = None
+    # ── Nebius committed prices staleness check (INTERNAL ONLY) ──────────────
+    # Past NEBIUS_COMMITTED_STALE_DAYS the committed section is omitted from the
+    # exec-facing output by diff.py (see _committed_freshness). Here we only log it
+    # and record it in run_manifest warnings — it is NEVER surfaced in the Slack/
+    # Confluence broadcast, so a stale internal sheet can't leak a debug line to execs.
     try:
-        from config import NEBIUS_COMMITTED_PRICES_VERIFIED_DATE
+        from config import NEBIUS_COMMITTED_PRICES_VERIFIED_DATE, NEBIUS_COMMITTED_STALE_DAYS
         verified = datetime.strptime(NEBIUS_COMMITTED_PRICES_VERIFIED_DATE, "%Y-%m-%d").date()
         days_old = (date.today() - verified).days
-        if days_old > 60:
+        if days_old > NEBIUS_COMMITTED_STALE_DAYS:
             msg = (
-                f"Nebius committed prices in config.py were last verified {days_old} days ago "
-                f"— verify against current pricing sheet."
+                f"Nebius committed prices last verified {days_old} days ago "
+                f"(> {NEBIUS_COMMITTED_STALE_DAYS}d) — committed section omitted from exec output; "
+                f"re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE."
             )
             logger.warning(msg)
             warnings.append(msg)
-            # Surface in Slack on day 61, then every 7 days after that
-            if (days_old - 61) % 7 == 0:
-                nebius_date_warning = f"_⚠ Nebius committed prices last verified {days_old} days ago — check config.py_"
     except Exception as e:
         logger.debug(f"Could not check NEBIUS_COMMITTED_PRICES_VERIFIED_DATE: {e}")
 
@@ -383,8 +382,6 @@ def run(providers=None, test=False):
     if implausible:
         anomaly_lines = "\n".join(f"• {a}" for a in implausible)
         slack_prefix_parts.append(f"⚠ *Data anomaly detected*\n{anomaly_lines}")
-    if nebius_date_warning:
-        slack_prefix_parts.append(nebius_date_warning)
     if slack_prefix_parts:
         slack_summary = "\n\n".join(slack_prefix_parts) + "\n\n" + slack_summary
 
