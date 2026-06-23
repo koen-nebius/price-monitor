@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-06-21",
-  "started_at": "2026-06-21T06:19:04.830265+00:00",
-  "completed_at": "2026-06-21T06:20:16.923232+00:00",
+  "run_date": "2026-06-23",
+  "started_at": "2026-06-23T05:15:28.430400+00:00",
+  "completed_at": "2026-06-23T05:16:43.989833+00:00",
   "status": "partial",
-  "record_count": 890,
-  "raw_record_count": 890,
+  "record_count": 892,
+  "raw_record_count": 892,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 3,
+  "diff_count": 45,
   "failed_providers": [],
   "stale_providers": [
     "computeprices"
@@ -48,7 +48,7 @@
     "computeprices": {
       "status": "cache",
       "record_count": 108,
-      "cache_age_hours": 24.6
+      "cache_age_hours": 71.5
     },
     "oracle": {
       "status": "live",
@@ -65,12 +65,18 @@
     "sfcompute": {
       "status": "live",
       "record_count": 1
+    },
+    "together": {
+      "status": "live",
+      "record_count": 6
     }
   },
-  "warnings": [],
+  "warnings": [
+    "Nebius committed prices in config.py were last verified 61 days ago \u2014 verify against current pricing sheet."
+  ],
   "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 2,
+  "significant_moves": 37,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true

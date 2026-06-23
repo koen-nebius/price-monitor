@@ -123,3 +123,5 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1782016770.454949,2026-06-21,B200,3.69,24,50,undisclosed_neocloud,Undisclosed neocloud,576 GPUs Aug delivery 24m 50% prepay competitive bid
 1782016770.454949,2026-06-21,B300,4.00,24,20,undisclosed_neocloud,Undisclosed neocloud,576 GPUs Q4 delivery 24m 20% prepay competitive bid
 1782016770.454949,2026-06-21,B300,4.95,36,50,undisclosed_hyperscaler,Undisclosed hyperscaler,512 GPUs Nov delivery 36m 50% prepay competitive bid
+1782153062.086669,2026-06-22,B200,3.50,12,100,neocloud,LAI,1yr term ~5k B200 cluster; 100% prepay assumed
+1782153062.086669,2026-06-22,GB300,6.00,3,100,neocloud,Pale Blue Dot,3mo term quote; 1600x GB300 deal signed at 6mo (price undisclosed)
