@@ -25,6 +25,7 @@ GPU_NAME_MAP = {
     "b200":  "B200",
     "h200":  "H200",
     "h100":  "H100",
+    "rtx pro 6000": "RTX6000",   # Blackwell PRO 6000 96GB (inference/PAYG card); NOT RTX 6000 Ada
     "l40s":  "L40S",
 }
 
@@ -37,6 +38,7 @@ VCPU_PER_GPU = {
     "GB200": 112,
     "GB300": 112,
     "L40S": 16,
+    "RTX6000": 24,   # 1-GPU PCIe instance (24 vCPU)
 }
 
 

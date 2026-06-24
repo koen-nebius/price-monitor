@@ -59,11 +59,13 @@ GPU_NAME_MAP = {
     "gb200":     "GB200",
     "gb300":     "GB300",
     "l40s":      "L40S",
+    "rtx pro 6000":          "RTX6000",   # Blackwell PRO 6000 96GB — match Nebius's card,
+    "rtx pro 6000 blackwell":"RTX6000",   # NOT RTX 6000 Ada (different/older 48GB card)
 }
 
 # GPU slugs to query (one request per slug keeps responses small)
 # Note: B300 uses slug "hgx-b300" on ComputePrices, not "b300"
-GPU_SLUGS = ["h100", "h200", "b200", "hgx-b300", "gb200", "gb300", "l40s"]
+GPU_SLUGS = ["h100", "h200", "b200", "hgx-b300", "gb200", "gb300", "l40s", "rtx-pro-6000"]
 
 
 # ComputePrices provider name → our direct-fetch provider key. Used by the 1.9

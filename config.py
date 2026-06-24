@@ -1,4 +1,4 @@
-NEBIUS_GPUS = ["H100", "H200", "B200", "B300", "GB200", "GB300", "L40S"]
+NEBIUS_GPUS = ["H100", "H200", "B200", "B300", "GB200", "GB300", "L40S", "RTX6000"]
 
 # Map normalized GPU model → provider-specific instance types / SKUs
 # Each entry: {"instance_type": str, "gpu_count": int, "vcpu": int, "ram_gb": float}

@@ -17,7 +17,7 @@ HISTORY_CSV = Path(__file__).parent / "store" / "history.csv"
 
 CHANGE_THRESHOLD = 0.001   # 0.1% — ignore floating-point noise in diff detection
 
-GPU_ORDER = ["H100", "H200", "B200", "B300", "GB200", "GB300", "L40S"]
+GPU_ORDER = ["H100", "H200", "B200", "B300", "GB200", "GB300", "L40S", "RTX6000"]
 CT_ORDER  = ["on_demand", "spot", "preemptible", "reserved_1yr", "reserved_3yr",
              "committed_1yr", "committed_3yr"]
 CT_LABELS = {
@@ -807,8 +807,8 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
             lines.append("\n*Spot / preemptible (vs cheapest hyperscaler spot, median across zones):*")
             for gpu, neb_px, hyp_prov, hyp_px, n_zones in spot_rows:
                 if hyp_px is None:
-                    lines.append(f"`{gpu:<5}` Nebius ${neb_px:.2f}  |  no obtainable hyperscaler spot "
-                                 f"(newest-gen spot capacity not realistically offered)")
+                    lines.append(f"`{gpu:<5}` Nebius ${neb_px:.2f}  |  no comparable hyperscaler spot "
+                                 f"(not offered, or newest-gen spot capacity not realistically available)")
                     continue
                 delta_pct = (neb_px - hyp_px) / hyp_px * 100  # positive = Nebius pricier
                 pos = f"Nebius {delta_pct:.0f}% above" if delta_pct > 0 else f"Nebius {-delta_pct:.0f}% below"
