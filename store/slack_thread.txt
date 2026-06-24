@@ -43,8 +43,9 @@ _Deal-specific, anonymized; lower confidence than published list prices._
 *RTX PRO 6000 (inference / PAYG card) — vs RTX market:*
 `OD  ` Nebius $1.80  -5% vs market median $1.89  |  4/10 cheaper  |  floor: Vast $0.71
 `Spot` Nebius $0.95
+`Comm` Nebius committed from $1.42  |  market committed from $1.19
 _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._
 
-_No significant price moves today (0 minor changes below 3% threshold)._
+_No significant price moves today (1 minor changes below 3% threshold)._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
