@@ -194,7 +194,10 @@ MANUAL_PRICES = {
 # Nebius committed / reserved pricing — effective April 23rd 2026
 # Source: internal Pricing Model AE sheet
 # Last verified against the internal AE pricing sheet — update this date when prices change.
-NEBIUS_COMMITTED_PRICES_VERIFIED_DATE = "2026-04-23"
+# 2026-06-23: re-verified against sites/NebiusFinance/Shared Documents/GPU/Pricing model_AE.xlsx
+# (modified 2026-06-11) — every H100/H200/B200/B300/GB300 tier below matched exactly; the
+# June 11 edit only ADDED RTX 6000 and Vera tiers (not yet tracked here). Prices unchanged.
+NEBIUS_COMMITTED_PRICES_VERIFIED_DATE = "2026-06-23"
 # Beyond this age the committed section is OMITTED from exec-facing output (Slack +
 # Confluence) rather than shown stale, and an internal-only staleness warning is logged.
 # Committed list prices change only at pricing decisions, so this is a safety gate, not a
