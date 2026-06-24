@@ -17,7 +17,11 @@ HISTORY_CSV = Path(__file__).parent / "store" / "history.csv"
 
 CHANGE_THRESHOLD = 0.001   # 0.1% — ignore floating-point noise in diff detection
 
-GPU_ORDER = ["H100", "H200", "B200", "B300", "GB200", "GB300", "L40S", "RTX6000"]
+# NB RTX6000 (RTX PRO 6000) is intentionally NOT here: it is an inference/PAYG card
+# whose competitors are inference platforms (Vast, fal, Beam, …), not the training-
+# cluster peers/hyperscalers these sections compare against. It gets its own market
+# line via _format_rtx_callout. It IS tracked in NEBIUS_GPUS / GPU_MODELS / fetchers.
+GPU_ORDER = ["H100", "H200", "B200", "B300", "GB200", "GB300", "L40S"]
 CT_ORDER  = ["on_demand", "spot", "preemptible", "reserved_1yr", "reserved_3yr",
              "committed_1yr", "committed_3yr"]
 CT_LABELS = {
@@ -516,6 +520,43 @@ def _format_field_committed_callout(records: List[PriceRecord]) -> str:
     return "\n".join(lines)
 
 
+def _format_rtx_callout(records: List[PriceRecord]) -> str:
+    """
+    RTX PRO 6000 (Blackwell 96GB inference/PAYG card) vs the broader RTX market.
+    Its competitors are inference platforms, not the curated training-cluster peers, so
+    we compare Nebius against the full set of providers that price RTX PRO 6000 rather
+    than forcing it through the cluster-GPU peer logic. Supports the RTX demand push.
+    """
+    rtx = [r for r in records if r.gpu_model == "RTX6000"]
+    if not rtx:
+        return ""
+    neb_od = min((r.price_per_gpu_hour_usd for r in rtx
+                  if r.provider == "nebius" and r.consumption_type == "on_demand"), default=None)
+    neb_sp = min((r.price_per_gpu_hour_usd for r in rtx
+                  if r.provider == "nebius" and r.consumption_type in INTERRUPTIBLE_CTS), default=None)
+    comp: Dict[str, float] = {}
+    for r in rtx:
+        if r.provider == "nebius" or r.consumption_type != "on_demand":
+            continue
+        if r.provider not in comp or r.price_per_gpu_hour_usd < comp[r.provider]:
+            comp[r.provider] = r.price_per_gpu_hour_usd
+    if neb_od is None or not comp:
+        return ""
+    prices = sorted(comp.values())
+    med = statistics.median(prices)
+    cheaper = sum(1 for p in prices if p < neb_od)
+    floor_prov = min(comp, key=comp.get)
+    vs = (neb_od - med) / med * 100
+    sign = "+" if vs >= 0 else ""
+    out = ["\n*RTX PRO 6000 (inference / PAYG card) — vs RTX market:*",
+           f"`OD  ` Nebius ${neb_od:.2f}  {sign}{vs:.0f}% vs market median ${med:.2f}  "
+           f"|  {cheaper}/{len(prices)} cheaper  |  floor: {_provider_display(floor_prov)} ${prices[0]:.2f}"]
+    if neb_sp is not None:
+        out.append(f"`Spot` Nebius ${neb_sp:.2f}")
+    out.append("_RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._")
+    return "\n".join(out)
+
+
 def format_slack_summary(diffs: List[DiffEntry], run_date: str,
                          confluence_url: str, records: List[PriceRecord] = None,
                          provider_status: dict = None) -> str:
@@ -832,6 +873,13 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
         if _field_committed:
             lines.append("")
             for l in _field_committed.split("\n"):
+                lines.append(l)
+
+        # ── 2c. RTX PRO 6000 vs the inference/PAYG market ────────────────────
+        _rtx = _format_rtx_callout(records)
+        if _rtx:
+            lines.append("")
+            for l in _rtx.split("\n"):
                 lines.append(l)
 
     # ── Significant price changes — grouped by provider + GPU ───────────────
