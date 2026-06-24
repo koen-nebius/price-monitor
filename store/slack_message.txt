@@ -1,8 +1,12 @@
-_⚠ Nebius committed prices last verified 61 days ago — check config.py_
+⚠ *Data anomaly detected*
+• cp_modal B200 on_demand: $0.10/GPU-hr ⚠ implausibly low price
+• cp_modal H100 on_demand: $0.07/GPU-hr ⚠ implausibly low price
+• cp_modal H200 on_demand: $0.08/GPU-hr ⚠ implausibly low price
+• cp_modal L40S on_demand: $0.02/GPU-hr ⚠ implausibly low price
 
-*GPU Pricing Daily — June 23, 2026*
+*GPU Pricing Daily — June 24, 2026*
 
-*Today's signal:* GCP raised H100 spot +8% across 15 SKUs ($4.41→$4.85) · 6 more major-provider moves in thread
+*Today's signal:* AWS raised B200 spot +5% ($2.00→$2.10) · 2 more major-provider moves + 1 small-provider move in thread
 
 *Position:* Nebius on-demand sits 2–49% below hyperscaler rack rates
 Vs GPU clouds: premium to peer median on H100 +17%, L40S +7%; below median on H200 -12%, B200 -6%
