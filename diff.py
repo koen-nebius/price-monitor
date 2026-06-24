@@ -553,6 +553,18 @@ def _format_rtx_callout(records: List[PriceRecord]) -> str:
            f"|  {cheaper}/{len(prices)} cheaper  |  floor: {_provider_display(floor_prov)} ${prices[0]:.2f}"]
     if neb_sp is not None:
         out.append(f"`Spot` Nebius ${neb_sp:.2f}")
+    # Committed: Nebius best committed tier vs any competitor committed in the market.
+    def _comm_min(is_nebius: bool):
+        vals = [r.price_per_gpu_hour_usd for r in rtx
+                if (r.provider == "nebius") == is_nebius
+                and ("committed" in r.consumption_type or "reserved" in r.consumption_type)]
+        return min(vals) if vals else None
+    neb_comm, comp_comm = _comm_min(True), _comm_min(False)
+    if neb_comm is not None:
+        c = f"`Comm` Nebius committed from ${neb_comm:.2f}"
+        if comp_comm is not None:
+            c += f"  |  market committed from ${comp_comm:.2f}"
+        out.append(c)
     out.append("_RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._")
     return "\n".join(out)
 

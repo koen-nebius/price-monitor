@@ -270,6 +270,17 @@ NEBIUS_COMMITTED_PRICES = {
             36: {"100pct": 5.19, "50pct": 5.41, "30pct": 5.57},
         },
     },
+    # RTX PRO 6000 (Blackwell 96GB inference/PAYG card). Above-512 tier only on the
+    # AE sheet; 6mo (1.72/1.73/1.74) and 36mo (per-request) omitted (no canonical ct
+    # bucket). All tiers sit below the $1.80 on-demand, as expected. Verified 2026-06-24.
+    "RTX6000": {
+        "above_512": {
+            9:  {"100pct": 1.64, "50pct": 1.67, "30pct": 1.68},
+            12: {"100pct": 1.56, "50pct": 1.60, "30pct": 1.62},
+            18: {"100pct": 1.49, "50pct": 1.54, "30pct": 1.56},
+            24: {"100pct": 1.42, "50pct": 1.48, "30pct": 1.50},
+        },
+    },
 }
 
 # Consumption-type suffix for non-canonical prepayment tiers
