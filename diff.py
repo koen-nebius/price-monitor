@@ -168,10 +168,24 @@ def _representative_spot_floor(records: List[PriceRecord], gpu: str,
     Returns (provider, median_price, n_zones) or None.
     """
     from collections import defaultdict as _dd
+    # Per-provider on-demand baseline for this GPU, to filter PHANTOM spot floors:
+    # for newest-gen GPUs (B200/B300) hyperscalers publish a spot price but have no
+    # real spot capacity, so it sits ~80%+ below their own on-demand — far past any
+    # genuine spot discount (~60-70%). Comparing Nebius preemptible to that produces a
+    # misleading "+54% above AWS" against capacity nobody can actually get.
+    MAX_SPOT_DISCOUNT = 0.80
+    od_by_prov: Dict[str, float] = {}
+    for r in records:
+        if r.gpu_model == gpu and r.consumption_type == "on_demand":
+            if r.provider not in od_by_prov or r.price_per_gpu_hour_usd < od_by_prov[r.provider]:
+                od_by_prov[r.provider] = r.price_per_gpu_hour_usd
     by_prov = _dd(list)
     for r in records:
         if (r.gpu_model == gpu and r.consumption_type in INTERRUPTIBLE_CTS
                 and (tiers is None or provider_tier(r.provider) in tiers)):
+            od = od_by_prov.get(r.provider)
+            if od and r.price_per_gpu_hour_usd < od * (1 - MAX_SPOT_DISCOUNT):
+                continue  # phantom: spot > 75% below this provider's own on-demand
             by_prov[r.provider].append(r.price_per_gpu_hour_usd)
     if not by_prov:
         return None
@@ -192,10 +206,25 @@ def _best_comparable(records: List[PriceRecord], gpu: str, ct: str,
             or _best_price(records, gpu, ct, tiers=tiers))
 
 
-def _position_for_tier(records, gpu, cts, label):
+def _is_cluster_peer(r) -> bool:
+    """
+    True if a peer record is an 8×SXM (or larger) cluster offering — the like-for-like
+    basis for comparing against Nebius's cluster price. Single-GPU / Ethernet entry SKUs
+    (e.g. GMI 1×H200 $2.60, Voltage 1×H100 $1.99 Ethernet) are NOT cluster-comparable and
+    must not drag down the peer median. Interconnect is often "unknown" in aggregator data,
+    so we gate on form factor + node size, not interconnect.
+    """
+    if (r.form_factor or "").upper() != "SXM":
+        return False
+    return (r.gpu_count or 0) >= 8 or (getattr(r, "node_gpus", 0) or 0) >= 8
+
+
+def _position_for_tier(records, gpu, cts, label, cluster_only=False):
     """
     Compute Nebius position vs raw_gpu_cloud peers for a set of consumption types.
     `cts` is a set of consumption_type strings treated as the same tier.
+    cluster_only=True restricts peers to 8×SXM cluster SKUs (like-for-like with Nebius's
+    cluster price), so single-GPU entry SKUs don't make Nebius look artificially premium.
     """
     nebius_candidates = [r for r in records
                          if r.gpu_model == gpu and r.consumption_type in cts
@@ -208,6 +237,13 @@ def _position_for_tier(records, gpu, cts, label):
              and provider_tier(r.provider) in ("raw_gpu_cloud", "enterprise_gpu_cloud")
              and r.provider in PROVIDER_TIERS.get("enterprise_gpu_cloud", [])
              and r.provider != "nebius"]
+    if cluster_only:
+        # Prefer cluster-class (8×SXM) peers; fall back to all peers only when none
+        # exist for this GPU — e.g. L40S is PCIe everywhere, so PCIe-to-PCIe is the
+        # genuine like-for-like, and B300 has no SXM-tagged peer in the aggregator yet.
+        cluster_peers = [r for r in peers if _is_cluster_peer(r)]
+        if cluster_peers:
+            peers = cluster_peers
 
     if not peers and nebius_rec is None:
         return None
@@ -260,7 +296,7 @@ def compute_position(records: List[PriceRecord]) -> List[dict]:
     """
     rows = []
     for gpu in GPU_ORDER:
-        od = _position_for_tier(records, gpu, {"on_demand"}, "on_demand")
+        od = _position_for_tier(records, gpu, {"on_demand"}, "on_demand", cluster_only=True)
         if od:
             rows.append(od)
         intr = _position_for_tier(records, gpu, INTERRUPTIBLE_CTS, "interruptible")
@@ -582,7 +618,7 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
 
         # ── 1a. vs GPU cloud peers ────────────────────────────────────────────
         if od_rows:
-            lines.append("\n*vs GPU cloud peers (on-demand):*")
+            lines.append("\n*vs GPU cloud peers (on-demand, cluster-class like-for-like):*")
             for row in od_rows:
                 neb   = row["nebius_price"]
                 med   = row["median_peer"]
@@ -666,7 +702,8 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
             lines.append("\n*Spot / preemptible (vs cheapest hyperscaler spot, median across zones):*")
             for gpu, neb_px, hyp_prov, hyp_px, n_zones in spot_rows:
                 if hyp_px is None:
-                    lines.append(f"`{gpu:<5}` Nebius ${neb_px:.2f}  |  no hyperscaler spot published")
+                    lines.append(f"`{gpu:<5}` Nebius ${neb_px:.2f}  |  no obtainable hyperscaler spot "
+                                 f"(newest-gen spot capacity not realistically offered)")
                     continue
                 delta_pct = (neb_px - hyp_px) / hyp_px * 100  # positive = Nebius pricier
                 pos = f"Nebius {delta_pct:.0f}% above" if delta_pct > 0 else f"Nebius {-delta_pct:.0f}% below"
