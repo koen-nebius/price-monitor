@@ -36,6 +36,11 @@ SKIP_PROVIDERS = {
     "oracle",
     "together ai",    # direct fetcher via together.py — aggregator mislabels its cluster rates
     "together",
+    # Serverless / per-second inference platforms — NOT cluster-GPU competitors. Their
+    # per-second or fractional rates read as implausible $/GPU-hr (Modal: H100 $0.07,
+    # B200 $0.10), polluting the set and tripping the anomaly guard daily.
+    "modal",
+    "modal labs",
     # Distressed — prices unreliable, would pollute the benchmark:
     "genesis cloud",   # in liquidation ("GmbH i.L." since Aug 2025) yet still lists prices
     "genesis",

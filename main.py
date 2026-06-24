@@ -373,17 +373,14 @@ def run(providers=None, test=False):
         provider_status=provider_status,
     )
 
-    # Prepend anomaly and staleness warnings to the channel summary
-    # Only surface truly implausible prices (absolute range violations) in the Slack
-    # anomaly header. Day-over-day ±40% swings are real market moves that already
-    # appear in the "Price moves" section — flagging them as anomalies is misleading.
-    slack_prefix_parts = []
+    # Data-quality anomalies are INTERNAL ONLY — never prepended to the exec/sales
+    # broadcast. Implausible-range records (e.g. serverless platforms like Modal whose
+    # per-second rate reads as $0.07/GPU-hr) are already excluded from every displayed
+    # table (formatters use accepted_records), so the warning is a maintainer signal,
+    # not something execs should see. It stays in the logs and run_manifest warnings.
     implausible = [a for a in anomalies if "implausibly" in a]
     if implausible:
-        anomaly_lines = "\n".join(f"• {a}" for a in implausible)
-        slack_prefix_parts.append(f"⚠ *Data anomaly detected*\n{anomaly_lines}")
-    if slack_prefix_parts:
-        slack_summary = "\n\n".join(slack_prefix_parts) + "\n\n" + slack_summary
+        logger.warning(f"Implausible-price records excluded from output: {implausible}")
 
     slack_path = STORE_DIR / "slack_message.txt"
     with open(slack_path, "w") as f:
