@@ -6,7 +6,6 @@
 `B200 ` Nebius $7.15  -15% vs median  |  0/2 peers cheaper  |  floor: Together $8.19
 `B300 ` Nebius $7.85  |  1 peer: Scaleway $9.01
 `L40S ` Nebius $1.82  +7% vs median  |  2/3 peers cheaper  |  floor: Crusoe $1.50
-`RTX6000` $1.80  no peer data
 
 *vs cheapest hyperscaler on-demand (8×SXM cluster, like-for-like):*
 `H100 ` Nebius $3.85  vs  AWS $6.88  →  Nebius 44% below
@@ -21,7 +20,6 @@
 `B200 ` Nebius $3.95  vs  AWS $3.19 (median, 1 zones)  →  Nebius 24% above
 `B300 ` Nebius $4.30  vs  AWS $3.63 (median, 1 zones)  →  Nebius 18% above
 `L40S ` Nebius $0.90  |  no comparable hyperscaler spot (not offered, or newest-gen spot capacity not realistically available)
-`RTX6000` Nebius $0.95  |  no comparable hyperscaler spot (not offered, or newest-gen spot capacity not realistically available)
 _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across zones (single-zone dips excluded)._
 
 *Committed pricing (H100 benchmark, $/GPU-hr):*
@@ -41,6 +39,12 @@ _Nebius committed list verified 2026-06-23._
 `GB300` lowest $3.09 (60mo, 100%) via Undisclosed  |  no Nebius committed at this term  [18 deals]
 _Deal-specific, anonymized; lower confidence than published list prices._
 
-_No significant price moves today (3 minor changes below 3% threshold)._
+
+*RTX PRO 6000 (inference / PAYG card) — vs RTX market:*
+`OD  ` Nebius $1.80  -5% vs market median $1.89  |  4/10 cheaper  |  floor: Vast $0.71
+`Spot` Nebius $0.95
+_RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._
+
+_No significant price moves today (0 minor changes below 3% threshold)._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview

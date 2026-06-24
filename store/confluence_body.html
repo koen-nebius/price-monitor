@@ -19,7 +19,6 @@
 <tr><td><strong>GB200</strong></td><td>—</td><td>$8.00 <em>(GMI Cloud)</em></td><td>—</td><td>$16.00 <em>(Oracle, SXM)</em></td><td>$9.25</td><td>3</td></tr>
 <tr><td><strong>GB300</strong></td><td>—</td><td>—</td><td>—</td><td>$18.00 <em>(Oracle, SXM)</em></td><td>—</td><td>0</td></tr>
 <tr><td><strong>L40S</strong></td><td><strong>$1.82</strong></td><td>$1.50 <em>(Crusoe)</em></td><td><span data-type="status" data-color="yellow">+7% vs median</span></td><td>$1.86 <em>(AWS, PCIe)</em></td><td>$1.70</td><td>4</td></tr>
-<tr><td><strong>RTX6000</strong></td><td><strong>$1.80</strong></td><td>—</td><td>—</td><td>—</td><td>—</td><td>1</td></tr>
 </tbody></table>
 <p><em>Enterprise peers (from tier registry): CoreWeave, Lambda, Crusoe, Together AI, Hyperstack, Voltage Park, GMI Cloud, Scaleway. Criteria: GPU-first business, meaningful owned capacity (1,000+ GPUs), enterprise SLAs, active. Excluded: Genesis Cloud (in liquidation 2025), Sesterce (broker/reseller model), Denvr Dataworks (too small). Hyperscaler column = cheapest of AWS / GCP / Azure / Oracle (on-demand list price; enterprise customers typically pay 40–57% less at 3yr committed). Nebius on-demand prices are uniform across regions (no US discount); availability by GPU: H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private). IREN: competitor named in enterprise sales calls; not yet tracked (no public pricing). ⚠️ L40S pricing risk: Nebius on-demand ($1.82) is only 2% below AWS on-demand ($1.86); AWS L40S drops to ~$0.37 at 3yr committed — a 5× gap that Nebius has no committed L40S tier to counter. GB200/GB300: Nebius has committed pricing for these GPUs (see table below) but no published on-demand rate. Coverage: current-gen datacenter GPUs (H100, H200, B200, B300, L40S, GB200, GB300). A100 (prior-gen) is excluded as demand has shifted to Hopper/Blackwell; AMD MI300X/MI325X excluded as a separate ecosystem. Both can be added on request.</em></p>
 <h2>Decision Triggers — Pricing / Finance</h2>
@@ -31,7 +30,6 @@
 <tr><td><strong>B200</strong></td><td>$7.15</td><td><span data-type="status" data-color="green">-15%</span></td><td>$8.19 <em>(Together AI)</em></td><td>$14.00 <em>(Oracle)</em></td><td>$3.20 <em>(2yr, GCP)</em></td><td><span data-type="status" data-color="green">+0% / 33d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 <tr><td><strong>B300</strong></td><td>$7.85</td><td><span data-type="status" data-color="green">-13%</span></td><td>$9.01 <em>(Scaleway)</em></td><td>$15.00 <em>(Oracle)</em></td><td>$3.50 <em>(3yr, Azure)</em> <span data-type="status" data-color="red">lost deal</span></td><td><span data-type="status" data-color="yellow">+29% / 33d</span></td><td>Lost a deal at the field price — review committed pricing for this SKU</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 <tr><td><strong>L40S</strong></td><td>$1.82</td><td><span data-type="status" data-color="yellow">+7%</span></td><td>$1.50 <em>(Crusoe)</em></td><td>$1.86 <em>(AWS)</em></td><td>—</td><td><span data-type="status" data-color="green">+0% / 18d</span></td><td>Hold; monitor (watch hyperscaler parity)</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
-<tr><td><strong>RTX6000</strong></td><td>$1.80</td><td>—</td><td>—</td><td>—</td><td>—</td><td><em>building</em></td><td>Establish peer benchmark</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 </tbody></table>
 <p><em>Market 30d = change in the cheapest enterprise-peer on-demand price over the last 30 days (90d trend appears once ≥90 days of history accrues). "Cheapest hyperscaler" is the like-for-like 8×SXM cluster SKU. "Competitor field deal" is the lowest real negotiated quote from #price-intelligence (term shown; may be committed, not on-demand) — the primary signal for next-gen GPUs where public list prices are sparse.</em></p>
 <h2>PAYG Product-Model Gaps</h2>
@@ -244,20 +242,6 @@
 <tr><td>Scaleway</td><td><strong>$1.70</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-7%</span></td></tr>
 <tr><td><strong>Nebius ★</strong></td><td><strong>$1.82</strong></td><td>1× GPU</td><td>eu-north1</td><td>—</td></tr>
 <tr><td>Coreweave</td><td><strong>$2.25</strong></td><td>8× GPU</td><td>us-central-1</td><td><span data-type="status" data-color="green">+24%</span></td></tr>
-</tbody></table>
-<h3>RTX6000 — On-demand (raw GPU cloud, sorted by price)</h3>
-<table data-layout="full-width"><tbody>
-<tr><th>Provider</th><th>$/GPU-hr</th><th>Node size</th><th>Region</th><th>vs Nebius</th></tr>
-<tr><td>Vast</td><td><strong>$0.71</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-61%</span></td></tr>
-<tr><td>Beam</td><td><strong>$1.04</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-42%</span></td></tr>
-<tr><td>Sesterce</td><td><strong>$1.09</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-40%</span></td></tr>
-<tr><td>Seeweb</td><td><strong>$1.42</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-21%</span></td></tr>
-<tr><td><strong>Nebius ★</strong></td><td><strong>$1.80</strong></td><td>1× GPU</td><td>eu-north1</td><td>—</td></tr>
-<tr><td>Jarvis</td><td><strong>$1.89</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+5%</span></td></tr>
-<tr><td>Verda</td><td><strong>$1.89</strong></td><td>2× GPU</td><td>global</td><td><span data-type="status" data-color="green">+5%</span></td></tr>
-<tr><td>Latitude</td><td><strong>$1.90</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+6%</span></td></tr>
-<tr><td>Massedcompute</td><td><strong>$2.19</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+22%</span></td></tr>
-<tr><td>Akamai Cloud</td><td><strong>$2.50</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+39%</span></td></tr>
 </tbody></table>
 <h2>Regional Price Comparison — All Providers by Geography</h2>
 <p>Cheapest price per provider within each geographic region. Geo buckets aggregate across provider-specific region names so AWS us-east-1, GCP us-east4, and Azure eastus can be compared in the same row. On-demand, spot, and committed tiers shown separately.</p>
