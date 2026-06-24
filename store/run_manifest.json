@@ -1,13 +1,13 @@
 {
   "run_date": "2026-06-24",
-  "started_at": "2026-06-24T09:38:21.057812+00:00",
-  "completed_at": "2026-06-24T09:39:29.933080+00:00",
+  "started_at": "2026-06-24T11:16:19.224065+00:00",
+  "completed_at": "2026-06-24T11:17:36.439097+00:00",
   "status": "success",
-  "record_count": 927,
-  "raw_record_count": 927,
+  "record_count": 925,
+  "raw_record_count": 925,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 26,
+  "diff_count": 4,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 13
+      "record_count": 11
     },
     "crusoe": {
       "status": "live",
