@@ -418,6 +418,104 @@ def _format_committed_callout(records: List[PriceRecord]) -> str:
 # Slack message — executive brief
 # ---------------------------------------------------------------------------
 
+def _field_committed_by_gpu(days: int = 90):
+    """{GPU: [(price, term_months, provider, prepay), ...]} of committed field deals."""
+    from collections import defaultdict as _dd
+    by_gpu = _dd(list)
+    for r in _load_intel(days=days):
+        try:
+            term = int(float(r.get("term_months", "0") or 0))
+            px = float(r["price_per_gpu_hour_usd"])
+        except (ValueError, KeyError, TypeError):
+            continue
+        if term <= 0 or px <= 0:
+            continue   # committed deals only
+        by_gpu[(r.get("gpu_model") or "").upper()].append(
+            (px, term, r.get("provider_name") or r.get("provider_type") or "?",
+             r.get("prepay_pct") or "?"))
+    return by_gpu
+
+
+def _build_takeaway(records: List[PriceRecord]) -> str:
+    """
+    One-line exec bottom-line, leading the digest: where Nebius sits on on-demand
+    (vs hyperscalers + cluster peers) and where the real pressure is (committed deals
+    competitors are actually quoting). Synthesises the position so the CEO/CRO/sales
+    reader gets the 'so what' before the tables.
+    """
+    if not records:
+        return ""
+    # On-demand vs hyperscalers (cluster-class), as a range.
+    gaps = []
+    for gpu in GPU_ORDER:
+        neb = next((r for r in records if r.provider == "nebius"
+                    and r.gpu_model == gpu and r.consumption_type == "on_demand"), None)
+        hyp = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
+        if neb and hyp:
+            gaps.append((hyp.price_per_gpu_hour_usd - neb.price_per_gpu_hour_usd)
+                        / hyp.price_per_gpu_hour_usd * 100)
+    # On-demand vs cluster-peer median.
+    peer_below = []
+    for row in compute_position(records):
+        if (row["tier_label"] == "on_demand" and row["nebius_price"]
+                and row.get("median_peer") and row["total_peers"] >= 2):
+            pct = (row["nebius_price"] - row["median_peer"]) / row["median_peer"] * 100
+            if pct <= -3:
+                peer_below.append(row["gpu"])
+    od = None
+    if gaps:
+        lo, hi = min(gaps), max(gaps)
+        od = f"on-demand sits {lo:.0f}–{hi:.0f}% below hyperscalers"
+        if peer_below:
+            od += f" and below cluster-peer median ({', '.join(peer_below[:3])})"
+    # Committed pressure: the hottest GPU where a competitor deal undercuts Nebius committed.
+    by_gpu = _field_committed_by_gpu(90)
+    pressure = None
+    for g in ("GB300", "B300", "B200", "H200", "H100"):
+        if not by_gpu.get(g):
+            continue
+        px, term, _prov, _pp = min(by_gpu[g], key=lambda x: x[0])
+        cts, _lbl = _term_bucket_cts(term)
+        neb = _cheapest(records, "nebius", g, cts) if cts else None
+        if neb and px < neb:
+            d = (px - neb) / neb * 100
+            pressure = (f"the contested ground is committed deals — competitors quoting "
+                        f"{g} from ${px:.2f} vs our ${neb:.2f} ({d:+.0f}%)")
+            break
+    clauses = [c for c in (od, pressure) if c]
+    if not clauses:
+        return ""
+    return "\n*Bottom line:* Nebius " + "; ".join(clauses) + "."
+
+
+def _format_field_committed_callout(records: List[PriceRecord]) -> str:
+    """
+    Slack text version of the neocloud committed field-intel table: the lowest committed
+    deal seen per GPU in #price-intelligence vs Nebius committed at the same term. This is
+    where the 2026 competition actually happens (B300/GB300), and peers don't publish it.
+    """
+    by_gpu = _field_committed_by_gpu(90)
+    present = [g for g in GPU_ORDER if by_gpu.get(g)]
+    if not present:
+        return ""
+    lines = ["\n*Committed — negotiated competitor deals (field intel, #price-intelligence, 90d):*"]
+    for g in present:
+        deals = by_gpu[g]
+        px, term, prov, prepay = min(deals, key=lambda x: x[0])
+        cts, term_label = _term_bucket_cts(term)
+        neb = _cheapest(records, "nebius", g, cts) if cts else None
+        prepay_str = f"{prepay}%" if str(prepay).isdigit() else str(prepay)
+        if neb:
+            d = (px - neb) / neb * 100
+            vs = f"{d:+.0f}% vs Nebius ${neb:.2f}"
+        else:
+            vs = "no Nebius committed at this term"
+        lines.append(f"`{g:<5}` lowest ${px:.2f} ({term_label}, {prepay_str}) via "
+                     f"{_provider_display(prov)}  |  {vs}  [{len(deals)} deals]")
+    lines.append("_Deal-specific, anonymized; lower confidence than published list prices._")
+    return "\n".join(lines)
+
+
 def format_slack_summary(diffs: List[DiffEntry], run_date: str,
                          confluence_url: str, records: List[PriceRecord] = None,
                          provider_status: dict = None) -> str:
@@ -435,7 +533,10 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
 
     lines = [f"*GPU Pricing Daily — {run_date}*"]
 
-    # ── Today's signal: most important grouped price move ────────────────────
+    # ── Price moves today: most important grouped move ───────────────────────
+    # Built into signal_block and appended at the END — the lead is the position
+    # takeaway, not a daily spot tick (which is noise to an exec/sales reader).
+    signal_block: List[str] = []
     significant = [
         d for d in diffs
         if d.change_type == "price_change"
@@ -477,14 +578,14 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
             ct.replace("on_demand", "on-demand").replace("_", " ").replace("reserved 1yr", "reserved")
         sku_note = f" across {len(items)} SKUs" if len(items) > 1 else ""
         if _high_signal(prov):
-            lines.append(
-                f"\n*Today's signal:* {_pname(prov)} {verb} {gpu} {ct_label} "
+            signal_block.append(
+                f"\n*Price moves today:* {_pname(prov)} {verb} {gpu} {ct_label} "
                 f"{avg:+.0f}%{sku_note} (${best.old_price:.2f}→${best.new_price:.2f})"
             )
         else:
             # Only small-provider moves today — say so instead of promoting one
-            lines.append(
-                f"\n*Today's signal:* no moves from hyperscalers or major neoclouds — "
+            signal_block.append(
+                f"\n*Price moves today:* no moves from hyperscalers or major neoclouds — "
                 f"largest small-provider move: {_pname(prov)} {gpu} {ct_label} {avg:+.0f}%"
             )
         rest = ranked[1:]
@@ -496,14 +597,18 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
         if n_small:
             rest_parts.append(f"{n_small} small-provider move{'s' if n_small > 1 else ''}")
         if rest_parts:
-            lines[-1] += f" · {' + '.join(rest_parts)} in thread"
+            signal_block[-1] += f" · {' + '.join(rest_parts)} in thread"
     else:
-        lines.append("\n*Today's signal:* no significant price moves "
-                     f"(≥{ALERT_THRESHOLD_PCT:.0f}%) on tracked providers")
+        signal_block.append("\n*Price moves today:* no significant price moves "
+                            f"(≥{ALERT_THRESHOLD_PCT:.0f}%) on tracked providers")
 
     # ── Position: one line for hyperscalers, one for peers ──────────────────
     if records:
         enrich_comparability(records)  # ensure form_factor tags for cluster-class filtering
+        # Lead with the bottom-line takeaway (synthesised position), before the detail.
+        takeaway = _build_takeaway(records)
+        if takeaway:
+            lines.append(takeaway)
         # vs hyperscalers (on-demand) — compare like-for-like cluster SKUs only
         gaps = []
         for gpu in GPU_ORDER:
@@ -516,11 +621,9 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
                 gaps.append((gpu, pct, hyp))
         # Neutral framing: report where Nebius prices sit, no better/worse language.
         # Lower is not inherently good — premium pricing can reflect product strength;
-        # this digest informs pricing decisions in both directions.
-        if gaps:
-            lo, hi = min(p for _, p, _ in gaps), max(p for _, p, _ in gaps)
-            lines.append(f"\n*Position:* Nebius on-demand sits {lo:.0f}–{hi:.0f}% "
-                         f"below hyperscaler rack rates")
+        # this digest informs pricing decisions in both directions. The hyperscaler
+        # range is stated in the bottom-line takeaway above, so no standalone line here.
+        # (gaps is still used by the Reference notes below.)
 
         # vs peer median (on-demand)
         position = compute_position(records)
@@ -567,6 +670,8 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
         if notes:
             lines.append("Reference: " + " · ".join(notes))
 
+    # Daily price moves come AFTER the position (demoted from the lead).
+    lines.extend(signal_block)
     lines.append(f"\nFull tables in thread ↓ · <{confluence_url}|Confluence benchmark>")
     return "\n".join(lines)
 
@@ -719,6 +824,14 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
         if _committed:
             lines.append("")
             for l in _committed.split("\n"):
+                lines.append(l)
+
+        # ── 2b. Committed — negotiated competitor deals (field intel) ────────
+        # The real 2026 battleground (B300/GB300); peers don't publish committed list.
+        _field_committed = _format_field_committed_callout(records)
+        if _field_committed:
+            lines.append("")
+            for l in _field_committed.split("\n"):
                 lines.append(l)
 
     # ── Significant price changes — grouped by provider + GPU ───────────────
