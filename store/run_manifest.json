@@ -1,13 +1,13 @@
 {
   "run_date": "2026-06-24",
-  "started_at": "2026-06-24T05:12:27.237114+00:00",
-  "completed_at": "2026-06-24T05:13:42.055788+00:00",
+  "started_at": "2026-06-24T09:38:21.057812+00:00",
+  "completed_at": "2026-06-24T09:39:29.933080+00:00",
   "status": "success",
-  "record_count": 914,
-  "raw_record_count": 914,
-  "anomaly_count": 5,
+  "record_count": 927,
+  "raw_record_count": 927,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 41,
+  "diff_count": 26,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 12
+      "record_count": 13
     },
     "crusoe": {
       "status": "live",
@@ -37,7 +37,7 @@
     },
     "nebius": {
       "status": "live",
-      "record_count": 10
+      "record_count": 12
     },
     "nebius_committed": {
       "status": "live",
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 123
+      "record_count": 133
     },
     "oracle": {
       "status": "live",
@@ -68,17 +68,10 @@
       "record_count": 6
     }
   },
-  "warnings": [
-    "Nebius committed prices last verified 62 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
-    "cp_modal B200 on_demand: $0.10/GPU-hr \u26a0 implausibly low price",
-    "cp_modal H100 on_demand: $0.07/GPU-hr \u26a0 implausibly low price",
-    "cp_modal H200 on_demand: $0.08/GPU-hr \u26a0 implausibly low price",
-    "cp_modal L40S on_demand: $0.02/GPU-hr \u26a0 implausibly low price",
-    "cp_packet-ai L40S on_demand: $0.92 \u2192 $0.54 (-41.3%) \u26a0 price anomaly"
-  ],
+  "warnings": [],
   "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 4,
+  "significant_moves": 0,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
