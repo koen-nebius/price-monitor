@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-06-24",
-  "started_at": "2026-06-24T12:03:25.272967+00:00",
-  "completed_at": "2026-06-24T12:04:33.765662+00:00",
+  "run_date": "2026-06-25",
+  "started_at": "2026-06-25T05:32:52.720312+00:00",
+  "completed_at": "2026-06-25T05:34:23.657633+00:00",
   "status": "success",
-  "record_count": 937,
-  "raw_record_count": 937,
+  "record_count": 935,
+  "raw_record_count": 935,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 13,
+  "diff_count": 21,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 11
+      "record_count": 9
     },
     "crusoe": {
       "status": "live",
@@ -68,10 +68,12 @@
       "record_count": 6
     }
   },
-  "warnings": [],
+  "warnings": [
+    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
+  ],
   "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 0,
+  "significant_moves": 5,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
