@@ -34,32 +34,32 @@ PEER_PREMIUM   = 0.05   # PAYG target premium over the cluster-peer median ("sli
 RESERVE_TERM   = 12     # which committed term (months) is the reserve anchor: 12=1yr
 RESERVE_TIER   = "above_512"
 
-# NER = demand-pressure guardrail. Per-GPU "not enough resources" alert VOLUME on the
-# PAYG pool over the last 30 days (capacity_block_id empty), from
-# //home/dwh/nemax-prod/data/ods/capacity/ner_alerts (query 7f3a5e8f-595face1, 2026-06-26;
-# window 2026-05-27..06-26). alerts = unmet PAYG launch signals; projects = distinct
-# projects affected (breadth). This is VOLUME, not the NER rate (÷ new provisions); it
-# answers the guardrail question directionally: high NER => demand exceeds PAYG supply,
-# so a price rise is unlikely to dent utilization. B200/L40S sum their two platform slugs.
+# NER = demand-pressure guardrail. DEDUPED, PRODUCTION-ONLY real unmet demand on the PAYG
+# pool, last 30d, from //home/dwh/nemax-prod/data/ods/capacity/ner_alerts (queries
+# 447c996d / 43a14a26 / 92bfa2df, 2026-06-26; window 2026-05-27..06-26).
+# IMPORTANT (analysis 2026-06-26): the raw alert count is NOT demand — it is retry-inflated
+# ~150-230x (one project failing generates ~150-230 alerts/day), test regions (e0t/u0t/e1t)
+# inflate B300/GB300, and a few projects make ~50-80% of each region's alerts. The honest
+# measure is project_days = distinct (project, day) of unmet demand in PRODUCTION regions.
+# Demand is region-concentrated (H100->Manchester e00; H200->Paris e01/Kansas u00/Man e00;
+# B200->Kansas u00/Israel i00) and user-concentrated. GB300 production demand ~0 (all test).
 NER_30D = {
-    "H200":    {"alerts": 227361, "projects": 986},
-    "H100":    {"alerts": 172344, "projects": 1012},
-    "B200":    {"alerts": 63866,  "projects": 2858},   # gpu-b200-sxm + -sxm-a
-    "B300":    {"alerts": 17359,  "projects": 3278},
-    "RTX6000": {"alerts": 11324,  "projects": 368},
-    "L40S":    {"alerts": 7212,   "projects": 1425},    # gpu-l40s-a + -d
-    "GB300":   {"alerts": 1660,   "projects": 1118},
+    "H200":  {"project_days": 1553, "projects": 758, "region": "Paris/Kansas/Man", "conc": "~50% from 1 proj/region"},
+    "H100":  {"project_days": 750,  "projects": 418, "region": "Manchester (e00)", "conc": "top2=46%, top5=79%"},
+    "B200":  {"project_days": 1044, "projects": 300, "region": "Kansas/Israel",    "conc": "moderate"},
+    "B300":  {"project_days": 520,  "projects": 477, "region": "UK + spread",      "conc": "low retry (real but small)"},
+    "GB300": {"project_days": 0,    "projects": 0,   "region": "test-only",        "conc": "no real PAYG demand"},
 }
 
 STORE = Path(__file__).parent / "store"
 
 
-def _ner_tier(alerts):
-    if alerts is None:        return "—"
-    if alerts >= 100_000:     return "SEVERE"
-    if alerts >= 30_000:      return "high"
-    if alerts >= 5_000:       return "moderate"
-    return "low"
+def _ner_tier(pd_):
+    if pd_ is None:     return "—"
+    if pd_ >= 1000:     return "HIGH"
+    if pd_ >= 500:      return "moderate"
+    if pd_ >= 100:      return "low"
+    return "none"
 
 
 def _load_records():
@@ -131,9 +131,9 @@ def build(ner=None):
 def _ner_str(n):
     if not n:
         return "—"
-    a = n.get("alerts")
-    tier = _ner_tier(a)
-    return f"{tier} ({a/1000:.0f}k / {n.get('projects')}p)" if a else "—"
+    pd_ = n.get("project_days")
+    tier = _ner_tier(pd_)
+    return f"{tier} ({pd_}pd, {n.get('region')})"
 
 
 def _f(x, pct=False):
@@ -146,12 +146,12 @@ def render(rows):
     print(f"PAYG pricing scenarios  (reserve markup {RESERVE_MARKUP:+.0%} over {RESERVE_TERM}mo {RESERVE_TIER}; "
           f"peer premium {PEER_PREMIUM:+.0%})\n")
     hdr = ("GPU", "PAYG now", f"Resv{RESERVE_TERM}mo", "impl.mkup",
-           "RESERVE-based (Δ)", "Peer med", "Cheap hyp", "MARKET-bench (Δ)", "NER pressure (30d)")
-    print("{:<7}{:<10}{:<11}{:<10}{:<19}{:<10}{:<11}{:<19}{:<26}".format(*hdr))
+           "RESERVE-based (Δ)", "Peer med", "Cheap hyp", "MARKET-bench (Δ)", "NER real demand (30d, deduped)")
+    print("{:<7}{:<10}{:<11}{:<10}{:<19}{:<10}{:<11}{:<19}{:<40}".format(*hdr))
     for r in rows:
         rb = f"{_f(r['rb'])} ({_f(r['rb_delta'],1)})" if r['rb'] else "—"
         mb = (f"{_f(r['mb'])} ({_f(r['mb_delta'],1)})" + (" cap" if r['mb_capped'] else "")) if r['mb'] else "—"
-        print("{:<7}{:<10}{:<11}{:<10}{:<19}{:<10}{:<11}{:<19}{:<26}".format(
+        print("{:<7}{:<10}{:<11}{:<10}{:<19}{:<10}{:<11}{:<19}{:<40}".format(
             r["gpu"], _f(r["current"]), _f(r["reserve"]), _f(r["implied_markup"], 1),
             rb, _f(r["peer_med"]), _f(r["hyp"]), mb, _ner_str(r["ner"])))
 
