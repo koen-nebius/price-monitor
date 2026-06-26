@@ -125,3 +125,7 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1782016770.454949,2026-06-21,B300,4.95,36,50,undisclosed_hyperscaler,Undisclosed hyperscaler,512 GPUs Nov delivery 36m 50% prepay competitive bid
 1782153062.086669,2026-06-22,B200,3.50,12,100,neocloud,LAI,1yr term ~5k B200 cluster; 100% prepay assumed
 1782153062.086669,2026-06-22,GB300,6.00,3,100,neocloud,Pale Blue Dot,3mo term quote; 1600x GB300 deal signed at 6mo (price undisclosed)
+1782335994.895259,2026-06-24,GB300,4.75,0,0,neocloud,Andromeda,1k GB300 launching Sep no commitment term
+1782351420.240329,2026-06-25,B200,4.0,36,0,broker,Anyscale,92 nodes B200 US AWS-sourced resold 3yr low 4s
+1759152382.073769,2025-09-29,H200,2.00,0,0,hyperscaler,Alibaba,Alibaba adding H200 in US on-demand at $2
+1757675144.856659,2025-09-12,GB300,3.30,36,30,undisclosed,Undisclosed,Reflection: 3 shortlisters at $3.30-$3.50 3yr ~30% prepay (vs Nebius $4.6)
