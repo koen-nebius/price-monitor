@@ -22,6 +22,14 @@ CHANGE_THRESHOLD = 0.001   # 0.1% — ignore floating-point noise in diff detect
 # cluster peers/hyperscalers these sections compare against. It gets its own market
 # line via _format_rtx_callout. It IS tracked in NEBIUS_GPUS / GPU_MODELS / fetchers.
 GPU_ORDER = ["H100", "H200", "B200", "B300", "GB200", "GB300", "L40S"]
+
+# Revenue-driver GPUs that the SUMMARY headline focuses on, in priority order. The
+# detailed thread + Confluence still cover all of GPU_ORDER, but the exec-facing summary
+# is weighted to where the revenue and the competitive opportunity actually are (Hopper +
+# Blackwell data-center GPUs). L40S, GB200 and RTX are minor on revenue, so they stay in
+# the thread and don't drag the headline (e.g. L40S near-parity was widening the gap range
+# to "2%"). Adjust this list to re-weight the headline.
+SUMMARY_GPUS = ["H100", "H200", "B200", "B300", "GB300"]
 CT_ORDER  = ["on_demand", "spot", "preemptible", "reserved_1yr", "reserved_3yr",
              "committed_1yr", "committed_3yr"]
 CT_LABELS = {
@@ -449,19 +457,21 @@ def _build_takeaway(records: List[PriceRecord]) -> str:
     """
     if not records:
         return ""
-    # On-demand vs hyperscalers (cluster-class), as a range.
+    # On-demand vs hyperscalers (cluster-class), as a range — revenue-driver GPUs only,
+    # so a minor card like L40S near AWS parity doesn't drag the headline range to "2%".
     gaps = []
-    for gpu in GPU_ORDER:
+    for gpu in SUMMARY_GPUS:
         neb = next((r for r in records if r.provider == "nebius"
                     and r.gpu_model == gpu and r.consumption_type == "on_demand"), None)
         hyp = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
         if neb and hyp:
             gaps.append((hyp.price_per_gpu_hour_usd - neb.price_per_gpu_hour_usd)
                         / hyp.price_per_gpu_hour_usd * 100)
-    # On-demand vs cluster-peer median.
+    # On-demand vs cluster-peer median (revenue-driver GPUs only).
     peer_below = []
     for row in compute_position(records):
         if (row["tier_label"] == "on_demand" and row["nebius_price"]
+                and row["gpu"] in SUMMARY_GPUS
                 and row.get("median_peer") and row["total_peers"] >= 2):
             pct = (row["nebius_price"] - row["median_peer"]) / row["median_peer"] * 100
             if pct <= -3:
@@ -662,9 +672,9 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
         takeaway = _build_takeaway(records)
         if takeaway:
             lines.append(takeaway)
-        # vs hyperscalers (on-demand) — compare like-for-like cluster SKUs only
+        # vs hyperscalers (on-demand) — like-for-like cluster SKUs, revenue-driver GPUs only
         gaps = []
-        for gpu in GPU_ORDER:
+        for gpu in SUMMARY_GPUS:
             neb = next((r for r in records if r.provider == "nebius"
                         and r.gpu_model == gpu and r.consumption_type == "on_demand"), None)
             hyp = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
@@ -684,6 +694,8 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
         for row in position:
             if row["tier_label"] != "on_demand" or row["nebius_price"] is None:
                 continue
+            if row["gpu"] not in SUMMARY_GPUS:
+                continue   # revenue-driver GPUs only in the headline; L40S etc. -> thread
             if row["total_peers"] < 2 or row["median_peer"] is None:
                 continue
             pct = (row["nebius_price"] - row["median_peer"]) / row["median_peer"] * 100
