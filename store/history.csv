@@ -6092,7 +6092,7 @@ snapshot_date,provider,gpu_model,consumption_type,region,instance_type,gpu_count
 2026-06-26,aws,B200,spot,us-east-2,p6-b200.48xlarge,8,2.176,17.4078,official_api,api,high,EFA,SXM
 2026-06-26,aws,B300,capacity_block,us-east-1,p6-b300.48xlarge,8,11.7,93.6,official_api,api,high,EFA,SXM
 2026-06-26,aws,B300,on_demand,us-east-1,p6-b300.48xlarge,8,17.802,142.416,official_api,api,high,EFA,SXM
-2026-06-26,aws,B300,spot,us-east-1,p6-b300.48xlarge,8,3.0122,24.098,official_api,api,high,EFA,SXM
+2026-06-26,aws,B300,spot,us-east-1,p6-b300.48xlarge,8,3.0537,24.43,official_api,api,high,EFA,SXM
 2026-06-26,aws,GB200,capacity_block,us-east-1,p6e.36xlarge,36,10.582,380.952,official_api,api,high,EFA,SXM
 2026-06-26,aws,H100,capacity_block,us-east-1,p5.48xlarge,8,3.933,31.464,official_api,api,high,EFA,SXM
 2026-06-26,aws,H100,on_demand,us-east-1,p5.48xlarge,8,6.88,55.04,official_api,api,high,EFA,SXM
@@ -6101,7 +6101,7 @@ snapshot_date,provider,gpu_model,consumption_type,region,instance_type,gpu_count
 2026-06-26,aws,H100,spot,us-west-2,p5.48xlarge,8,3.9123,31.2985,official_api,api,high,EFA,SXM
 2026-06-26,aws,H200,capacity_block,us-east-1,p5e.48xlarge,8,4.975,39.8,official_api,api,high,EFA,SXM
 2026-06-26,aws,H200,on_demand,us-east-1,p5en.48xlarge,8,7.912,63.296,official_api,api,high,EFA,SXM
-2026-06-26,aws,H200,spot,us-east-2,p5en.48xlarge,8,1.0768,8.6144,official_api,api,high,EFA,SXM
+2026-06-26,aws,H200,spot,us-east-2,p5en.48xlarge,8,1.0954,8.7635,official_api,api,high,EFA,SXM
 2026-06-26,aws,L40S,on_demand,us-east-1,g6e.xlarge,1,1.861,1.861,official_api,api,high,Ethernet,PCIe
 2026-06-26,aws,L40S,reserved_1yr,us-east-1,g6e.xlarge,1,0.5583,0.5583,official_api,api,high,Ethernet,PCIe
 2026-06-26,aws,L40S,reserved_3yr,us-east-1,g6e.xlarge,1,0.3722,0.3722,official_api,api,high,Ethernet,PCIe
