@@ -37,7 +37,10 @@ if _env_file.exists():
 from store import (save_snapshot, load_snapshot, previous_snapshot_day, STORE_DIR,
                    WEB_SCRAPED_PROVIDERS, get_cached_records, update_peer_cache,
                    load_last_snapshot, save_last_snapshot,
-                   get_cache_age_hours, save_run_manifest)
+                   get_cache_age_hours, save_run_manifest,
+                   apply_cache_staleness_guard,
+                   PEER_CACHE_SOFT_STALE_HOURS, PEER_CACHE_HARD_STALE_HOURS)
+from fetchers.computeprices import FETCH_KEY as COMPUTEPRICES_KEY
 from diff import (compute_diff, format_slack_message, format_slack_summary,
                   format_confluence_table, format_spot_auction_page)
 from history import append_records as append_history_records
@@ -188,6 +191,40 @@ def run(providers=None, test=False):
                     "record_count": len(records),
                     "cache_age_hours": round(cache_age, 1) if cache_age is not None else None,
                 }
+
+                # ── Staleness guard for the ComputePrices aggregator source ──────
+                # ComputePrices intermittently 429s/500s, triggering this cache
+                # fallback. Week-old peer prices must never be served as current to
+                # leadership. SOFT-stale (>48h): flag the records (data_source ->
+                # aggregator_stale + is_stale) so diff.py drops them from the headline.
+                # HARD-stale (>7d) or no timestamp: drop them from the assembled set.
+                if provider == COMPUTEPRICES_KEY:
+                    records, verdict, n_flagged, n_dropped = apply_cache_staleness_guard(
+                        records, cache_age
+                    )
+                    provider_status[provider]["record_count"] = len(records)
+                    if verdict == "drop":
+                        msg = (
+                            f"{provider}: cached peer data is too old "
+                            f"({age_str}, hard threshold {PEER_CACHE_HARD_STALE_HOURS:.0f}h) "
+                            f"— dropped {n_dropped} stale aggregator records (not shown as current)"
+                        )
+                        logger.warning(msg)
+                        warnings.append(msg)
+                        provider_status[provider]["status"] = "missing"
+                        provider_status[provider]["stale_verdict"] = "drop"
+                    elif verdict == "stale":
+                        msg = (
+                            f"{provider}: cached peer data is stale "
+                            f"({age_str}, soft threshold {PEER_CACHE_SOFT_STALE_HOURS:.0f}h) "
+                            f"— flagged {n_flagged} aggregator records as stale "
+                            f"(excluded from headline by diff.py)"
+                        )
+                        logger.warning(msg)
+                        warnings.append(msg)
+                        provider_status[provider]["stale_verdict"] = "stale"
+                    else:
+                        provider_status[provider]["stale_verdict"] = "ok"
             elif provider_status.get(provider, {}).get("status") != "error":
                 logger.warning(
                     f"{provider}: live fetch returned 0 records and no cache available. "
@@ -425,6 +462,35 @@ def run(providers=None, test=False):
     is_weekly = today.weekday() == 0  # Monday
     post_thread = bool(significant_moves) or bool(new_entries) or is_weekly
 
+    # ── Per-source freshness summary ──────────────────────────────────────────
+    # Compact {source: {status, age_hours}} derived from provider_status, so
+    # staleness is visible to the CCR publish agent and to anyone reading the
+    # manifest. status: "live" (fetched this run) | "cached" (served from
+    # peer_cache.json) | "stale" (cached AND past the soft threshold) | "dropped"
+    # (cached but too old to serve) | "missing" | "error". age_hours is the cache
+    # age for cached/stale/dropped sources, else null.
+    provider_freshness: Dict[str, dict] = {}
+    for p, s in provider_status.items():
+        raw_status = s.get("status")
+        age = s.get("cache_age_hours")
+        if raw_status == "live":
+            fr_status = "live"
+        elif raw_status == "fallback":
+            fr_status = "live"  # SkyPilot catalog is a live alternate source, not a cache
+        elif raw_status == "cache":
+            verdict = s.get("stale_verdict")
+            fr_status = "stale" if verdict == "stale" else "cached"
+        elif raw_status == "missing":
+            # ComputePrices records dropped by the hard staleness guard report "dropped";
+            # a genuinely empty source with no cache reports "missing".
+            fr_status = "dropped" if s.get("stale_verdict") == "drop" else "missing"
+        else:
+            fr_status = raw_status or "unknown"
+        provider_freshness[p] = {
+            "status":    fr_status,
+            "age_hours": round(age, 1) if isinstance(age, (int, float)) else None,
+        }
+
     manifest = {
         "run_date":          today.isoformat(),
         "started_at":        started_at,
@@ -438,6 +504,7 @@ def run(providers=None, test=False):
         "failed_providers":  errors,
         "stale_providers":   stale_providers,
         "provider_status":   provider_status,
+        "provider_freshness": provider_freshness,
         "warnings":          warnings,
         # Phase 3.6: posting hints for the CCR routine.
         "post_thread":       post_thread,   # post full tables thread? (change or weekly)

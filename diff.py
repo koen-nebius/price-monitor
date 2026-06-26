@@ -672,6 +672,11 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
         takeaway = _build_takeaway(records)
         if takeaway:
             lines.append(takeaway)
+        # The single sharpest action flag for a revenue-driver GPU (lost deal / review
+        # candidate / market move), right under the bottom line. Omits when none qualify.
+        action_flag = _top_action_flag(records)
+        if action_flag:
+            lines.append(action_flag)
         # vs hyperscalers (on-demand) — like-for-like cluster SKUs, revenue-driver GPUs only
         gaps = []
         for gpu in SUMMARY_GPUS:
@@ -699,12 +704,18 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
             if row["total_peers"] < 2 or row["median_peer"] is None:
                 continue
             pct = (row["nebius_price"] - row["median_peer"]) / row["median_peer"] * 100
+            # 30d market-trend direction so the reader sees movement, not just the static
+            # level. Only attached when the market moved (>=5%) and history is old enough.
+            _t = _market_trend(row["gpu"], 30, records)
+            trend_tag = ""
+            if _t and abs(_t[0]) >= 5:
+                trend_tag = f" (mkt {'+' if _t[0] >= 0 else ''}{_t[0]:.0f}%/{_t[1]}d)"
             if pct >= 3:
-                above.append(f"{row['gpu']} +{pct:.0f}%")
+                above.append(f"{row['gpu']} +{pct:.0f}%{trend_tag}")
             elif pct <= -3:
-                below.append(f"{row['gpu']} {pct:.0f}%")
+                below.append(f"{row['gpu']} {pct:.0f}%{trend_tag}")
             else:
-                at_med.append(row["gpu"])
+                at_med.append(f"{row['gpu']}{trend_tag}")
         peer_parts = []
         if above:
             peer_parts.append(f"premium to peer median on {', '.join(above)}")
@@ -904,6 +915,15 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
         if _rtx:
             lines.append("")
             for l in _rtx.split("\n"):
+                lines.append(l)
+
+        # ── 2d. Action flags: recommended action + 30d trend + lost-deal ─────
+        # Text version of the Confluence Decision Triggers table, revenue-driver GPUs
+        # only. Omits silently when no GPU has an actionable trigger.
+        _flags = _format_action_flags_thread(records)
+        if _flags:
+            lines.append("")
+            for l in _flags.split("\n"):
                 lines.append(l)
 
     # ── Significant price changes — grouped by provider + GPU ───────────────
@@ -1407,6 +1427,151 @@ def _term_label(term: int) -> str:
     if term % 12 == 0:
         return f"{term // 12}yr"
     return f"{term}mo"
+
+
+def _decision_trigger_rows(records: List[PriceRecord], gpus: List[str] = None):
+    """
+    Shared per-GPU decision-trigger inputs, used by both the Confluence HTML table
+    (_build_decision_trigger_table) and the Slack text "Action flags" sections. One
+    dict per GPU that has a Nebius on-demand price, carrying the position delta, the
+    cheapest peer/hyperscaler, the field deal, the 30d market trend and the neutral
+    recommended action. Guards everything: missing trend/field data is left None and
+    the caller decides whether the row is actionable. `gpus` defaults to GPU_ORDER.
+    """
+    position = {row["gpu"]: row for row in compute_position(records)
+                if row["tier_label"] == "on_demand"}
+    rows = []
+    for gpu in (gpus if gpus is not None else GPU_ORDER):
+        row = position.get(gpu)
+        if not row or row.get("nebius_price") is None:
+            continue
+        neb = row["nebius_price"]
+        median = row.get("median_peer")
+        delta = ((neb - median) / median * 100) if median else None
+
+        detail = row.get("cheapest_peers_detail") or []
+        floor_n, floor_p = detail[0] if detail else (None, None)
+
+        hyp = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
+        near_hyp = bool(hyp) and \
+            (hyp.price_per_gpu_hour_usd - neb) / hyp.price_per_gpu_hour_usd * 100 < 5
+
+        fi = _field_intel_floor(gpu)
+        _t = _market_trend(gpu, 30, records)
+        t30 = _t[0] if _t else None
+        t_span = _t[1] if _t else None
+        action = _recommended_action(delta, near_hyp, t30,
+                                     field_loss=bool(fi and fi["is_loss"]))
+        rows.append({
+            "gpu": gpu,
+            "neb": neb,
+            "median": median,
+            "delta": delta,
+            "floor_name": floor_n,
+            "floor_price": floor_p,
+            "hyp": hyp,
+            "near_hyp": near_hyp,
+            "fi": fi,
+            "trend30": t30,
+            "trend_span": t_span,
+            "action": action,
+        })
+    return rows
+
+
+def _trend_text(trend30, span) -> str:
+    """
+    Plain-text 30d market-trend tag for Slack: '+6% / 21d', or '' when history is too
+    young (mirrors the HTML _trend_cell 'building' state, but omits rather than prints
+    a placeholder in the tight Slack rows).
+    """
+    if trend30 is None or span is None:
+        return ""
+    sign = "+" if trend30 >= 0 else ""
+    return f"{sign}{trend30:.0f}% / {span}d"
+
+
+def _is_actionable_trigger(r: dict) -> bool:
+    """
+    A trigger row is worth surfacing in Slack when it carries a real signal: a recorded
+    competitive loss, a wide peer-median gap (premium to review or headroom to hold/raise),
+    hyperscaler parity to watch, or a moved (>=5%) market trend. Rows that are just
+    'Hold; monitor' with nothing moving are skipped so the section stays scannable.
+    """
+    if r["fi"] and r["fi"].get("is_loss"):
+        return True
+    if r["delta"] is not None and (r["delta"] >= 15 or r["delta"] <= -5):
+        return True
+    if r["near_hyp"]:
+        return True
+    if r["trend30"] is not None and abs(r["trend30"]) >= 5:
+        return True
+    return False
+
+
+def _format_action_flags_thread(records: List[PriceRecord]) -> str:
+    """
+    Slack thread section: per revenue-driver GPU with a real trigger, the recommended
+    action + 30d market-trend direction + a lost-deal flag where present. Same inputs as
+    the Confluence decision-trigger table (_decision_trigger_rows). Skips GPUs with no
+    actionable trigger; returns '' when none qualify (young history, no field deals).
+    """
+    rows = [r for r in _decision_trigger_rows(records, SUMMARY_GPUS)
+            if _is_actionable_trigger(r)]
+    if not rows:
+        return ""
+    lines = ["\n*Action flags (revenue-driver GPUs):*"]
+    for r in rows:
+        trend = _trend_text(r["trend30"], r["trend_span"])
+        loss = "  ⚠ lost deal" if (r["fi"] and r["fi"].get("is_loss")) else ""
+        trend_str = f"  |  30d {trend}" if trend else ""
+        # The action string is shared with the HTML table (_recommended_action); normalize
+        # its em-dash to a colon for the Slack rendering without touching the table output.
+        action = r["action"].replace(" — ", ": ")
+        lines.append(f"`{r['gpu']:<5}` {action}{trend_str}{loss}")
+    lines.append("_Action = neutral pricing prompt (premium can be a deliberate hold); "
+                 "see Decision Triggers table in Confluence._")
+    return "\n".join(lines)
+
+
+def _top_action_flag(records: List[PriceRecord]) -> str:
+    """
+    Single sharpest action flag for a revenue-driver GPU, for the summary headline. Picks
+    the highest-priority trigger: a recorded competitive loss first, then the widest
+    peer-median premium (review candidate), then a >=5% market move. Returns '' when no
+    revenue-driver GPU has an actionable trigger (young history / no field deals).
+    """
+    rows = [r for r in _decision_trigger_rows(records, SUMMARY_GPUS)
+            if _is_actionable_trigger(r)]
+    if not rows:
+        return ""
+
+    def _priority(r):
+        loss = 0 if (r["fi"] and r["fi"].get("is_loss")) else 1
+        premium = r["delta"] if (r["delta"] is not None and r["delta"] >= 15) else None
+        move = abs(r["trend30"]) if r["trend30"] is not None else 0
+        # loss first; then largest premium-to-review; then largest market move.
+        return (loss, -(premium or 0), -move)
+
+    r = min(rows, key=_priority)
+    trend = _trend_text(r["trend30"], r["trend_span"])
+    if r["fi"] and r["fi"].get("is_loss"):
+        return (f"\n*Action flag:* {r['gpu']} lost a deal at the field price. "
+                f"Review committed pricing for this SKU.")
+    if r["delta"] is not None and r["delta"] >= 15:
+        tail = f", market {trend}" if trend else ""
+        return (f"\n*Action flag:* {r['gpu']} +{r['delta']:.0f}% vs peer median{tail}. "
+                f"Review premium vs value.")
+    if r["trend30"] is not None and r["trend30"] <= -5:
+        return (f"\n*Action flag:* {r['gpu']} market softening ({trend}). "
+                f"Watch peer on-demand floor.")
+    if r["trend30"] is not None and r["trend30"] >= 5:
+        return (f"\n*Action flag:* {r['gpu']} market firming ({trend}). "
+                f"Headroom to revisit price.")
+    if r["near_hyp"]:
+        return (f"\n*Action flag:* {r['gpu']} near hyperscaler parity. "
+                f"Watch the on-demand gap.")
+    return ""
 
 
 def _build_decision_trigger_table(records: List[PriceRecord]) -> str:

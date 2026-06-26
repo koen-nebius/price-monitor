@@ -20,6 +20,20 @@ logger = logging.getLogger(__name__)
 API_BASE = "https://computeprices.com/api/v1/gpu-prices"
 SOURCE_URL = "https://computeprices.com"
 
+# Provider/fetch key this fetcher registers under (matches the entry in
+# config.PROVIDERS and the peer_cache.json key). Peer records produced here are
+# prefixed "cp_" and stamped data_source="aggregator". When a live fetch fails the
+# pipeline falls back to the cached copy under this key (store.get_cached_records),
+# so freshness of THIS source must be guarded before it reaches the exec headline.
+# main.py applies store.apply_cache_staleness_guard to cached records for this key.
+FETCH_KEY = "computeprices"
+
+# data_source label every record from this aggregator carries when LIVE/fresh.
+# The staleness guard rewrites this to store.STALE_AGGREGATOR_DATA_SOURCE on
+# SOFT-stale cache fallbacks so downstream can tell fresh aggregator data apart
+# from stale-cached aggregator data.
+DATA_SOURCE = "aggregator"
+
 # Providers already scraped directly — skip them to avoid double-counting
 SKIP_PROVIDERS = {
     "amazon aws",
@@ -251,7 +265,7 @@ def _fetch_slug(
             price_per_gpu_hour_usd=price_usd,
             fetched_at=now,
             source_url=source,
-            data_source="aggregator",
+            data_source=DATA_SOURCE,
         ))
 
     return records

@@ -139,6 +139,21 @@ def save_last_snapshot(records: List[PriceRecord]):
 
 _PEER_CACHE_FILE = STORE_DIR / "peer_cache.json"
 
+# ── Cache staleness thresholds (peer/competitor data) ───────────────────────
+# These guard a leadership-facing artifact: week-old peer prices must never be
+# shown as current. Applied to ComputePrices-sourced cache fallbacks in main.py.
+#   SOFT  → flag records as stale (data_source marker + is_stale attr) so the
+#           formatters in diff.py can drop them from the headline.
+#   HARD  → drop the records from the assembled set entirely (do not serve
+#           week-old peer prices at all).
+PEER_CACHE_SOFT_STALE_HOURS = 48.0        # 2 days: flag as stale
+PEER_CACHE_HARD_STALE_HOURS = 7 * 24.0    # 7 days: drop entirely
+
+# data_source sentinel stamped on SOFT-stale ComputePrices cache records.
+# Serialization-safe (it's the existing declared `data_source` field) so diff.py
+# can filter on it; distinct from the healthy "aggregator" value.
+STALE_AGGREGATOR_DATA_SOURCE = "aggregator_stale"
+
 
 def load_peer_cache() -> Dict[str, List[dict]]:
     """Load the peer cache. Returns {fetch_key: [record_dicts]}."""
@@ -205,6 +220,56 @@ def get_cache_age_hours(fetch_key: str) -> Optional[float]:
         return (datetime.now(timezone.utc) - cached_at).total_seconds() / 3600
     except Exception:
         return None
+
+
+def classify_cache_freshness(age_hours: Optional[float]) -> str:
+    """
+    Bucket a cache age into a freshness verdict.
+      "ok"    → fresh enough to serve as-is
+      "stale" → past SOFT threshold: flag so downstream can drop from the headline
+      "drop"  → past HARD threshold (or unknown age): do not serve at all
+
+    A None age (cache entry has no timestamp — e.g. a legacy peer_cache.json
+    written before per-entry timestamps existed) is treated as "drop": we cannot
+    prove it is current, so we must not present it as today's peer price.
+    """
+    if age_hours is None:
+        return "drop"
+    if age_hours >= PEER_CACHE_HARD_STALE_HOURS:
+        return "drop"
+    if age_hours >= PEER_CACHE_SOFT_STALE_HOURS:
+        return "stale"
+    return "ok"
+
+
+def apply_cache_staleness_guard(records: List[PriceRecord], age_hours: Optional[float]):
+    """
+    Apply the staleness guard to cached ComputePrices records before they enter the
+    assembled set. Returns (kept_records, verdict, n_flagged, n_dropped).
+
+    - verdict "ok":    records returned unchanged.
+    - verdict "stale": every record is flagged — `data_source` is set to the
+                       STALE_AGGREGATOR_DATA_SOURCE sentinel and a transient
+                       `is_stale = True` / `cache_age_hours` attribute is attached
+                       so diff.py can exclude them from the headline. Records are
+                       kept (still auditable in the raw snapshot).
+    - verdict "drop":  all records are dropped (empty list returned). Week-old or
+                       timestamp-less peer prices are never served as current.
+
+    Backward compatible: a missing/unknown age (legacy cache without timestamps)
+    is treated as "drop", never as fresh.
+    """
+    verdict = classify_cache_freshness(age_hours)
+    if verdict == "drop":
+        return [], verdict, 0, len(records)
+    if verdict == "stale":
+        for r in records:
+            r.data_source = STALE_AGGREGATOR_DATA_SOURCE
+            # Transient, in-run markers (not serialized by to_dict) for diff.py.
+            r.is_stale = True
+            r.cache_age_hours = age_hours
+        return records, verdict, len(records), 0
+    return records, verdict, 0, 0
 
 
 # ---------------------------------------------------------------------------
