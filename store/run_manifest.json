@@ -1,13 +1,13 @@
 {
   "run_date": "2026-06-26",
-  "started_at": "2026-06-26T05:39:09.002236+00:00",
-  "completed_at": "2026-06-26T05:40:18.012523+00:00",
+  "started_at": "2026-06-26T13:56:37.276989+00:00",
+  "completed_at": "2026-06-26T13:57:57.152775+00:00",
   "status": "success",
   "record_count": 936,
   "raw_record_count": 936,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 9,
+  "diff_count": 4,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -68,12 +68,70 @@
       "record_count": 6
     }
   },
+  "provider_freshness": {
+    "aws": {
+      "status": "live",
+      "age_hours": null
+    },
+    "gcp": {
+      "status": "live",
+      "age_hours": null
+    },
+    "azure": {
+      "status": "live",
+      "age_hours": null
+    },
+    "coreweave": {
+      "status": "live",
+      "age_hours": null
+    },
+    "lambda": {
+      "status": "live",
+      "age_hours": null
+    },
+    "crusoe": {
+      "status": "live",
+      "age_hours": null
+    },
+    "nebius": {
+      "status": "live",
+      "age_hours": null
+    },
+    "nebius_committed": {
+      "status": "live",
+      "age_hours": null
+    },
+    "computeprices": {
+      "status": "live",
+      "age_hours": null
+    },
+    "oracle": {
+      "status": "live",
+      "age_hours": null
+    },
+    "hyperstack": {
+      "status": "live",
+      "age_hours": null
+    },
+    "runpod": {
+      "status": "live",
+      "age_hours": null
+    },
+    "sfcompute": {
+      "status": "live",
+      "age_hours": null
+    },
+    "together": {
+      "status": "live",
+      "age_hours": null
+    }
+  },
   "warnings": [
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": true,
+  "post_thread": false,
   "is_weekly": false,
-  "significant_moves": 6,
+  "significant_moves": 0,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
