@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-06-28",
-  "started_at": "2026-06-28T05:46:33.416666+00:00",
-  "completed_at": "2026-06-28T05:47:41.221128+00:00",
+  "run_date": "2026-06-29",
+  "started_at": "2026-06-29T06:08:11.842617+00:00",
+  "completed_at": "2026-06-29T06:09:20.703216+00:00",
   "status": "success",
-  "record_count": 938,
-  "raw_record_count": 938,
+  "record_count": 941,
+  "raw_record_count": 941,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 27,
+  "diff_count": 13,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 133
+      "record_count": 136
     },
     "oracle": {
       "status": "live",
@@ -128,7 +128,7 @@
   },
   "warnings": [],
   "post_thread": true,
-  "is_weekly": false,
+  "is_weekly": true,
   "significant_moves": 2,
   "generated_outputs": {
     "slack_message": true,
