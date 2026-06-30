@@ -1,4 +1,4 @@
-*GPU Competitor Pricing — June 29, 2026*
+*GPU Competitor Pricing — June 30, 2026*
 
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -4% vs median  |  0/3 peers cheaper  |  floor: Lambda $3.99
@@ -48,13 +48,13 @@ _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cl
 
 
 *Action flags (revenue-driver GPUs):*
-`H200 ` Headroom to hold or raise  |  30d +0% / 31d
-`B200 ` Headroom to hold or raise  |  30d +0% / 31d
-`B300 ` Lost a deal at the field price: review committed pricing for this SKU  |  30d +29% / 31d  ⚠ lost deal
+`H200 ` Headroom to hold or raise  |  30d +0% / 32d
+`B200 ` Headroom to hold or raise  |  30d +0% / 32d
+`B300 ` Lost a deal at the field price: review committed pricing for this SKU  |  30d +29% / 32d  ⚠ lost deal
 _Action = neutral pricing prompt (premium can be a deliberate hold); see Decision Triggers table in Confluence._
 
 *Price moves ≥3%:*
-🔺 *AWS* _(hyperscaler)_ H200 spot: $1.21→$1.30/GPU-hr (+7.3% us-east-2)
-🔻 *AWS* _(hyperscaler)_ B300 spot: $3.05→$2.96/GPU-hr (-3.2% us-east-1)
+🔻 *AWS* _(hyperscaler)_ B300 spot: $2.96→$2.81/GPU-hr (-5.1% us-east-1)
+🔺 *AWS* _(hyperscaler)_ H200 spot: $1.30→$1.37/GPU-hr (+5.0% us-east-2)
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
