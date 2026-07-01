@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-06-30",
-  "started_at": "2026-06-30T05:35:13.283243+00:00",
-  "completed_at": "2026-06-30T05:36:46.360640+00:00",
+  "run_date": "2026-07-01",
+  "started_at": "2026-07-01T05:55:44.478052+00:00",
+  "completed_at": "2026-07-01T05:56:58.404539+00:00",
   "status": "success",
-  "record_count": 941,
-  "raw_record_count": 941,
-  "anomaly_count": 2,
+  "record_count": 942,
+  "raw_record_count": 942,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 9,
+  "diff_count": 26,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 136
+      "record_count": 137
     },
     "oracle": {
       "status": "live",
@@ -127,13 +127,11 @@
     }
   },
   "warnings": [
-    "cp_fal-ai B200 on_demand: $6.25 \u2192 $3.49 (-44.2%) \u26a0 price anomaly",
-    "cp_fal-ai B300 on_demand: $8.50 \u2192 $4.49 (-47.2%) \u26a0 price anomaly",
-    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
+    "cross-check: hyperstack H100 on-demand: ours $2.50 (scrape) vs ComputePrices $1.90 (24% gap) \u2014 our scrape may be mis-parsed \u2014 verify"
   ],
   "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 2,
+  "significant_moves": 16,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
