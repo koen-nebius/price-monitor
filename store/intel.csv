@@ -130,3 +130,6 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1759152382.073769,2025-09-29,H200,2.00,0,0,hyperscaler,Alibaba,Alibaba adding H200 in US on-demand at $2
 1757675144.856659,2025-09-12,GB300,3.30,36,30,undisclosed,Undisclosed,Reflection: 3 shortlisters at $3.30-$3.50 3yr ~30% prepay (vs Nebius $4.6)
 1782899873.480579,2026-07-01,B300,3.75,36,30,neocloud,CoreWeave,B300 committed offer end-2026 new DC 500-1500 GPUs price adj & upgrade clause
+1782917000.238339,2026-07-01,GB300,5.50,36,0,hyperscaler,GCP,3yr VR deal signed; GCP admit below-cost
+1782917000.238339,2026-07-01,GB300,6.00,36,0,neocloud,CoreWeave,3yr VR quote $6-6.50; lost to GCP at $5.50
+1782917000.238339,2026-07-01,GB300,7.00,36,0,undisclosed,Undisclosed,3yr VR quote >$7; lost to GCP at $5.50
