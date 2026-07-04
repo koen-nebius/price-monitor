@@ -1,4 +1,4 @@
-*GPU Competitor Pricing — July 03, 2026*
+*GPU Competitor Pricing — July 04, 2026*
 
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -4% vs median  |  0/3 peers cheaper  |  floor: Lambda $3.99
@@ -16,9 +16,9 @@
 
 *Spot / preemptible (vs cheapest hyperscaler spot, median across zones):*
 `H100 ` Nebius $2.15  vs  Azure $2.27 (median, 21 zones)  →  Nebius 5% below
-`H200 ` Nebius $2.45  vs  AWS $2.19 (median, 3 zones)  →  Nebius 12% above
+`H200 ` Nebius $2.45  vs  AWS $2.17 (median, 4 zones)  →  Nebius 13% above
 `B200 ` Nebius $3.95  vs  AWS $2.85 (median, 1 zones)  →  Nebius 39% above
-`B300 ` Nebius $4.30  vs  AWS $4.23 (median, 1 zones)  →  Nebius 2% above
+`B300 ` Nebius $4.30  vs  AWS $4.28 (median, 1 zones)  →  Nebius 0% above
 `L40S ` Nebius $0.90  |  no comparable hyperscaler spot (not offered, or newest-gen spot capacity not realistically available)
 _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across zones (single-zone dips excluded)._
 
@@ -36,7 +36,7 @@ _Nebius committed list verified 2026-06-23._
 `B200 ` lowest $3.20 (2yr, 0%) via GCP  |  -30% vs Nebius $4.55  [12 deals]
 `B300 ` lowest $3.50 (3yr, 0%) via Azure  |  -23% vs Nebius $4.55  [21 deals]
 `GB200` lowest $4.75 (3yr, 25%) via Undisclosed Hyperscaler  |  no Nebius committed at this term  [1 deals]
-`GB300` lowest $3.09 (60mo, 100%) via Undisclosed  |  no Nebius committed at this term  [17 deals]
+`GB300` lowest $3.09 (60mo, 100%) via Undisclosed  |  no Nebius committed at this term  [20 deals]
 _Deal-specific, anonymized; lower confidence than published list prices._
 
 
@@ -48,13 +48,13 @@ _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cl
 
 
 *Action flags (revenue-driver GPUs):*
-`H200 ` Headroom to hold or raise  |  30d +0% / 31d
-`B200 ` Headroom to hold or raise  |  30d +0% / 31d
-`B300 ` Lost a deal at the field price: review committed pricing for this SKU  |  30d +0% / 31d  ⚠ lost deal
+`H200 ` Headroom to hold or raise  |  30d +0% / 30d
+`B200 ` Headroom to hold or raise  |  30d +0% / 30d
+`B300 ` Lost a deal at the field price: review committed pricing for this SKU  |  30d +0% / 30d  ⚠ lost deal
 _Action = neutral pricing prompt (premium can be a deliberate hold); see Decision Triggers table in Confluence._
 
 *Price moves ≥3%:*
-🔻 *Scaleway* _(major neocloud)_ B300 on-demand: $9.01→$8.55/GPU-hr (-5.1% global)
-🔺 *AWS* _(hyperscaler)_ H200 spot: $1.50→$1.56/GPU-hr (+3.8% us-east-2)
+🔺 *Oblivus* _(small provider)_ H100 on-demand: $2.18→$3.50/GPU-hr (+60.7% global)
+🔺 *AWS* _(hyperscaler)_ H200 spot: $1.56→$1.63/GPU-hr (+4.2% us-east-2)
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview

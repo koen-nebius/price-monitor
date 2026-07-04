@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-07-03",
-  "started_at": "2026-07-03T05:04:01.642604+00:00",
-  "completed_at": "2026-07-03T05:05:21.207559+00:00",
+  "run_date": "2026-07-04",
+  "started_at": "2026-07-04T04:58:13.763053+00:00",
+  "completed_at": "2026-07-04T04:59:31.767029+00:00",
   "status": "success",
-  "record_count": 943,
-  "raw_record_count": 943,
-  "anomaly_count": 2,
+  "record_count": 941,
+  "raw_record_count": 941,
+  "anomaly_count": 1,
   "quarantined_count": 0,
-  "diff_count": 28,
+  "diff_count": 19,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 13
+      "record_count": 12
     },
     "crusoe": {
       "status": "live",
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 137
+      "record_count": 136
     },
     "oracle": {
       "status": "live",
@@ -127,8 +127,7 @@
     }
   },
   "warnings": [
-    "cp_fal-ai B200 on_demand: $3.49 \u2192 $6.25 (+79.1%) \u26a0 price anomaly",
-    "cp_fal-ai B300 on_demand: $4.49 \u2192 $8.50 (+89.3%) \u26a0 price anomaly",
+    "cp_oblivus H100 on_demand: $2.18 \u2192 $3.50 (+60.7%) \u26a0 price anomaly",
     "cross-check: hyperstack H100 on-demand: ours $2.50 (scrape) vs ComputePrices $1.90 (24% gap) \u2014 our scrape may be mis-parsed \u2014 verify"
   ],
   "post_thread": true,
