@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-07-04",
-  "started_at": "2026-07-04T04:58:13.763053+00:00",
-  "completed_at": "2026-07-04T04:59:31.767029+00:00",
+  "run_date": "2026-07-05",
+  "started_at": "2026-07-05T05:13:17.561632+00:00",
+  "completed_at": "2026-07-05T05:14:30.985968+00:00",
   "status": "success",
-  "record_count": 941,
-  "raw_record_count": 941,
-  "anomaly_count": 1,
+  "record_count": 943,
+  "raw_record_count": 943,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 19,
+  "diff_count": 26,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 12
+      "record_count": 14
     },
     "crusoe": {
       "status": "live",
@@ -127,12 +127,11 @@
     }
   },
   "warnings": [
-    "cp_oblivus H100 on_demand: $2.18 \u2192 $3.50 (+60.7%) \u26a0 price anomaly",
     "cross-check: hyperstack H100 on-demand: ours $2.50 (scrape) vs ComputePrices $1.90 (24% gap) \u2014 our scrape may be mis-parsed \u2014 verify"
   ],
   "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 2,
+  "significant_moves": 4,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
