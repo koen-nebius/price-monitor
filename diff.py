@@ -530,7 +530,9 @@ def _format_field_committed_callout(records: List[PriceRecord]) -> str:
             vs = "no Nebius committed at this term"
         lines.append(f"`{g:<5}` lowest ${px:.2f} ({term_label}, {prepay_str}) via "
                      f"{_provider_display(prov)}  |  {vs}  [{len(deals)} deals]")
-    lines.append("_Deal-specific, anonymized; lower confidence than published list prices._")
+    lines.append("_Deal-specific, anonymized; lower confidence than published list prices. "
+                 "Basis: Nebius = 512+ GPU tier at 100% upfront; most field deals are "
+                 "0% prepay, so true like-for-like gaps are wider than shown._")
     return "\n".join(lines)
 
 
@@ -692,8 +694,21 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
                 if position:
                     lines.append(position)
         else:
-            lines.append("\nNo competitor movement since yesterday's update "
-                         f"(no price moves ≥{ALERT_THRESHOLD_PCT:.0f}% on tracked providers).")
+            # STORM audit fix (2026-07-06): the heartbeat must never claim "no movement"
+            # over sources we didn't actually see today. live + fallback = observed;
+            # cache/missing/error = unobserved, so qualify the claim.
+            degraded = sorted(p for p, s in (provider_status or {}).items()
+                              if s.get("status") not in ("live", "fallback"))
+            if degraded:
+                total = len(provider_status)
+                lines.append(
+                    f"\nNo movement on live sources (no price moves ≥{ALERT_THRESHOLD_PCT:.0f}%), "
+                    f"but {total - len(degraded)}/{total} sources live today "
+                    f"({', '.join(degraded[:4])}{'…' if len(degraded) > 4 else ''} stale/missing) — "
+                    f"movement there can't be confirmed.")
+            else:
+                lines.append("\nNo competitor movement since yesterday's update "
+                             f"(no price moves ≥{ALERT_THRESHOLD_PCT:.0f}% on tracked providers).")
         if post_thread:
             lines.append(f"\nFull tables in thread ↓ · <{confluence_url}|Confluence benchmark>")
         else:
@@ -931,9 +946,11 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                     continue
                 delta_pct = (neb_px - hyp_px) / hyp_px * 100  # positive = Nebius pricier
                 pos = f"Nebius {delta_pct:.0f}% above" if delta_pct > 0 else f"Nebius {-delta_pct:.0f}% below"
+                zone_lbl = (f"median, {n_zones} zones" if n_zones and n_zones > 1
+                            else "single zone — thin signal")
                 lines.append(
                     f"`{gpu:<5}` Nebius ${neb_px:.2f}  vs  {_pname(hyp_prov)} ${hyp_px:.2f}"
-                    f" (median, {n_zones} zones)  →  {pos}"
+                    f" ({zone_lbl})  →  {pos}"
                 )
             lines.append("_Hyperscaler spot is interruptible, capacity not guaranteed; floors are "
                          "the cheapest provider's median across zones (single-zone dips excluded)._")
@@ -1207,7 +1224,11 @@ def _build_field_intel_callout(records: List[PriceRecord]) -> str:
     HTML section: recent field intel quotes from #price-intelligence vs Nebius pricing.
     Shows deal-specific quotes (committed terms, volume discounts) flagging material gaps.
     """
-    intel_rows = _load_intel(days=60)
+    # STORM audit fix (2026-07-06): one evidence window. Headline callers (lowest
+    # committed deal, action flags, decision triggers) all use 90d; this table is the
+    # evidence they cite, so it must cover the same window or headline deals become
+    # untraceable (e.g. a 70-day-old lost deal cited above but absent here).
+    intel_rows = _load_intel(days=90)
     if not intel_rows:
         return ""
 
@@ -1267,7 +1288,8 @@ def _build_field_intel_callout(records: List[PriceRecord]) -> str:
     html.append(
         '<p><em>Sourced from Nebius sales team reports in <strong>#price-intelligence</strong>. '
         'These are deal-specific quotes reflecting volume, relationship, and timing — '
-        'not public rack rates. Customer names removed. '
+        'not public rack rates. Customer names removed; competitor/deal specifics remain: '
+        '<strong>internal only, do not paste externally.</strong> '
         '"vs Nebius" compares against Nebius committed pricing at the closest matching term.</em></p>'
     )
 
@@ -1278,7 +1300,10 @@ def _build_field_intel_callout(records: List[PriceRecord]) -> str:
             continue
         has_data = True
 
-        html.append(f"<h3>{gpu}</h3>")
+        cap_note = (f" — showing latest 12 of {len(rows)} deals (90d window)"
+                    if len(rows) > 12
+                    else f" — {len(rows)} deal{'s' if len(rows) != 1 else ''} (90d window)")
+        html.append(f"<h3>{gpu}{cap_note}</h3>")
         html.append(
             "<table><thead><tr>"
             "<th>Date</th><th>Provider</th><th>$/GPU-hr</th>"
@@ -1412,8 +1437,19 @@ def _field_intel_floor(gpu: str):
         n = (notes or "").lower()
         return "vs ne" in n or "win vs" in n or "lost" in n or "loss" in n
 
+    def _row_info(r):
+        try:
+            term = int(float(r.get("term_months", "0") or 0))
+        except (ValueError, TypeError):
+            term = 0
+        return {
+            "price": float(r["price_per_gpu_hour_usd"]), "term": term,
+            "label": (r.get("provider_name") or r.get("provider_type") or "undisclosed"),
+            "date": r.get("message_date", ""),
+        }
+
     best = None
-    any_loss = False
+    loss = None   # the actual most-recent recorded loss, NOT the cheapest quote
     for r in _load_intel(days=90):
         if r.get("gpu_model") != gpu:
             continue
@@ -1423,19 +1459,17 @@ def _field_intel_floor(gpu: str):
             continue
         if px <= 0:
             continue
-        if _is_loss(r.get("notes", "")):
-            any_loss = True
+        if _is_loss(r.get("notes", "")) and \
+                (loss is None or r.get("message_date", "") > loss["date"]):
+            loss = _row_info(r)
         if best is None or px < best["price"]:
-            try:
-                term = int(float(r.get("term_months", "0") or 0))
-            except (ValueError, TypeError):
-                term = 0
-            best = {
-                "price": px, "term": term,
-                "label": (r.get("provider_name") or r.get("provider_type") or "undisclosed"),
-            }
+            best = _row_info(r)
     if best is not None:
-        best["is_loss"] = any_loss  # any recorded loss for this GPU, not just the cheapest quote
+        best["is_loss"] = loss is not None
+        # STORM audit fix (2026-07-06): previously the loss flag was glued to the
+        # cheapest 90d quote, so "lost a deal at the field price" cited a price from a
+        # different deal than the loss. Carry the real losing quote separately.
+        best["loss"] = loss
     return best
 
 
@@ -1567,7 +1601,7 @@ def _format_action_flags_thread(records: List[PriceRecord]) -> str:
     for r in rows:
         trend = _trend_text(r["trend30"], r["trend_span"])
         loss = "  ⚠ lost deal" if (r["fi"] and r["fi"].get("is_loss")) else ""
-        trend_str = f"  |  30d {trend}" if trend else ""
+        trend_str = f"  |  mkt {trend}" if trend else ""   # trend already carries "/ Nd"
         # The action string is shared with the HTML table (_recommended_action); normalize
         # its em-dash to a colon for the Slack rendering without touching the table output.
         action = r["action"].replace(" — ", ": ")
@@ -1596,8 +1630,22 @@ def _top_action_flag(records: List[PriceRecord]) -> str:
         # loss first; then largest premium-to-review; then largest market move.
         return (loss, -(premium or 0), -move)
 
+    def _term_lbl(months):
+        if not months:
+            return "on-demand"
+        return f"{months // 12}yr" if months % 12 == 0 else f"{months}mo"
+
     r = min(rows, key=_priority)
     trend = _trend_text(r["trend30"], r["trend_span"])
+    if r["fi"] and r["fi"].get("loss"):
+        L = r["fi"]["loss"]
+        since = ""
+        if r["fi"]["price"] < L["price"]:
+            since = (f" Lowest quote since: ${r['fi']['price']:.2f} "
+                     f"({_term_lbl(r['fi']['term'])}, {r['fi']['label']}).")
+        return (f"\n*Action flag:* {r['gpu']} lost a {_term_lbl(L['term'])} deal at "
+                f"${L['price']:.2f} ({L['label']}, {L['date']}).{since} "
+                f"Review committed pricing for this SKU.")
     if r["fi"] and r["fi"].get("is_loss"):
         return (f"\n*Action flag:* {r['gpu']} lost a deal at the field price. "
                 f"Review committed pricing for this SKU.")
@@ -2076,7 +2124,7 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         '<th>vs peer median</th>'
         '<th>Cheapest hyperscaler (on-demand)</th>'
         '<th>Enterprise peer median</th>'
-        '<th>Enterprise peers tracked</th>'
+        '<th>Peers in median (n)</th>'
         '</tr>'
     )
 
@@ -2091,13 +2139,17 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         else:
             peer_td = '<td>—</td>'
 
-        # vs median (more meaningful than vs floor for pricing decisions)
-        if row and row["nebius_price"] and row["median_peer"]:
+        # vs median (more meaningful than vs floor for pricing decisions).
+        # STORM audit fix (2026-07-06): a "median" of one provider is not a market
+        # verdict — same min-n rule as the Slack thread (suppress % when n < 2).
+        if row and row["nebius_price"] and row["median_peer"] and row["total_peers"] >= 2:
             pct = (row["nebius_price"] - row["median_peer"]) / row["median_peer"] * 100
             loz_color = "red" if pct > 15 else ("yellow" if pct > 0 else "green")
             sign = "+" if pct >= 0 else ""
             vs_td = (f'<td><span data-type="status" data-color="{loz_color}">'
                      f'{sign}{pct:.0f}% vs median</span></td>')
+        elif row and row["median_peer"] and row["total_peers"] == 1:
+            vs_td = '<td><em>1 peer only — no median verdict</em></td>'
         else:
             vs_td = '<td>—</td>'
 
@@ -2114,7 +2166,10 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
             hyp_td = '<td>—</td>'
 
         med_td = f'<td>${row["median_peer"]:.2f}</td>' if row and row["median_peer"] else '<td>—</td>'
-        count_td = f'<td>{row["total_peers"] + 1 if row else 0}</td>'  # +1 for Nebius
+        # STORM audit fix (2026-07-06): show the n the median was actually computed
+        # over (cluster-class peers), not the registry count inflated by +1 for
+        # Nebius — the Slack thread and this table must agree on n.
+        count_td = f'<td>{row["total_peers"] if row else 0}</td>'
 
         rows.append(
             f'<tr><td><strong>{gpu}</strong></td>'
@@ -2188,7 +2243,9 @@ def _build_field_committed_section(records: List[PriceRecord]) -> str:
         '<p>Neoclouds rarely publish committed <em>list</em> prices, so the table above is '
         'hyperscalers + Nebius. Their reserved market is negotiated — these are the lowest '
         'committed deals seen in <strong>#price-intelligence</strong> (deal-specific, anonymized; '
-        'lower confidence than list prices), the realistic reserved benchmark for peers absent above.</p>',
+        'lower confidence than list prices), the realistic reserved benchmark for peers absent above. '
+        '<strong>Basis:</strong> the Nebius reference is the 512+ GPU tier at 100% upfront; most '
+        'field deals are 0% prepay, so true like-for-like gaps are wider than the deltas shown.</p>',
         '<table data-layout="full-width"><tbody>',
         '<tr><th>GPU</th><th>Lowest committed deal</th><th>Term</th><th>Prepay</th><th>Source</th>'
         '<th>Deals seen</th><th>vs Nebius committed (same term)</th></tr>',
