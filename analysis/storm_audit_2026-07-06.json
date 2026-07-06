@@ -1,0 +1,720 @@
+{
+  "summary": "STORM-style multi-perspective audit of the daily competitor pricing monitor outputs",
+  "agentCount": 8,
+  "logs": [],
+  "result": {
+    "audits": [
+      {
+        "perspective": "Pricing PM who sets monthly PAYG price steps against a standing band: floor = Nebius reserve x1.6, cap = cheapest hyperscaler x0.97, anchor = peer median +5%, gated on demand signals. Reads the artifacts to pull band inputs, judge median trust, and spot triggered/blocked steps and market direction.",
+        "questions": [
+          {
+            "q": "Can I read off today's cap input (cheapest like-for-like hyperscaler on-demand) per SKU without hunting?",
+            "verdict": "answered",
+            "evidence": "Slack thread: 'vs cheapest hyperscaler on-demand (8xSXM cluster, like-for-like): H100 Nebius $3.85 vs AWS $6.88'; Confluence Executive Benchmark has a 'Cheapest hyperscaler (on-demand)' column per GPU with SXM tags.",
+            "uncertainty": "The input is cheapest-region list price (AWS US $6.88 vs Europe $8.94 in the regional table); the footnote itself says enterprise customers pay 40-57% less at 3yr committed, so a x0.97 cap on list is generous. The basis is stated but the reader must know their rule uses list.",
+            "fix": "In the Decision Triggers (or a new Band Inputs) table, add a computed 'cap = cheapest hyperscaler x0.97 -> $X' cell per SKU with the region basis named, so the cap is a number, not arithmetic."
+          },
+          {
+            "q": "Can I read off today's anchor input (peer median in $) per SKU?",
+            "verdict": "buried",
+            "evidence": "Slack thread gives only the relative view ('H100 Nebius $3.85 -4% vs median') - the median dollar value never appears in Slack and must be back-computed. Confluence does carry 'Enterprise peer median' ($3.99 / $6.15 / $8.39 / $9.01), but it sits mid-table in the Executive Benchmark, and for B300 the 'median' is effectively one provider (Scaleway $9.01).",
+            "uncertainty": "Whether the Confluence median column uses the same cluster-only peer set as the Slack lines (see next question - the peer counts disagree), so back-computing anchor = median x1.05 from either artifact may give different answers.",
+            "fix": "Print the median dollar value and its n inline in the Slack thread peer lines ('-4% vs median $3.99 (n=3)') and add an 'anchor = median +5% -> $X' computed column to Confluence."
+          },
+          {
+            "q": "Do I trust the peer median: how many peers, is n consistent, is the basis clean?",
+            "verdict": "wrong",
+            "evidence": "The two artifacts contradict each other on n. Slack thread H100: '0/3 peers cheaper'; Confluence H100: 'Enterprise peers tracked: 4'. Slack thread B300: '1 peer: Scaleway $9.01' with the % deliberately suppressed; Confluence B300 shows '-13% vs median' in green with 'peers tracked: 2'. So the page displays a median-based verdict the thread refuses to show, and the n shown next to the median ('tracked') is not the n the median was computed over (code: _position_for_tier dedupes to cluster-only peers; the 'tracked' registry count includes non-cluster SKUs).",
+            "uncertainty": "The cluster-class filter itself is sound (_is_cluster_peer gates on 8xSXM; docs say so on the page) and freshness is banner-visible ('14/14 sources live'). The defect is confined to n-labeling and an inconsistent minimum-n rule, not the price data - but an anchor at +5% on an n=2 median (H200: Together $5.99, CoreWeave $6.30) is noise-sensitive and nothing flags that.",
+            "fix": "One min-n rule enforced in both generators (suppress or grey the % when median n<3 everywhere, including Confluence B300), and rename/split the Confluence column into 'in median (n)' vs 'tracked' so the displayed n matches the computation."
+          },
+          {
+            "q": "Can I read off the floor input (Nebius reserve/committed price) and how fresh it is?",
+            "verdict": "buried",
+            "evidence": "Nebius committed tiers are on the page (H100 1yr $2.30 / 2yr $2.05, 'Committed list verified 2026-06-23') but four sections deep in Committed Pricing Comparison, and the floor itself (reserve x1.6) is never computed. Today the verification is 13 days old with no aging alarm.",
+            "uncertainty": "Which tier the PM's rule means by 'reserve' (enterprise 512+ 100%-upfront shown, standard tier ~5-10% higher per footnote) - the artifact shows both bases exist but doesn't say which one the band rule keys off.",
+            "fix": "Surface the Nebius committed reference price (named tier) in the Band Inputs table with 'floor = reserve x1.6 -> $X' as static-formula text, plus a visible warning when committed-list verification age exceeds ~30 days."
+          },
+          {
+            "q": "Do I see when a price step is triggered or blocked?",
+            "verdict": "missing",
+            "evidence": "The Decision Triggers table stops at qualitative actions: 'Headroom to hold or raise', 'Hold; monitor', with Owner/Review-by/Margin-risk as permanent em-dash placeholders. Nowhere is the gap to anchor quantified (H200 $4.50 vs anchor $6.46 = median $6.15 x1.05 implies a step candidate) and the demand gate is never mentioned, so a step can be neither confirmed triggered nor explicitly blocked.",
+            "uncertainty": "The demand gate genuinely cannot be computed in GitHub Actions (no DWH access), so 'triggered' can only ever be 'step candidate pending internal demand check' - the fix must stay static-text on the gate.",
+            "fix": "Add a computed 'vs anchor' column per SKU (Nebius OD vs peer-median x1.05, % gap, status: step candidate / in band / above cap) plus one static sentence: 'Step execution is demand-gated - confirm NER/sell-through internally before moving.'"
+          },
+          {
+            "q": "Is market direction visible - 7-day and 30-day trend per SKU?",
+            "verdict": "buried",
+            "evidence": "Only a 30d cell exists ('Market 30d: +0% / 30d' on every row) and the Slack action flags render it with a duplicated label: 'H200 Headroom to hold or raise | 30d +0% / 30d' (diff.py _format_action_flags_thread prepends '30d ' to a trend string that already ends '/ 30d'). There is no 7d trend anywhere, and per _market_trend the series tracks only the current cheapest peer's own on-demand price - not the median the anchor is built on; history is <90d so cells read 'building' or +0%.",
+            "uncertainty": "History depth (~1 month per code comments) limits what any trend can show today; +0% across all five SKUs may be real market flatness or just a floor-provider that hasn't moved.",
+            "fix": "Track the peer-median series per SKU in history and show '7d / 30d' for it (falls out of the same CSV), and fix the label to 'mkt +0%/30d' in the Slack flags."
+          },
+          {
+            "q": "When an anchor or cap input actually moves, will the delta-first post tell me in band terms?",
+            "verdict": "missing",
+            "evidence": "The 'Price moves >=3%' section lists raw provider moves - today 2 of 3 are 1Legion ('small provider'), which is not in the enterprise peer set and thus irrelevant to the anchor; the one relevant move (AWS H200 spot +4.4%) touches neither the OD cap nor the peer median. No line ever says 'peer median for X moved -> anchor now $Y' or 'cheapest hyperscaler changed -> cap now $Z'.",
+            "uncertainty": "Today is genuinely quiet, so absence of a band-event line is not proof the logic is missing - but the code path (significant-diff grouping in format_slack_message) has no median/cap recompute hook, confirming it would stay silent on a Lambda cluster-price cut that shifts the H100 anchor.",
+            "fix": "Add a derived alert to the delta-first message: whenever the recomputed peer median or cheapest-hyperscaler price for a revenue-driver SKU changes >=2% day-over-day, lead with 'Band input moved: H100 peer median $3.99 -> $3.79, anchor now $3.98'."
+          },
+          {
+            "q": "Are the spot/preemptible references sound enough to sanity-check the PVM/preemptible tier against?",
+            "verdict": "answered",
+            "evidence": "Slack thread spot section uses cheapest provider's median across zones with the phantom-floor guard ('single-zone dips excluded'); the spot/auction page adds a per-SKU 'Market floor reference' (H100 $1.80, B300 $3.50) with an honest read-me-first warning that field-intel deals are often committed, not pure spot.",
+            "uncertainty": "Thin bases are disclosed but easy to miss: 'AWS $2.85 (median, 1 zones)' for B200 and '(median, 1 zones)' for B300 - a one-zone 'median' is a single print, and the grammar bug ('1 zones') slightly undermines confidence in the machinery.",
+            "fix": "When n_zones = 1, label it 'single zone - low confidence' instead of '(median, 1 zones)', and fix the pluralization."
+          }
+        ],
+        "top_fixes": [
+          "Add a per-SKU 'Pricing band inputs' table (top of Confluence + Monday thread): Nebius OD, floor = Nebius committed x1.6, anchor = peer median x1.05 (median $ and n shown), cap = cheapest hyperscaler x0.97, % gap to anchor, and a status column (step candidate pending internal demand gate / in band / above cap). All computable from public scraped prices plus the static formula - no DWH needed.",
+          "Make the peer median trustworthy and consistent: show the median dollar value with its true n in every artifact, make the Confluence 'peers tracked' column equal the median's computation basis (or split into 'in median' vs 'tracked'), and enforce one min-n rule so B300 stops showing '-13% vs median' on the page while the thread says '1 peer'.",
+          "Upgrade trend and change detection for band inputs: track the peer-median series per SKU and show 7d/30d for it, fix the duplicated '30d +0% / 30d' label in Slack action flags, and add a delta-first alert line whenever the peer median or cheapest-hyperscaler price moves >=2% ('band input moved, anchor/cap now $X')."
+        ]
+      },
+      {
+        "perspective": "Finance / revenue owner: uses the daily pack to benchmark Nebius reserve/committed prices against competitor committed deals, size deal-loss economics, and trust that every displayed delta is on one auditable basis (term, prepay, volume tier, VAT/FX, consistent denominators).",
+        "questions": [
+          {
+            "q": "Do the headline 'lowest committed deal' prices and deal counts tie out to the field-intel evidence table on the same page?",
+            "verdict": "wrong",
+            "evidence": "Summary table: 'B300 lowest $3.50 (3yr, 0%) via Azure [21 deals]', 'GB300 lowest $3.09 (60mo, 100%) [20 deals]', 'GB200 $4.75 [1 deals]'. The 'Field Intelligence — Recent Market Quotes' detail tables contain NO $3.50 Azure B300 row (12 rows shown vs 21 claimed), NO $3.09 GB300 row (11 rows vs 20), and no GB200 section at all. Root cause confirmed in code: detail table uses _load_intel(days=60) (diff.py:1210) while summary/triggers use 90d (diff.py:403, 433, 1417, 2172). Headline lows dated 61-90 days ago are invisible in the evidence table.",
+            "fix": "Unify the window: pass days=90 in _build_field_intel_callout (diff.py:1210), or if 60d detail is deliberate, print the window on both tables ('lowest in 90d' vs 'quotes, last 60d') and tag out-of-window headline lows with their date. Counts and 'lowest' must come from the same filtered set the reader can see.",
+            "uncertainty": "Window mismatch is confirmed in code; whether a row cap also drops rows was not verified. The $3.50 Azure deal itself is sales-reported and cannot be independently verified."
+          },
+          {
+            "q": "When the pack says a competitor committed deal is X% below our committed price, is the comparison like-for-like on prepay and structure?",
+            "verdict": "wrong",
+            "evidence": "Slack bottom line: 'competitors quoting B300 from $3.50 vs our $4.55 (-23%)' compares a 0%-prepay Azure deal to Nebius's 100%-upfront, 512+ GPU tier with no flag; every field-intel summary row does the same ('H100 lowest $1.80 (1yr, 0%) ... -22% vs Nebius $2.30' where $2.30 is all-upfront enterprise). The page itself states the rule it breaks: 'A like-for-like comparison should match prepay terms — the all-upfront vs no-upfront gap is ~2x on AWS 3yr.' Since 100%-upfront is our deepest rate, the displayed deltas UNDERSTATE the competitive gap.",
+            "fix": "Annotate every 'vs Nebius committed' delta with the basis ('vs our 100%-upfront 512+ tier; deal is 0% prepay — like-for-like gap wider') and add Nebius's 0%/30%-upfront tier prices as a column (the prose says these tiers exist). In the Slack bottom line, add the one-clause flag. Static text, no new data needed.",
+            "uncertainty": "Nebius 0%-prepay rates are internal, not in the artifacts, so I cannot quantify how much the -23% understates the true gap."
+          },
+          {
+            "q": "Are the peer-median deltas ('-4% vs median', '0/3 peers cheaper') computed on a stated, consistent denominator across Slack and Confluence?",
+            "verdict": "wrong",
+            "evidence": "Confluence exec table intro says 'On-demand prices, cheapest available per provider', yet shows Lambda H100 at $3.99 while the same page's Complete Market Sweep shows Lambda at $3.29 (1x GPU, -15% vs Nebius) — the exec table silently filters to cluster-class 8x-node pricing (only the Slack thread says 'cluster-class like-for-like'). Registry peers Voltage Park ($1.99), GMI ($2.00), Hyperstack ($2.50) sell H100 below Nebius $3.85 in the sweep while the headline says '0/3 peers cheaper'. Counts also disagree: thread 'H200 0/2 peers cheaper' vs Confluence '3 peers tracked'; thread 'B300 1 peer' vs Confluence '2 peers tracked' with '-13% vs median' where the 'median' is a single provider (Scaleway $9.01).",
+            "fix": "Change the exec-table caption to 'cluster-class (8x SXM node) list price per provider; single-GPU prices in the sweep below'; emit one peer count per SKU (peers with a current cluster-class price) reused by both formatters; render 'vs only priced peer' instead of 'vs median' when n=1.",
+            "uncertainty": "The 8x-node filter is inferred from the numbers (Lambda 1x $3.29 vs cluster $3.99); the exact _is_cluster_peer rule in diff.py:221 may differ in detail."
+          },
+          {
+            "q": "Is the lost B300 deal economically sized (GPUs, term, contract value) so I can weigh a committed-price move against the revenue actually at stake?",
+            "verdict": "missing",
+            "evidence": "Slack: 'B300 lost a deal at the field price. Review committed pricing for this SKU.' Decision Trigger: '$3.50 (3yr, Azure) lost deal'. No GPU count, no TCV, and it is ambiguous which deal was lost — the only detail row marked as a loss is a different price ('2026-06-12 Undisclosed hyperscaler $3.80 3yr — competitive B300 win vs Nebius'); the $3.50 Azure row is not shown at all (see Q1). Other intel rows carry sizes (e.g. '576 GPUs', '4k B300s'), so the CSV supports this.",
+            "fix": "Carry deal size from the intel CSV into the flag and headline: 'lost N GPUs x 3yr at their $3.50 = ~$X contract value' (N x 3.50 x 24 x 365 x 3 is computable in the generator); print 'size not reported' when absent; state the date/provider of the triggering deal so it matches one evidence row.",
+            "uncertainty": "The triggering deal's size may genuinely be absent from the CSV; then the honest fix is displaying 'size unreported', not implying precision."
+          },
+          {
+            "q": "When a field deal has a stated cluster size, is it compared against the Nebius tier that size would actually get?",
+            "verdict": "buried",
+            "evidence": "Committed section: figures are 'enterprise tier (512+ GPUs), 100% upfront — the most aggressive available rate. Standard tier (<512 GPU) is ~5-10% higher.' The AWS field deal is a '232-GPU cluster' yet is compared to the 512+ tier: '-22% vs Nebius $2.30'. At standard tier (~$2.42-2.53) the real gap is roughly -26 to -29%. The caveat exists in prose but no delta applies it.",
+            "fix": "Where the intel row states GPU count <512, compute the delta against standard tier (enterprise price x 1.05-1.10) and label it, or footnote the summary table: 'deltas vs 512+ tier; sub-512 deals compare ~5-10% worse'.",
+            "uncertainty": "Standard-tier uplift is a range (5-10%), so corrected deltas are ranges; the exact tier ladder is internal."
+          },
+          {
+            "q": "Are spot comparisons on one stated basis (median across zones vs cheapest zone), without a same-page contradiction an auditor could catch?",
+            "verdict": "buried",
+            "evidence": "Thread footnote: 'floors are the cheapest provider's median across zones (single-zone dips excluded)' sits directly above 'B200 ... AWS $2.85 (median, 1 zones)' and 'B300 ... AWS $4.44 (median, 1 zones)' — a 1-zone 'median' IS a single-zone reading. And the Slack summary's 'our $2.15 vs Azure spot $2.27 (median) (-5%)' coexists with the battlecard/regional table showing Azure best-zone H100 spot at $1.40 (35% below us).",
+            "fix": "When zone count is 1, render 'single zone — low confidence' instead of '(median, 1 zones)'; in the Slack reference line show both numbers: 'vs Azure spot $2.27 (median, 21 zones; best zone $1.40)'. The spot/auction page's 'Read me first' panel is the right model.",
+            "uncertainty": "Median-across-zones is arguably the right anchor for PVM floor-setting; the issue is presentation consistency, not the methodology choice."
+          },
+          {
+            "q": "Is the currency and tax basis stated (USD, ex-VAT, FX conversion for EUR-listed providers like Scaleway)?",
+            "verdict": "missing",
+            "evidence": "Header says only 'All prices in $/GPU-hr'. No ex-VAT statement anywhere in any artifact; Scaleway (EUR public list) appears as $9.01 / $3.30 / $1.70 with no FX rate or date, so an auditor reproducing from Scaleway's site would get a different number and no explanation.",
+            "fix": "Add one static header line: 'All prices USD, excl. VAT/taxes; non-USD list prices converted by the source (ComputePrices.com) / at [rate, date]'. Static text is allowed under the GitHub-Actions constraint.",
+            "uncertainty": "Conversion may happen upstream in ComputePrices.com at an unknown rate; if so the note should attribute the source rather than claim a rate."
+          },
+          {
+            "q": "Is every displayed number dated or freshness-flagged so nothing stale is silently presented as today's price?",
+            "verdict": "answered",
+            "evidence": "'Data freshness: 14/14 sources live — all sources live this run'; 'Nebius committed list verified 2026-06-23'; AWS Capacity Blocks 'verified June 2026'; every field-intel row individually dated; 30d trend cells label their real span. This is the pack's strongest audit property.",
+            "fix": "None required. Nice-to-have: on cache-fallback days, a per-provider 'as-of' date next to affected prices (the health line already exists as the hook).",
+            "uncertainty": "Today is an all-live run, so I could not observe how a cache-fallback day renders; the safeguard is asserted by the badge, not demonstrated."
+          }
+        ],
+        "top_fixes": [
+          "Unify the field-intel windows so headlines tie to evidence: change _load_intel(days=60) to days=90 in _build_field_intel_callout (diff.py:1210) or label both windows explicitly — today the lost-deal $3.50 Azure B300, the $3.09 GB300, and the deal counts (21 vs 12 rows) cannot be verified on the page that cites them.",
+          "Flag the prepay/tier basis on every 'vs Nebius committed' delta (Slack bottom line included): deltas currently compare competitors' 0%-prepay deals to Nebius's 100%-upfront 512+ tier, understating the gap; add the basis clause and, where deal size <512 GPUs, compare against standard tier (+5-10%).",
+          "Make peer-median denominators consistent and honest: correct the exec-table caption from 'cheapest available per provider' to 'cluster-class (8x-node) list price', use one peer count per SKU across Slack and Confluence, and never label an n=1 comparison as a 'median'."
+        ]
+      },
+      {
+        "perspective": "Sales AE mid-deal: needs exact objection-handling numbers (AWS 3yr, spot), battlecard numbers that survive a customer cross-checking the tables on the same page, negotiated-deal context they can act on (but not leak), and freshness they can cite. Audited slack_message.txt, slack_thread.txt, confluence_body.html (full 471 lines), spot_auction_body.html, plus diff.py/config.py to confirm mechanisms.",
+        "questions": [
+          {
+            "q": "Customer says 'AWS 3-year is way cheaper.' What exact numbers do I quote and what is the counter?",
+            "verdict": "answered",
+            "evidence": "Battlecard row: 'AWS H100 3yr is $2.97 no-upfront / $1.38 100%-prepaid... Nebius 2yr $2.05 needs no 3rd-year lock... Sell flexibility.' Sales-context paragraph re-derives clean: 3.85/1.38 = 2.8x, 2.30/1.38 = +67%, Nebius 1yr $2.30 vs AWS 1yr $2.58 (-11%), all consistent with the committed table and regional tables on the same page.",
+            "uncertainty": "The talk track argues against AWS LIST, but the same page's field intel shows AWS negotiated 1yr at $1.80 (0% prepay), below Nebius $2.30. An AE using only the battlecard gets blindsided when the customer has a real AWS quote.",
+            "fix": "Add one line to the 'AWS 3-year is cheaper' battlecard: 'Field intel: AWS negotiated 1yr seen at $1.80 (0% prepay), below our $2.30. If the customer quotes below AWS list, treat it as credible and escalate to pricing; do not argue list rates.' (Static text; needs no new data.)"
+          },
+          {
+            "q": "Customer quotes a cheaper neocloud/marketplace price (Hyperstack $2.50, Lambda $3.29, RunPod $2.89, Vast L40S $0.47). What do I say?",
+            "verdict": "missing",
+            "evidence": "Battlecards cover only 4 objections: AWS 3yr, Azure spot, L40S parity, Oracle B200. The Complete Market Sweep shows 22 providers below Nebius on H100 (Latitude $1.66 through Oblivus $3.50) with no talk track; the only counter-material is passive framing ('commodity rental marketplaces excluded... use the Executive Benchmark for apples-to-apples') and a buried SemiAnalysis capacity note in the Availability section.",
+            "uncertainty": "The correct counter differs by provider class (marketplace vs enterprise peer selling 1x GPUs) and the sweep does not label which is which, so the exact talk track needs a curation pass.",
+            "fix": "Add a fifth battlecard: '\"[Provider] quotes $2-3/hr for H100\"' — response: single-GPU marketplace/1x listings are not 8xSXM training clusters with enterprise SLAs; cluster-class floor among enterprise peers is $3.99 (Lambda); market is capacity-constrained (SemiAnalysis, Apr 2026), so a cheap quote without deliverable capacity is not a quote. All numbers already exist on the page."
+          },
+          {
+            "q": "Do the battlecard/benchmark numbers match the tables on the same page (customer or AE cross-checks)?",
+            "verdict": "wrong",
+            "evidence": "Confluence Executive Benchmark intro says 'On-demand prices, cheapest available per provider' but the table is cluster-class (8xSXM) filtered (diff.py is_cluster_class gating; label at diff.py line 1984): it shows Lambda H100 $3.99 while the sweep on the SAME page lists Lambda at $3.29 (1x GPU), and named enterprise peer Hyperstack at $2.50 — directly contradicting 'cheapest enterprise peer $3.99' and Slack's '0/3 peers cheaper'. Second instance: Azure H100 spot is $2.27 (median, Slack summary + spot page) and $1.40 (battlecard + regional table) with no cross-reference between the two bases.",
+            "uncertainty": "The cluster-vs-1x filter is a defensible methodology choice; only the label is wrong and the reconciliation absent. Slack thread does carry the correct 'cluster-class like-for-like' label.",
+            "fix": "Fix the intro line to 'cheapest cluster-class (8xSXM) price per provider'; add a reconciliation note under the benchmark ('single-GPU list prices run lower, e.g. Lambda $3.29 1x, Hyperstack $2.50 1x — see Market Sweep; not comparable to cluster SKUs'); in the spot battlecard, state which Azure number to quote and why the median ($2.27) and cheapest-zone ($1.40) differ."
+          },
+          {
+            "q": "What negotiated street prices are competitors actually doing (field intel), and can I trust the summary numbers?",
+            "verdict": "buried",
+            "evidence": "Rich per-GPU field-intel tables with date/term/prepay/context and confidence disclaimers. But the summary counts do not tie out with the tables below them: B200 says '[12 deals]' with 11 rows shown, B300 '[21 deals]' with 12 rows, GB300 '[20 deals]' with 11 rows — diff.py line 1289 caps detail at rows[:12] with no 'showing latest N' note. Also every 'vs Nebius' delta compares a 0%-prepay competitor deal to Nebius's 100%-upfront enterprise tier ($4.55 etc.), which the page's own prepay-structure note says is not like-for-like — the true competitor advantage is LARGER than the -23%/-30% shown.",
+            "uncertainty": "Whether count vs rows is purely the display cap or also a committed-vs-all-quotes filter difference; either way the reader cannot reconcile it.",
+            "fix": "Print 'showing latest 12 of N' on capped tables, and add one caveat line to the field-intel summary: 'Nebius comparator is the 100%-upfront enterprise tier; at matching 0% prepay the gap vs Nebius is wider than shown.'"
+          },
+          {
+            "q": "Customer quotes hyperscaler spot (Azure H100 $1.40, AWS H200 $1.78). What is my exact counter per GPU?",
+            "verdict": "buried",
+            "evidence": "The Azure-spot battlecard covers H100 only ('interruptible, no capacity guarantee, single best region... $1.40 vs our $2.15'). But the Slack thread shows Nebius preemptible ABOVE hyperscaler spot on H200 (+13% vs AWS $2.17 median) and B200 (+39% vs AWS $2.85), with no talk track; and 'median, 1 zones' for B200/B300 is a single-zone price dressed as a median while the footnote claims 'single-zone dips excluded'.",
+            "uncertainty": "AWS H200 spot just moved +4.4% (us-east-2), so spot deltas churn daily; any static talk track must lean on the interruptibility argument, not the delta.",
+            "fix": "Extend the spot battlecard beyond H100: name the current worst cases (H200/B200 where Nebius preemptible is above hyperscaler spot) and give the capacity-guarantee counter; fix the '(median, 1 zones)' label to 'single zone' when zone count is 1."
+          },
+          {
+            "q": "Can I cite freshness to a customer, and which numbers am I NOT allowed to repeat externally?",
+            "verdict": "buried",
+            "evidence": "Freshness is citable: 'Last updated: July 06, 2026 — daily refreshed (point-in-time snapshot)', '14/14 sources live', sources named (provider APIs + ComputePrices.com), Nebius committed 'verified 2026-06-23', capacity blocks 'verified June 2026', field-intel rows dated. But nothing marks the field-intel and Nebius internal committed numbers as internal-only; the only external-use warning is on the Product-Model Gaps table ('validate specifics before external use').",
+            "uncertainty": "Confluence page permissions may already restrict the audience; the artifact alone cannot confirm that.",
+            "fix": "Add a standing banner on Field Intelligence and the Neocloud Committed table: 'Internal only — sales-reported deal terms; do not quote these numbers to customers or name in written proposals.' Static text, no new data needed."
+          },
+          {
+            "q": "Where does Nebius sit per GPU at a glance — the one view to open mid-call?",
+            "verdict": "answered",
+            "evidence": "Executive Benchmark (per-GPU: Nebius price, cheapest peer, vs median, cheapest hyperscaler) plus the Slack thread one-liners ('H100 Nebius $3.85 vs AWS $6.88 -> 44% below'); L40S near-parity flagged honestly ('+7% vs median', AWS $0.37 3yr risk); Availability table warns B300 is sales-gated before an AE promises capacity.",
+            "uncertainty": "GB200/GB300 have no Nebius on-demand and near-empty competitor rows, so GB-series positioning rests entirely on field intel; the Slack thread's RTX PRO 6000 block has no counterpart section on the Confluence page, so inference-card AEs have no deep-dive reference (Slack cites 'market committed from $1.19' and 'floor: Vast $0.71' that appear nowhere else).",
+            "fix": "Add an RTX PRO 6000 section to the Confluence page mirroring the Slack block (OD/spot/committed vs the 11-provider RTX market), so the always-live reference covers every SKU the Slack post asserts numbers for."
+          },
+          {
+            "q": "Did anything move recently that could make my quoted number stale mid-deal?",
+            "verdict": "answered",
+            "evidence": "'Price moves >=3%' section names each move with old->new, % and scope (AWS H200 spot $1.71->$1.78 +4.4% us-east-2; 1Legion B300 committed cuts); Decision Triggers carry a 'Market 30d' trend column; the Slack summary surfaces the day's moves up top.",
+            "uncertainty": "Trend history is young ('90d trend appears once >=90 days of history accrues'), so 30d '+0%' may reflect a short baseline rather than genuine stability. Minor: the Slack action-flag lines render a garbled duplicated trend token ('| 30d +0% / 30d'), which reads as a formatting bug and dents citability.",
+            "fix": "Fix the action-flag trend string in format_slack_message (diff.py, action-flags block) to a single '30d: +0%' token, and note the history start date next to the 30d column until 90d accrues."
+          }
+        ],
+        "top_fixes": [
+          "Add a 'cheaper neocloud/marketplace quote' battlecard (the most common AE objection; all numbers already on the page) AND fix the Executive Benchmark label from 'cheapest available per provider' to 'cheapest cluster-class (8xSXM) per provider' with a one-line reconciliation to the sweep (Lambda $3.99 cluster vs $3.29 1x, Hyperstack $2.50 1x) — today the same page appears to contradict itself the moment a customer quotes a 1x-GPU price.",
+          "Integrate field intel into the battlecards safely: add the AWS negotiated $1.80 (1yr, 0%) line to the 'AWS 3-year is cheaper' card with an escalate-don't-argue instruction, mark Field Intelligence tables 'internal only — do not quote externally', and caveat that 'vs Nebius' deltas use the 100%-upfront tier so real gaps are wider.",
+          "Make counts and spot numbers tie out: print 'showing latest 12 of N' on capped field-intel tables (B200 says 12 deals, shows 11 rows; B300 says 21, shows 12), pick one authoritative spot basis per comparison (cheapest zone vs median — Azure H100 appears as both $1.40 and $2.27), and relabel '(median, 1 zones)' as 'single zone'."
+        ]
+      },
+      {
+        "perspective": "Capacity/supply planner: reads the daily output for market scarcity signals (sold-out, gated SKUs, capacity blocks), competitor availability vs price, spot floors as preemptible-pricing anchors, and whether price moves imply capacity shifts. Cares less about list-price league tables than about whether a price is backed by obtainable capacity and which way supply is trending.",
+        "questions": [
+          {
+            "q": "Which competitors and GPU SKUs show capacity constraints today (sold out, contact-sales gated, delisted since last week)?",
+            "verdict": "missing",
+            "evidence": "Confluence 'Availability & Access' covers only Nebius SKUs and states outright: 'Competitor real-time availability is not tracked here (no public feed).' The only market signal is one static line: 'SemiAnalysis reported on-demand GPU capacity sold out across all GPU types as of April 2026.' Slack has zero competitor-availability content.",
+            "fix": "Derive availability flags from the scrape itself (no new data source needed): per provider/SKU, mark 'listed / contact-sales / delisted since D-n' — a SKU disappearing from a provider's price page is scrape-detectable in history.py. Add the flag as a column in the Complete Market Sweep and a 'delistings this week' line in the Monday thread.",
+            "uncertainty": "True real-time competitor availability genuinely has no public feed; the fix gives listing-presence as a proxy, which lags actual sellable capacity. Aggregator-sourced rows (ComputePrices.com) may keep stale listings alive."
+          },
+          {
+            "q": "What are the trustworthy spot floors per GPU generation to anchor Nebius preemptible/PVM pricing?",
+            "verdict": "buried",
+            "evidence": "Slack thread shows zone counts but treats them all at equal confidence: 'B200 Nebius $3.95 vs AWS $2.85 (median, 1 zones) → Nebius 39% above' and 'B300 ... $4.44 (median, 1 zones)' sit next to 'H100 ... Azure $2.27 (median, 21 zones)'. The methodology note says 'single-zone dips excluded', yet two of five floors ARE single-zone medians — exactly the fragile signal the method claims to guard against. The 39%-above B200 read, the most alarming spot number on the page, rests on one zone.",
+            "fix": "In diff.py's spot section, flag floors with n_zones < 3 as thin: e.g. 'AWS $2.85 (1 zone — thin signal, verify before pricing action)' in both Slack thread and the spot_auction page's Market floor reference column. Also fix the '1 zones' grammar.",
+            "uncertainty": "A single-zone price can still be real and load-bearing (AWS may genuinely offer B200 spot in one region only); the flag should say 'thin', not 'wrong'. Whether n_zones=1 means one region offered vs one region scraped is not distinguishable from the artifacts."
+          },
+          {
+            "q": "Do the regional spot cells that equal on-demand indicate genuine scarcity (no spot discount) or a scrape artifact?",
+            "verdict": "wrong",
+            "evidence": "Regional table, H200 Spot/Preemptible: Azure $10.60 / $12.72 / $13.25 — identical to Azure's on-demand row ($10.60 / $12.72 / $13.25). Same for GB200: Azure spot $27.04 / $35.15 = Azure OD $27.04 / $35.15. To this reader, spot-at-OD-parity is the strongest scarcity signal on the page; presented without comment it is more plausibly an OD-fallback fill in the pipeline. Either way the current presentation misleads: it's either an unmarked major scarcity signal or fabricated spot data.",
+            "fix": "In format_confluence_table's regional builder, detect spot==OD per provider/geo and annotate the cell: 'no spot discount (capacity-tight)' if the scrape genuinely returned a spot price, or suppress/mark '(OD shown — no spot price scraped)' if it's a fallback. Never render an imputed value indistinguishable from scraped spot.",
+            "uncertainty": "I could not confirm from diff.py alone whether these cells are fallback fills or real scraped values; the fix's first step is instrumenting which it is. Azure does sometimes price spot near OD on constrained SKUs, so 'wrong' applies to the unmarked presentation, not necessarily the numbers."
+          },
+          {
+            "q": "Do today's price moves signal capacity shifts, and can I see spot direction over time?",
+            "verdict": "buried",
+            "evidence": "The raw events exist — Slack: 'AWS raised H200 spot +4% ($1.71→$1.78) us-east-2' and two 1Legion B300 committed cuts (-14%/-17%) — but with zero supply interpretation. The only trend tracked is 'Market 30d = change in the cheapest enterprise-peer on-demand price' (all showing +0%/30d); there is no spot trend at all, so a planner cannot tell if the AWS spot rise is day-1 noise or week 3 of tightening.",
+            "fix": "history.py already stores daily snapshots: add a 7d/30d spot-floor trend per GPU next to the existing OD 'Market 30d' column, and give price-move lines a one-clause supply read where the direction is mechanical ('spot up = capacity tightening in that region'), e.g. 'AWS H200 spot +4% us-east-2; spot floor +9%/30d'. Fully computable from public scrape history in Actions.",
+            "uncertainty": "Spot series are noisy; a 30d trend on a 1-zone floor inherits the thin-signal problem from Q2 and should carry the same flag. Causal reads (tightening vs repricing policy) remain inference, so keep the interpretation formulaic, not editorial."
+          },
+          {
+            "q": "What competitor capacity is coming online, when, and at what scale (market supply pipeline)?",
+            "verdict": "buried",
+            "evidence": "The field-intel tables are full of exactly this — 'HUMAIN ... 4k B300s London Aug availability', 'BoostRun ... 20k GPUs US Q4', 'Nscale ... 15k GPUs EU Q1', 'Andromeda 1k GB300 launching Sep', 'CoreWeave ... end-2026 new DC 500-1500 GPUs', '576 GPUs Aug delivery' — but each is a Context-column fragment inside per-deal pricing rows. The Capacity TL;DR row ('Nebius B300 is UK-private... Market broadly capacity-constrained') never mentions any of it.",
+            "fix": "Add a 'Capacity coming online (field intel)' digest under Availability & Access: parse delivery-window + cluster-size from the curated intel CSV (add explicit delivery_window / gpu_count columns to intel_schema.py rather than regexing Context) and render a quarter-bucketed timeline; surface the top 1-2 items in the Capacity TL;DR row. Static-CSV-derived, so it fits the GitHub Actions constraint.",
+            "uncertainty": "Field-intel scale/timing claims are sales-reported and unverified (the page itself says 'lower confidence than published list prices'); announced capacity frequently slips. Sizes may double-count (same deal quoted by two providers, e.g. the Verda/CIVO joint offer)."
+          },
+          {
+            "q": "Are capacity-guaranteed short-term products (AWS Capacity Blocks, GCP DWS, Azure capacity reservations) priced and comparable?",
+            "verdict": "answered",
+            "evidence": "The AWS Capacity Blocks section is strong: effective $/GPU-hr per family (H100 $3.933 ... GB200 $10.582), cheapest region, vs AWS OD and vs Nebius OD, correctly fenced as 'not comparable to 3yr Reserved Instances', verified June 2026. The Product-Model Gaps table flags GCP 'Yes (DWS)' and Azure 'Yes (cap. res.)' — but neither is priced anywhere, and the GB200 block row has empty vs-OD/vs-Nebius cells.",
+            "fix": "Extend the capacity-block table with GCP DWS effective rates (public pricing, scrapeable) and an explicit 'Azure capacity reservations: exists, pricing not yet scraped' note so the reader knows the blank is a tooling gap, not market absence; fill or dash the empty GB200 comparison cells.",
+            "uncertainty": "GCP DWS pricing structure (flex-start vs calendar) may not reduce cleanly to one $/GPU-hr; may need a footnoted assumption. Azure capacity-reservation pricing is partly account-specific."
+          },
+          {
+            "q": "How current is the market-wide scarcity claim that anchors the Capacity TL;DR?",
+            "verdict": "wrong",
+            "evidence": "The Capacity TL;DR row and the Availability footer lean on 'SemiAnalysis reported on-demand GPU capacity sold out across all GPU types as of April 2026 — list prices currently reflect scarcity'. Today is July 6, 2026: a 3-month-old third-party snapshot rendered daily as 'currently', with no staleness handling — while the pipeline carefully staleness-gates its own committed list ('verified 2026-06-23', omitted when stale per _committed_freshness in diff.py). Meanwhile the page's own fresher evidence cuts the other way: 1Legion B300 committed cut twice today, and field intel shows large uncontracted capacity being shopped.",
+            "fix": "Apply the same staleness discipline as the committed section: store the market-context claim in the curated CSV with a date and a max-age (e.g. 60d); render 'as of Apr 2026 (90+ days old — verify before use)' or drop the 'currently reflect scarcity' assertion once past max-age. This is static-text config, fully within the Actions constraint.",
+            "uncertainty": "The claim may still be directionally true for Hopper-class OD; the objection is the undated 'currently' framing, not necessarily the fact. No newer public sweep is cited to replace it."
+          },
+          {
+            "q": "Can I tell which cheap competitor prices in the market sweep are backed by obtainable capacity (i.e., actionable)?",
+            "verdict": "buried",
+            "evidence": "The right principle is stated twice ('A cheaper competitor quote is not actionable if the capacity is unavailable') and even applied once (L40S spot: 'newest-gen spot capacity not realistically available'). But the Complete Market Sweep then ranks 20+ providers below Nebius (Latitude $1.66 '-57%', Vast $0.47 '-74%') with no per-row availability or tier qualifier in the table itself — the enterprise/marketplace distinction lives only in prose above it.",
+            "fix": "Operationalize the principle in the sweep table: add a 'Tier / access' column (enterprise-peer vs marketplace, from the existing tier registry, plus the Q1 listing-status flag), so the -57% rows visibly carry their caveat. Cheap marketplace rows could also be visually de-emphasized below a 'marketplace (capacity unverified)' subheader.",
+            "uncertainty": "Tier labels are a judgment call already encoded in the registry (Sesterce excluded as broker yet appears in the sweep); listing-status is a proxy, not proof of capacity. Risk of table width growth — keep the column to one word."
+          }
+        ],
+        "top_fixes": [
+          "Confidence-gate the spot floors: flag n<3-zone medians as thin signal in the Slack thread and spot_auction 'Market floor reference' (B200 39%-above rides one zone), and annotate regional spot cells equal to on-demand as either 'no spot discount (capacity-tight)' or 'OD fallback — no spot scraped' — today they are indistinguishable from real data and this is the exact input to PVM floor/target setting.",
+          "Add a capacity-signals layer computed from data already in hand: a 'Capacity coming online' digest from field-intel delivery windows/cluster sizes (add delivery_window + gpu_count to intel_schema.py), plus scrape-history trends the planner actually needs — 7d/30d spot-floor trend per GPU and week-over-week provider-listing counts per SKU (delistings = tightening).",
+          "Staleness-gate the Apr-2026 SemiAnalysis 'sold out across all GPU types' line that anchors the Capacity TL;DR: date it, cap its age like the committed-price section already does, and stop asserting 'list prices currently reflect scarcity' from a 3-month-old snapshot."
+        ]
+      },
+      {
+        "perspective": "Exec (CEO/CRO/VP) with 30 seconds: wants one-line position, what changed and whether it matters for revenue, numbers trustable without methodology, no jargon. Audited the Slack summary hardest, thread and Confluence as reconciliation targets.",
+        "questions": [
+          {
+            "q": "In one line, where does Nebius sit on price vs the market today?",
+            "verdict": "answered",
+            "evidence": "Slack summary line 3: 'Nebius on-demand sits 43-49% below hyperscalers and below cluster-peer median (H100, H200, B200); the contested ground is committed deals - competitors quoting B300 from $3.50 vs our $4.55 (-23%)'. Numbers tie out against the thread (H100 44%, H200 43%, B200 49%, B300 48% below; peer-median -4/-27/-15).",
+            "uncertainty": "The 43-49% range is vs hyperscaler LIST; Confluence itself notes enterprise customers pay 40-57% less at 3yr committed. The second clause ('contested ground is committed') self-corrects this, so the line is honest, but only if the exec reads both clauses.",
+            "fix": "Keep as is. Optional: swap clause order so the contested-ground (revenue-risk) clause leads and the flattering list-price gap trails, per decision-first style."
+          },
+          {
+            "q": "What am I being asked to decide, and is the flagged action new news or a standing flag?",
+            "verdict": "wrong",
+            "evidence": "Summary line 5: 'B300 lost a deal at the field price. Review committed pricing for this SKU.' Code (diff.py _field_intel_floor): is_loss = ANY loss for the GPU in 90d, attached to the CHEAPEST quote. The actual loss was 2026-06-12 at $3.80 (3yr, undisclosed hyperscaler, 'competitive B300 win vs Nebius'); the '$3.50 (3yr, Azure)' shown next to the red 'lost deal' badge in the Confluence Decision Triggers row was a different, un-lost quote. An exec concludes we lost at $3.50 to Azure; neither the price nor the counterparty is right. No date is shown, and the 90d window means this 24-day-old loss reads as today's news every day until mid-September.",
+            "uncertainty": "The intel CSV notes are terse; 'win vs Nebius' is the only loss marker, so I cannot rule out a second loss at $3.50, but the visible field-intel table shows the only tagged loss at $3.80.",
+            "fix": "In _field_intel_floor, return the loss record itself (price, term, provider, date) separately from the floor quote. Render: 'Action flag: B300 - lost a 3yr deal Jun 12 at $3.80 (hyperscaler); lowest field quote since: $3.50 (Azure, 3yr) vs our list $4.55. Review committed pricing.' The date makes a standing flag legible as standing."
+          },
+          {
+            "q": "What changed since the last post, and is it material to revenue?",
+            "verdict": "buried",
+            "evidence": "Summary line 9: 'AWS raised H200 spot +4% ($1.71->$1.78)'. Only the thread reveals this is a single zone (+4.4% us-east-2), and nothing says whether it matters (it does not: it is spot, one region, 4%). Meanwhile the genuinely material items (B300 loss, committed undercutting) carry no recency, so 'changed' and 'standing' are indistinguishable.",
+            "uncertainty": "Cannot see yesterday's post to confirm repetition, but format_slack_summary code confirms the action flag and bottom line re-fire daily while conditions hold.",
+            "fix": "Qualify moves with scope in the summary ('AWS H200 spot +4%, one US region - no list-price moves'), and date every field-intel-driven statement so a repeated flag is visibly repeated, not fake-fresh."
+          },
+          {
+            "q": "Where is the biggest committed-deal threat right now (which SKU, how big, who)?",
+            "verdict": "missing",
+            "evidence": "GB300 has 20 field deals in 90d, the most of any SKU (thread line 39), including a SIGNED GCP deal at $3.50/3yr vs Nebius $5.19 (-33%, Confluence field-intel table 2026-06-04) - a wider gap than the headlined B300 -23%. The exec summary never mentions GB300: _build_takeaway skips it because the lowest deal is 60mo and _term_bucket_cts has no Nebius 60mo tier. Worse, the thread prints 'GB300 ... no Nebius committed at this term', implying we have no GB300 committed pricing when Confluence shows $5.88/$5.62/$5.19 tiers, and the Jul-1 Vera Rubin intel shows Nebius $5.19 priced BELOW the winning GCP $5.50 (which GCP admitted was below-cost). Both the threat and the win are invisible to the exec.",
+            "uncertainty": "GB300 quotes are mixed (+6% to +35% above Nebius on the Jul-1 deal vs -33% on the Jun-4 GCP signing), so min-only framing overstates; a median-of-deals view may read differently. Field intel is sales-reported, lower confidence.",
+            "fix": "When the lowest deal's term has no Nebius tier, fall back to the lowest deal at a term Nebius does offer: 'GB300 lowest 3yr deal $3.50 (GCP, signed) vs our $5.19 (-33%) [20 deals - most active SKU]'. Replace 'no Nebius committed at this term' with 'no Nebius 60mo tier; at 3yr: -33%'."
+          },
+          {
+            "q": "Is anything favorable cherry-picked or anything unfavorable buried in the 30-second view?",
+            "verdict": "buried",
+            "evidence": "The only spot number in the summary is the favorable one: 'H100 interruptible: our $2.15 vs Azure spot $2.27 (-5%)' - H100 is hard-coded in _build_takeaway's reference-notes block. The thread shows the full picture: H200 +13% and B200 +39% ABOVE the cheapest hyperscaler spot. An exec reading only the summary concludes 'we are below on spot' when the position is mixed-to-above, which also feeds the PVM auction floor discussion with the wrong prior.",
+            "uncertainty": "Hyperscaler spot is interruptible with no capacity guarantee (footnoted in thread), so 'above hyperscaler spot' is a softer signal than list; the selective line may be deliberate simplification rather than spin.",
+            "fix": "Show the range or drop the line from the channel post: 'Preemptible vs cheapest hyperscaler spot: -5% (H100) to +39% (B200) depending on SKU - detail in thread.' One line, no cherry-pick."
+          },
+          {
+            "q": "Can I trust the headline numbers without reading methodology (source, freshness, basis)?",
+            "verdict": "buried",
+            "evidence": "Freshness ('14/14 sources live') exists only on Confluence line 2. format_slack_summary accepts provider_status but never uses it, so a run on all-cached data produces an identical channel post to a live run; the thread flags freshness only when degraded. Basis labels are also missing at the exec level: 'our $4.55' is the 100%-upfront enterprise LIST tier compared against competitors' 0%-prepay negotiated deals; the prepay asymmetry (Confluence: 'the all-upfront vs no-upfront gap is ~2x on AWS 3yr') means -23% understates the deal-level gap, and nothing in the summary says list-vs-negotiated.",
+            "uncertainty": "Today's run happens to be 14/14 live, so no exec was actually misled today; the gap only bites on a degraded run.",
+            "fix": "Two one-word-scale changes: (a) wire provider_status into format_slack_summary and print a warning line ONLY when degraded ('3/14 sources cached - treat moves with caution'); (b) label the Nebius committed number 'our list $4.55 (100% upfront)' in the bottom line."
+          },
+          {
+            "q": "Is the summary free of jargon an exec will not parse?",
+            "verdict": "answered",
+            "evidence": "The channel post itself is clean: no SXM, no NER, 'interruptible' used instead of bare 'preemptible/spot' jargon, GPU names are unavoidable domain terms. Violations sit one level down: thread uses '8xSXM cluster' (SXM never defined), 'OD'/'Comm' row labels in the RTX block undefined, 'PAYG' unexpanded.",
+            "uncertainty": "This channel's audience (pricing, sales) likely knows SXM/PAYG; the house rule says define at first use regardless.",
+            "fix": "In the thread only: '8xSXM (NVIDIA server form factor) cluster' once, and expand OD/Comm to 'On-demand'/'Committed' in the RTX block labels (fits within 48 chars)."
+          },
+          {
+            "q": "If I click through with 5 more minutes, does everything reconcile with the summary?",
+            "verdict": "buried",
+            "evidence": "Three reconciliation snags: (1) Slack thread says H100 '0/3 peers cheaper', Confluence Executive Benchmark says '4' peers tracked, and the market sweep shows Lambda H100 at $3.29 (below Nebius) while the benchmark floor says 'Lambda $3.99' - all explainable by the cluster-class/1xGPU filter, but no line in either artifact says so where the numbers collide. (2) Garbled trend tags in the thread Action flags: '30d +0% / 30d' (diff.py line 1570 prefixes '30d' onto _trend_text output that already ends '/ 30d'), and a +0% trend prints despite the 'only attach when >=5%' intent elsewhere. (3) Grammar artifacts: 'median, 1 zones', '[1 deals]'.",
+            "uncertainty": "The Lambda $3.99 vs $3.29 split is presumably cluster vs single-GPU pricing; I could not verify Lambda's actual cluster list price from these artifacts.",
+            "fix": "Add one footnote where counts diverge ('peer counts differ from the market sweep: benchmark uses cluster-class 8x pricing only'); fix _trend_text call site to not double-print the window; singularize 'zone'/'deal' when n=1."
+          }
+        ],
+        "top_fixes": [
+          "Fix the lost-deal flag (diff.py _field_intel_floor / _top_action_flag): carry the actual losing quote and its date instead of gluing 'lost deal' to the cheapest 90d quote. Render 'B300 - lost a 3yr deal Jun 12 at $3.80 (hyperscaler); lowest quote since $3.50 (Azure) vs our list $4.55'. Today the exec is told a wrong price and counterparty, and a 24-day-old event reads as daily news.",
+          "Surface GB300 in the exec view: fall back to the lowest field deal at a term Nebius actually offers when the overall-lowest deal's term has no Nebius tier. GB300 is the most active SKU (20 deals/90d) with a signed GCP deal at -33% vs our 3yr list, and the thread's 'no Nebius committed at this term' wrongly implies we have no GB300 committed pricing at all.",
+          "De-cherry-pick and label bases in the channel post: replace the hard-coded favorable H100 spot line with the cross-SKU range ('-5% H100 to +39% B200 vs cheapest hyperscaler spot'), tag the committed comparison as 'our list $4.55 (100% upfront)' vs 0%-prepay deals, and wire the unused provider_status into format_slack_summary so a degraded-data run is flagged in the summary (silent when all sources live)."
+        ]
+      },
+      {
+        "perspective": "Data-quality maintainer: can I trust every number that reaches execs, trace it back to a source, and detect silent failures (stale cache, phantom spot, duplicate intel) before a reader does?",
+        "questions": [
+          {
+            "q": "Is per-source freshness visible everywhere prices are shown, with stale cache distinguishable from live data?",
+            "verdict": "buried",
+            "evidence": "Confluence has a real banner: 'Data freshness: 14/14 sources live — all sources live this run'. But it is page-level only (no per-row as-of), the ~25 aggregator sub-providers (cp_*) inherit the single 'computeprices' status, and the exec Slack channel post shows nothing: format_slack_summary (diff.py:586) accepts provider_status but never uses it — grep shows it is only rendered in format_slack_message (thread, line 1054) and _run_health_line (Confluence, line 1318).",
+            "fix": "Render a freshness suffix in format_slack_summary on every post (e.g. '14/14 live' when clean, 'X cached Nh' when degraded), and add a per-section 'as of' note for aggregator-sourced tables (ComputePrices last-fetch time), since 'live' currently means 'our fetch of their cache succeeded'.",
+            "uncertainty": "Whether ComputePrices exposes its own per-provider last-checked dates is not verifiable from these files; if it does not, the fix can only label the fetch time, not true price age."
+          },
+          {
+            "q": "Can a quiet-day heartbeat say 'no movement' when the truth is 'no data' (scrape failed, cache served, diff empty)?",
+            "verdict": "missing",
+            "evidence": "Yes — this failure is live in the code. The non-weekly quiet path (diff.py:694-696) prints 'No competitor movement since yesterday's update (no price moves >=3% on tracked providers)' and returns without ever consulting provider_status; cache fallback yields identical records, an empty diff, and a false all-quiet signal. The freshness footer exists only in the thread message, which is exactly what quiet days do not post.",
+            "fix": "Gate the heartbeat on provider_status: if any source is cache/fallback/missing, the one-liner must read 'no movement across N/14 live sources (X stale: aws cached 26h)' — and if live coverage drops below a threshold, say 'monitor degraded, movement cannot be ruled out' instead of 'no movement'.",
+            "uncertainty": "main.py was not read; if it suppresses posting entirely on degraded runs the risk shrinks, but format_slack_summary itself has no such guard, and the delta-first cadence shipping tomorrow makes this the default daily output."
+          },
+          {
+            "q": "Is every displayed price labeled by confidence tier — direct API/page scrape vs aggregator relay vs field intel?",
+            "verdict": "buried",
+            "evidence": "Field intel is well labeled ('Deal-specific, anonymized; lower confidence than published list prices'; BoostRun tagged '(unconfirmed)'). Direct-vs-aggregator is not: _provider_display strips the cp_ prefix, so domain-scrape artifacts like '1Legion Com' and 'Zettabytecloud Com' sit unlabeled beside AWS and Nebius in the exec-facing Committed Pricing Comparison table, and a '1Legion Com' B300 cut leads the Slack 'Price moves >=3%' list distinguished only as '(small provider)'. Provenance exists only as a page-header note ('Source: direct provider APIs/pages + ComputePrices.com') plus one footnote ('Peer providers (Civo, Vultr) sourced from ComputePrices.com') and '(api)' for Oracle.",
+            "fix": "Add a source column/glyph per row (direct / via ComputePrices / field intel) in the Committed and Market Sweep tables — the cp_ prefix already carries this, it is being deliberately erased at display time — and clean obvious domain-derived names ('1Legion Com' -> '1Legion (via aggregator)').",
+            "uncertainty": "Some providers exist both direct and as cp_ twins (hyperstack is in PROVIDERS and _PROVIDER_DISPLAY has cp_hyperstack); which record won today's table is not visible in the artifacts."
+          },
+          {
+            "q": "Are field-intel duplicate/superseded twins collapsed, and are the '[N deals]' counts execs see accurate?",
+            "verdict": "wrong",
+            "evidence": "The dedup key in _load_intel (diff.py:~1189) includes provider_name, so the same deal logged as 'Undisclosed' (seed) and later attributed ('HUMAIN') survives twice: the Confluence B300 table shows both '2026-05-22 Undisclosed $3.60 5yr 25%' and '2026-05-22 HUMAIN $3.60 5yr 25%'; intel.csv also holds GB300 $3.09 twins (seed 'Undisclosed' + 'Mistral', same date/price/term/prepay) and a 2026-04-28 GB300 $5.00 pair sharing one message_ts logged as both 'undisclosed_hyperscaler' and 'undisclosed_neocloud'. Slack's 'B300 [21 deals]' and 'GB300 [20 deals]' counts include these twins.",
+            "fix": "Drop provider_name from the dedup key when one side is Undisclosed/seed (or add a supersedes column to intel.csv so an attributed row retires its seed twin), and recompute deal counts post-dedup; show 'N deals (deduped)' so the count is auditable.",
+            "uncertainty": "Verda + CIVO $4.25 'joint offer' twins may be genuinely two providers on one deal — a human curation flag, not an automatic rule, decides those."
+          },
+          {
+            "q": "Can the number driving today's exec action flag be traced to the deep-dive evidence page?",
+            "verdict": "wrong",
+            "evidence": "No. The Slack action flag ('B300 lost a deal at the field price') and Decision Trigger cite '$3.50 (3yr, Azure) lost deal', but the Confluence B300 Field Intelligence table has no Azure $3.50 row: intel.csv has it dated 2026-05-08, and _build_field_intel_callout uses _load_intel(days=60) plus a rows[:12] most-recent cap (diff.py:1210, 1289), so the deal that fires the flag is the 13th row and gets dropped, while Slack callouts use 90d (diff.py:403,437). Same for the Slack GB300 headline '$3.09 (60mo, 100%)' (2026-05-01, outside the 60d page window).",
+            "fix": "Unify the window to 90d across Slack and Confluence, and pin any row referenced by an action flag or 'lowest' callout into the evidence table regardless of the 12-row cap (or raise the cap and mark truncation: 'showing 12 of 21').",
+            "uncertainty": "None material — reproduced from intel.csv dates plus the code paths; only the exact rendering date of the artifacts could shift which rows fall outside the window."
+          },
+          {
+            "q": "Is the phantom-spot filter (published spot with no real capacity) applied consistently everywhere spot appears?",
+            "verdict": "wrong",
+            "evidence": "The headline spot section filters phantoms (_representative_spot_floor, MAX_SPOT_DISCOUNT=0.80) and excludes single-zone dips — yet prints 'AWS $2.85 (median, 1 zones)' for B200, a single zone passing the 20%-of-OD phantom line by $0.002 (2.85 vs 14.24x0.20=2.848), directly under a footnote claiming 'single-zone dips excluded'. The Regional tables bypass the filter entirely: Azure H200 'Spot' $10.60/$12.72/$13.25 and GB200 $27.04/$35.15 are identical to Azure on-demand (placeholder rows), and AWS B200 regional spot $2.35 is 16.5% of OD — below the phantom threshold the headline enforces.",
+            "fix": "Apply the same phantom filter (or a visible 'spot=OD placeholder' / 'single zone — low confidence' tag) to the regional spot tables, require n_zones>=2 before calling a number a 'median across zones', and fix '1 zones'.",
+            "uncertainty": "Azure spot==OD could theoretically be a real zero-discount market; the exact 3-geo identity to on-demand makes a scrape placeholder far more likely, but only the fetcher logs can confirm."
+          },
+          {
+            "q": "Are vanished prices (SKU/provider dropped from a source) surfaced, or do they disappear silently?",
+            "verdict": "missing",
+            "evidence": "compute_diff generates change_type='removed' entries (diff.py:131-141), but both Slack formatters filter to change_type=='price_change' only (diff.py:616, 817), so a provider or SKU silently dropping out of the aggregator or a scrape never appears in any output; provider-level 'missing' shows in the freshness footer only when the whole source returns zero records.",
+            "fix": "Add a one-line 'coverage changes' item to the thread when removals/additions occur ('Lambda H100 8x SKU no longer listed; 3 rows removed') — removals are exactly how stale comparisons are born, since yesterday's floor provider can vanish and the median silently reshuffles.",
+            "uncertainty": "Removals may be logged internally by main.py; not visible in the audited outputs, which is the point — the maintainer's signal must not live only in CI logs."
+          },
+          {
+            "q": "Can another maintainer re-derive every published number from stated methodology (windows, caps, tier rules, medians)?",
+            "verdict": "buried",
+            "evidence": "Comparability rules are unusually well footnoted (cluster-class basis, prepay structure, geo buckets, peer registry with exclusion reasons). But load-bearing parameters are nowhere on the page: the 60d-vs-90d intel windows, the 12-row intel cap, the 0.80 phantom-spot threshold, and the >=3% action-flag bands live only in code; artifact-to-artifact numbers do not reconcile (Slack B300 '1 peer: Scaleway', Confluence 'Enterprise peers tracked: 2' with median equal to Scaleway's price; peer floor 'Lambda $3.99' vs sweep 'Lambda $3.29' reconcilable only via the Node-size column with no pointer).",
+            "fix": "Add a short Methodology block to the Confluence footer stating window lengths, row caps, phantom threshold, and the cluster-class rule with one worked example (why Lambda is $3.99 here and $3.29 below); make the peer-count basis identical between Slack and Confluence.",
+            "uncertainty": "The B300 peer-count discrepancy may be a cluster-class-filter difference between the two code paths rather than a bug; needs a check of compute_position vs the exec-table builder."
+          }
+        ],
+        "top_fixes": [
+          "Make the quiet-day heartbeat freshness-aware: format_slack_summary must render provider_status so 'No competitor movement' can never be printed over cached/missing data — degraded runs say 'N/14 sources live, movement cannot be ruled out'. This is the one silent failure that lies to execs daily under the new delta-first cadence.",
+          "Unify field intel to one 90d window with name-insensitive dedup (retire Undisclosed seeds once attributed) and pin any deal cited by an action flag or 'lowest' callout into the Confluence evidence table — today's headline B300 $3.50 Azure lost deal and GB300 $3.09 are untraceable on the reference page, and '[21 deals]' counts are inflated by twins.",
+          "Add row-level provenance and consistent spot hygiene: tag aggregator-relayed rows (cp_*) vs direct scrapes in the Committed and Market Sweep tables, and apply the phantom-spot filter (or a 'spot=OD placeholder / single-zone' label) to the Regional spot tables so $10.60 Azure 'spot' and one-zone 'medians' stop appearing as real market floors."
+        ]
+      },
+      {
+        "perspective": "PVM Auctions designer (Q4 project, RFC 055): needs competitor spot price distributions, bid-mechanism intel, interruption terms, a defensible floor/target anchor, and volatility over time — not just today's minima.",
+        "questions": [
+          {
+            "q": "What is the competitor spot price DISTRIBUTION per GPU (median, spread across providers/zones), not just the cheapest number, so I can place an auction target inside the market range?",
+            "verdict": "buried",
+            "evidence": "spot_auction_body.html shows one point estimate per signal per GPU ('Cheapest hyperscaler spot (median across zones): $2.27 (Azure)'). The distribution partially exists on the OTHER page: confluence_body.html Regional Comparison shows H100 spot Azure US $1.40 / EU $1.55 / APAC $2.28, GCP $2.05/$3.81/$2.76, AWS $3.91 — but only cheapest-per-geo, no percentiles, and the spot page never links to it.",
+            "fix": "On the spot/auction page add a per-provider row set per GPU: median + min–max across zones for AWS/GCP/Azure (data already scraped — Azure H100 has 21 zone observations), plus SF Compute. All computable from existing PriceRecords in _representative_spot_floor's by_prov dict; expose the full prov_median map instead of only min().",
+            "uncertainty": "Zone-level scrape coverage varies by GPU (B200/B300 have 1 zone each), so 'distribution' for B-series will honestly be a single point — the fix should show n per provider rather than imply spread that isn't there."
+          },
+          {
+            "q": "Who actually runs a real bid/auction mechanism for GPUs, and what is the mechanism (true auction vs provider-set price with a max-price cap)?",
+            "verdict": "wrong",
+            "evidence": "The two artifacts contradict each other. confluence_body.html Product-Model Gaps: 'Bid / max-price spot — AWS: Yes, GCP: No, Azure: Yes'. spot_auction_body.html note: 'Azure is the only major cloud with GPU spot bidding'. Neither describes the mechanism itself (AWS max-price is a cap on an algorithmically set price, not a bid auction since 2017; SF Compute is an order-book exchange).",
+            "fix": "Reconcile the two pages and add a short static 'mechanism' column on the spot page: AWS = provider-set price + user max-price cap (no auction); Azure = same (eviction on price or capacity); GCP = fixed preemptible discount, no bids; SF Compute = order-book market. Static text is fine under the GitHub Actions constraint.",
+            "uncertainty": "Whether Azure's max-price counts as 'bidding' is a definitional call; either definition is defensible, but the two pages must use the same one. CoreWeave/neocloud mechanisms are '—' (unverified), not 'No'."
+          },
+          {
+            "q": "What are competitors' interruption terms — eviction notice period, eviction trigger (price vs capacity), max runtime, restart policy — so I can design PVM interruption terms competitively?",
+            "verdict": "missing",
+            "evidence": "The only interruption language anywhere is the caveat 'Hyperscaler spot is interruptible, capacity not guaranteed' (slack_thread.txt line 23, repeated on both Confluence pages). No notice periods (AWS 2-min, GCP 30-sec, Azure 30-sec), no eviction-trigger detail, nothing on Nebius preemptible's own terms.",
+            "fix": "Add a static interruption-terms table to the spot/auction page (provider | notice period | eviction trigger | capacity guarantee | source link). This is stable public documentation, needs no daily compute, and is exactly what an auction-terms section of RFC 055 must cite.",
+            "uncertainty": "Provider terms change occasionally; the table needs a 'verified <date>' stamp like the committed-list one ('Nebius committed list verified 2026-06-23') so staleness is visible."
+          },
+          {
+            "q": "Does the 'Market floor reference' give me a floor anchor I can defend in the RFC?",
+            "verdict": "buried",
+            "evidence": "spot_auction_body.html defines it as 'the lowest real competitor spot/auction signal observed (hyperscaler spot median, SF Compute market price, or a field-intel deal)' — but the bolded H100 floor $1.80 is a 1yr COMMITTED deal and the B300 floor $3.50 is a 3yr committed deal, not spot clears. The caveat ('often committed rather than pure spot') is honest but the headline min() erases it.",
+            "fix": "Split the column in two: 'Spot-clearing anchor' = min(hyperscaler spot median, SF Compute) — H100 $2.04, H200 $2.17, B200 $2.85, B300 $4.44 — and 'Negotiated committed floor (term)' = field-intel lowest with term shown. Add one static line tying to the PRD floor rule (floor = 1/3 PAYG → H100 $1.28) alongside the existing ~$0.40 cost floor so all three candidate floors sit on one line.",
+            "uncertainty": "Whether a 3yr-committed $3.50 belongs anywhere near a spot floor is a modeling judgment; some designers want the absolute willingness-to-pay floor. Keeping both columns preserves that choice instead of pre-deciding it via min()."
+          },
+          {
+            "q": "How volatile are competitor spot prices over time (30d range), so the floor survives typical dips and I can pick a repricing cadence?",
+            "verdict": "missing",
+            "evidence": "No time-series appears on the spot/auction page at all. The only trend anywhere is 'Market 30d = change in the cheapest enterprise-peer ON-DEMAND price' (confluence_body.html, +0% on every GPU) and today's single move (slack: 'AWS raised H200 spot +4% ($1.71→$1.78)'). Yet store/history.csv holds ~8,930 rows of daily zone-level spot snapshots since 2026-05-15 (~7 weeks) — the volatility is computable from data the tool already has.",
+            "fix": "Add a 30d volatility row per GPU on the spot page: min / median / max of the daily hyperscaler-spot-floor and of SF Compute over the trailing 30d, from history.csv. Pure public-scrape computation, fits the GitHub Actions constraint.",
+            "uncertainty": "History only reaches back to 2026-05-15 and early snapshots mixed in coverage backfill (diff.py line ~1354 notes contamination), so the first volatility read needs a 'span: Xd' label like the existing trend cells."
+          },
+          {
+            "q": "Are the floor signals like-for-like with a PVM auction product (interruptible, per-GPU-hr, no term), or is the field-intel column contaminated by term-committed deals?",
+            "verdict": "buried",
+            "evidence": "_field_intel_floor (diff.py:1404) takes the lowest 90d deal regardless of consumption type — B300 floor $3.50 is '3yr, 0%' committed; intel.csv even contains a spot-comparable B300 signal (BoostRun $3.80 On-demand, 2026-06-04, unconfirmed) that loses the min() to a 3yr deal. The disclosure exists ('field-intel deals are sales-reported and often committed, not pure spot') but the number the reader will copy is the contaminated one.",
+            "fix": "In _field_intel_floor, split by term: report lowest on-demand/short-term (<=3mo) deal separately from lowest committed deal; the intel CSV already carries term_months, so this is a filter, not new data.",
+            "uncertainty": "Field-intel rows are sales-reported and anonymized ('lower confidence than published list prices'); a term split shrinks n per bucket — B-series short-term buckets may often be empty, which is itself useful signal."
+          },
+          {
+            "q": "How reliable is each floor signal — zone counts, phantom-price filtering, SF Compute price basis, deal counts and dates?",
+            "verdict": "buried",
+            "evidence": "Zone counts appear in Slack ('AWS $2.85 (median, 1 zones)') but are dropped from the spot page's floor table. The B200 'floor' $2.85 is a single-zone price sitting 79.99% below AWS's own $14.24 on-demand — it passes the tool's own phantom filter (MAX_SPOT_DISCOUNT = 0.80 in diff.py:188) by 0.01pp, while the code comment says genuine spot discounts run ~60-70%. SF Compute '$2.04' has no contract-duration basis or date; the field-intel cell shows no deal count or date (main page shows '21 deals' for B300, spot page doesn't).",
+            "fix": "Carry n_zones (already returned by _representative_spot_floor), field-intel deal count + date, and an SF Compute duration/date basis into the spot page table; flag single-zone or near-phantom-threshold signals explicitly (e.g. 'B200: 1 zone, at 80% below own OD — treat as indicative only'). Also fix the '1 zones' plural in Slack.",
+            "uncertainty": "Whether AWS's B200 spot at 80% below own OD is phantom or a real early-capacity price is unknowable from scrapes alone; the fix is to surface the ambiguity, not resolve it."
+          },
+          {
+            "q": "Where does Nebius preemptible sit vs the market today, per GPU?",
+            "verdict": "answered",
+            "evidence": "slack_thread.txt lines 18-21 and the spot page column give it cleanly: H100 $2.15 (5% below Azure spot median), H200 $2.45 (13% above AWS), B200 $3.95 (39% above AWS), B300 $4.30 (3% below AWS) — with the '% of what' basis stated (median across zones, cheapest hyperscaler).",
+            "fix": "Only refinement: annotate that the B200 '+39% above' comparator is the single-zone near-phantom $2.85 (see Q7), so the positioning read on B200 is soft.",
+            "uncertainty": "The B200/B300 comparisons rest on 1 zone each; the H100/H200 reads (21 and 4 zones) are solid."
+          }
+        ],
+        "top_fixes": [
+          "Split the spot page's 'Market floor reference' into two columns — spot-clearing anchor (hyperscaler spot median + SF Compute only) vs negotiated committed floor (field intel, term shown) — and stop min()-ing across mechanisms; add one static line placing the three candidate floors side by side (competitor spot clear, 1/3-PAYG PRD rule ≈ $1.28 for H100, ~$0.40 cost floor).",
+          "Add a 30d spot volatility block per GPU (min/median/max of the daily hyperscaler spot floor and SF Compute) computed from store/history.csv (~7 weeks of zone-level snapshots already collected) — the designer needs the range a floor must survive, not a point estimate.",
+          "Carry reliability metadata into the spot table (n_zones, field-intel deal count + date, SF Compute duration basis) and flag near-phantom signals — the B200 floor $2.85 is a single-zone price at 79.99% below AWS's own on-demand, passing the tool's 80% phantom filter by 0.01pp; also reconcile the bid-mechanism contradiction (Product-Model Gaps says AWS bid spot = Yes; spot page says Azure is the only cloud with GPU spot bidding) and add a static interruption-terms table (notice period, eviction trigger)."
+        ]
+      }
+    ],
+    "critic": {
+      "still_missed": [
+        "Self-move attribution: no perspective asks whether the pack distinguishes 'we moved' from 'the market moved'. Every delta ('-4% vs median', 'Changed in 24h', 30d trend) silently shifts when Nebius changes its own list price, which is imminent (July-6 proposal: H200/B200/B300 +5%). Under delta-first cadence a self-caused position change would read as market news. Cheap to compute: nebius rows are already in the diff; add one 'Nebius price change today' line and tag position deltas as self-caused when nebius appears in diffs.",
+        "Action-flag lifecycle: the B300 'lost deal' flag has no state, no age, and no retirement rule; it re-fires every post until the intel row ages past 90d, then vanishes silently. Nobody asks how a pricing decision ('reviewed, holding premium') acknowledges and silences a flag, or how flag age is shown. Under the new cadence a standing flag repeated every Monday trains execs to ignore the one channel signal that matters.",
+        "House-style compliance: none of the seven verified the 48-char Slack table limit. Thread peer rows run ~80 chars (e.g. 'H100 Nebius $3.85 -4% vs median | 0/3 peers cheaper | floor: Lambda $3.99') and wrap on mobile/sidebar, destroying the aligned columns the format depends on. The owner's own hard constraint is currently violated by the flagship table.",
+        "Confidentiality governance of the pages themselves: the Field Intelligence section claims 'customer names removed' yet rows name counterparties and deal specifics (HUMAIN 4k B300s London, Anyscale 92 nodes, LAI ~5k B200, BoostRun 20k, Pale Blue Dot 1600x GB300). No perspective asks who can view the Confluence page, whether competitor negotiated-deal intel on a broadly readable wiki needs a legal/compliance pass, or what the handling rule is beyond the sales AE's 'do not quote externally' label.",
+        "Win-side selection bias: field intel logs only competitor quotes and losses; there is no 'deals we won at $X' signal, so the pack structurally over-reports price pressure (#price-intelligence is where AEs post scary quotes). No perspective questioned the evidence base's bias or asked for a win/loss balance line next to the lost-deal flag.",
+        "Inference/per-token reader: the RTX PRO 6000 section was audited by nobody, and managed inference platforms (Together, fal, Deep Infra) are excluded by design with no pointer to where that comparison lives. A Token Factory / inference PM gets no verdict on whether $/GPU-hr is even the right frame for that competitive surface."
+      ],
+      "conflicts": [
+        "Pricing PM fix 1 (band-inputs table: floor = reserve x1.6, cap = cheapest hyperscaler x0.97, anchor = median x1.05) vs Sales AE fix 2 (confidentiality): it would publish Nebius's pricing formula to a channel read by sales and a broadly readable Confluence page, handing negotiation leverage to any customer who sees it. It also brushes the no-DWH constraint: the demand gate can never be computed, so 'step candidate pending internal gate' permanently reads as a recommendation without its gate. Resolution: restricted sub-page, or publish only the inputs (median $, n, cheapest hyperscaler $) without the multipliers.",
+        "Exec fix 3 (replace the H100-only spot line with the cross-SKU range '-5% H100 to +39% B200') vs Capacity fix 1 and PVM fix 3 (confidence-gate thin spot): the +39% B200 endpoint IS the single-zone price that passes the 80% phantom filter by 0.02pp (AWS $2.85 vs own OD $14.24 = 79.98% discount). Sequencing dependency: apply zone-count/phantom gating first, else the exec range institutionalizes the least trustworthy number in the pack.",
+        "Data-quality fix 2 (name-insensitive dedup, retire Undisclosed seeds) vs Sales/Finance accurate deal counts: a key-based rule over-collapses genuinely distinct rows (Verda + CIVO $4.25 is one joint offer via two providers) while missing named-vs-Undisclosed twins on different dates (HUMAIN $3.60 May-22 vs Undisclosed $3.60 May-22 would collapse, but a re-logged deal a week later would not). Correct dedup needs a curated superseded_by column in the manual CSV, which is re-curation work, not the cheap generator fix the audit implies.",
+        "Exec fix 2 (GB300 fallback: compare the lowest deal at a term Nebius offers) vs Finance fix 2 (one auditable basis per delta): the fallback inherently mixes prepay/term bases (e.g. the $3.09 headline is 60mo/100% upfront vs Nebius 3yr tiers). Both can ship only if the fallback row carries an explicit off-basis label, otherwise it violates the like-for-like rule Finance wants enforced everywhere.",
+        "Sales AE fix 1 (relabel exec benchmark 'cheapest cluster-class (8xSXM) per provider') vs the actual computation: _position_for_tier (diff.py:252-258) falls back to ALL peers when no SXM peer exists, which is exactly the case for B300 (Scaleway 8x, untagged) and L40S (PCIe everywhere). The proposed caption would be newly wrong for those rows; it must state the fallback ('cluster-class where available; PCIe basis for L40S; B300 has no SXM-tagged peer yet').",
+        "Capacity fix 2 and Finance fix 4 (add delivery_window / gpu_count / deal size to intel_schema.py) vs the hard-constraint boundary: allowed in letter (the CSV is the curated source) but intel.csv has neither column today, so it means re-curating ~50 historical rows and changing the extraction agent contract. That is 'expensive', not the computed-from-data-in-hand fix the capacity audit presents it as; cluster size currently lives only in free-text notes."
+      ],
+      "ranked_fixes": [
+        {
+          "fix": "Wire provider_status into format_slack_summary (diff.py:586) so the delta-first heartbeat can never print 'No competitor movement' over cached or failed sources. _run_health_line (diff.py:1318) already exists and the parameter is already passed and ignored; on degraded runs render 'N/14 sources live, movement cannot be ruled out', stay silent when all live. This is the one silent daily lie under the cadence that starts tomorrow.",
+          "effort": "cheap",
+          "impact": "high",
+          "perspectives_served": "Data-quality, Exec; protects every downstream reader of the quiet-day post"
+        },
+        {
+          "fix": "Fix the lost-deal conflation in _field_intel_floor (diff.py:1404): return the actual loss row (price, provider, date) separately from the cheapest 90d quote, and render 'B300: lost a 3yr deal Jun 12 at $3.80 (hyperscaler); lowest quote since $3.50 (Azure) vs our $4.55' in _top_action_flag, the thread action flags, and the Decision Triggers field-deal cell. In the same pass fix the duplicated '30d +0% / 30d' label (diff.py:1570, drop the '30d ' prefix since _trend_text already includes the span). Today's #1 exec action line states the wrong price, counterparty, and recency.",
+          "effort": "cheap",
+          "impact": "high",
+          "perspectives_served": "Exec, Pricing PM, Finance, Data-quality"
+        },
+        {
+          "fix": "One field-intel evidence basis: change _build_field_intel_callout to _load_intel(days=90) (diff.py:1210) to match every headline caller (all already 90d), print 'showing latest 12 of N deals (90d)' on capped tables, and force-include any row cited by an action flag or 'lowest committed deal' callout even if it falls outside the latest-12 cap. Makes the $3.50 Azure B300, $3.09 GB300, and the 21/12/20 deal counts verifiable on the page that cites them.",
+          "effort": "cheap",
+          "impact": "high",
+          "perspectives_served": "Finance, Sales AE, Data-quality, Exec"
+        },
+        {
+          "fix": "One peer-median rule across artifacts, in _build_executive_table (diff.py:2095-2117): require total_peers >= 2 before printing a median % (n=1 renders '1 peer: Scaleway $9.01' exactly like the thread already does), stop adding +1 for Nebius under the header 'Enterprise peers tracked' (count_td, diff.py:2117), and correct the caption at diff.py:1984 from 'cheapest available per provider' to the real basis (cluster-class 8xSXM where available; PCIe for L40S; B300 has no SXM peer yet) with a one-line reconciliation to the Market Sweep 1x prices (Lambda $3.99 cluster vs $3.29 1x). Kills the same-page contradictions that burn median trust and customer-facing credibility at once.",
+          "effort": "cheap",
+          "impact": "high",
+          "perspectives_served": "Pricing PM, Finance, Sales AE"
+        },
+        {
+          "fix": "Fix the committed-comparison basis in _format_field_committed_callout / _build_field_committed_section: (a) add the static clause 'Nebius = 512+ GPU tier, 100% upfront; most field deals are 0% prepay, so real gaps are wider; sub-512-GPU deals compare to standard tier (+5-10%)' on every 'vs Nebius committed' delta including the Slack bottom line; (b) for GB200/GB300, fall back to the lowest deal at a term Nebius actually offers (GCP $3.50 3yr vs Nebius $5.19 = -33%, signed) with an off-basis label on the overall-lowest 60mo deal, so 'no Nebius committed at this term' stops implying Nebius has no GB300 pricing. Surfaces the most active SKU (20 deals/90d) to the exec view on an honest basis.",
+          "effort": "cheap",
+          "impact": "high",
+          "perspectives_served": "Finance, Exec, Sales AE, Pricing PM"
+        },
+        {
+          "fix": "Consistent spot hygiene everywhere spot appears: route the Regional spot tables and battlecard spot numbers through _representative_spot_floor's phantom filter and zone-count logic (diff.py:173-206); label spot-equals-OD cells (Azure H200 $10.60) as 'OD fallback, no real spot scraped'; relabel '(median, 1 zones)' as 'single zone, thin signal' and flag B200 $2.85 as near-phantom (79.98% below AWS's own OD, passes the 80% cutoff by 0.02pp); state one basis per number so Azure H100 stops appearing as both $1.40 (cheapest zone, battlecard) and $2.27 (median, thread) without a label.",
+          "effort": "medium",
+          "impact": "high",
+          "perspectives_served": "PVM designer, Capacity planner, Data-quality, Sales AE, Exec"
+        },
+        {
+          "fix": "Battlecard completeness and safety in _build_battlecards (diff.py:1798): add the 'cheaper neocloud/marketplace quote' objection card (the most common AE objection; Hyperstack $2.50 / Lambda $3.29 / RunPod $2.89 1x prices vs cluster-class basis pivot, all numbers already on the page), add the AWS negotiated $1.80 (1yr, 0%) line with an escalate-do-not-argue instruction, and mark the Field Intelligence sections 'internal only, do not quote externally'. Static text only.",
+          "effort": "cheap",
+          "impact": "medium",
+          "perspectives_served": "Sales AE, Exec, Finance"
+        },
+        {
+          "fix": "Restructure the spot_auction page for RFC 055: split 'Market floor reference' into a spot-clearing anchor column (hyperscaler spot median + SF Compute) and a negotiated-committed floor column (field intel, term shown), stop min()-ing across mechanisms (a 3yr committed deal is currently B300's 'floor'); add a per-GPU 30d min/median/max of the daily spot floor computed from store/history.csv (40 zone-level snapshots since 2026-05-15 already on disk, _market_trend shows the read pattern); add the static candidate-floor line (competitor spot clear vs 1/3-PAYG PRD rule vs ~$0.40 cost floor) and reconcile the AWS bid-spot contradiction with the Product-Model Gaps table.",
+          "effort": "medium",
+          "impact": "medium",
+          "perspectives_served": "PVM designer, Capacity planner, Pricing PM"
+        }
+      ]
+    }
+  },
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Perspective QA"
+    },
+    {
+      "type": "workflow_phase",
+      "index": 2,
+      "title": "Critic"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "storm:pricing-pm",
+      "phaseIndex": 1,
+      "phaseTitle": "Perspective QA",
+      "agentId": "a95e7c5c1ae9bb1de",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1783345368427,
+      "queuedAt": 1783345368404,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Pricing PM who sets monthly PAYG price steps against a stan…",
+      "promptPreview": "You are auditing the DAILY outputs of an automated GPU competitor price monitor (repo: /Users/koenbrormann/Claude PM/price-monitor).\nArtifacts to read (current production output, 2026-07-06):\n- /private/tmp/claude-501/-Users-koenbrormann-Claude-PM/8c029e0b-e218-4e39-8765-0b340411eb97/scratchpad/storm/slack_message.txt   = daily Slack post to #competitor-pricing (execs, sales, pricing). NOTE: from …",
+      "lastProgressAt": 1783345586183,
+      "tokens": 75487,
+      "toolCalls": 9,
+      "durationMs": 217755,
+      "resultPreview": "{\"perspective\":\"Pricing PM who sets monthly PAYG price steps against a standing band: floor = Nebius reserve x1.6, cap = cheapest hyperscaler x0.97, anchor = peer median +5%, gated on demand signals. Reads the artifacts to pull band inputs, judge median trust, and spot triggered/blocked steps and market direction.\",\"questions\":[{\"q\":\"Can I read off today's cap input (cheapest like-for-like hypersc…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "storm:finance",
+      "phaseIndex": 1,
+      "phaseTitle": "Perspective QA",
+      "agentId": "aa5036e177cf28849",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1783345368428,
+      "queuedAt": 1783345368404,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Finance / revenue owner: uses the daily pack to benchmark N…",
+      "promptPreview": "You are auditing the DAILY outputs of an automated GPU competitor price monitor (repo: /Users/koenbrormann/Claude PM/price-monitor).\nArtifacts to read (current production output, 2026-07-06):\n- /private/tmp/claude-501/-Users-koenbrormann-Claude-PM/8c029e0b-e218-4e39-8765-0b340411eb97/scratchpad/storm/slack_message.txt   = daily Slack post to #competitor-pricing (execs, sales, pricing). NOTE: from …",
+      "lastProgressAt": 1783345665576,
+      "tokens": 79922,
+      "toolCalls": 8,
+      "durationMs": 297148,
+      "resultPreview": "{\"perspective\":\"Finance / revenue owner: uses the daily pack to benchmark Nebius reserve/committed prices against competitor committed deals, size deal-loss economics, and trust that every displayed delta is on one auditable basis (term, prepay, volume tier, VAT/FX, consistent denominators).\",\"questions\":[{\"q\":\"Do the headline 'lowest committed deal' prices and deal counts tie out to the field-int…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "storm:sales-ae",
+      "phaseIndex": 1,
+      "phaseTitle": "Perspective QA",
+      "agentId": "a20011bfe492d4c6d",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1783345368429,
+      "queuedAt": 1783345368404,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Sales AE mid-deal: needs exact objection-handling numbers (…",
+      "promptPreview": "You are auditing the DAILY outputs of an automated GPU competitor price monitor (repo: /Users/koenbrormann/Claude PM/price-monitor).\nArtifacts to read (current production output, 2026-07-06):\n- /private/tmp/claude-501/-Users-koenbrormann-Claude-PM/8c029e0b-e218-4e39-8765-0b340411eb97/scratchpad/storm/slack_message.txt   = daily Slack post to #competitor-pricing (execs, sales, pricing). NOTE: from …",
+      "lastProgressAt": 1783345597661,
+      "tokens": 76678,
+      "toolCalls": 9,
+      "durationMs": 229231,
+      "resultPreview": "{\"perspective\":\"Sales AE mid-deal: needs exact objection-handling numbers (AWS 3yr, spot), battlecard numbers that survive a customer cross-checking the tables on the same page, negotiated-deal context they can act on (but not leak), and freshness they can cite. Audited slack_message.txt, slack_thread.txt, confluence_body.html (full 471 lines), spot_auction_body.html, plus diff.py/config.py to con…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 4,
+      "label": "storm:capacity",
+      "phaseIndex": 1,
+      "phaseTitle": "Perspective QA",
+      "agentId": "a617cd6986c93c7fc",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1783345368429,
+      "queuedAt": 1783345368405,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Capacity/supply planner: reads the daily output for market …",
+      "promptPreview": "You are auditing the DAILY outputs of an automated GPU competitor price monitor (repo: /Users/koenbrormann/Claude PM/price-monitor).\nArtifacts to read (current production output, 2026-07-06):\n- /private/tmp/claude-501/-Users-koenbrormann-Claude-PM/8c029e0b-e218-4e39-8765-0b340411eb97/scratchpad/storm/slack_message.txt   = daily Slack post to #competitor-pricing (execs, sales, pricing). NOTE: from …",
+      "lastProgressAt": 1783345561888,
+      "tokens": 71195,
+      "toolCalls": 9,
+      "durationMs": 193459,
+      "resultPreview": "{\"perspective\":\"Capacity/supply planner: reads the daily output for market scarcity signals (sold-out, gated SKUs, capacity blocks), competitor availability vs price, spot floors as preemptible-pricing anchors, and whether price moves imply capacity shifts. Cares less about list-price league tables than about whether a price is backed by obtainable capacity and which way supply is trending.\",\"ques…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 5,
+      "label": "storm:exec",
+      "phaseIndex": 1,
+      "phaseTitle": "Perspective QA",
+      "agentId": "ad146efa04fb9d2cd",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1783345368429,
+      "queuedAt": 1783345368405,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Exec (CEO/CRO/VP) with 30 seconds: wants one-line position,…",
+      "promptPreview": "You are auditing the DAILY outputs of an automated GPU competitor price monitor (repo: /Users/koenbrormann/Claude PM/price-monitor).\nArtifacts to read (current production output, 2026-07-06):\n- /private/tmp/claude-501/-Users-koenbrormann-Claude-PM/8c029e0b-e218-4e39-8765-0b340411eb97/scratchpad/storm/slack_message.txt   = daily Slack post to #competitor-pricing (execs, sales, pricing). NOTE: from …",
+      "lastProgressAt": 1783345676716,
+      "tokens": 87766,
+      "toolCalls": 13,
+      "durationMs": 308287,
+      "resultPreview": "{\"perspective\":\"Exec (CEO/CRO/VP) with 30 seconds: wants one-line position, what changed and whether it matters for revenue, numbers trustable without methodology, no jargon. Audited the Slack summary hardest, thread and Confluence as reconciliation targets.\",\"questions\":[{\"q\":\"In one line, where does Nebius sit on price vs the market today?\",\"verdict\":\"answered\",\"evidence\":\"Slack summary line 3: …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 6,
+      "label": "storm:maintainer",
+      "phaseIndex": 1,
+      "phaseTitle": "Perspective QA",
+      "agentId": "a807c3082f50cd452",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1783345368430,
+      "queuedAt": 1783345368405,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Data-quality maintainer: can I trust every number that reac…",
+      "promptPreview": "You are auditing the DAILY outputs of an automated GPU competitor price monitor (repo: /Users/koenbrormann/Claude PM/price-monitor).\nArtifacts to read (current production output, 2026-07-06):\n- /private/tmp/claude-501/-Users-koenbrormann-Claude-PM/8c029e0b-e218-4e39-8765-0b340411eb97/scratchpad/storm/slack_message.txt   = daily Slack post to #competitor-pricing (execs, sales, pricing). NOTE: from …",
+      "lastProgressAt": 1783345713375,
+      "tokens": 103869,
+      "toolCalls": 15,
+      "durationMs": 344945,
+      "resultPreview": "{\"perspective\":\"Data-quality maintainer: can I trust every number that reaches execs, trace it back to a source, and detect silent failures (stale cache, phantom spot, duplicate intel) before a reader does?\",\"questions\":[{\"q\":\"Is per-source freshness visible everywhere prices are shown, with stale cache distinguishable from live data?\",\"verdict\":\"buried\",\"evidence\":\"Confluence has a real banner: '…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 7,
+      "label": "storm:auction-designer",
+      "phaseIndex": 1,
+      "phaseTitle": "Perspective QA",
+      "agentId": "a6d4fd8e2d73b6c86",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1783345561890,
+      "queuedAt": 1783345368405,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "PVM Auctions designer (Q4 project, RFC 055): needs competit…",
+      "promptPreview": "You are auditing the DAILY outputs of an automated GPU competitor price monitor (repo: /Users/koenbrormann/Claude PM/price-monitor).\nArtifacts to read (current production output, 2026-07-06):\n- /private/tmp/claude-501/-Users-koenbrormann-Claude-PM/8c029e0b-e218-4e39-8765-0b340411eb97/scratchpad/storm/slack_message.txt   = daily Slack post to #competitor-pricing (execs, sales, pricing). NOTE: from …",
+      "lastProgressAt": 1783345756017,
+      "tokens": 78529,
+      "toolCalls": 11,
+      "durationMs": 194126,
+      "resultPreview": "{\"perspective\":\"PVM Auctions designer (Q4 project, RFC 055): needs competitor spot price distributions, bid-mechanism intel, interruption terms, a defensible floor/target anchor, and volatility over time — not just today's minima.\",\"questions\":[{\"q\":\"What is the competitor spot price DISTRIBUTION per GPU (median, spread across providers/zones), not just the cheapest number, so I can place an aucti…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 8,
+      "label": "critic",
+      "phaseIndex": 2,
+      "phaseTitle": "Critic",
+      "agentId": "aa7b618d9fec90922",
+      "model": "claude-fable-5",
+      "state": "done",
+      "startedAt": 1783345756034,
+      "queuedAt": 1783345756019,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "promptPreview": "You are auditing the DAILY outputs of an automated GPU competitor price monitor (repo: /Users/koenbrormann/Claude PM/price-monitor).\nArtifacts to read (current production output, 2026-07-06):\n- /private/tmp/claude-501/-Users-koenbrormann-Claude-PM/8c029e0b-e218-4e39-8765-0b340411eb97/scratchpad/storm/slack_message.txt   = daily Slack post to #competitor-pricing (execs, sales, pricing). NOTE: from …",
+      "lastProgressAt": 1783346133136,
+      "tokens": 98470,
+      "toolCalls": 16,
+      "durationMs": 377102,
+      "resultPreview": "{\"still_missed\":[\"Self-move attribution: no perspective asks whether the pack distinguishes 'we moved' from 'the market moved'. Every delta ('-4% vs median', 'Changed in 24h', 30d trend) silently shifts when Nebius changes its own list price, which is imminent (July-6 proposal: H200/B200/B300 +5%). Under delta-first cadence a self-caused position change would read as market news. Cheap to compute:…"
+    }
+  ],
+  "totalTokens": 671916,
+  "totalToolCalls": 90
+}
