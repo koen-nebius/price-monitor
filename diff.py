@@ -448,7 +448,8 @@ def _field_committed_by_gpu(days: int = 90):
     return by_gpu
 
 
-def _build_takeaway(records: List[PriceRecord]) -> str:
+def _build_takeaway(records: List[PriceRecord], include_pressure: bool = True,
+                    label: str = "Bottom line") -> str:
     """
     One-line exec bottom-line, leading the digest: where Nebius sits on on-demand
     (vs hyperscalers + cluster peers) and where the real pressure is (committed deals
@@ -483,23 +484,26 @@ def _build_takeaway(records: List[PriceRecord]) -> str:
         if peer_below:
             od += f" and below cluster-peer median ({', '.join(peer_below[:3])})"
     # Committed pressure: the hottest GPU where a competitor deal undercuts Nebius committed.
-    by_gpu = _field_committed_by_gpu(90)
+    # Skipped when the action flag already carries this point, so the same committed-deal
+    # SKU is not stated twice in one post.
     pressure = None
-    for g in ("GB300", "B300", "B200", "H200", "H100"):
-        if not by_gpu.get(g):
-            continue
-        px, term, _prov, _pp = min(by_gpu[g], key=lambda x: x[0])
-        cts, _lbl = _term_bucket_cts(term)
-        neb = _cheapest(records, "nebius", g, cts) if cts else None
-        if neb and px < neb:
-            d = (px - neb) / neb * 100
-            pressure = (f"the contested ground is committed deals — competitors quoting "
-                        f"{g} from ${px:.2f} vs our ${neb:.2f} ({d:+.0f}%)")
-            break
+    if include_pressure:
+        by_gpu = _field_committed_by_gpu(90)
+        for g in ("GB300", "B300", "B200", "H200", "H100"):
+            if not by_gpu.get(g):
+                continue
+            px, term, _prov, _pp = min(by_gpu[g], key=lambda x: x[0])
+            cts, _lbl = _term_bucket_cts(term)
+            neb = _cheapest(records, "nebius", g, cts) if cts else None
+            if neb and px < neb:
+                d = (px - neb) / neb * 100
+                pressure = (f"the contested ground is committed deals — competitors quoting "
+                            f"{g} from ${px:.2f} vs our ${neb:.2f} ({d:+.0f}%)")
+                break
     clauses = [c for c in (od, pressure) if c]
     if not clauses:
         return ""
-    return "\n*Bottom line:* Nebius " + "; ".join(clauses) + "."
+    return f"\n*{label}:* Nebius " + "; ".join(clauses) + "."
 
 
 def _format_field_committed_callout(records: List[PriceRecord]) -> str:
@@ -581,12 +585,19 @@ def _format_rtx_callout(records: List[PriceRecord]) -> str:
 
 def format_slack_summary(diffs: List[DiffEntry], run_date: str,
                          confluence_url: str, records: List[PriceRecord] = None,
-                         provider_status: dict = None) -> str:
+                         provider_status: dict = None, post_thread: bool = True,
+                         weekly: bool = False) -> str:
     """
-    Short headline digest posted to the channel. Full tables go to a thread
-    reply (format_slack_message). Three parts: today's signal (most important
-    competitor move), Nebius position in one line each for on-demand and
-    watch items, link.
+    Short headline digest posted to the channel.
+
+    Two modes (delta-first, 2026-07-06):
+    - weekly=True (Monday anchor): the full summary — bottom line, action flag,
+      peer position, references, moves — with the full-tables thread below it.
+    - weekly=False (all other days): DELTA-FIRST. Lead with what changed in the
+      last 24h and one position line; on a quiet day post only a one-line
+      "no movement" heartbeat (channel presence + proof the monitor ran).
+      Standing detail lives in the Monday anchor and the Confluence page, so
+      the daily post never repeats it.
     """
     def _pname(p: str) -> str:
         _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi", "ai"}
@@ -665,16 +676,42 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
         signal_block.append("\n*Price moves today:* no significant price moves "
                             f"(≥{ALERT_THRESHOLD_PCT:.0f}%) on tracked providers")
 
-    # ── Position: one line for hyperscalers, one for peers ──────────────────
+    # ── Delta-first daily (non-Monday) ───────────────────────────────────────
+    if not weekly:
+        if significant:
+            # Promote the day's move from the tail to the lead.
+            lead = signal_block[0].replace("*Price moves today:*",
+                                           "*Changed in 24h:*", 1)
+            if not post_thread:  # no thread today — the rest lives in Confluence
+                lead = lead.replace(" in thread", " — detail in Confluence")
+            lines.append(lead)
+            if records:
+                enrich_comparability(records)
+                position = _build_takeaway(records, include_pressure=False,
+                                           label="Position")
+                if position:
+                    lines.append(position)
+        else:
+            lines.append("\nNo competitor movement since yesterday's update "
+                         f"(no price moves ≥{ALERT_THRESHOLD_PCT:.0f}% on tracked providers).")
+        if post_thread:
+            lines.append(f"\nFull tables in thread ↓ · <{confluence_url}|Confluence benchmark>")
+        else:
+            lines.append(f"\nFull benchmark (live, updated daily): <{confluence_url}|Confluence>")
+        return "\n".join(lines)
+
+    # ── Weekly anchor (Monday): full summary ─────────────────────────────────
+    # Position: one line for hyperscalers, one for peers
     if records:
         enrich_comparability(records)  # ensure form_factor tags for cluster-class filtering
+        # Compute the action flag first. If it fires for a committed-deal SKU, the
+        # bottom line drops its committed-pressure clause so the same point is not
+        # stated twice (the action flag is the more actionable place for it).
+        action_flag = _top_action_flag(records)
         # Lead with the bottom-line takeaway (synthesised position), before the detail.
-        takeaway = _build_takeaway(records)
+        takeaway = _build_takeaway(records, include_pressure=not bool(action_flag))
         if takeaway:
             lines.append(takeaway)
-        # The single sharpest action flag for a revenue-driver GPU (lost deal / review
-        # candidate / market move), right under the bottom line. Omits when none qualify.
-        action_flag = _top_action_flag(records)
         if action_flag:
             lines.append(action_flag)
         # vs hyperscalers (on-demand) — like-for-like cluster SKUs, revenue-driver GPUs only
@@ -748,7 +785,13 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
 
     # Daily price moves come AFTER the position (demoted from the lead).
     lines.extend(signal_block)
-    lines.append(f"\nFull tables in thread ↓ · <{confluence_url}|Confluence benchmark>")
+    # Footer reflects whether a full-tables thread actually follows today. On
+    # summary-only days (no thread) point straight to the always-live Confluence
+    # benchmark instead of promising a thread that won't appear.
+    if post_thread:
+        lines.append(f"\nFull tables in thread ↓ · <{confluence_url}|Confluence benchmark>")
+    else:
+        lines.append(f"\nFull benchmark (live, updated daily): <{confluence_url}|Confluence>")
     return "\n".join(lines)
 
 

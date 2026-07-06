@@ -399,10 +399,43 @@ def run(providers=None, test=False):
     # slack_message.txt  → short headline summary, posted to the channel
     # slack_thread.txt   → full tables, posted as a thread reply to the summary
     run_date = today.strftime("%B %d, %Y")
+
+    # ── Post-worthiness: gate the full-tables thread ─────────────────────────
+    # Always post the short summary daily (channel presence + run-health). The
+    # full thread (all tables) is the WEEKLY anchor: post it on Mondays, and
+    # otherwise only when the market actually moved enough to be worth opening.
+    # Two sources of daily noise are explicitly EXCLUDED from the gate, because
+    # they fire nearly every day and made the thread post daily (repetitive):
+    #   - spot/preemptible prices jitter a few percent daily as normal market
+    #     behaviour, so interruptible moves never trigger the thread;
+    #   - "added" diffs are mostly fetch-coverage churn (a provider or zone
+    #     cycling between live and cached), not genuine new competitor SKUs,
+    #     so they no longer trigger it either.
+    # What remains: a hyperscaler repricing on-demand/committed, or 3+ tracked
+    # providers moving the same day (a coordinated shift). A single neocloud SKU
+    # tick is reported in the daily summary line instead of re-posting all tables.
+    from config import ALERT_THRESHOLD_PCT, provider_tier
+    from diff import INTERRUPTIBLE_CTS
+    _tracked = ("hyperscaler", "raw_gpu_cloud", "enterprise_gpu_cloud")
+    list_moves = [
+        d for d in diffs
+        if d.change_type == "price_change"
+        and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
+        and provider_tier(d.provider) in _tracked
+        and d.consumption_type not in INTERRUPTIBLE_CTS
+    ]
+    significant_moves = list_moves  # recorded in the manifest for visibility
+    hyperscaler_move = any(provider_tier(d.provider) == "hyperscaler" for d in list_moves)
+    coordinated_move = len(list_moves) >= 3
+    is_weekly = today.weekday() == 0  # Monday weekly anchor
+    post_thread = is_weekly or hyperscaler_move or coordinated_move
+
     slack_summary = format_slack_summary(
         diffs, run_date, CONFLUENCE_PAGE_URL,
         records=accepted_records,
         provider_status=provider_status,
+        post_thread=post_thread,
+        weekly=is_weekly,
     )
     slack_thread = format_slack_message(
         diffs, run_date, CONFLUENCE_PAGE_URL,
@@ -445,22 +478,6 @@ def run(providers=None, test=False):
     stale_providers = [p for p, s in provider_status.items() if s["status"] in ("cache", "fallback", "missing")]
     run_status = "failed" if len(errors) >= len(providers) // 2 else \
                  "partial" if (errors or stale_providers) else "success"
-
-    # ── Post-worthiness (Phase 3.6: alert-on-change) ─────────────────────────
-    # Always post the short summary daily (channel presence + run-health). Post the
-    # full thread (tables) only when there's something to dig into — a significant
-    # move — or on the Monday weekly digest. Quiet days stay summary-only.
-    from config import ALERT_THRESHOLD_PCT, provider_tier
-    _tracked = ("hyperscaler", "raw_gpu_cloud", "enterprise_gpu_cloud")
-    significant_moves = [
-        d for d in diffs
-        if d.change_type == "price_change" and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
-        and provider_tier(d.provider) in _tracked
-    ]
-    new_entries = [d for d in diffs if d.change_type == "added"
-                   and provider_tier(d.provider) in _tracked]
-    is_weekly = today.weekday() == 0  # Monday
-    post_thread = bool(significant_moves) or bool(new_entries) or is_weekly
 
     # ── Per-source freshness summary ──────────────────────────────────────────
     # Compact {source: {status, age_hours}} derived from provider_status, so
