@@ -155,6 +155,10 @@ PROVIDER_TIERS = {
         "crusoe",              # ClusterMAX Gold (same tier as Nebius/Oracle/Azure)
         "together",            # ClusterMAX Silver; direct fetcher (together.py), on-demand + reserved
         "cp_hyperstack",       # NexGen Cloud — $1B AI Supercloud, thousands of H100s, UK
+        "hyperstack",          # same provider, DIRECT-fetcher key (fix 2026-07-06: only the
+                               # cp_ aggregator key was listed, so direct records fell to
+                               # tier="unknown" and out of peer sets + move alerts; the cp_
+                               # twin is superseded when the direct fetch is live, no dupes)
         "cp_voltage",          # Voltage Park — 24,000 H100s, $1B Navigation Fund; merged w/ Lightning AI
         "cp_gmi-cloud",        # GMI Cloud — $12B sovereign AI initiative, NVIDIA partner, APAC
         "cp_scaleway",         # Scaleway (Iliad Group) — serious European cloud, up to 504-GPU clusters

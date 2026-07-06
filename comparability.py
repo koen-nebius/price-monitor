@@ -37,7 +37,21 @@ _RULES: List[Tuple[str, str, str, str]] = [
 # (form_factor=SXM is what drives cluster-class; interconnect label is informational).
 _SXM_FABRIC = {
     "aws": "EFA", "gcp": "GPUDirect", "azure": "InfiniBand", "nebius": "InfiniBand",
+    "crusoe": "InfiniBand",   # all Crusoe SXM capacity runs on HGX nodes with IB fabric
 }
+
+# Providers whose DIRECT-fetch records price 8×SXM HGX cluster products as per-GPU
+# rows (gpu_count=1) — the exact pattern the module docstring warns about. For these,
+# enrichment stamps node_gpus=8 on SXM records so diff._is_cluster_peer treats them
+# as the like-for-like cluster set (fix 2026-07-06: Crusoe H100 $3.90 / H200 $4.29,
+# high-confidence direct prices, were silently excluded from the peer median by the
+# gpu_count>=8 gate).
+# Deliberately NOT included:
+#   - hyperstack: SXM-priced VMs, but IB fabric is not guaranteed on the on-demand
+#     tier — enterprise peer (see config PROVIDER_TIERS), not cluster-class.
+#   - voltage / gmi-cloud aggregator rows: Ethernet/unknown entry SKUs — the
+#     _is_cluster_peer docstring's own counter-examples. Revisit only with evidence.
+_PER_GPU_CLUSTER_PROVIDERS = {"crusoe"}
 
 
 def _classify(r: PriceRecord) -> Tuple[str, str]:
@@ -65,6 +79,13 @@ def enrich_comparability(records: List[PriceRecord]) -> List[PriceRecord]:
             r.form_factor = ff
             if not r.interconnect or r.interconnect == "unknown":
                 r.interconnect = ic
+        # Known per-GPU-priced cluster products: stamp node size so the cluster-class
+        # peer gate (form_factor SXM AND node_gpus>=8) sees them like-for-like.
+        prov = r.provider.lower()
+        base = prov[3:] if prov.startswith("cp_") else prov
+        if base in _PER_GPU_CLUSTER_PROVIDERS and r.form_factor == "SXM" \
+                and (getattr(r, "node_gpus", 0) or 0) < 8:
+            r.node_gpus = 8
     return records
 
 
