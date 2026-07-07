@@ -641,6 +641,14 @@ def _build_reserve_wins_section() -> str:
                     f'<td>{gpus:,}</td><td>${lo:.2f}</td><td><strong>${med:.2f}</strong></td>'
                     f'<td>${hi:.2f}</td><td>{vs}</td></tr>')
     html.append('</tbody></table>')
+    html.append(
+        '<p><em><strong>Method:</strong> deals CLOSED-WON in the last 30 days (by CRM close '
+        'date — grandfathered/long-running contracts never enter); automated renewals at '
+        'carried-over prices excluded (renegotiated renewals count); reserve line items only; '
+        'terms bucketed (&le;8mo / ~1yr / 2yr+) and never blended — each bucket compares to '
+        'its own list tier; price field sanity-bounded ($0.2-20/GPU-hr); median is per line '
+        'item, not GPU-weighted, so read deal counts alongside medians. Full methodology: '
+        'analysis/reserve_wins_method.md in the price-monitor repo.</em></p>')
     return "\n".join(html)
 
 
