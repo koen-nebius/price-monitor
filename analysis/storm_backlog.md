@@ -6,8 +6,14 @@ in storm_audit_2026-07-06.json. The 5 cheap/high fixes shipped in commit dde8889
 Remaining items, ranked; owner = Koen unless noted.
 
 ## Status update 2026-07-07
-Items 1 (self-move attribution), 8-lite (flag age on lost-deal flags) and the
-win-bias caveat line (from #4) SHIPPED. Band-inputs table (#1 below) DECIDED:
+Items 1 (self-move attribution), 8-lite (flag age on lost-deal flags), the
+win-bias caveat line (from #4), #9 (marketplace battlecard + AWS escalate line),
+#10 (exec caption states cluster-class computation), #12 (GB200/GB300 committed
+fallback to a Nebius-offered term) SHIPPED, plus a sales usage note (what must
+never be quoted to customers). Win-side data now also covered by the
+reserve-wins block (store/reserve_wins.csv, weekly refresh).
+OPEN DECISION: page audience/permissions for field intel + reserve wins
+(Koen discussing with Inessa) before org-wide sales/exec rollout. Band-inputs table (#1 below) DECIDED:
 not published — formula stays in pricing_strategy.py (Koen, 2026-07-07).
 
 ## Needs a decision (not just code)
