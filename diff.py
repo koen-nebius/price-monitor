@@ -532,7 +532,9 @@ def _format_field_committed_callout(records: List[PriceRecord]) -> str:
                      f"{_provider_display(prov)}  |  {vs}  [{len(deals)} deals]")
     lines.append("_Deal-specific, anonymized; lower confidence than published list prices. "
                  "Basis: Nebius = 512+ GPU tier at 100% upfront; most field deals are "
-                 "0% prepay, so true like-for-like gaps are wider than shown._")
+                 "0% prepay, so true like-for-like gaps are wider than shown. "
+                 "Evidence skews negative: AEs log competitor quotes and losses, wins are "
+                 "rarely posted._")
     return "\n".join(lines)
 
 
@@ -585,6 +587,32 @@ def _format_rtx_callout(records: List[PriceRecord]) -> str:
     return "\n".join(out)
 
 
+def _self_move_line(diffs: List[DiffEntry]) -> str:
+    """
+    Self-move attribution (STORM backlog #1, shipped 2026-07-07): when NEBIUS's own
+    price changed, every position delta in the post shifts. Without this line the
+    daily message reports our own repricing as market movement — worst during a
+    planned rollout (e.g. the Aug-2026 regional changes). Renders one lead line:
+    '*We repriced:* H200 on-demand $4.50→$4.73 (+5%) …' or '' when we didn't move.
+    """
+    moves = [d for d in diffs
+             if d.provider == "nebius" and d.change_type == "price_change"
+             and abs(d.delta_pct or 0) >= 0.5]
+    if not moves:
+        return ""
+    groups: Dict[tuple, DiffEntry] = {}
+    for d in moves:   # one entry per gpu × tier bucket (largest move wins)
+        ct = "spot" if d.consumption_type in INTERRUPTIBLE_CTS else \
+            d.consumption_type.replace("on_demand", "on-demand").replace("_", " ")
+        k = (d.gpu_model, ct)
+        if k not in groups or abs(d.delta_pct or 0) > abs(groups[k].delta_pct or 0):
+            groups[k] = d
+    parts = [f"{gpu} {ct} ${d.old_price:.2f}→${d.new_price:.2f} ({d.delta_pct:+.0f}%)"
+             for (gpu, ct), d in sorted(groups.items())]
+    return ("\n*We repriced:* " + ", ".join(parts)
+            + " — position deltas below reflect our move, not the market.")
+
+
 def format_slack_summary(diffs: List[DiffEntry], run_date: str,
                          confluence_url: str, records: List[PriceRecord] = None,
                          provider_status: dict = None, post_thread: bool = True,
@@ -613,9 +641,15 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
     # Built into signal_block and appended at the END — the lead is the position
     # takeaway, not a daily spot tick (which is noise to an exec/sales reader).
     signal_block: List[str] = []
+    # Our own repricing is NOT a market move: attribute it explicitly (lead line)
+    # and keep it out of the "Changed in 24h" market-move grouping below.
+    self_move = _self_move_line(diffs)
+    if self_move:
+        lines.append(self_move)
     significant = [
         d for d in diffs
         if d.change_type == "price_change"
+        and d.provider != "nebius"
         and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
                                           "enterprise_gpu_cloud")
         and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
@@ -827,9 +861,12 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
     # hyperscalers, spot, committed) — they are reference data, not change data,
     # so we do NOT short-circuit on quiet days. The price-moves section below
     # renders "no significant moves" when nothing crossed the threshold.
+    # Nebius's own repricing is attributed separately (self-move lead line) and
+    # excluded from the market-move lists.
     significant = [
         d for d in diffs
         if d.change_type == "price_change"
+        and d.provider != "nebius"
         and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
                                           "enterprise_gpu_cloud")
         and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
@@ -837,11 +874,15 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
     minor = [
         d for d in diffs
         if d.change_type == "price_change"
+        and d.provider != "nebius"
         and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
                                           "enterprise_gpu_cloud")
     ]
 
     lines = [f"*GPU Competitor Pricing — {run_date}*"]
+    self_move = _self_move_line(diffs)
+    if self_move:
+        lines.append(self_move)
 
     def _pname(p: str) -> str:
         _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi", "ai"}
@@ -1290,7 +1331,9 @@ def _build_field_intel_callout(records: List[PriceRecord]) -> str:
         'These are deal-specific quotes reflecting volume, relationship, and timing — '
         'not public rack rates. Customer names removed; competitor/deal specifics remain: '
         '<strong>internal only, do not paste externally.</strong> '
-        '"vs Nebius" compares against Nebius committed pricing at the closest matching term.</em></p>'
+        '"vs Nebius" compares against Nebius committed pricing at the closest matching term. '
+        'Evidence skews negative: AEs log competitor quotes and losses, wins are rarely '
+        'posted — read this as the pressure side of the market, not the whole market.</em></p>'
     )
 
     has_data = False
@@ -1600,7 +1643,10 @@ def _format_action_flags_thread(records: List[PriceRecord]) -> str:
     lines = ["\n*Action flags (revenue-driver GPUs):*"]
     for r in rows:
         trend = _trend_text(r["trend30"], r["trend_span"])
-        loss = "  ⚠ lost deal" if (r["fi"] and r["fi"].get("is_loss")) else ""
+        loss = ""
+        if r["fi"] and r["fi"].get("is_loss"):
+            L = r["fi"].get("loss") or {}
+            loss = f"  ⚠ lost deal (since {L['date']})" if L.get("date") else "  ⚠ lost deal"
         trend_str = f"  |  mkt {trend}" if trend else ""   # trend already carries "/ Nd"
         # The action string is shared with the HTML table (_recommended_action); normalize
         # its em-dash to a colon for the Slack rendering without touching the table output.
@@ -1643,8 +1689,13 @@ def _top_action_flag(records: List[PriceRecord]) -> str:
         if r["fi"]["price"] < L["price"]:
             since = (f" Lowest quote since: ${r['fi']['price']:.2f} "
                      f"({_term_lbl(r['fi']['term'])}, {r['fi']['label']}).")
+        # Flag age (STORM backlog #2): a standing flag must not read as fresh news.
+        try:
+            age = f", flag {max((date.today() - date.fromisoformat(L['date'])).days, 0)}d old"
+        except (ValueError, TypeError):
+            age = ""
         return (f"\n*Action flag:* {r['gpu']} lost a {_term_lbl(L['term'])} deal at "
-                f"${L['price']:.2f} ({L['label']}, {L['date']}).{since} "
+                f"${L['price']:.2f} ({L['label']}, {L['date']}{age}).{since} "
                 f"Review committed pricing for this SKU.")
     if r["fi"] and r["fi"].get("is_loss"):
         return (f"\n*Action flag:* {r['gpu']} lost a deal at the field price. "
@@ -2245,7 +2296,8 @@ def _build_field_committed_section(records: List[PriceRecord]) -> str:
         'committed deals seen in <strong>#price-intelligence</strong> (deal-specific, anonymized; '
         'lower confidence than list prices), the realistic reserved benchmark for peers absent above. '
         '<strong>Basis:</strong> the Nebius reference is the 512+ GPU tier at 100% upfront; most '
-        'field deals are 0% prepay, so true like-for-like gaps are wider than the deltas shown.</p>',
+        'field deals are 0% prepay, so true like-for-like gaps are wider than the deltas shown. '
+        'Evidence skews negative: AEs log competitor quotes and losses, wins are rarely posted.</p>',
         '<table data-layout="full-width"><tbody>',
         '<tr><th>GPU</th><th>Lowest committed deal</th><th>Term</th><th>Prepay</th><th>Source</th>'
         '<th>Deals seen</th><th>vs Nebius committed (same term)</th></tr>',

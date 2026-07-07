@@ -5,6 +5,11 @@ finance, sales AE, capacity, exec, data-quality, PVM auction designer). Full fin
 in storm_audit_2026-07-06.json. The 5 cheap/high fixes shipped in commit dde8889.
 Remaining items, ranked; owner = Koen unless noted.
 
+## Status update 2026-07-07
+Items 1 (self-move attribution), 8-lite (flag age on lost-deal flags) and the
+win-bias caveat line (from #4) SHIPPED. Band-inputs table (#1 below) DECIDED:
+not published — formula stays in pricing_strategy.py (Koen, 2026-07-07).
+
 ## Needs a decision (not just code)
 1. BAND-INPUTS TABLE: pricing PM wants floor/anchor/cap computed per SKU on the page.
    CONFLICT: publishes Nebius's pricing formula to a page sales + broad audience can
