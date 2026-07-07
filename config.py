@@ -82,7 +82,13 @@ AZURE_REGIONS = [
     "southeastasia", "japaneast",
 ]
 
-PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices", "oracle", "hyperstack", "runpod", "sfcompute", "together"]
+PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices", "oracle", "hyperstack", "runpod", "sfcompute", "together",
+             "vast_reserved"]   # short-term reserved marketplace floor (see analysis/reserve_price_sources.md)
+# SF Compute transacted fills need a free bearer token; only register the
+# provider when the token is present so quiet skips don't read as failures.
+import os as _os
+if _os.environ.get("SFCOMPUTE_TOKEN"):
+    PROVIDERS.append("sfcompute_fills")
 # Note: set LAMBDA_API_KEY in the routine's environment variables for reliable Lambda Labs
 # API-based pricing. Without it, the scrape fallback is used.
 # Get a free key at: https://cloud.lambdalabs.com/api-keys

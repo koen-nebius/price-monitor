@@ -573,6 +573,10 @@ def _fetch_provider(provider: str):
         from fetchers.sfcompute import fetch
     elif provider == "together":
         from fetchers.together import fetch
+    elif provider == "vast_reserved":
+        from fetchers.vast_reserved import fetch
+    elif provider == "sfcompute_fills":
+        from fetchers.sfcompute_fills import fetch
     else:
         raise ValueError(f"Unknown provider: {provider}")
     return fetch()

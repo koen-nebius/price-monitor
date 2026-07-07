@@ -2163,6 +2163,49 @@ def _build_availability_note(records: List[PriceRecord]) -> str:
     return "\n".join(html)
 
 
+def _build_short_term_reserved_section(records: List[PriceRecord]) -> str:
+    """
+    Short-term reserved market (1-6mo prepaid marketplace offers + transacted
+    SF Compute fills). The SHORT end of the committed curve — a floor signal
+    for short-term reserve / capacity-block discussions (RFC 055), NOT an
+    enterprise cluster-class comparable. Source integration per
+    analysis/reserve_price_sources.md (research 2026-07-07).
+    """
+    rows = [r for r in records if r.consumption_type == "reserved_short"]
+    if not rows:
+        return ""
+    from config import NEBIUS_COMMITTED_PRICES
+    html = [
+        '<h2>Short-term reserved market (1–6 month commitments)</h2>',
+        '<p><em>Cheapest live short-term reserved offers (Vast.ai marketplace, prepaid '
+        '1–6 months) and, when available, transacted SF Compute window fills. Commodity '
+        'SKUs on mixed hosts without enterprise SLAs — read as the market FLOOR for '
+        'short-term committed capacity, not as cluster-class comparables. Relevant to '
+        'the short-term reserve / capacity-block and auction (RFC 055) discussions.</em></p>',
+        '<table><thead><tr><th>GPU</th><th>Source</th><th>$/GPU-hr</th><th>Node size</th>'
+        '<th>Region</th><th>Nebius 9mo committed (512+, 100%)</th><th>Nebius preemptible</th>'
+        '</tr></thead><tbody>',
+    ]
+    pvm = {}
+    for r in records:
+        if r.provider == "nebius" and r.consumption_type in INTERRUPTIBLE_CTS:
+            pvm[r.gpu_model] = min(pvm.get(r.gpu_model, 9e9), r.price_per_gpu_hour_usd)
+    order = {g: i for i, g in enumerate(GPU_ORDER)}
+    for r in sorted(rows, key=lambda x: (order.get(x.gpu_model, 99), x.price_per_gpu_hour_usd)):
+        tier = NEBIUS_COMMITTED_PRICES.get(r.gpu_model, {}).get("above_512") or {}
+        n9 = (tier.get(9) or {}).get("100pct")
+        n9_td = f"${n9:.2f}" if n9 else "—"
+        pv = pvm.get(r.gpu_model)
+        pv_td = f"${pv:.2f}" if pv else "—"
+        src = "SF Compute fills (transacted)" if r.provider == "sfcompute" else "Vast.ai reserved offer"
+        html.append(
+            f'<tr><td><strong>{r.gpu_model}</strong></td><td>{src}</td>'
+            f'<td><strong>${r.price_per_gpu_hour_usd:.2f}</strong></td>'
+            f'<td>{r.gpu_count}× GPU</td><td>{r.region}</td><td>{n9_td}</td><td>{pv_td}</td></tr>')
+    html.append('</tbody></table>')
+    return "\n".join(html)
+
+
 def format_spot_auction_page(records: List[PriceRecord], run_date: str) -> str:
     """
     Competitor Spot & Auction Pricing — a focused page for the PVM Auctions project,
@@ -2221,6 +2264,7 @@ def format_spot_auction_page(records: List[PriceRecord], run_date: str) -> str:
                 'capacity guarantee; field-intel deals are sales-reported and often committed, not pure '
                 'spot. SF Compute is one of the few public spot-market exchanges (H100 only so far; '
                 'B300 "coming this fall").</em></p>')
+    html.append(_build_short_term_reserved_section(records))
     html.append('<p><em>Note: a true like-for-like — competitor GPU <strong>auctions</strong> — barely '
                 'exists; Azure is the only major cloud with GPU spot bidding, and SF Compute is a market '
                 'exchange. Nebius launching auctions would be largely unique, so "spot" is the nearest '
@@ -2294,6 +2338,7 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
         html.append(_build_prepay_note(records))
     html.append(_build_field_committed_section(records))
     html.append(_build_reserve_wins_section())
+    html.append(_build_short_term_reserved_section(records))
     html.append(_build_capacity_block_section(records))
     html.append(_build_committed_implication(records))
 

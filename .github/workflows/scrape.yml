@@ -49,6 +49,9 @@ jobs:
           # Nebius-owned; add the secret to activate — without it the fallback no-ops.
           # NB: repo secret is named TAVILY; mapped here to the TAVILY_API_KEY env var the code reads.
           TAVILY_API_KEY: ${{ secrets.TAVILY }}
+          # SF Compute transacted fills (optional): free bearer token via `sf tokens create`.
+          # Provider auto-registers only when this is set (config.PROVIDERS).
+          SFCOMPUTE_TOKEN: ${{ secrets.SFCOMPUTE_TOKEN }}
         run: |
           # All-live run from non-blocked GitHub IPs. main.py writes the daily
           # snapshot, diff, run_manifest, AND the ready-to-post artifacts
