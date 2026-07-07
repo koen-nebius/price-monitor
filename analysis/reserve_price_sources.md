@@ -8,7 +8,7 @@ adversarial verification). Purpose: fill the monitor's committed-pricing gap
 | Source | What | Access | Status |
 |---|---|---|---|
 | Vast.ai reserved API | 1-6mo prepaid marketplace offers, per-offer $/GPU-hr, region | free, unauth (curl-style UA required; browser UAs get 403) | LIVE — fetchers/vast_reserved.py, ct=reserved_short |
-| SF Compute fills API | transacted forward/term window prices ($/node-hr ÷ 8), resold reserved contracts | free bearer token (SFCOMPUTE_TOKEN; `sf tokens create` after signup) | BUILT, token-gated — fetchers/sfcompute_fills.py; provider registers only when token set |
+| SF Compute fills API | transacted forward/term window prices ($/node-hr ÷ 8), resold reserved contracts | free bearer token (SFCOMPUTE_TOKEN; `sf tokens create` after signup) | BUILT, token-gated — fetchers/sfcompute_fills.py; provider registers only when token set. STATUS 2026-07-07: Koen WAITLISTED (manual application review; competitor-domain signup may be rejected — if so, leave parked; do not sign up with a personal email to route around their review). Monitor already carries their public H100 spot price via the existing sfcompute provider. |
 Both render in "Short-term reserved market (1-6 month commitments)" on the main
 page and the spot/auction page. Deliberately ct=reserved_short so they never mix
 into the 1yr+ committed benchmark tables.
