@@ -14,6 +14,13 @@ from comparability import enrich_comparability, is_cluster_class
 
 INTEL_CSV = Path(__file__).parent / "store" / "intel.csv"
 HISTORY_CSV = Path(__file__).parent / "store" / "history.csv"
+# Rolling won-side benchmark: anonymized aggregates of OUR signed reserve deals
+# (lo/median/hi $/GPU-hr per model, rolling 30d), refreshed weekly from the DWH by
+# a local scheduled task (the pipeline itself has no DWH access — intel.csv
+# pattern). Counterweight to field intel's structural negative skew: losses get
+# logged by AEs, wins don't; this is the win side, from contracts, not from posts.
+RESERVE_WINS_CSV = Path(__file__).parent / "store" / "reserve_wins.csv"
+RESERVE_WINS_STALE_DAYS = 14
 
 CHANGE_THRESHOLD = 0.001   # 0.1% — ignore floating-point noise in diff detection
 
@@ -538,6 +545,95 @@ def _format_field_committed_callout(records: List[PriceRecord]) -> str:
     return "\n".join(lines)
 
 
+def _load_reserve_wins():
+    """
+    Rows of store/reserve_wins.csv plus freshness. Returns (rows, generated_date,
+    stale). CSV columns: generated_date,window_days,gpu,deals,gpus,price_lo,
+    price_med,price_hi. Aggregates only — never customer-level data.
+    """
+    if not RESERVE_WINS_CSV.exists():
+        return [], None, True
+    try:
+        with open(RESERVE_WINS_CSV, newline="") as f:
+            rows = list(csv.DictReader(f))
+    except Exception:
+        return [], None, True
+    gen = rows[0].get("generated_date") if rows else None
+    try:
+        stale = (date.today() - date.fromisoformat(gen)).days > RESERVE_WINS_STALE_DAYS
+    except (ValueError, TypeError):
+        stale = True
+    return rows, gen, stale
+
+
+def _reserve_list_1yr(gpu: str) -> Optional[float]:
+    from config import NEBIUS_COMMITTED_PRICES
+    tier = NEBIUS_COMMITTED_PRICES.get(gpu, {}).get("above_512") or {}
+    return (tier.get(12) or {}).get("100pct")
+
+
+def _format_reserve_wins_callout() -> str:
+    """
+    Slack thread block: OUR signed reserve deals, rolling 30d (lo/median/hi per GPU).
+    The won side of the market — pairs with the loss-skewed field-intel section.
+    """
+    rows, gen, stale = _load_reserve_wins()
+    if not rows:
+        return ""
+    win = rows[0].get("window_days", "30")
+    lines = [f"\n*Reserve wins — our signed deals (rolling {win}d, from contracts; internal only):*"]
+    for r in rows:
+        try:
+            lo, med, hi = (float(r["price_lo"]), float(r["price_med"]), float(r["price_hi"]))
+            gpus = int(float(r["gpus"]))
+        except (ValueError, KeyError):
+            continue
+        lst = _reserve_list_1yr(r["gpu"])
+        vs = f"  |  med {med / lst - 1:+.0%} vs 1yr list ${lst:.2f}" if lst else ""
+        lines.append(f"`{r['gpu']:<5}` {r['deals']} deals, {gpus:,} GPUs: "
+                     f"${lo:.2f} / ${med:.2f} / ${hi:.2f} (lo/med/hi){vs}")
+    tail = f"_Signed reserve deals (CRM deal reviews, anonymized aggregates), refreshed {gen}"
+    if stale:
+        tail += f" ⚠ STALE (>{RESERVE_WINS_STALE_DAYS}d — refresh reserve_wins.csv)"
+    tail += ". This is the won side; field intel above skews to losses._"
+    lines.append(tail)
+    return "\n".join(lines)
+
+
+def _build_reserve_wins_section() -> str:
+    """Confluence HTML twin of _format_reserve_wins_callout."""
+    rows, gen, stale = _load_reserve_wins()
+    if not rows:
+        return ""
+    win = rows[0].get("window_days", "30")
+    html = [
+        f'<h3>Reserve wins — Nebius signed deals (rolling {win}d)</h3>',
+        '<p><em>Aggregated from signed reserve deals in CRM deal reviews (anonymized: '
+        'no customer names, aggregates only; <strong>internal only</strong>). This is the '
+        'WON side of the market — the counterweight to the loss-skewed field intel above. '
+        f'Refreshed {gen or "unknown"}.'
+        + (f' <strong>⚠ stale (&gt;{RESERVE_WINS_STALE_DAYS}d old — refresh '
+           f'store/reserve_wins.csv).</strong>' if stale else '')
+        + '</em></p>',
+        '<table><thead><tr><th>GPU</th><th>Deals</th><th>GPUs</th><th>Lowest</th>'
+        '<th>Median</th><th>Highest</th><th>Median vs Nebius 1yr list (512+, 100%)</th>'
+        '</tr></thead><tbody>',
+    ]
+    for r in rows:
+        try:
+            lo, med, hi = (float(r["price_lo"]), float(r["price_med"]), float(r["price_hi"]))
+            gpus = int(float(r["gpus"]))
+        except (ValueError, KeyError):
+            continue
+        lst = _reserve_list_1yr(r["gpu"])
+        vs = (f'{med / lst - 1:+.0%} vs ${lst:.2f}' if lst else "—")
+        html.append(f'<tr><td><strong>{r["gpu"]}</strong></td><td>{r["deals"]}</td>'
+                    f'<td>{gpus:,}</td><td>${lo:.2f}</td><td><strong>${med:.2f}</strong></td>'
+                    f'<td>${hi:.2f}</td><td>{vs}</td></tr>')
+    html.append('</tbody></table>')
+    return "\n".join(html)
+
+
 def _format_rtx_callout(records: List[PriceRecord]) -> str:
     """
     RTX PRO 6000 (Blackwell 96GB inference/PAYG card) vs the broader RTX market.
@@ -1009,6 +1105,13 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
         if _field_committed:
             lines.append("")
             for l in _field_committed.split("\n"):
+                lines.append(l)
+
+        # ── 2b-bis. Reserve wins: OUR signed deals (won side, from contracts) ─
+        _wins = _format_reserve_wins_callout()
+        if _wins:
+            lines.append("")
+            for l in _wins.split("\n"):
                 lines.append(l)
 
         # ── 2c. RTX PRO 6000 vs the inference/PAYG market ────────────────────
@@ -2118,6 +2221,7 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
         html.append(_build_committed_gap_table(records))
         html.append(_build_prepay_note(records))
     html.append(_build_field_committed_section(records))
+    html.append(_build_reserve_wins_section())
     html.append(_build_capacity_block_section(records))
     html.append(_build_committed_implication(records))
 
