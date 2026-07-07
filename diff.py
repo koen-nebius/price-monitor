@@ -548,8 +548,10 @@ def _format_field_committed_callout(records: List[PriceRecord]) -> str:
 def _load_reserve_wins():
     """
     Rows of store/reserve_wins.csv plus freshness. Returns (rows, generated_date,
-    stale). CSV columns: generated_date,window_days,gpu,deals,gpus,price_lo,
-    price_med,price_hi. Aggregates only — never customer-level data.
+    stale). CSV columns: generated_date,window_days,gpu,term_bucket,deals,gpus,
+    price_lo,price_med,price_hi. Aggregates only — never customer-level data
+    (customer names deliberately excluded: contracts carry price-confidentiality
+    clauses and this page's audience is wider than CRM deal permissions).
     """
     if not RESERVE_WINS_CSV.exists():
         return [], None, True
@@ -566,10 +568,12 @@ def _load_reserve_wins():
     return rows, gen, stale
 
 
-def _reserve_list_1yr(gpu: str) -> Optional[float]:
+def _reserve_list_for_bucket(gpu: str, bucket: str) -> Tuple[Optional[float], str]:
+    """Nebius committed list (512+, 100% upfront) matching a term bucket."""
     from config import NEBIUS_COMMITTED_PRICES
+    months = {"short<=8mo": 9, "~1yr": 12, "2yr+": 24}.get(bucket, 12)
     tier = NEBIUS_COMMITTED_PRICES.get(gpu, {}).get("above_512") or {}
-    return (tier.get(12) or {}).get("100pct")
+    return (tier.get(months) or {}).get("100pct"), f"{months}mo"
 
 
 def _format_reserve_wins_callout() -> str:
@@ -588,11 +592,13 @@ def _format_reserve_wins_callout() -> str:
             gpus = int(float(r["gpus"]))
         except (ValueError, KeyError):
             continue
-        lst = _reserve_list_1yr(r["gpu"])
-        vs = f"  |  med {med / lst - 1:+.0%} vs 1yr list ${lst:.2f}" if lst else ""
-        lines.append(f"`{r['gpu']:<5}` {r['deals']} deals, {gpus:,} GPUs: "
+        bucket = r.get("term_bucket", "~1yr")
+        lst, lbl = _reserve_list_for_bucket(r["gpu"], bucket)
+        vs = f"  |  med {med / lst - 1:+.0%} vs {lbl} list ${lst:.2f}" if lst else ""
+        lines.append(f"`{r['gpu']:<5}` {bucket:<10} {r['deals']} deals, {gpus:>6,} GPUs: "
                      f"${lo:.2f} / ${med:.2f} / ${hi:.2f} (lo/med/hi){vs}")
-    tail = f"_Signed reserve deals (CRM deal reviews, anonymized aggregates), refreshed {gen}"
+    tail = (f"_Signed reserve deals closed in the window (CRM deal reviews; autorenewals "
+            f"excluded; anonymized aggregates), refreshed {gen}")
     if stale:
         tail += f" ⚠ STALE (>{RESERVE_WINS_STALE_DAYS}d — refresh reserve_wins.csv)"
     tail += ". This is the won side; field intel above skews to losses._"
@@ -608,15 +614,17 @@ def _build_reserve_wins_section() -> str:
     win = rows[0].get("window_days", "30")
     html = [
         f'<h3>Reserve wins — Nebius signed deals (rolling {win}d)</h3>',
-        '<p><em>Aggregated from signed reserve deals in CRM deal reviews (anonymized: '
-        'no customer names, aggregates only; <strong>internal only</strong>). This is the '
+        '<p><em>Aggregated from reserve deals CLOSED-WON in the window (CRM deal reviews); '
+        'autorenewals excluded so legacy rates don\'t skew the read. Anonymized: '
+        'no customer names, aggregates only; <strong>internal only</strong> (deal-level '
+        'detail lives in HubSpot for those with access). This is the '
         'WON side of the market — the counterweight to the loss-skewed field intel above. '
         f'Refreshed {gen or "unknown"}.'
         + (f' <strong>⚠ stale (&gt;{RESERVE_WINS_STALE_DAYS}d old — refresh '
            f'store/reserve_wins.csv).</strong>' if stale else '')
         + '</em></p>',
-        '<table><thead><tr><th>GPU</th><th>Deals</th><th>GPUs</th><th>Lowest</th>'
-        '<th>Median</th><th>Highest</th><th>Median vs Nebius 1yr list (512+, 100%)</th>'
+        '<table><thead><tr><th>GPU</th><th>Term</th><th>Deals</th><th>GPUs</th><th>Lowest</th>'
+        '<th>Median</th><th>Highest</th><th>Median vs matching Nebius list (512+, 100%)</th>'
         '</tr></thead><tbody>',
     ]
     for r in rows:
@@ -625,9 +633,11 @@ def _build_reserve_wins_section() -> str:
             gpus = int(float(r["gpus"]))
         except (ValueError, KeyError):
             continue
-        lst = _reserve_list_1yr(r["gpu"])
-        vs = (f'{med / lst - 1:+.0%} vs ${lst:.2f}' if lst else "—")
-        html.append(f'<tr><td><strong>{r["gpu"]}</strong></td><td>{r["deals"]}</td>'
+        bucket = r.get("term_bucket", "~1yr")
+        lst, lbl = _reserve_list_for_bucket(r["gpu"], bucket)
+        vs = (f'{med / lst - 1:+.0%} vs {lbl} ${lst:.2f}' if lst else "—")
+        html.append(f'<tr><td><strong>{r["gpu"]}</strong></td><td>{bucket}</td>'
+                    f'<td>{r["deals"]}</td>'
                     f'<td>{gpus:,}</td><td>${lo:.2f}</td><td><strong>${med:.2f}</strong></td>'
                     f'<td>${hi:.2f}</td><td>{vs}</td></tr>')
     html.append('</tbody></table>')
