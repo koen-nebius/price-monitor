@@ -534,7 +534,21 @@ def _format_field_committed_callout(records: List[PriceRecord]) -> str:
             d = (px - neb) / neb * 100
             vs = f"{d:+.0f}% vs Nebius ${neb:.2f}"
         else:
+            # STORM sales/exec fix (2026-07-07): don't leave the hottest SKUs
+            # (GB200/GB300) uncompared just because the headline deal's term has
+            # no Nebius tier — also show the lowest deal at a term we DO offer.
             vs = "no Nebius committed at this term"
+            comparable = []
+            for px2, term2, prov2, _pp2 in deals:
+                cts2, lbl2 = _term_bucket_cts(term2)
+                neb2 = _cheapest(records, "nebius", g, cts2) if cts2 else None
+                if neb2:
+                    comparable.append((px2, lbl2, prov2, neb2))
+            if comparable:
+                px2, lbl2, prov2, neb2 = min(comparable, key=lambda x: x[0])
+                d2 = (px2 - neb2) / neb2 * 100
+                vs += (f" · closest comparable: ${px2:.2f} ({lbl2}, "
+                       f"{_provider_display(prov2)}) = {d2:+.0f}% vs Nebius ${neb2:.2f}")
         lines.append(f"`{g:<5}` lowest ${px:.2f} ({term_label}, {prepay_str}) via "
                      f"{_provider_display(prov)}  |  {vs}  [{len(deals)} deals]")
     lines.append("_Deal-specific, anonymized; lower confidence than published list prices. "
@@ -601,7 +615,8 @@ def _format_reserve_wins_callout() -> str:
             f"excluded; anonymized aggregates), refreshed {gen}")
     if stale:
         tail += f" ⚠ STALE (>{RESERVE_WINS_STALE_DAYS}d — refresh reserve_wins.csv)"
-    tail += ". This is the won side; field intel above skews to losses._"
+    tail += (". This is the won side; field intel above skews to losses. "
+             "Internal benchmark only — never quote these rates to customers._")
     lines.append(tail)
     return "\n".join(lines)
 
@@ -619,6 +634,7 @@ def _build_reserve_wins_section() -> str:
         'no customer names, aggregates only; <strong>internal only</strong> (deal-level '
         'detail lives in HubSpot for those with access). This is the '
         'WON side of the market — the counterweight to the loss-skewed field intel above. '
+        'Internal benchmark only: never quote these rates to customers. '
         f'Refreshed {gen or "unknown"}.'
         + (f' <strong>⚠ stale (&gt;{RESERVE_WINS_STALE_DAYS}d old — refresh '
            f'store/reserve_wins.csv).</strong>' if stale else '')
@@ -2029,18 +2045,48 @@ def _build_battlecards(records: List[PriceRecord]) -> str:
     nebb = _cheapest(records, "nebius", "B200", {"on_demand"})
 
     cards = []
+    # STORM sales fix (2026-07-07): the most common AE objection — a cheaper
+    # single-GPU/marketplace quote — compared against the cluster-class basis.
+    h_noncluster = [r for r in records
+                    if r.gpu_model == "H100" and r.consumption_type == "on_demand"
+                    and r.provider != "nebius"
+                    and provider_tier(r.provider) == "raw_gpu_cloud"
+                    and not _is_cluster_peer(r)]
+    cheap1x = min(h_noncluster, key=lambda r: r.price_per_gpu_hour_usd) if h_noncluster else None
+    _ent = set(PROVIDER_TIERS.get("enterprise_gpu_cloud", []))
+    h_cluster = [r for r in records
+                 if r.gpu_model == "H100" and r.consumption_type == "on_demand"
+                 and r.provider != "nebius"
+                 and r.provider.lower() in _ent and _is_cluster_peer(r)]
+    cluster_floor = min(h_cluster, key=lambda r: r.price_per_gpu_hour_usd) if h_cluster else None
+    nebh = _cheapest(records, "nebius", "H100", {"on_demand"})
+    if cheap1x and cluster_floor and nebh:
+        cards.append((
+            '"A marketplace/neocloud quoted me way less"',
+            f"Probably true and not comparable: ${cheap1x.price_per_gpu_hour_usd:.2f} "
+            f"({_provider_display(cheap1x.provider)}) is a single-GPU/Ethernet SKU. Training "
+            f"clusters need 8×SXM nodes on a fast fabric, where the peer floor is "
+            f"${cluster_floor.price_per_gpu_hour_usd:.2f} ({_provider_display(cluster_floor.provider)}) "
+            f"vs Nebius ${nebh:.2f}. Pivot the conversation to the cluster basis; ask what node "
+            f"size and interconnect the quote covers.", "high"))
     if (aws3nu or aws3au) and neb2:
         parts = []
         if aws3nu:
             parts.append(f"${aws3nu:.2f} no-upfront")
         if aws3au:
             parts.append(f"${aws3au:.2f} 100%-prepaid")
+        fi_h100 = _field_intel_floor("H100")
+        fi_note = ""
+        if fi_h100 and fi_h100.get("price"):
+            fi_note = (f" Negotiated deals below list exist on both sides (e.g. AWS seen at "
+                       f"${fi_h100['price']:.2f} in field intel) — if the customer has a real "
+                       f"committed quote, escalate to pricing, don't argue list vs negotiated.")
         cards.append((
             '"AWS 3-year is cheaper"',
             f"True at the extreme: AWS H100 3yr is {' / '.join(parts)}. But that locks 3 years"
             + (" and full prepayment" if aws3au else "")
             + f". Nebius 2yr ${neb2:.2f} needs no 3rd-year lock or 100% upfront, and on-demand has no "
-            f"commitment at all. Sell flexibility, not the headline rate.", "high"))
+            f"commitment at all. Sell flexibility, not the headline rate." + fi_note, "high"))
     if azspot and nebpre:
         cards.append((
             '"Azure spot is cheaper"',
@@ -2066,6 +2112,11 @@ def _build_battlecards(records: List[PriceRecord]) -> str:
         '<h2>Sales Battlecards</h2>',
         '<p>Reconciled numbers and approved talk tracks for common objections. Customer names omitted. '
         'Neutral framing: where a competitor genuinely wins (e.g. L40S 3yr), we acknowledge and pivot.</p>',
+        '<p><em><strong>How to use this page:</strong> list-price comparisons and battlecards are for '
+        'positioning and objection handling. Do NOT quote to customers: field-intel deal rows '
+        '(third-party negotiated deals, unverifiable externally) or the Reserve-wins rates '
+        '(our internal benchmarks, not offers — quoting them sets a floor in the customer\'s head). '
+        'For a real competing committed quote, escalate to the pricing team rather than matching on the spot.</em></p>',
         '<table data-layout="full-width"><tbody>',
         '<tr><th>Objection</th><th>Response (with the number)</th><th>Confidence</th></tr>',
     ]
@@ -2201,7 +2252,10 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
     # ── Section 1: Executive benchmark ──────────────────────────────────────
     html.append('<h2>Executive Benchmark — Nebius vs Market</h2>')
     html.append(
-        '<p>On-demand prices, cheapest available per provider. '
+        '<p>On-demand list prices; peer and median cells use each provider\'s cheapest '
+        '<strong>cluster-class (8×SXM) SKU</strong> — like-for-like with a training cluster — '
+        'falling back to all form factors only where no cluster SKU exists in the market '
+        '(e.g. L40S, which is PCIe everywhere). '
         '<strong>Enterprise GPU cloud</strong> peers are the direct competitive set '
         '(named providers with enterprise SLAs; commodity rental marketplaces excluded). '
         'Hyperscaler column shows rack-rate list price — enterprise customers pay 40–57% less at 3yr committed. '
@@ -2434,7 +2488,23 @@ def _build_field_committed_section(records: List[PriceRecord]) -> str:
             color = "green" if d < 0 else "red"
             vs = f'<span data-type="status" data-color="{color}">{d:+.0f}% vs Nebius ${neb:.2f}</span>'
         else:
+            # No Nebius tier at the headline deal's term (e.g. 60mo GB300): fall back
+            # to the lowest deal at a term Nebius DOES offer, so the hottest SKUs
+            # never show an uncompared dash in the exec view.
             vs = '—'
+            comparable = []
+            for px2, term2, prov2, _pp2 in deals:
+                cts2, lbl2 = _term_bucket_cts(term2)
+                neb2 = _cheapest(records, "nebius", g, cts2) if cts2 else None
+                if neb2:
+                    comparable.append((px2, lbl2, prov2, neb2))
+            if comparable:
+                px2, lbl2, prov2, neb2 = min(comparable, key=lambda x: x[0])
+                d2 = (px2 - neb2) / neb2 * 100
+                color = "green" if d2 < 0 else "red"
+                vs = (f'no Nebius tier at {term_label}; closest comparable ${px2:.2f} ({lbl2}, '
+                      f'<em>{_provider_display(prov2)}</em>) = <span data-type="status" '
+                      f'data-color="{color}">{d2:+.0f}% vs Nebius ${neb2:.2f}</span>')
         prepay_str = f'{prepay}%' if str(prepay).isdigit() else str(prepay)
         html.append(f'<tr><td><strong>{g}</strong></td><td><strong>${px:.2f}</strong></td>'
                     f'<td>{term_label}</td><td>{prepay_str}</td>'
