@@ -135,3 +135,4 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1782917000.238339,2026-07-01,GB300,7.00,36,0,undisclosed,Undisclosed,3yr VR quote >$7; lost to GCP at $5.50
 1783273869.455719,2026-07-05,H200,2.10,3,0,undisclosed_neocloud,Undisclosed neocloud,64 H200 3mo reservation unnamed smaller provider
 1783273869.455719,2026-07-05,H200,2.40,3,0,neocloud,Crusoe,64 H200 3mo reservation
+1700000000.999999,2026-07-10,H100,2.22,12,0,undisclosed,MERGE-TEST ignore,"pipeline test row, will be removed"

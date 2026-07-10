@@ -1,13 +1,13 @@
 {
   "run_date": "2026-07-10",
-  "started_at": "2026-07-10T05:12:43.334132+00:00",
-  "completed_at": "2026-07-10T05:13:55.514101+00:00",
+  "started_at": "2026-07-10T09:36:36.075719+00:00",
+  "completed_at": "2026-07-10T09:37:40.702360+00:00",
   "status": "partial",
-  "record_count": 949,
-  "raw_record_count": 949,
-  "anomaly_count": 1,
+  "record_count": 948,
+  "raw_record_count": 948,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 10,
+  "diff_count": 7,
   "failed_providers": [],
   "stale_providers": [
     "computeprices"
@@ -48,7 +48,7 @@
     "computeprices": {
       "status": "cache",
       "record_count": 142,
-      "cache_age_hours": 24.0,
+      "cache_age_hours": 28.4,
       "stale_verdict": "ok"
     },
     "oracle": {
@@ -73,7 +73,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 3
+      "record_count": 2
     }
   },
   "provider_freshness": {
@@ -111,7 +111,7 @@
     },
     "computeprices": {
       "status": "cached",
-      "age_hours": 24.0
+      "age_hours": 28.4
     },
     "oracle": {
       "status": "live",
@@ -138,9 +138,7 @@
       "age_hours": null
     }
   },
-  "warnings": [
-    "vast H200 reserved_short: $1.32 \u2192 $3.75 (+184.7%) \u26a0 price anomaly"
-  ],
+  "warnings": [],
   "post_thread": false,
   "is_weekly": false,
   "significant_moves": 0,
