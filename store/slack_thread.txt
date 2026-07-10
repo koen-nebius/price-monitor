@@ -1,4 +1,4 @@
-*GPU Competitor Pricing — July 09, 2026*
+*GPU Competitor Pricing — July 10, 2026*
 
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -4% vs median  |  0/4 peers cheaper  |  floor: Crusoe $3.90
@@ -52,7 +52,7 @@ _Signed reserve deals closed in the window (CRM deal reviews; autorenewals exclu
 *RTX PRO 6000 (inference / PAYG card) — vs RTX market:*
 `OD  ` Nebius $1.80  -10% vs market median $1.99  |  3/12 cheaper  |  floor: Beam $1.04
 `Spot` Nebius $0.95
-`Comm` Nebius committed from $1.42  |  market committed from $0.50
+`Comm` Nebius committed from $1.42  |  market committed from $0.60
 _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._
 
 
@@ -62,9 +62,7 @@ _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cl
 `B300 ` Lost a deal at the field price: review committed pricing for this SKU  |  mkt +0% / 30d  ⚠ lost deal (since 2026-06-12)
 _Action = neutral pricing prompt (premium can be a deliberate hold); see Decision Triggers table in Confluence._
 
-*Price moves ≥3%:*
-🔺 *Hyperstack* _(major neocloud)_ H100 spot: $1.52→$2.00/GPU-hr (+31.6% global)
-🔻 *Scaleway* _(major neocloud)_ B300 on-demand: $9.01→$8.55/GPU-hr (-5.0% global)
-🔺 *Ionet* _(small provider)_ H200 on-demand: $3.61→$3.79/GPU-hr (+4.9% global)
+_No significant price moves today (0 minor changes below 3% threshold)._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
+_Data freshness: computeprices cached (24h ago)_

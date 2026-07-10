@@ -1,15 +1,17 @@
 {
-  "run_date": "2026-07-09",
-  "started_at": "2026-07-09T05:14:41.751312+00:00",
-  "completed_at": "2026-07-09T05:15:59.960471+00:00",
-  "status": "success",
+  "run_date": "2026-07-10",
+  "started_at": "2026-07-10T05:12:43.334132+00:00",
+  "completed_at": "2026-07-10T05:13:55.514101+00:00",
+  "status": "partial",
   "record_count": 949,
   "raw_record_count": 949,
-  "anomaly_count": 0,
+  "anomaly_count": 1,
   "quarantined_count": 0,
-  "diff_count": 24,
+  "diff_count": 10,
   "failed_providers": [],
-  "stale_providers": [],
+  "stale_providers": [
+    "computeprices"
+  ],
   "provider_status": {
     "aws": {
       "status": "live",
@@ -29,7 +31,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 10
+      "record_count": 11
     },
     "crusoe": {
       "status": "live",
@@ -44,8 +46,10 @@
       "record_count": 105
     },
     "computeprices": {
-      "status": "live",
-      "record_count": 142
+      "status": "cache",
+      "record_count": 142,
+      "cache_age_hours": 24.0,
+      "stale_verdict": "ok"
     },
     "oracle": {
       "status": "live",
@@ -69,7 +73,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 4
+      "record_count": 3
     }
   },
   "provider_freshness": {
@@ -106,8 +110,8 @@
       "age_hours": null
     },
     "computeprices": {
-      "status": "live",
-      "age_hours": null
+      "status": "cached",
+      "age_hours": 24.0
     },
     "oracle": {
       "status": "live",
@@ -135,11 +139,11 @@
     }
   },
   "warnings": [
-    "cross-check: hyperstack H100 on-demand: ours $2.50 (scrape) vs ComputePrices $1.90 (24% gap) \u2014 our scrape may be mis-parsed \u2014 verify"
+    "vast H200 reserved_short: $1.32 \u2192 $3.75 (+184.7%) \u26a0 price anomaly"
   ],
   "post_thread": false,
   "is_weekly": false,
-  "significant_moves": 2,
+  "significant_moves": 0,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
