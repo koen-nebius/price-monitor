@@ -1,5 +1,5 @@
 *GPU Pricing Daily — July 10, 2026*
 
-No movement on live sources (no price moves ≥3%), but 14/15 sources live today (computeprices stale/missing) — movement there can't be confirmed.
+No competitor movement since yesterday's update (no price moves ≥3% on tracked providers).
 
 Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>

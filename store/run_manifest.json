@@ -1,17 +1,15 @@
 {
   "run_date": "2026-07-10",
-  "started_at": "2026-07-10T09:39:27.621528+00:00",
-  "completed_at": "2026-07-10T09:40:37.819182+00:00",
-  "status": "partial",
+  "started_at": "2026-07-10T12:04:40.511898+00:00",
+  "completed_at": "2026-07-10T12:05:52.096236+00:00",
+  "status": "success",
   "record_count": 949,
   "raw_record_count": 949,
-  "anomaly_count": 1,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 3,
+  "diff_count": 17,
   "failed_providers": [],
-  "stale_providers": [
-    "computeprices"
-  ],
+  "stale_providers": [],
   "provider_status": {
     "aws": {
       "status": "live",
@@ -46,10 +44,8 @@
       "record_count": 105
     },
     "computeprices": {
-      "status": "cache",
-      "record_count": 142,
-      "cache_age_hours": 28.4,
-      "stale_verdict": "ok"
+      "status": "live",
+      "record_count": 142
     },
     "oracle": {
       "status": "live",
@@ -110,8 +106,8 @@
       "age_hours": null
     },
     "computeprices": {
-      "status": "cached",
-      "age_hours": 28.4
+      "status": "live",
+      "age_hours": null
     },
     "oracle": {
       "status": "live",
@@ -139,7 +135,9 @@
     }
   },
   "warnings": [
-    "vast RTX6000 reserved_short: $0.47 \u2192 $0.66 (+41.1%) \u26a0 price anomaly"
+    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
+    "cross-check: hyperstack H100 on-demand: ours $2.50 (scrape) vs ComputePrices $1.90 (24% gap) \u2014 our scrape may be mis-parsed \u2014 verify",
+    "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
   "post_thread": false,
   "is_weekly": false,

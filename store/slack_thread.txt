@@ -4,8 +4,8 @@
 `H100 ` Nebius $3.85  -4% vs median  |  0/4 peers cheaper  |  floor: Crusoe $3.90
 `H200 ` Nebius $4.50  -25% vs median  |  1/3 peers cheaper  |  floor: Crusoe $4.29
 `B200 ` Nebius $7.15  -15% vs median  |  0/2 peers cheaper  |  floor: Together $8.19
-`B300 ` Nebius $7.85  |  1 peer: Scaleway $8.55
-`L40S ` Nebius $1.82  +9% vs median  |  2/3 peers cheaper  |  floor: Crusoe $1.50
+`B300 ` Nebius $7.85  |  1 peer: Scaleway $8.58
+`L40S ` Nebius $1.82  +8% vs median  |  2/3 peers cheaper  |  floor: Crusoe $1.50
 
 *vs cheapest hyperscaler on-demand (8×SXM cluster, like-for-like):*
 `H100 ` Nebius $3.85  vs  AWS $6.88  →  Nebius 44% below
@@ -52,7 +52,7 @@ _Signed reserve deals closed in the window (CRM deal reviews; autorenewals exclu
 *RTX PRO 6000 (inference / PAYG card) — vs RTX market:*
 `OD  ` Nebius $1.80  -10% vs market median $1.99  |  3/12 cheaper  |  floor: Beam $1.04
 `Spot` Nebius $0.95
-`Comm` Nebius committed from $1.42  |  market committed from $0.66
+`Comm` Nebius committed from $1.42  |  market committed from $0.67
 _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._
 
 
@@ -62,7 +62,6 @@ _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cl
 `B300 ` Lost a deal at the field price: review committed pricing for this SKU  |  mkt +0% / 30d  ⚠ lost deal (since 2026-06-12)
 _Action = neutral pricing prompt (premium can be a deliberate hold); see Decision Triggers table in Confluence._
 
-_No significant price moves today (0 minor changes below 3% threshold)._
+_No significant price moves today (7 minor changes below 3% threshold)._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
-_Data freshness: computeprices cached (28h ago)_
