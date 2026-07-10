@@ -1,4 +1,5 @@
 name: Scrape peer pricing
+# 2026-07-10: posting routine is write-free; intel merges via the Confluence inbox (Plan-2).
 
 # Runs at 01:23 UTC — WELL BEFORE the CCR posting routine (07:00 UTC).
 # GitHub Actions runners use GitHub's own IPs, which are NOT blocked by the
