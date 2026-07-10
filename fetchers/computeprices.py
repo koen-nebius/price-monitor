@@ -2,8 +2,14 @@
 ComputePrices.com fetcher.
 Pulls GPU pricing for providers NOT already covered by direct scrapers.
 API docs: https://computeprices.com/docs/api
-No auth required (60 req/hr per IP). Free API key raises to 5,000/hr.
-Set COMPUTEPRICES_API_KEY env var to use a key.
+
+AUTH (changed upstream ~2026-07-09): the keyless tier was removed — every
+/api/v1 call returns 401 without a key. Keys are free (email magic link at
+https://computeprices.com/account/api-keys, 750 req/day; this fetcher uses
+~16/run) and MUST be sent as an "Authorization: Bearer cp_live_..." header —
+the API does not accept ?api_key= query params or X-API-Key headers.
+Set the COMPUTEPRICES_API_KEY env var; without it every call 401s and the
+pipeline serves the peer cache until the 7-day hard-stale drop.
 """
 import json
 import logging
@@ -110,11 +116,8 @@ def fetch_crosscheck() -> Dict[tuple, float]:
     out: Dict[tuple, float] = {}
     for slug in GPU_SLUGS:
         try:
-            params: dict = {"gpu": slug}
-            if api_key:
-                params["api_key"] = api_key
-            url = f"{API_BASE}?{urllib.parse.urlencode(params)}"
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (price-monitor/1.0)"})
+            url = f"{API_BASE}?{urllib.parse.urlencode({'gpu': slug})}"
+            req = urllib.request.Request(url, headers=_headers(api_key))
             with urllib.request.urlopen(req, timeout=30) as resp:
                 data = json.loads(resp.read())
         except Exception as e:
@@ -141,9 +144,21 @@ def fetch_crosscheck() -> Dict[tuple, float]:
     return out
 
 
+def _headers(api_key: Optional[str]) -> dict:
+    headers = {"User-Agent": "Mozilla/5.0 (price-monitor/1.0)"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    return headers
+
+
 def fetch(regions: List[str] = None) -> List[PriceRecord]:
     now = datetime.now(timezone.utc).isoformat()
     api_key = os.environ.get("COMPUTEPRICES_API_KEY")
+    if not api_key:
+        logger.warning(
+            "COMPUTEPRICES_API_KEY not set — the API requires a key since 2026-07-09, "
+            "all calls will 401 (free key: https://computeprices.com/account/api-keys)"
+        )
 
     records = []
     seen: set = set()
@@ -197,13 +212,9 @@ def _fetch_slug(
     now: str,
     seen: set,
 ) -> List[PriceRecord]:
-    params: dict = {"gpu": slug}
-    if api_key:
-        params["api_key"] = api_key
-    url = f"{API_BASE}?{urllib.parse.urlencode(params)}"
+    url = f"{API_BASE}?{urllib.parse.urlencode({'gpu': slug})}"
 
-    headers = {"User-Agent": "Mozilla/5.0 (price-monitor/1.0)"}
-    req = urllib.request.Request(url, headers=headers)
+    req = urllib.request.Request(url, headers=_headers(api_key))
     with urllib.request.urlopen(req, timeout=30) as resp:
         data = json.loads(resp.read())
 

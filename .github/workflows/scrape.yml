@@ -64,6 +64,11 @@ jobs:
           # SF Compute transacted fills (optional): free bearer token via `sf tokens create`.
           # Provider auto-registers only when this is set (config.PROVIDERS).
           SFCOMPUTE_TOKEN: ${{ secrets.SFCOMPUTE_TOKEN }}
+          # REQUIRED since 2026-07-09: computeprices.com removed its keyless API tier
+          # (every /api/v1 call 401s without a key). Free key (750 req/day; we use ~16/run)
+          # from https://computeprices.com/account/api-keys — without this secret the
+          # ~34 cp_* aggregator providers serve from cache and hard-drop after 7 days.
+          COMPUTEPRICES_API_KEY: ${{ secrets.COMPUTEPRICES_API_KEY }}
         run: |
           # All-live run from non-blocked GitHub IPs. main.py writes the daily
           # snapshot, diff, run_manifest, AND the ready-to-post artifacts
