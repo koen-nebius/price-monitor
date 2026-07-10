@@ -1,13 +1,13 @@
 {
   "run_date": "2026-07-10",
-  "started_at": "2026-07-10T09:36:36.075719+00:00",
-  "completed_at": "2026-07-10T09:37:40.702360+00:00",
+  "started_at": "2026-07-10T09:39:27.621528+00:00",
+  "completed_at": "2026-07-10T09:40:37.819182+00:00",
   "status": "partial",
-  "record_count": 948,
-  "raw_record_count": 948,
-  "anomaly_count": 0,
+  "record_count": 949,
+  "raw_record_count": 949,
+  "anomaly_count": 1,
   "quarantined_count": 0,
-  "diff_count": 7,
+  "diff_count": 3,
   "failed_providers": [],
   "stale_providers": [
     "computeprices"
@@ -73,7 +73,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 2
+      "record_count": 3
     }
   },
   "provider_freshness": {
@@ -138,7 +138,9 @@
       "age_hours": null
     }
   },
-  "warnings": [],
+  "warnings": [
+    "vast RTX6000 reserved_short: $0.47 \u2192 $0.66 (+41.1%) \u26a0 price anomaly"
+  ],
   "post_thread": false,
   "is_weekly": false,
   "significant_moves": 0,
