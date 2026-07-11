@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-07-10",
-  "started_at": "2026-07-10T12:04:40.511898+00:00",
-  "completed_at": "2026-07-10T12:05:52.096236+00:00",
+  "run_date": "2026-07-11",
+  "started_at": "2026-07-11T04:32:29.553562+00:00",
+  "completed_at": "2026-07-11T04:33:59.354480+00:00",
   "status": "success",
-  "record_count": 949,
-  "raw_record_count": 949,
+  "record_count": 947,
+  "raw_record_count": 947,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 17,
+  "diff_count": 14,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 11
+      "record_count": 10
     },
     "crusoe": {
       "status": "live",
@@ -69,7 +69,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 3
+      "record_count": 2
     }
   },
   "provider_freshness": {
