@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-07-11",
-  "started_at": "2026-07-11T04:32:29.553562+00:00",
-  "completed_at": "2026-07-11T04:33:59.354480+00:00",
+  "run_date": "2026-07-12",
+  "started_at": "2026-07-12T04:44:00.396929+00:00",
+  "completed_at": "2026-07-12T04:45:23.915586+00:00",
   "status": "success",
   "record_count": 947,
   "raw_record_count": 947,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 14,
+  "diff_count": 22,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 142
+      "record_count": 141
     },
     "oracle": {
       "status": "live",
@@ -69,7 +69,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 2
+      "record_count": 3
     }
   },
   "provider_freshness": {
@@ -135,13 +135,12 @@
     }
   },
   "warnings": [
-    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: hyperstack H100 on-demand: ours $2.50 (scrape) vs ComputePrices $1.90 (24% gap) \u2014 our scrape may be mis-parsed \u2014 verify",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
   "post_thread": false,
   "is_weekly": false,
-  "significant_moves": 0,
+  "significant_moves": 1,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
