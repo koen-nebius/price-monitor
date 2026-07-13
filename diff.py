@@ -37,6 +37,14 @@ GPU_ORDER = ["H100", "H200", "B200", "B300", "GB200", "GB300", "L40S"]
 # the thread and don't drag the headline (e.g. L40S near-parity was widening the gap range
 # to "2%"). Adjust this list to re-weight the headline.
 SUMMARY_GPUS = ["H100", "H200", "B200", "B300", "GB300"]
+
+# A recorded competitive loss drives the "lost a deal" action (summary headline, thread
+# flag, recommended action) for this many days after the loss date, then DECAYS: the red
+# "lost deal" badge stays in the Confluence decision-trigger table (with its date) until
+# the row leaves the 90d intel window, but it stops claiming action surfaces — a month-old
+# loss that has already been reviewed must not nag as if it were fresh news. Losses with
+# no parseable date never decay (conservative: keep nagging rather than silently drop).
+LOSS_FLAG_DECAY_DAYS = 30
 CT_ORDER  = ["on_demand", "spot", "preemptible", "reserved_1yr", "reserved_3yr",
              "committed_1yr", "committed_3yr"]
 CT_LABELS = {
@@ -1610,8 +1618,10 @@ def _field_intel_floor(gpu: str):
     """
     Lowest real competitive deal for a GPU from #price-intelligence (intel.csv).
     This is the ground-truth signal for next-gen GPUs (B200/B300/GB200/GB300) where
-    public list prices barely exist. Returns {price, term, label, prepay, is_loss} or None.
-    is_loss = the quote was logged as a competitive loss/win against Nebius.
+    public list prices barely exist. Returns {price, term, label, prepay, is_loss,
+    loss, loss_fresh} or None.
+    is_loss = a loss/win-against-Nebius was logged in the 90d window (drives the badge).
+    loss_fresh = that loss is within LOSS_FLAG_DECAY_DAYS (drives action surfaces).
     """
     def _is_loss(notes: str) -> bool:
         n = (notes or "").lower()
@@ -1650,6 +1660,14 @@ def _field_intel_floor(gpu: str):
         # cheapest 90d quote, so "lost a deal at the field price" cited a price from a
         # different deal than the loss. Carry the real losing quote separately.
         best["loss"] = loss
+        fresh = loss is not None
+        if fresh and loss.get("date"):
+            try:
+                fresh = (date.today() - date.fromisoformat(loss["date"])).days \
+                    <= LOSS_FLAG_DECAY_DAYS
+            except (ValueError, TypeError):
+                pass   # unparseable date -> never decays
+        best["loss_fresh"] = fresh
     return best
 
 
@@ -1657,7 +1675,9 @@ def _recommended_action(delta_vs_median: Optional[float], near_hyperscaler: bool
                         trend30: Optional[float], field_loss: bool = False) -> str:
     """Neutral, decision-oriented action. Lower is not assumed good; a premium is a
     valid position to hold. Phrasing prompts a decision, doesn't prescribe a cut.
-    A recorded competitive LOSS is the strongest trigger and leads the action."""
+    A recorded competitive LOSS is the strongest trigger and leads the action —
+    but only while fresh (callers pass field_loss from loss_fresh, which decays
+    after LOSS_FLAG_DECAY_DAYS; the table badge outlives it)."""
     if field_loss:
         return "Lost a deal at the field price — review committed pricing for this SKU"
     if delta_vs_median is None:
@@ -1718,7 +1738,7 @@ def _decision_trigger_rows(records: List[PriceRecord], gpus: List[str] = None):
         t30 = _t[0] if _t else None
         t_span = _t[1] if _t else None
         action = _recommended_action(delta, near_hyp, t30,
-                                     field_loss=bool(fi and fi["is_loss"]))
+                                     field_loss=bool(fi and fi.get("loss_fresh")))
         rows.append({
             "gpu": gpu,
             "neb": neb,
@@ -1750,12 +1770,13 @@ def _trend_text(trend30, span) -> str:
 
 def _is_actionable_trigger(r: dict) -> bool:
     """
-    A trigger row is worth surfacing in Slack when it carries a real signal: a recorded
-    competitive loss, a wide peer-median gap (premium to review or headroom to hold/raise),
-    hyperscaler parity to watch, or a moved (>=5%) market trend. Rows that are just
-    'Hold; monitor' with nothing moving are skipped so the section stays scannable.
+    A trigger row is worth surfacing in Slack when it carries a real signal: a FRESH
+    recorded competitive loss (decayed losses keep only the Confluence badge), a wide
+    peer-median gap (premium to review or headroom to hold/raise), hyperscaler parity
+    to watch, or a moved (>=5%) market trend. Rows that are just 'Hold; monitor' with
+    nothing moving are skipped so the section stays scannable.
     """
-    if r["fi"] and r["fi"].get("is_loss"):
+    if r["fi"] and r["fi"].get("loss_fresh"):
         return True
     if r["delta"] is not None and (r["delta"] >= 15 or r["delta"] <= -5):
         return True
@@ -1781,7 +1802,7 @@ def _format_action_flags_thread(records: List[PriceRecord]) -> str:
     for r in rows:
         trend = _trend_text(r["trend30"], r["trend_span"])
         loss = ""
-        if r["fi"] and r["fi"].get("is_loss"):
+        if r["fi"] and r["fi"].get("loss_fresh"):
             L = r["fi"].get("loss") or {}
             loss = f"  ⚠ lost deal (since {L['date']})" if L.get("date") else "  ⚠ lost deal"
         trend_str = f"  |  mkt {trend}" if trend else ""   # trend already carries "/ Nd"
@@ -1807,7 +1828,7 @@ def _top_action_flag(records: List[PriceRecord]) -> str:
         return ""
 
     def _priority(r):
-        loss = 0 if (r["fi"] and r["fi"].get("is_loss")) else 1
+        loss = 0 if (r["fi"] and r["fi"].get("loss_fresh")) else 1
         premium = r["delta"] if (r["delta"] is not None and r["delta"] >= 15) else None
         move = abs(r["trend30"]) if r["trend30"] is not None else 0
         # loss first; then largest premium-to-review; then largest market move.
@@ -1820,7 +1841,7 @@ def _top_action_flag(records: List[PriceRecord]) -> str:
 
     r = min(rows, key=_priority)
     trend = _trend_text(r["trend30"], r["trend_span"])
-    if r["fi"] and r["fi"].get("loss"):
+    if r["fi"] and r["fi"].get("loss_fresh") and r["fi"].get("loss"):
         L = r["fi"]["loss"]
         since = ""
         if r["fi"]["price"] < L["price"]:
@@ -1834,7 +1855,7 @@ def _top_action_flag(records: List[PriceRecord]) -> str:
         return (f"\n*Action flag:* {r['gpu']} lost a {_term_lbl(L['term'])} deal at "
                 f"${L['price']:.2f} ({L['label']}, {L['date']}{age}).{since} "
                 f"Review committed pricing for this SKU.")
-    if r["fi"] and r["fi"].get("is_loss"):
+    if r["fi"] and r["fi"].get("loss_fresh"):
         return (f"\n*Action flag:* {r['gpu']} lost a deal at the field price. "
                 f"Review committed pricing for this SKU.")
     if r["delta"] is not None and r["delta"] >= 15:
@@ -1910,8 +1931,13 @@ def _build_decision_trigger_table(records: List[PriceRecord]) -> str:
         # the only real signal for next-gen GPUs where public list prices barely exist.
         fi = _field_intel_floor(gpu)
         if fi:
-            loss_badge = (' <span data-type="status" data-color="red">lost deal</span>'
-                          if fi["is_loss"] else '')
+            loss_badge = ''
+            if fi["is_loss"]:
+                # Badge outlives the 30d action decay (until the loss leaves the 90d
+                # intel window); the date shows reviewers how old the loss is.
+                L = fi.get("loss") or {}
+                lbl = f'lost deal {L["date"]}' if L.get("date") else 'lost deal'
+                loss_badge = f' <span data-type="status" data-color="red">{lbl}</span>'
             field_cell = (f'${fi["price"]:.2f} <em>({_term_label(fi["term"])}, '
                           f'{_provider_display(fi["label"]) if fi["label"] not in ("undisclosed",) else fi["label"]})</em>{loss_badge}')
         else:
@@ -1919,7 +1945,7 @@ def _build_decision_trigger_table(records: List[PriceRecord]) -> str:
 
         _t = _market_trend(gpu, 30, records)
         t30 = _t[0] if _t else None
-        action = _recommended_action(delta, near_hyp, t30, field_loss=bool(fi and fi["is_loss"]))
+        action = _recommended_action(delta, near_hyp, t30, field_loss=bool(fi and fi.get("loss_fresh")))
 
         html.append(
             f'<tr><td><strong>{gpu}</strong></td>'
