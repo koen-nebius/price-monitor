@@ -356,19 +356,41 @@ def run(providers=None, test=False):
                         logger.warning(f"Cross-check: {msg}")
                         warnings.append(f"cross-check: {msg}")
                     continue
-                # Our scrapes can be mis-parsed → tight threshold + downgrade.
+                # Direction matters for scrapes (2026-07-14, Hyperstack incident):
+                # we deliberately keep the provider's CHEAPEST variant, while CP's
+                # fresh coverage may only include a pricier variant (e.g. SXM $3.20
+                # when we correctly emit plain $2.50). Ours ABOVE CP's floor is the
+                # real mis-parse signature (picking the pricey variant — the June
+                # regression); ours moderately BELOW it is normal coverage
+                # asymmetry. Only a huge low-side gap (>40%, e.g. parsing a CPU row
+                # as a GPU) is treated as a suspect parse.
                 # Our provider-API prices are authoritative → only flag a LARGE gap,
                 # never downgrade because a flaky aggregator disagrees.
-                threshold = 5 if is_scrape else 15
-                if gap > threshold:
+                if is_scrape:
+                    if our_px > xp:
+                        flag, downgrade = gap > 5, True
+                        note = "our scrape may be mis-parsed — verify"
+                    elif gap > 40:
+                        flag, downgrade = True, True
+                        note = ("ours far below CP's freshest coverage — verify we "
+                                "didn't parse a non-GPU/spot row")
+                    else:
+                        flag, downgrade = False, False
+                        if gap > 5:
+                            logger.info(
+                                f"Cross-check: {k[0]} {k[1]} ours ${our_px:.2f} below "
+                                f"CP ${xp:.2f} ({gap:.0f}%) — cheapest-variant coverage "
+                                f"asymmetry, not flagged")
+                else:
+                    flag, downgrade = gap > 15, False
+                    note = "ComputePrices likely off (provider API is authoritative)"
+                if flag:
                     n_flagged += 1
-                    note = ("our scrape may be mis-parsed — verify" if is_scrape
-                            else "ComputePrices likely off (provider API is authoritative)")
                     msg = (f"{k[0]} {k[1]} on-demand: ours ${our_px:.2f} ({'scrape' if is_scrape else 'api'}) "
                            f"vs ComputePrices ${xp:.2f} ({gap:.0f}% gap) — {note}")
                     logger.warning(f"Cross-check disagreement: {msg}")
                     warnings.append(f"cross-check: {msg}")
-                    if is_scrape:
+                    if downgrade:
                         for r in accepted_records:
                             if (r.provider == k[0] and r.gpu_model == k[1]
                                     and r.consumption_type == "on_demand"):

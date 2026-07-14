@@ -105,11 +105,21 @@ _XCHECK_NAME_MAP = {
 }
 
 
+# Cross-check rows older than this are ignored: ComputePrices relays some prices
+# from third-party directories (e.g. shadeform referral links) that can freeze for
+# days while the provider's own page moves. A stale relay is not a valid check —
+# on 2026-07-14 frozen $1.90 shadeform rows (last_updated 07-08) flagged our
+# CORRECT $2.50 Hyperstack scrape for a week after Hyperstack repriced +30%.
+_CROSSCHECK_MAX_AGE_DAYS = 3
+
+
 def fetch_crosscheck() -> Dict[tuple, float]:
     """
-    Phase 1.9: return {(direct_provider_key, gpu_model): cheapest on_demand $/GPU-hr}
-    from ComputePrices for the providers we fetch DIRECTLY — an independent second
-    source to validate our primary numbers. Does NOT enter the benchmark. Graceful:
+    Phase 1.9: return {(direct_provider_key, gpu_model): cheapest FRESH on_demand
+    $/GPU-hr} from ComputePrices for the providers we fetch DIRECTLY — an
+    independent second source to validate our primary numbers. Rows with a
+    last_updated older than _CROSSCHECK_MAX_AGE_DAYS are skipped (stale relays);
+    rows without the field are kept. Does NOT enter the benchmark. Graceful:
     returns {} on any network/parse failure.
     """
     api_key = os.environ.get("COMPUTEPRICES_API_KEY")
@@ -129,6 +139,14 @@ def fetch_crosscheck() -> Dict[tuple, float]:
                 continue
             if (item.get("pricing_type") or "on_demand") != "on_demand":
                 continue
+            lu = item.get("last_updated")
+            if lu:
+                try:
+                    age = datetime.now(timezone.utc) - datetime.fromisoformat(lu)
+                    if age.days > _CROSSCHECK_MAX_AGE_DAYS:
+                        continue
+                except (ValueError, TypeError):
+                    pass
             gpu_model = GPU_NAME_MAP.get((item.get("gpu", "") or "").lower())
             if not gpu_model:
                 continue
