@@ -4,7 +4,7 @@ Compute price changes between two snapshots and format outputs.
 import csv
 import statistics
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 
@@ -121,13 +121,23 @@ def compute_diff(old: List[PriceRecord], new: List[PriceRecord]) -> List[DiffEnt
             old_rec = old_map[key]
             old_p, new_p = old_rec.price_per_gpu_hour_usd, new_rec.price_per_gpu_hour_usd
             if old_p > 0 and abs(new_p - old_p) / old_p > CHANGE_THRESHOLD:
+                # A price produced by DIFFERENT parser code is a methodology
+                # restatement, not a market move: broadcasting it as a
+                # competitor price change is false intel (e.g. the 2026-07-14
+                # AWS upfront-amortization fix repriced every AWS reserved
+                # record ~+90% — AWS changed nothing). Restatements are kept in
+                # the diff (typed) so surfaces can disclose them, but every
+                # market-move consumer filters on change_type=="price_change".
+                old_pv = getattr(old_rec, "parser_version", "") or ""
+                new_pv = getattr(new_rec, "parser_version", "") or ""
+                change = "price_change" if old_pv == new_pv else "restatement"
                 diffs.append(DiffEntry(
                     provider=new_rec.provider,
                     gpu_model=new_rec.gpu_model,
                     region=new_rec.region,
                     consumption_type=new_rec.consumption_type,
                     instance_type=new_rec.instance_type,
-                    change_type="price_change",
+                    change_type=change,
                     old_price=old_p,
                     new_price=new_p,
                     delta_pct=(new_p - old_p) / old_p * 100,
@@ -189,10 +199,13 @@ def _representative_spot_floor(records: List[PriceRecord], gpu: str,
                                tiers: Optional[List[str]] = None):
     """
     Representative cheapest spot price for a GPU: each provider's MEDIAN across its
-    zone observations, then the cheapest provider's median. Avoids a transient
-    single-zone outlier (e.g. AWS H200 spot dipping to $0.79 in one zone while the
-    other zones sit at $2.0–2.2) masquerading as "the spot floor".
-    Returns (provider, median_price, n_zones) or None.
+    regional price points, then the cheapest provider's median. NB the grain is
+    REGIONS, not availability zones — each hyperscaler spot record is that
+    region's floor (AWS: latest-per-AZ min; the public S3 feed and Azure/GCP
+    sources are region-grain by construction). Avoids a transient single-region
+    outlier (e.g. AWS H200 spot dipping to $0.79 in one region while the others
+    sit at $2.0–2.2) masquerading as "the spot floor".
+    Returns (provider, median_price, n_points) or None.
     """
     from collections import defaultdict as _dd
     # Per-provider on-demand baseline for this GPU, to filter PHANTOM spot floors:
@@ -356,6 +369,29 @@ def _committed_freshness():
         return (True, None, None)
 
 
+def _best_aws_h100_field_deal():
+    """
+    Cheapest negotiated AWS H100 committed deal (term <= 36mo) from #price-intelligence.
+    Returns (price, term_months, prepay_pct) or None. Shared by the committed callout,
+    the TL;DR Finance line and the AWS battlecard so the same evidence backs all three
+    (no hardcoded field-deal numbers on exec surfaces).
+    """
+    best = None
+    for r in _load_intel(days=90):
+        if r.get("gpu_model") != "H100":
+            continue
+        if "aws" not in (r.get("provider_name", "") + r.get("provider_type", "")).lower():
+            continue
+        try:
+            term = int(float(r.get("term_months", "0") or 0))
+            px = float(r.get("price_per_gpu_hour_usd"))
+        except (ValueError, TypeError):
+            continue
+        if 0 < term <= 36 and (best is None or px < best[0]):
+            best = (px, term, int(float(r.get("prepay_pct", "0") or 0)))
+    return best
+
+
 def _format_committed_callout(records: List[PriceRecord]) -> str:
     """
     Build the committed-tier summary line for the Slack message.
@@ -414,19 +450,7 @@ def _format_committed_callout(records: List[PriceRecord]) -> str:
 
     # Field-intel reality check: negotiated AWS deals can sit below both list and
     # Nebius. Surfaced so sales isn't blindsided by our own "below list" framing.
-    best_field = None
-    for r in _load_intel(days=90):
-        if r.get("gpu_model") != "H100":
-            continue
-        if "aws" not in (r.get("provider_name", "") + r.get("provider_type", "")).lower():
-            continue
-        try:
-            term = int(float(r.get("term_months", "0") or 0))
-            px = float(r.get("price_per_gpu_hour_usd"))
-        except (ValueError, TypeError):
-            continue
-        if 0 < term <= 36 and (best_field is None or px < best_field[0]):
-            best_field = (px, term, int(float(r.get("prepay_pct", "0") or 0)))
+    best_field = _best_aws_h100_field_deal()
     if best_field and neb_1yr and best_field[0] < neb_1yr:
         px, term, prepay = best_field
         parts.append(f"⚠ Field intel: AWS {term}mo deal seen at ${px:.2f} "
@@ -982,6 +1006,60 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
     return "\n".join(lines)
 
 
+def _ct_bucket_label(ct: str) -> str:
+    if ct in INTERRUPTIBLE_CTS:            return "spot"
+    if ct in RESERVED_1YR_CTS:             return "committed/reserved 1yr"
+    if ct in RESERVED_2YR_CTS:             return "committed/reserved 2yr"
+    if ct in RESERVED_3YR_CTS:             return "committed/reserved 3yr"
+    if "reserved" in ct or "committed" in ct: return "committed/reserved"
+    return "on-demand"
+
+
+def _group_significant_moves(diffs: List[DiffEntry]) -> list:
+    """
+    Market price moves ≥ ALERT_THRESHOLD_PCT grouped by (provider, gpu, ct-bucket,
+    direction), most significant first (median |Δ%|). The ONE grouping source for
+    both the Slack thread moves block and the Confluence "Price Moves (last 24h)"
+    section — they must render identical numbers, or Slack references detail that
+    the page can't back up (2026-07-14 external-review finding). Nebius self-moves
+    are excluded here; they're attributed separately in the summary lead.
+    Raw diffs carry one entry per (instance × region × ct); grouping turns "AWS
+    L40S reserved -17% across 30 SKUs" into one line instead of 90 bullets.
+    """
+    significant = [
+        d for d in diffs
+        if d.change_type == "price_change"
+        and d.provider != "nebius"
+        and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
+                                          "enterprise_gpu_cloud")
+        and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
+    ]
+    from collections import defaultdict as _dd
+    groups: Dict[tuple, list] = _dd(list)
+    for d in significant:
+        direction = "up" if (d.delta_pct or 0) > 0 else "down"
+        groups[(d.provider, d.gpu_model,
+                _ct_bucket_label(d.consumption_type), direction)].append(d)
+
+    out = []
+    for (prov, gpu, bucket, direction), items in groups.items():
+        pcts = [d.delta_pct or 0 for d in items]
+        out.append({
+            "provider": prov, "gpu": gpu, "bucket": bucket, "direction": direction,
+            "items": items,
+            "avg_pct": statistics.mean(pcts),
+            "sku_count": len(set((d.instance_type, d.region) for d in items)),
+            "peak": max(items, key=lambda d: abs(d.delta_pct or 0)),
+            "tier_label": ("hyperscaler" if provider_tier(prov) == "hyperscaler"
+                           else "major neocloud"
+                           if prov.lower() in PROVIDER_TIERS.get("enterprise_gpu_cloud", [])
+                           else "small provider"),
+        })
+    out.sort(key=lambda g: -statistics.median([abs(d.delta_pct or 0)
+                                               for d in g["items"]]))
+    return out
+
+
 def format_slack_message(diffs: List[DiffEntry], run_date: str,
                          confluence_url: str, records: List[PriceRecord] = None,
                          provider_status: dict = None) -> str:
@@ -998,17 +1076,10 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
     # The thread reply always carries the full benchmark tables (peers,
     # hyperscalers, spot, committed) — they are reference data, not change data,
     # so we do NOT short-circuit on quiet days. The price-moves section below
-    # renders "no significant moves" when nothing crossed the threshold.
+    # (via _group_significant_moves, shared with the Confluence ledger) renders
+    # "no significant moves" when nothing crossed the threshold.
     # Nebius's own repricing is attributed separately (self-move lead line) and
     # excluded from the market-move lists.
-    significant = [
-        d for d in diffs
-        if d.change_type == "price_change"
-        and d.provider != "nebius"
-        and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
-                                          "enterprise_gpu_cloud")
-        and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
-    ]
     minor = [
         d for d in diffs
         if d.change_type == "price_change"
@@ -1117,7 +1188,7 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                 spot_rows.append((gpu, neb_rec.price_per_gpu_hour_usd, None, None, None))
 
         if spot_rows:
-            lines.append("\n*Spot / preemptible (vs cheapest hyperscaler spot, median across zones):*")
+            lines.append("\n*Spot / preemptible (vs cheapest hyperscaler spot, median of regional floors):*")
             for gpu, neb_px, hyp_prov, hyp_px, n_zones in spot_rows:
                 if hyp_px is None:
                     lines.append(f"`{gpu:<5}` Nebius ${neb_px:.2f}  |  no comparable hyperscaler spot "
@@ -1125,14 +1196,15 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                     continue
                 delta_pct = (neb_px - hyp_px) / hyp_px * 100  # positive = Nebius pricier
                 pos = f"Nebius {delta_pct:.0f}% above" if delta_pct > 0 else f"Nebius {-delta_pct:.0f}% below"
-                zone_lbl = (f"median, {n_zones} zones" if n_zones and n_zones > 1
-                            else "single zone — thin signal")
+                zone_lbl = (f"median of {n_zones} regional floors" if n_zones and n_zones > 1
+                            else "single region — thin signal")
                 lines.append(
                     f"`{gpu:<5}` Nebius ${neb_px:.2f}  vs  {_pname(hyp_prov)} ${hyp_px:.2f}"
                     f" ({zone_lbl})  →  {pos}"
                 )
             lines.append("_Hyperscaler spot is interruptible, capacity not guaranteed; floors are "
-                         "the cheapest provider's median across zones (single-zone dips excluded)._")
+                         "the cheapest provider's median across its regional floors "
+                         "(single-region dips excluded; region-grain proxy, not per-AZ)._")
 
         # ── 2. Committed pricing benchmark ───────────────────────────────────
         _committed = _format_committed_callout(records)
@@ -1173,56 +1245,20 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                 lines.append(l)
 
     # ── Significant price changes — grouped by provider + GPU ───────────────
-    # Raw diffs contain one entry per (instance_type × region × ct). Group them
-    # so "AWS L40S reserved -17% across 6 instance types × 5 regions" becomes
-    # one readable line, not 90 separate bullets.
-    # (significant and minor are already computed at the top of this function)
+    # Grouping shared with the Confluence "Price Moves (last 24h)" ledger via
+    # _group_significant_moves; `minor` is computed at the top of this function.
 
-    if significant:
-        # Group: (provider, gpu_model, ct_bucket, direction) → list of deltas
-        from collections import defaultdict as _dd
-
-        def _ct_bucket(ct: str) -> str:
-            if ct in INTERRUPTIBLE_CTS:            return "spot"
-            if ct in RESERVED_1YR_CTS:             return "committed/reserved 1yr"
-            if ct in RESERVED_2YR_CTS:             return "committed/reserved 2yr"
-            if ct in RESERVED_3YR_CTS:             return "committed/reserved 3yr"
-            if "reserved" in ct or "committed" in ct: return "committed/reserved"
-            return "on-demand"
-
-        groups: Dict[tuple, list] = _dd(list)
-        for d in significant:
-            bucket = _ct_bucket(d.consumption_type)
-            direction = "up" if (d.delta_pct or 0) > 0 else "down"
-            groups[(d.provider, d.gpu_model, bucket, direction)].append(d)
-
-        # Sort groups by magnitude (median abs delta_pct) descending
-        def _group_sort_key(items):
-            pcts = [abs(d.delta_pct or 0) for d in items]
-            return -statistics.median(pcts)
-
-        sorted_groups = sorted(groups.items(), key=lambda kv: _group_sort_key(kv[1]))
-
-        def _display_prov(p: str) -> str:
-            """Clean provider name for display: strip cp_ prefix, title-case."""
-            _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi", "ai"}
-            name = p.replace("cp_", "").replace("-", " ")
-            return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
-                            for w in name.split())
-
+    moves = _group_significant_moves(diffs)
+    if moves:
         lines.append(f"\n*Price moves ≥{ALERT_THRESHOLD_PCT:.0f}%:*")
-        for (prov, gpu, bucket, direction), items in sorted_groups[:15]:
-            arrow = "🔺" if direction == "up" else "🔻"
-            pcts = [d.delta_pct or 0 for d in items]
-            avg_pct = statistics.mean(pcts)
+        for g in moves[:15]:
+            prov, gpu, bucket = g["provider"], g["gpu"], g["bucket"]
+            arrow = "🔺" if g["direction"] == "up" else "🔻"
+            avg_pct = g["avg_pct"]
             sign = "+" if avg_pct > 0 else ""
-            tier_tag = (" _(hyperscaler)_" if provider_tier(prov) == "hyperscaler"
-                        else " _(major neocloud)_"
-                        if prov.lower() in PROVIDER_TIERS.get("enterprise_gpu_cloud", [])
-                        else " _(small provider)_")
-            sku_count = len(set((d.instance_type, d.region) for d in items))
-            # Most impactful SKU (largest % change)
-            best = max(items, key=lambda d: abs(d.delta_pct or 0))
+            tier_tag = f" _({g['tier_label']})_"
+            sku_count = g["sku_count"]
+            best = g["peak"]
             best_pct = best.delta_pct or 0
             best_sign = "+" if best_pct > 0 else ""
             if sku_count > 1:
@@ -1231,23 +1267,30 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                 # Previously "$2.42→$4.50 (+11.8%)" was confusing because the example
                 # SKU was +86% but the label showed the average.
                 lines.append(
-                    f"{arrow} *{_display_prov(prov)}*{tier_tag} {gpu} {bucket}: "
+                    f"{arrow} *{_provider_display(prov)}*{tier_tag} {gpu} {bucket}: "
                     f"{sign}{avg_pct:.1f}% avg across {sku_count} SKUs "
                     f"(peak: ${best.old_price:.2f}→${best.new_price:.2f} {best.region}, "
                     f"{best_sign}{best_pct:.1f}%)"
                 )
             else:
                 lines.append(
-                    f"{arrow} *{_display_prov(prov)}*{tier_tag} {gpu} {bucket}: "
+                    f"{arrow} *{_provider_display(prov)}*{tier_tag} {gpu} {bucket}: "
                     f"${best.old_price:.2f}→${best.new_price:.2f}/GPU-hr "
-                    f"({best_sign}{best_pct:.1f}% {items[0].region})"
+                    f"({best_sign}{best_pct:.1f}% {g['items'][0].region})"
                 )
-        if len(sorted_groups) > 15:
-            lines.append(f"_…and {len(sorted_groups) - 15} more provider/GPU groups_")
+        if len(moves) > 15:
+            lines.append(f"_…and {len(moves) - 15} more provider/GPU groups_")
     else:
         # Minor changes only (below alert threshold) — note them briefly
         lines.append(f"\n_No significant price moves today "
                      f"({len(minor)} minor changes below {ALERT_THRESHOLD_PCT:.0f}% threshold)._")
+
+    restated = [d for d in diffs if d.change_type == "restatement"]
+    if restated:
+        provs = sorted({_provider_display(d.provider) for d in restated})
+        lines.append(f"_Methodology note: {len(restated)} record(s) from "
+                     f"{', '.join(provs)} restated by a parser fix — excluded from the "
+                     f"moves above (measurement correction, not market)._")
 
     lines.append(f"\nFull benchmark table: {confluence_url}")
 
@@ -1997,15 +2040,30 @@ def _build_tldr(records: List[PriceRecord]) -> str:
     fin = f"Committed: Nebius H100 1yr ${neb1:.2f}" if neb1 else "Committed: see table"
     if neb1 and aws1:
         fin += f" ({(neb1 - aws1) / aws1 * 100:+.0f}% vs AWS list, all-upfront)"
-    fin += "; AWS negotiated 1yr deals seen at $1.80 (field intel)."
+    field = _best_aws_h100_field_deal()
+    if field:
+        fin += (f"; AWS negotiated {field[1]}mo deals seen at ${field[0]:.2f} "
+                f"(field intel).")
+    else:
+        fin += "."
     payg = f"On-demand sits {gap_lo:.0f}–{gap_hi:.0f}% below hyperscaler SXM clusters"
     if h100_prem is not None:
         payg += f"; H100 {h100_prem:+.0f}% vs peer median (premium is a position, not a problem)"
     payg += "."
     cap = ("Nebius B300 is UK-private (sales-gated); GB200/GB300 are contact-sales. "
            "Market broadly capacity-constrained (on-demand reportedly sold out across GPU types, Apr 2026).")
-    sales = ("Strong vs hyperscaler rack rates and ~49% below Oracle B200. Watch: AWS 3yr all-upfront "
-             "and negotiated 1yr deals, plus hyperscaler spot floors below our preemptible.")
+    # "Watch" items are data-conditional: AWS 3yr only threatens the committed story
+    # while its deepest effective rate actually undercuts Nebius's deepest tier.
+    neb2_tldr = _cheapest(records, "nebius", "H100", RESERVED_2YR_CTS)
+    aws3_tldr = _cheapest(records, "aws", "H100", {"reserved_3yr"})
+    watches = []
+    if aws3_tldr and neb2_tldr and aws3_tldr < neb2_tldr:
+        watches.append("AWS 3yr all-upfront")
+    if field:
+        watches.append("negotiated hyperscaler deals (field intel)")
+    watches.append("hyperscaler spot floors below our preemptible")
+    sales = ("Strong vs hyperscaler rack rates and ~49% below Oracle B200. "
+             f"Watch: {', '.join(watches)}.")
 
     rows = [
         '<h2>TL;DR by Stakeholder</h2>',
@@ -2107,12 +2165,21 @@ def _build_battlecards(records: List[PriceRecord]) -> str:
             fi_note = (f" Negotiated deals below list exist on both sides (e.g. AWS seen at "
                        f"${fi_h100['price']:.2f} in field intel) — if the customer has a real "
                        f"committed quote, escalate to pricing, don't argue list vs negotiated.")
-        cards.append((
-            '"AWS 3-year is cheaper"',
-            f"True at the extreme: AWS H100 3yr is {' / '.join(parts)}. But that locks 3 years"
-            + (" and full prepayment" if aws3au else "")
-            + f". Nebius 2yr ${neb2:.2f} needs no 3rd-year lock or 100% upfront, and on-demand has no "
-            f"commitment at all. Sell flexibility, not the headline rate." + fi_note, "high"))
+        # Direction-aware: with upfront fees amortized correctly (2026-07-14) AWS's
+        # deepest list rate does NOT undercut Nebius; keep the old concession copy only
+        # if the data ever flips back.
+        aws3_best = min(x for x in (aws3nu, aws3au) if x)
+        if aws3_best < neb2:
+            body = (f"True at the extreme: AWS H100 3yr is {' / '.join(parts)}. But that locks 3 years"
+                    + (" and full prepayment" if aws3au else "")
+                    + f". Nebius 2yr ${neb2:.2f} needs no 3rd-year lock or 100% upfront, and on-demand "
+                    f"has no commitment at all. Sell flexibility, not the headline rate.")
+        else:
+            body = (f"Not on public list: AWS's deepest H100 discount (3yr {' / '.join(parts)}, "
+                    f"effective incl. upfront) is still ABOVE Nebius 2yr ${neb2:.2f} — on a longer "
+                    f"lock. If a customer claims cheaper AWS committed, it's a negotiated quote, "
+                    f"not the list.")
+        cards.append(('"AWS 3-year is cheaper"', body + fi_note, "high"))
     if azspot and nebpre:
         cards.append((
             '"Azure spot is cheaper"',
@@ -2237,7 +2304,7 @@ def format_spot_auction_page(records: List[PriceRecord], run_date: str) -> str:
     Competitor Spot & Auction Pricing — a focused page for the PVM Auctions project,
     separate from the main benchmark. Fuses the spot/auction signals we have:
       - Nebius preemptible (our current spot-equivalent)
-      - cheapest hyperscaler spot (median across zones, not a single-zone outlier)
+      - cheapest hyperscaler spot (median of regional floors, not a single-region outlier)
       - SF Compute market clearing price (a rare public spot-market exchange)
       - lowest negotiated/auction deal from #price-intelligence (term shown)
     Most neoclouds gate spot/auction pricing, so for B-series the field-intel column is
@@ -2261,7 +2328,7 @@ def format_spot_auction_page(records: List[PriceRecord], run_date: str) -> str:
         'confidence page.</p></div>',
         '<h2>Competitor spot / auction reference</h2>',
         '<table data-layout="full-width"><tbody>',
-        '<tr><th>GPU</th><th>Nebius preemptible</th><th>Cheapest hyperscaler spot (median across zones)</th>'
+        '<tr><th>GPU</th><th>Nebius preemptible</th><th>Cheapest hyperscaler spot (median of regional floors)</th>'
         '<th>SF Compute market</th><th>Lowest field-intel deal (term)</th><th>Market floor reference</th></tr>',
     ]
     for gpu in GPUS:
@@ -2298,8 +2365,67 @@ def format_spot_auction_page(records: List[PriceRecord], run_date: str) -> str:
     return "\n".join(html)
 
 
+def _build_price_moves_section(diffs: List[DiffEntry]) -> str:
+    """
+    Confluence "Price Moves (last 24h)" — the daily change ledger. Renders the
+    SAME groups as the Slack thread's moves block (shared _group_significant_moves),
+    so every move the Slack summary references resolves to identical, visible
+    numbers on the page (2026-07-14 external-review fix: the summary used to say
+    "detail in Confluence" while the page had no such section). Always present —
+    quiet days state "no significant moves" explicitly rather than omitting it.
+    """
+    moves = _group_significant_moves(diffs or [])
+    restated = [d for d in (diffs or []) if d.change_type == "restatement"]
+    restate_note = ""
+    if restated:
+        provs = sorted({_provider_display(d.provider) for d in restated})
+        restate_note = (f'<p><em>Methodology note: {len(restated)} record(s) from '
+                        f'{", ".join(provs)} were restated by a parser/methodology fix — '
+                        f'their value changes vs the previous build are measurement '
+                        f'corrections, not competitor moves, and are excluded from the '
+                        f'list above.</em></p>')
+    html = ['<h2>Price Moves (since previous build)</h2>']
+    if not moves:
+        html.append(f'<p><em>No significant price moves (≥{ALERT_THRESHOLD_PCT:.0f}%) '
+                    f'on tracked providers since the previous build.</em></p>')
+        if restate_note:
+            html.append(restate_note)
+        return "\n".join(html)
+    html.append('<table data-layout="default"><tbody>')
+    html.append('<tr><th>Provider</th><th>Tier</th><th>GPU</th><th>Type</th>'
+                '<th>Move</th><th>Peak SKU (old→new)</th><th>SKUs</th></tr>')
+    for g in moves[:25]:
+        best = g["peak"]
+        best_pct = best.delta_pct or 0
+        arrow = "▲" if g["direction"] == "up" else "▼"
+        html.append(
+            f'<tr><td><strong>{_provider_display(g["provider"])}</strong></td>'
+            f'<td>{g["tier_label"]}</td>'
+            f'<td>{g["gpu"]}</td>'
+            f'<td>{g["bucket"]}</td>'
+            f'<td>{arrow} {g["avg_pct"]:+.1f}%'
+            + (f' avg / {g["sku_count"]} SKUs' if g["sku_count"] > 1 else '')
+            + '</td>'
+            f'<td>${best.old_price:.2f} → ${best.new_price:.2f} '
+            f'<em>({best.region}, {best_pct:+.1f}%)</em></td>'
+            f'<td>{g["sku_count"]}</td></tr>'
+        )
+    html.append('</tbody></table>')
+    if len(moves) > 25:
+        html.append(f'<p><em>…and {len(moves) - 25} more provider/GPU groups '
+                    f'below the display cap.</em></p>')
+    html.append(f'<p><em>Moves are competitor list-price changes ≥{ALERT_THRESHOLD_PCT:.0f}% '
+                'vs the previous data build (normally ~24h apart), grouped by '
+                'provider/GPU/type; direction is not scored as good or bad. '
+                'Nebius repricing is announced separately, never mixed into this list.</em></p>')
+    if restate_note:
+        html.append(restate_note)
+    return "\n".join(html)
+
+
 def format_confluence_table(records: List[PriceRecord], run_date: str,
-                            provider_status: dict = None) -> str:
+                            provider_status: dict = None,
+                            diffs: List[DiffEntry] = None) -> str:
     html = []
     if records:
         enrich_comparability(records)  # form_factor tags for cluster-class filtering
@@ -2333,6 +2459,9 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
         'H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private).</p>'
     )
     html.append(_build_executive_table(records))
+
+    # ── Section 1b: daily change ledger (backs every Slack "detail" claim) ──
+    html.append(_build_price_moves_section(diffs))
 
     # ── Section 1b: Decision triggers (actionable core, Phase 3.2) ──────────
     dt = _build_decision_trigger_table(records)
@@ -2399,6 +2528,23 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
     intel_html = _build_field_intel_callout(records)
     if intel_html:
         html.append(intel_html)
+
+    # ── Provenance footer: ties every claim on this page to the run that made
+    # it (2026-07-14 external-review ask: run id + source timestamp on exec
+    # claims). GITHUB_RUN_ID/NUMBER exist only in the GHA build environment.
+    import os as _os
+    from schema import PARSER_VERSION as _pv
+    run_no = _os.environ.get("GITHUB_RUN_NUMBER")
+    run_id = _os.environ.get("GITHUB_RUN_ID")
+    prov = (f'build #{run_no} (<a href="https://github.com/koen-nebius/price-monitor/'
+            f'actions/runs/{run_id}">run log</a>)' if run_no and run_id
+            else 'local build')
+    html.append(
+        f'<p><em>Generated {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")} · '
+        f'{prov} · parser v{_pv} · data date {run_date}. '
+        f'Numbers are point-in-time public list prices unless marked as field intel; '
+        f'confidence and freshness caveats appear inline per section.</em></p>'
+    )
 
     return "\n".join(html)
 

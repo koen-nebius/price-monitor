@@ -460,7 +460,8 @@ def run(providers=None, test=False):
         f.write(slack_thread)
 
     confluence_body = format_confluence_table(accepted_records, run_date,
-                                              provider_status=provider_status)
+                                              provider_status=provider_status,
+                                              diffs=diffs)
     # Separate competitor spot/auction page for the PVM Auctions project (own pipeline output)
     spot_auction_body = format_spot_auction_page(accepted_records, run_date)
     with open(STORE_DIR / "spot_auction_body.html", "w") as f:

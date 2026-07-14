@@ -45,6 +45,12 @@ INSTANCE_GPU_MAP = {
     "gpu_4x_b200":       {"gpu_model": "B200",  "gpu_count": 4},
     "gpu_2x_b200":       {"gpu_model": "B200",  "gpu_count": 2},
     "gpu_1x_b200":       {"gpu_model": "B200",  "gpu_count": 1},
+    # Lambda's live API uses _sxm6-suffixed B200 ids (these, not the bare ones
+    # above, are what the API actually returns as of 2026-07-14):
+    "gpu_8x_b200_sxm6":  {"gpu_model": "B200",  "gpu_count": 8},
+    "gpu_4x_b200_sxm6":  {"gpu_model": "B200",  "gpu_count": 4},
+    "gpu_2x_b200_sxm6":  {"gpu_model": "B200",  "gpu_count": 2},
+    "gpu_1x_b200_sxm6":  {"gpu_model": "B200",  "gpu_count": 1},
     # "gpu_1x_gh200": excluded — GH200 is a Grace+Hopper superchip (96GB HBM3),
     # different form factor from HGX H100. Excluded to keep H100 bucket clean.
     "gpu_8x_l40s":       {"gpu_model": "L40S",  "gpu_count": 8},
@@ -282,6 +288,8 @@ def _parse_api_data(data: dict, now: str) -> List[PriceRecord]:
         instance_types = {str(i): x for i, x in enumerate(instance_types)}
 
     for name, info in instance_types.items():
+        specs = info.get("instance_type", info)
+
         mapping = INSTANCE_GPU_MAP.get(name)
         if mapping is None:
             # Route through _match_gpu so GH200 is excluded — its name contains
@@ -289,14 +297,43 @@ def _parse_api_data(data: dict, now: str) -> List[PriceRecord]:
             gpu_model = _match_gpu(name)
             if not gpu_model:
                 continue
-            count = next((int(p) for p in name.lower().split("_") if p.isdigit()), 1)
+            # GPU count, most authoritative first (fix 2026-07-14 — Lambda's real
+            # ids are suffixed like gpu_8x_b200_sxm6; the old token.isdigit() scan
+            # can't parse '8x', defaulted to 1, and published the $53.52 8-GPU
+            # node as a $53.52/GPU-hr price for 22 days):
+            #   1. the API's own specs.gpus field,
+            #   2. the 'gpu_<N>x' pattern in the id,
+            #   3. a bare numeric token (legacy naming).
+            count = 0
+            if isinstance(specs, dict):
+                try:
+                    count = int((specs.get("specs") or {}).get("gpus")
+                                or specs.get("gpus") or 0)
+                except (ValueError, TypeError):
+                    count = 0
+            if count <= 0:
+                m = re.search(r"gpu_(\d+)x", name.lower())
+                count = int(m.group(1)) if m else \
+                    next((int(p) for p in name.lower().split("_") if p.isdigit()), 0)
+            if count <= 0:
+                logger.warning(f"Lambda: cannot derive GPU count for '{name}' — skipping "
+                               f"rather than risk publishing a node price as per-GPU")
+                continue
             mapping = {"gpu_model": gpu_model, "gpu_count": count}
 
-        specs = info.get("instance_type", info)
         price_cents = info.get("price_cents_per_hour") or (specs.get("price_cents_per_hour") if isinstance(specs, dict) else 0) or 0
         if not price_cents:
             continue
         price = price_cents / 100.0
+
+        # Per-GPU plausibility ceiling: no current-gen GPU rents anywhere near
+        # $30/GPU-hr, so a higher reading means the count is wrong (a multi-GPU
+        # node price about to be published as per-GPU — the exact 22-day B200
+        # incident). Skip loudly instead.
+        if price / mapping["gpu_count"] > 30:
+            logger.warning(f"Lambda: '{name}' implausible ${price / mapping['gpu_count']:.2f}"
+                           f"/GPU-hr (count={mapping['gpu_count']}) — skipping")
+            continue
 
         # Lambda lists only regions where the instance is CURRENTLY available, but a
         # sold-out instance still has a published price. Emit it regardless (region

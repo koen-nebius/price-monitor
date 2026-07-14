@@ -77,6 +77,14 @@ jobs:
           echo "--- Pipeline complete ---"
           cat /tmp/scrape.log | grep -E "records|WARNING|ERROR|Diff" || true
 
+      - name: Publish gate (completeness vs baseline)
+        # Fails the job on a materially incomplete fetch (e.g. a provider at
+        # <50% of its 7-run baseline) so degraded artifacts are NEVER committed.
+        # The 07:00 posting routine then finds yesterday's run_date and posts a
+        # "no report today" warning instead of publishing bad numbers. On pass,
+        # this also updates store/provider_baseline.json (committed below).
+        run: python3 check_manifest.py
+
       - name: Commit fresh data + ready-to-post artifacts if changed
         run: |
           git config user.name  "github-actions[bot]"
@@ -87,7 +95,8 @@ jobs:
           git add store/peer_cache.json store/last_snapshot.json store/history.csv \
                   store/run_manifest.json store/slack_message.txt \
                   store/slack_thread.txt store/confluence_body.html \
-                  store/spot_auction_body.html store/intel.csv
+                  store/spot_auction_body.html store/intel.csv \
+                  store/provider_baseline.json
           if git diff --cached --quiet; then
             echo "No changes — no commit needed"
           else

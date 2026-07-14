@@ -176,12 +176,19 @@ def _fetch_region(region: str, fetched_at: str) -> List[PriceRecord]:
         # Some newer instance families (e.g. p5.48xlarge) only have 1yr Convertible —
         # in that case we fall back to Convertible so the 1yr column isn't blank.
         #
-        # Strategy: collect all (lease, purchase_option, offering_class, price) tuples,
-        # then emit canonical CTs preferring standard over convertible per (lease, purchase).
+        # All prices are EFFECTIVE hourly rates: recurring hourly + amortized upfront
+        # (fix 2026-07-14 — previously only the recurring component of partial-upfront
+        # offers was read, halving published prices, and true all-upfront offers were
+        # dropped entirely because their $0/hr recurring rate failed a >0 check).
+        #
+        # Strategy: collect all (lease, purchase_option, offering_class, effective)
+        # tuples, then emit the CHEAPEST effective in the canonical offering class as
+        # reserved_{years} — that is the all-upfront rate when one exists, which makes
+        # the "all-upfront" labels downstream true.
 
         res = reserved_terms.get(sku, {})
-        # Map (lease, purchase_option) → {offering_class: price}
-        res_options: dict = {}
+        # Map lease years → [(purchase_label, offering_class, effective_price)]
+        res_by_years: dict = {}
         for term_key, term_data in res.items():
             term_attrs = term_data.get("termAttributes", {})
             lease = term_attrs.get("LeaseContractLength", "")
@@ -190,25 +197,25 @@ def _fetch_region(region: str, fetched_at: str) -> List[PriceRecord]:
             years = "1yr" if lease == "1yr" else "3yr" if lease == "3yr" else None
             if not years:
                 continue
-            price = _extract_hourly_price({term_key: term_data})
-            if price is None:
+            hourly, upfront = _extract_reserved_components(term_data)
+            if hourly is None and upfront <= 0:
                 continue
-            key = (years, purchase)
-            res_options.setdefault(key, {})[offering] = price
-
-        for (years, purchase), by_class in res_options.items():
+            effective = (hourly or 0.0) + upfront / _HOURS_PER_TERM[years]
+            if effective <= 0:
+                continue
             upfront_label = purchase.replace(" ", "_").lower()
-            is_partial = "partial" in upfront_label
+            res_by_years.setdefault(years, []).append(
+                (upfront_label, offering, effective))
 
-            # Determine canonical offering: standard preferred, convertible as fallback
-            if "standard" in by_class:
-                canonical_class = "standard"
-            else:
-                canonical_class = "convertible"
+        for years, opts in res_by_years.items():
+            classes = {c for _, c, _ in opts}
+            canonical_class = "standard" if "standard" in classes else "convertible"
+            canonical = min((o for o in opts if o[1] == canonical_class),
+                            key=lambda o: o[2])
 
-            for offering_class, price in by_class.items():
-                is_canonical = (is_partial and offering_class == canonical_class)
-                if is_canonical:
+            for opt in opts:
+                upfront_label, offering_class, price = opt
+                if opt == canonical:
                     ct = f"reserved_{years}"          # canonical — used in comparisons
                 elif offering_class == "convertible":
                     ct = f"reserved_{years}_{upfront_label}_convertible"
@@ -245,6 +252,35 @@ def _extract_hourly_price(terms: dict) -> Optional[float]:
                 except (KeyError, ValueError):
                     pass
     return None
+
+
+# Hours used to amortize Reserved Instance upfront fees into an effective hourly
+# rate. 365-day convention — reproduces AWS's own calculator and vantage/
+# ec2instances.info effective prices exactly (verified 2026-07-14, p5.48xlarge).
+_HOURS_PER_TERM = {"1yr": 8760.0, "3yr": 26280.0}
+
+
+def _extract_reserved_components(term_data: dict):
+    """
+    (recurring_hourly, upfront_fee) for one Reserved term. Unlike on-demand,
+    hourly 0.0 is VALID here (All Upfront RIs bill $0/hr — rejecting zero was
+    the bug that silently dropped every all-upfront offer), and the upfront
+    priceDimension (unit='Quantity') must be read or partial/all-upfront
+    effective prices understate by ~50%/100% of the true cost.
+    """
+    hourly = None
+    upfront = 0.0
+    for pd in term_data.get("priceDimensions", {}).values():
+        try:
+            usd = float(pd["pricePerUnit"]["USD"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        unit = pd.get("unit")
+        if unit == "Hrs":
+            hourly = usd
+        elif unit == "Quantity":
+            upfront = usd
+    return hourly, upfront
 
 
 SPOT_INDEX_URL = "https://spot-price.s3.amazonaws.com/spot.js"
@@ -369,23 +405,41 @@ def _fetch_spot_boto3(regions: List[str], fetched_at: str) -> List[PriceRecord]:
     seen: set = set()
 
     def _query(client, types: list) -> dict:
-        """Cheapest spot price per instance type across all AZs in one region."""
+        """
+        CURRENT cheapest spot price per instance type across the region's AZs.
+        describe_spot_price_history returns a time series per (AZ, instance);
+        we keep only the NEWEST observation per (AZ, instance) and then take the
+        min across AZs — the current regional floor. (Fix 2026-07-14: previously
+        the min was taken over the whole history window across AZs AND time, so
+        a stale multi-day-old low could pose as today's price — that was the
+        frozen $0.79 H200 reading in June.)
+        """
         paginator = client.get_paginator("describe_spot_price_history")
         pages = paginator.paginate(
             InstanceTypes=types,
             ProductDescriptions=["Linux/UNIX"],
+            StartTime=datetime.now(timezone.utc),   # newest observation per AZ only
             PaginationConfig={"MaxItems": 500},
         )
-        best: dict = {}
+        latest: dict = {}   # (instance_type, az) -> (timestamp, price)
         for page in pages:
             for entry in page.get("SpotPriceHistory", []):
                 it = entry.get("InstanceType", "")
+                az = entry.get("AvailabilityZone", "")
+                ts = entry.get("Timestamp")
                 try:
                     price = float(entry.get("SpotPrice", 0))
                 except (ValueError, TypeError):
                     continue
-                if price > 0 and (it not in best or price < best[it]):
-                    best[it] = price
+                if price <= 0:
+                    continue
+                key = (it, az)
+                if key not in latest or (ts and latest[key][0] and ts > latest[key][0]):
+                    latest[key] = (ts, price)
+        best: dict = {}
+        for (it, _az), (_ts, price) in latest.items():
+            if it not in best or price < best[it]:
+                best[it] = price
         return best
 
     for region in regions:

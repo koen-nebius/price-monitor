@@ -26,6 +26,27 @@ RESULT_PATH = STORE_DIR / "check_manifest_result.txt"
 MIN_RECORD_COUNT = 200   # floor — normal run produces 700+; single-provider runs can be low
 MAX_STALE_HOURS = 25     # how old the run_date can be before we refuse to publish
 
+# Per-provider completeness gate (2026-07-14, external-review fix: a run that
+# lost 62% of its AWS records still passed as "success / safe to publish").
+# Known transition window: when a parser change legitimately GROWS a provider's
+# record count (e.g. the 2026-07-14 AWS reserved fix adds ~partial-upfront CTs),
+# the block floor lags below the new normal until the 7-run median catches up
+# (~4 passing runs). Catastrophic drops still block throughout; only the
+# 50-75%-of-new-basis zone is temporarily under-protected. Accepted trade-off.
+# Baseline = median of the last BASELINE_KEEP gate-PASSING record counts per
+# provider, stored in store/provider_baseline.json and updated ONLY by this
+# script immediately before a passing exit — a degraded run can never lower
+# the bar for the next one. Providers whose baseline is tiny (< MIN_BASELINE)
+# are exempt from the ratio test: their day-to-day variation (sfcompute=1,
+# vast_reserved 2-4, crusoe=3...) makes any % threshold pure noise, and their
+# real failure modes (empty fetch / exception) already surface as
+# stale_providers / status=partial.
+BASELINE_PATH = STORE_DIR / "provider_baseline.json"
+BASELINE_KEEP = 7        # rolling window of passing runs per provider
+MIN_BASELINE = 20        # ratio test only for providers this big
+BLOCK_DROP_RATIO = 0.5   # < 50% of baseline -> do not publish
+WARN_DROP_RATIO = 0.75   # < 75% of baseline -> publish but annotate
+
 
 def main() -> int:
     today = date.today().isoformat()
@@ -84,6 +105,43 @@ def main() -> int:
     if records < MIN_RECORD_COUNT:
         issues.append(f"only {records} records (minimum is {MIN_RECORD_COUNT}) — fetch may have been incomplete")
 
+    # ── 6. Per-provider completeness vs baseline ─────────────────────────────
+    # Catches partial fetches that still return "some" data (regional API
+    # failures, silent truncation) — status='live' only means non-empty.
+    pstatus = manifest.get("provider_status", {})
+    baseline: dict = {}
+    if BASELINE_PATH.exists():
+        try:
+            baseline = json.loads(BASELINE_PATH.read_text())
+        except Exception:
+            baseline = {}
+    soft_notes = []
+    warn_providers = set()   # below WARN ratio — published but NEVER folded into
+                             # the baseline, or a sustained partial fetch would
+                             # ratchet the bar down 25% per window and a -60%
+                             # loss would become the new normal within days.
+    for prov, counts in sorted(baseline.items()):
+        if not counts:
+            continue
+        base = sorted(counts)[len(counts) // 2]   # median of passing runs
+        info = pstatus.get(prov)
+        if info is None:
+            issues.append(f"{prov}: present in the last {len(counts)} passing runs "
+                          f"but absent from this manifest — provider silently vanished "
+                          f"(decommissioned? delete its entry in provider_baseline.json)")
+            continue
+        if base < MIN_BASELINE or info.get("status") != "live":
+            # tiny providers: ratio is noise; non-live already surfaces as stale
+            continue
+        count = info.get("record_count", 0)
+        if count < base * BLOCK_DROP_RATIO:
+            issues.append(f"{prov}: {count} records vs baseline {base} "
+                          f"({(count - base) / base * 100:+.0f}%) — partial fetch, not publishing")
+        elif count < base * WARN_DROP_RATIO:
+            warn_providers.add(prov)
+            soft_notes.append(f"{prov} {count} vs baseline {base} "
+                              f"({(count - base) / base * 100:+.0f}%)")
+
     # ── Build result message ─────────────────────────────────────────────────
     if issues:
         issue_lines = "\n".join(f"• {i}" for i in issues)
@@ -124,6 +182,8 @@ def main() -> int:
         notes.append(f"stale: {', '.join(stale_parts)}")
     if warnings:
         notes.append(f"{len(warnings)} warning(s)")
+    if soft_notes:
+        notes.append(f"below baseline (publishing anyway): {', '.join(soft_notes)}")
 
     note_str = f" ({'; '.join(notes)})" if notes else ""
     msg = (
@@ -132,6 +192,24 @@ def main() -> int:
     )
     RESULT_PATH.write_text(msg)
     print(msg)
+
+    # Blessed run: fold its per-provider counts into the rolling baseline.
+    # Only reached on gate pass, and warn-zone providers are excluded, so a
+    # degraded fetch — abrupt OR sustained — never lowers the bar it will be
+    # judged against tomorrow. (Upward shifts DO fold in immediately, so a
+    # legitimately grown provider raises its own bar within the window.)
+    try:
+        for prov, info in pstatus.items():
+            if prov in warn_providers:
+                continue
+            if info.get("status") == "live" and info.get("record_count", 0) > 0:
+                counts = baseline.setdefault(prov, [])
+                counts.append(info["record_count"])
+                del counts[:-BASELINE_KEEP]
+        BASELINE_PATH.write_text(json.dumps(baseline, indent=2, sort_keys=True))
+    except Exception as e:
+        print(f"(baseline update skipped: {e})")
+
     return 0
 
 

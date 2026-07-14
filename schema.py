@@ -4,7 +4,8 @@ import json
 
 # Bump when a fetcher's parsing logic changes in a way that could affect prices.
 # Stamped onto records so a snapshot can be traced to the code that produced it.
-PARSER_VERSION = "2.0"
+PARSER_VERSION = "2.1"   # 2026-07-14: AWS RI upfront amortization; AWS boto3 spot
+                          # latest-per-AZ (was min-over-history); Lambda specs.gpus count
 
 # data_source (how the value was obtained) → source_type (provenance tier used for
 # the source-priority rule). data_source is the raw fetcher label; source_type is the
