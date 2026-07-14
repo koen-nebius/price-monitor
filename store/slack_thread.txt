@@ -1,4 +1,4 @@
-*GPU Competitor Pricing — July 13, 2026*
+*GPU Competitor Pricing — July 14, 2026*
 
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -4% vs median  |  0/4 peers cheaper  |  floor: Crusoe $3.90
@@ -16,8 +16,8 @@
 
 *Spot / preemptible (vs cheapest hyperscaler spot, median across zones):*
 `H100 ` Nebius $2.15  vs  Azure $2.27 (median, 21 zones)  →  Nebius 5% below
-`H200 ` Nebius $2.45  vs  AWS $2.28 (median, 4 zones)  →  Nebius 7% above
-`B200 ` Nebius $3.95  vs  AWS $3.25 (median, 2 zones)  →  Nebius 21% above
+`H200 ` Nebius $2.45  vs  AWS $2.33 (median, 4 zones)  →  Nebius 5% above
+`B200 ` Nebius $3.95  vs  AWS $3.29 (median, 2 zones)  →  Nebius 20% above
 `B300 ` Nebius $4.30  vs  AWS $4.52 (single zone — thin signal)  →  Nebius 5% below
 `L40S ` Nebius $0.90  |  no comparable hyperscaler spot (not offered, or newest-gen spot capacity not realistically available)
 _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across zones (single-zone dips excluded)._
@@ -40,12 +40,14 @@ _Deal-specific, anonymized; lower confidence than published list prices. Basis: 
 
 
 *Reserve wins — our signed deals (rolling 30d, from contracts; internal only):*
-`H200 ` short<=8mo 2 deals,  4,896 GPUs: $1.90 / $2.70 / $2.70 (lo/med/hi)  |  med -13% vs 9mo list $3.09
-`H200 ` ~1yr       3 deals,  9,088 GPUs: $1.90 / $2.75 / $3.00 (lo/med/hi)  |  med -2% vs 12mo list $2.80
-`B200 ` short<=8mo 6 deals,  7,920 GPUs: $2.45 / $2.45 / $7.15 (lo/med/hi)
-`B300 ` ~1yr       7 deals,  9,752 GPUs: $5.03 / $5.56 / $5.95 (lo/med/hi)  |  med +5% vs 12mo list $5.29
-`B300 ` 2yr+       2 deals,  2,304 GPUs: $4.20 / $4.20 / $5.30 (lo/med/hi)  |  med -15% vs 24mo list $4.95
-_Signed reserve deals closed in the window (CRM deal reviews; autorenewals excluded; anonymized aggregates), refreshed 2026-07-07. This is the won side; field intel above skews to losses. Internal benchmark only — never quote these rates to customers._
+`B200 ` short<=8mo 6 deals,  9,352 GPUs: $2.45 / $2.45 / $7.15 (lo/med/hi)
+`B200 ` ~1yr       1 deals,     48 GPUs: $5.31 / $5.31 / $5.31 (lo/med/hi)  |  med +9% vs 12mo list $4.89
+`B300 ` 2yr+       3 deals,  3,872 GPUs: $4.20 / $4.20 / $5.30 (lo/med/hi)  |  med -15% vs 24mo list $4.95
+`B300 ` short<=8mo 1 deals,    256 GPUs: $5.60 / $5.60 / $5.60 (lo/med/hi)
+`B300 ` ~1yr       9 deals, 16,352 GPUs: $5.03 / $5.56 / $5.95 (lo/med/hi)  |  med +5% vs 12mo list $5.29
+`H200 ` short<=8mo 2 deals,  5,056 GPUs: $1.90 / $2.70 / $2.70 (lo/med/hi)  |  med -13% vs 9mo list $3.09
+`H200 ` ~1yr       2 deals,  4,576 GPUs: $1.90 / $2.51 / $2.51 (lo/med/hi)  |  med -10% vs 12mo list $2.80
+_Signed reserve deals closed in the window (CRM deal reviews; autorenewals excluded; anonymized aggregates), refreshed 2026-07-13. This is the won side; field intel above skews to losses. Internal benchmark only — never quote these rates to customers._
 
 
 *RTX PRO 6000 (inference / PAYG card) — vs RTX market:*
@@ -58,11 +60,12 @@ _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cl
 *Action flags (revenue-driver GPUs):*
 `H200 ` Headroom to hold or raise  |  mkt +0% / 30d
 `B200 ` Headroom to hold or raise  |  mkt +0% / 30d
-`B300 ` Lost a deal at the field price: review committed pricing for this SKU  |  mkt +0% / 30d  ⚠ lost deal (since 2026-06-12)
+`B300 ` Headroom to hold or raise  |  mkt +0% / 30d
 _Action = neutral pricing prompt (premium can be a deliberate hold); see Decision Triggers table in Confluence._
 
 *Price moves ≥3%:*
-🔺 *AWS* _(hyperscaler)_ H200 spot: $2.20→$2.32/GPU-hr (+5.7% us-west-2)
-🔻 *Sfcompute* _(small provider)_ H100 spot: $2.04→$1.95/GPU-hr (-4.4% us)
+🔺 *Sfcompute* _(small provider)_ H100 spot: $1.95→$2.10/GPU-hr (+7.7% us)
+🔻 *Ionet* _(small provider)_ H200 on-demand: $3.79→$3.61/GPU-hr (-4.7% global)
+🔺 *AWS* _(hyperscaler)_ H200 spot: $2.32→$2.43/GPU-hr (+4.5% us-west-2)
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview

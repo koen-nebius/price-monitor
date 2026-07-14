@@ -1,4 +1,4 @@
-<p><em>Last updated: July 13, 2026</em> — <strong>daily refreshed</strong> (point-in-time snapshot, not real-time). All prices in <strong>$/GPU-hr</strong>. Source: direct provider APIs/pages + <a href="https://computeprices.com">ComputePrices.com</a>.</p>
+<p><em>Last updated: July 14, 2026</em> — <strong>daily refreshed</strong> (point-in-time snapshot, not real-time). All prices in <strong>$/GPU-hr</strong>. Source: direct provider APIs/pages + <a href="https://computeprices.com">ComputePrices.com</a>.</p>
 <p><em>Data freshness: </em><span data-type="status" data-color="green">15/15 sources live</span><em> — all sources live this run</em></p>
 <h2>TL;DR by Stakeholder</h2>
 <table data-layout="full-width"><tbody>
@@ -28,7 +28,7 @@
 <tr><td><strong>H100</strong></td><td>$3.85</td><td><span data-type="status" data-color="green">-4%</span></td><td>$3.90 <em>(Crusoe)</em></td><td>$6.88 <em>(AWS)</em></td><td>$1.80 <em>(1yr, AWS)</em></td><td><span data-type="status" data-color="green">+0% / 30d</span></td><td>Hold; monitor</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 <tr><td><strong>H200</strong></td><td>$4.50</td><td><span data-type="status" data-color="green">-25%</span></td><td>$4.29 <em>(Crusoe)</em></td><td>$7.91 <em>(AWS)</em></td><td>$2.00 <em>(1yr, AWS)</em></td><td><span data-type="status" data-color="green">+0% / 30d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 <tr><td><strong>B200</strong></td><td>$7.15</td><td><span data-type="status" data-color="green">-15%</span></td><td>$8.19 <em>(Together AI)</em></td><td>$14.00 <em>(Oracle)</em></td><td>$3.20 <em>(2yr, GCP)</em></td><td><span data-type="status" data-color="green">+0% / 30d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
-<tr><td><strong>B300</strong></td><td>$7.85</td><td><span data-type="status" data-color="green">-13%</span></td><td>$9.01 <em>(Scaleway)</em></td><td>$15.00 <em>(Oracle)</em></td><td>$3.50 <em>(3yr, Azure)</em> <span data-type="status" data-color="red">lost deal</span></td><td><span data-type="status" data-color="green">+0% / 30d</span></td><td>Lost a deal at the field price — review committed pricing for this SKU</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
+<tr><td><strong>B300</strong></td><td>$7.85</td><td><span data-type="status" data-color="green">-13%</span></td><td>$9.01 <em>(Scaleway)</em></td><td>$15.00 <em>(Oracle)</em></td><td>$3.50 <em>(3yr, Azure)</em> <span data-type="status" data-color="red">lost deal 2026-06-12</span></td><td><span data-type="status" data-color="green">+0% / 30d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 <tr><td><strong>L40S</strong></td><td>$1.82</td><td><span data-type="status" data-color="yellow">+7%</span></td><td>$1.50 <em>(Crusoe)</em></td><td>$1.86 <em>(AWS)</em></td><td>—</td><td><span data-type="status" data-color="green">+0% / 30d</span></td><td>Hold; monitor (watch hyperscaler parity)</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 </tbody></table>
 <p><em>Market 30d = change in the cheapest enterprise-peer on-demand price over the last 30 days (90d trend appears once ≥90 days of history accrues). "Cheapest hyperscaler" is the like-for-like 8×SXM cluster SKU. "Competitor field deal" is the lowest real negotiated quote from #price-intelligence (term shown; may be committed, not on-demand) — the primary signal for next-gen GPUs where public list prices are sparse.</em></p>
@@ -106,19 +106,21 @@
 <tr><td><strong>GB300</strong></td><td><strong>$3.09</strong></td><td>60mo</td><td>100%</td><td><em>Undisclosed</em></td><td>20</td><td>no Nebius tier at 60mo; closest comparable $3.50 (3yr, <em>Undisclosed</em>) = <span data-type="status" data-color="green">-33% vs Nebius $5.19</span></td></tr>
 </tbody></table>
 <h3>Reserve wins — Nebius signed deals (rolling 30d)</h3>
-<p><em>Aggregated from reserve deals CLOSED-WON in the window (CRM deal reviews); autorenewals excluded so legacy rates don't skew the read. Anonymized: no customer names, aggregates only; <strong>internal only</strong> (deal-level detail lives in HubSpot for those with access). This is the WON side of the market — the counterweight to the loss-skewed field intel above. Internal benchmark only: never quote these rates to customers. Refreshed 2026-07-07.</em></p>
+<p><em>Aggregated from reserve deals CLOSED-WON in the window (CRM deal reviews); autorenewals excluded so legacy rates don't skew the read. Anonymized: no customer names, aggregates only; <strong>internal only</strong> (deal-level detail lives in HubSpot for those with access). This is the WON side of the market — the counterweight to the loss-skewed field intel above. Internal benchmark only: never quote these rates to customers. Refreshed 2026-07-13.</em></p>
 <table><thead><tr><th>GPU</th><th>Term</th><th>Deals</th><th>GPUs</th><th>Lowest</th><th>Median</th><th>Highest</th><th>Median vs matching Nebius list (512+, 100%)</th></tr></thead><tbody>
-<tr><td><strong>H200</strong></td><td>short<=8mo</td><td>2</td><td>4,896</td><td>$1.90</td><td><strong>$2.70</strong></td><td>$2.70</td><td>-13% vs 9mo $3.09</td></tr>
-<tr><td><strong>H200</strong></td><td>~1yr</td><td>3</td><td>9,088</td><td>$1.90</td><td><strong>$2.75</strong></td><td>$3.00</td><td>-2% vs 12mo $2.80</td></tr>
-<tr><td><strong>B200</strong></td><td>short<=8mo</td><td>6</td><td>7,920</td><td>$2.45</td><td><strong>$2.45</strong></td><td>$7.15</td><td>—</td></tr>
-<tr><td><strong>B300</strong></td><td>~1yr</td><td>7</td><td>9,752</td><td>$5.03</td><td><strong>$5.56</strong></td><td>$5.95</td><td>+5% vs 12mo $5.29</td></tr>
-<tr><td><strong>B300</strong></td><td>2yr+</td><td>2</td><td>2,304</td><td>$4.20</td><td><strong>$4.20</strong></td><td>$5.30</td><td>-15% vs 24mo $4.95</td></tr>
+<tr><td><strong>B200</strong></td><td>short<=8mo</td><td>6</td><td>9,352</td><td>$2.45</td><td><strong>$2.45</strong></td><td>$7.15</td><td>—</td></tr>
+<tr><td><strong>B200</strong></td><td>~1yr</td><td>1</td><td>48</td><td>$5.31</td><td><strong>$5.31</strong></td><td>$5.31</td><td>+9% vs 12mo $4.89</td></tr>
+<tr><td><strong>B300</strong></td><td>2yr+</td><td>3</td><td>3,872</td><td>$4.20</td><td><strong>$4.20</strong></td><td>$5.30</td><td>-15% vs 24mo $4.95</td></tr>
+<tr><td><strong>B300</strong></td><td>short<=8mo</td><td>1</td><td>256</td><td>$5.60</td><td><strong>$5.60</strong></td><td>$5.60</td><td>—</td></tr>
+<tr><td><strong>B300</strong></td><td>~1yr</td><td>9</td><td>16,352</td><td>$5.03</td><td><strong>$5.56</strong></td><td>$5.95</td><td>+5% vs 12mo $5.29</td></tr>
+<tr><td><strong>H200</strong></td><td>short<=8mo</td><td>2</td><td>5,056</td><td>$1.90</td><td><strong>$2.70</strong></td><td>$2.70</td><td>-13% vs 9mo $3.09</td></tr>
+<tr><td><strong>H200</strong></td><td>~1yr</td><td>2</td><td>4,576</td><td>$1.90</td><td><strong>$2.51</strong></td><td>$2.51</td><td>-10% vs 12mo $2.80</td></tr>
 </tbody></table>
 <p><em><strong>Method:</strong> deals CLOSED-WON in the last 30 days (by CRM close date — grandfathered/long-running contracts never enter); automated renewals at carried-over prices excluded (renegotiated renewals count); reserve line items only; terms bucketed (&le;8mo / ~1yr / 2yr+) and never blended — each bucket compares to its own list tier; price field sanity-bounded ($0.2-20/GPU-hr); median is per line item, not GPU-weighted, so read deal counts alongside medians. Full methodology: analysis/reserve_wins_method.md in the price-monitor repo.</em></p>
 <h2>Short-term reserved market (1–6 month commitments)</h2>
 <p><em>Cheapest live short-term reserved offers (Vast.ai marketplace, prepaid 1–6 months) and, when available, transacted SF Compute window fills. Commodity SKUs on mixed hosts without enterprise SLAs — read as the market FLOOR for short-term committed capacity, not as cluster-class comparables. Relevant to the short-term reserve / capacity-block and auction (RFC 055) discussions.</em></p>
 <table><thead><tr><th>GPU</th><th>Source</th><th>$/GPU-hr</th><th>Node size</th><th>Region</th><th>Nebius 9mo committed (512+, 100%)</th><th>Nebius preemptible</th></tr></thead><tbody>
-<tr><td><strong>H100</strong></td><td>Vast.ai reserved offer</td><td><strong>$1.47</strong></td><td>2× GPU</td><td>France, FR</td><td>$2.54</td><td>$2.15</td></tr>
+<tr><td><strong>H100</strong></td><td>Vast.ai reserved offer</td><td><strong>$1.05</strong></td><td>1× GPU</td><td>Montana, US</td><td>$2.54</td><td>$2.15</td></tr>
 <tr><td><strong>RTX6000</strong></td><td>Vast.ai reserved offer</td><td><strong>$0.67</strong></td><td>8× GPU</td><td>Florida, US</td><td>$1.64</td><td>$0.95</td></tr>
 </tbody></table>
 <h3>AWS Capacity Blocks — Effective Hourly Rate</h3>
@@ -138,7 +140,7 @@
 <p><em><strong>How to use this page:</strong> list-price comparisons and battlecards are for positioning and objection handling. Do NOT quote to customers: field-intel deal rows (third-party negotiated deals, unverifiable externally) or the Reserve-wins rates (our internal benchmarks, not offers — quoting them sets a floor in the customer's head). For a real competing committed quote, escalate to the pricing team rather than matching on the spot.</em></p>
 <table data-layout="full-width"><tbody>
 <tr><th>Objection</th><th>Response (with the number)</th><th>Confidence</th></tr>
-<tr><td><strong>"A marketplace/neocloud quoted me way less"</strong></td><td>Probably true and not comparable: $1.68 (Latitude) is a single-GPU/Ethernet SKU. Training clusters need 8×SXM nodes on a fast fabric, where the peer floor is $3.90 (Crusoe) vs Nebius $3.85. Pivot the conversation to the cluster basis; ask what node size and interconnect the quote covers.</td><td><span data-type="status" data-color="green">high</span></td></tr>
+<tr><td><strong>"A marketplace/neocloud quoted me way less"</strong></td><td>Probably true and not comparable: $1.66 (Latitude) is a single-GPU/Ethernet SKU. Training clusters need 8×SXM nodes on a fast fabric, where the peer floor is $3.90 (Crusoe) vs Nebius $3.85. Pivot the conversation to the cluster basis; ask what node size and interconnect the quote covers.</td><td><span data-type="status" data-color="green">high</span></td></tr>
 <tr><td><strong>"AWS 3-year is cheaper"</strong></td><td>True at the extreme: AWS H100 3yr is $2.97 no-upfront / $1.38 100%-prepaid. But that locks 3 years and full prepayment. Nebius 2yr $2.05 needs no 3rd-year lock or 100% upfront, and on-demand has no commitment at all. Sell flexibility, not the headline rate. Negotiated deals below list exist on both sides (e.g. AWS seen at $1.80 in field intel) — if the customer has a real committed quote, escalate to pricing, don't argue list vs negotiated.</td><td><span data-type="status" data-color="green">high</span></td></tr>
 <tr><td><strong>"Azure spot is cheaper"</strong></td><td>Azure H100 spot ($1.40) is interruptible, no capacity guarantee, single best region. Nebius preemptible is $2.15; for production training the relevant comparison is our guaranteed on-demand/committed capacity, not scavenger spot.</td><td><span data-type="status" data-color="green">high</span></td></tr>
 <tr><td><strong>"L40S is near AWS parity"</strong></td><td>Nebius L40S $1.82 vs AWS $1.86 on-demand — only 2% apart, our one near-parity SKU. AWS L40S falls to ~$0.37 at 3yr committed — a gap we can't match (no Nebius committed L40S). Acknowledge it; pivot to flexibility and bundled value.</td><td><span data-type="status" data-color="green">high</span></td></tr>
@@ -149,7 +151,7 @@
 <h3>H100 — On-demand (raw GPU cloud, sorted by price)</h3>
 <table data-layout="full-width"><tbody>
 <tr><th>Provider</th><th>$/GPU-hr</th><th>Node size</th><th>Region</th><th>vs Nebius</th></tr>
-<tr><td>Latitude</td><td><strong>$1.68</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-56%</span></td></tr>
+<tr><td>Latitude</td><td><strong>$1.66</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-57%</span></td></tr>
 <tr><td>Cudo Compute</td><td><strong>$1.79</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-54%</span></td></tr>
 <tr><td>Sesterce</td><td><strong>$1.83</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-53%</span></td></tr>
 <tr><td>Voltage</td><td><strong>$1.99</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-48%</span></td></tr>
@@ -190,9 +192,9 @@
 <tr><td>Digitalocean</td><td><strong>$3.44</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-24%</span></td></tr>
 <tr><td>Civo</td><td><strong>$3.49</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-22%</span></td></tr>
 <tr><td>Atlas Cloud</td><td><strong>$3.50</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-22%</span></td></tr>
+<tr><td>Ionet</td><td><strong>$3.61</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-20%</span></td></tr>
 <tr><td>Massedcompute</td><td><strong>$3.62</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-20%</span></td></tr>
 <tr><td>Runpod</td><td><strong>$3.79</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-16%</span></td></tr>
-<tr><td>Ionet</td><td><strong>$3.79</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-16%</span></td></tr>
 <tr><td>Jarvis</td><td><strong>$3.80</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-16%</span></td></tr>
 <tr><td>Oblivus</td><td><strong>$3.99</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-11%</span></td></tr>
 <tr><td>Hyperstack</td><td><strong>$3.99</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-11%</span></td></tr>
@@ -452,7 +454,7 @@
 <tr><td>2026-07-05</td><td>Crusoe</td><td><strong>$2.40</strong></td><td>3mo</td><td>0% / monthly</td><td><span data-type="status" data-color="red">-22% vs Nebius $3.09</span></td><td><em>64 H200 3mo reservation</em></td></tr>
 <tr><td>2026-05-08</td><td>AWS</td><td><strong>$2.00</strong></td><td>1yr</td><td>0% / monthly</td><td><span data-type="status" data-color="red">-29% vs Nebius $2.80</span></td><td><em>1yr 0% prepay</em></td></tr>
 </tbody></table>
-<h3>B200 — showing latest 12 of 16 deals (90d window)</h3>
+<h3>B200 — 12 deals (90d window)</h3>
 <table><thead><tr><th>Date</th><th>Provider</th><th>$/GPU-hr</th><th>Term</th><th>Prepay</th><th>vs Nebius</th><th>Context</th></tr></thead><tbody>
 <tr><td>2026-06-25</td><td>Anyscale</td><td><strong>$4.00</strong></td><td>3yr</td><td>0% / monthly</td><td>-4% vs Nebius $4.15</td><td><em>92 nodes B200 US AWS-sourced resold 3yr low 4s</em></td></tr>
 <tr><td>2026-06-22</td><td>LAI</td><td><strong>$3.50</strong></td><td>1yr</td><td>100% upfront</td><td><span data-type="status" data-color="red">-28% vs Nebius $4.89</span></td><td><em>1yr term ~5k B200 cluster; 100% prepay assumed</em></td></tr>
