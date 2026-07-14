@@ -3,7 +3,7 @@
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -4% vs median  |  0/4 peers cheaper  |  floor: Crusoe $3.90
 `H200 ` Nebius $4.50  -25% vs median  |  1/3 peers cheaper  |  floor: Crusoe $4.29
-`B200 ` Nebius $7.15  -15% vs median  |  0/2 peers cheaper  |  floor: Together $8.19
+`B200 ` Nebius $7.15  -13% vs median  |  1/3 peers cheaper  |  floor: Lambda $6.69
 `B300 ` Nebius $7.85  |  1 peer: Scaleway $9.01
 `L40S ` Nebius $1.82  +7% vs median  |  2/3 peers cheaper  |  floor: Crusoe $1.50
 
@@ -14,18 +14,18 @@
 `B300 ` Nebius $7.85  vs  Oracle $15.00  →  Nebius 48% below
 `L40S ` Nebius $1.82  vs  AWS $1.86  →  Nebius 2% below  — near parity
 
-*Spot / preemptible (vs cheapest hyperscaler spot, median across zones):*
-`H100 ` Nebius $2.15  vs  Azure $2.27 (median, 21 zones)  →  Nebius 5% below
-`H200 ` Nebius $2.45  vs  AWS $2.33 (median, 4 zones)  →  Nebius 5% above
-`B200 ` Nebius $3.95  vs  AWS $3.29 (median, 2 zones)  →  Nebius 20% above
-`B300 ` Nebius $4.30  vs  AWS $4.52 (single zone — thin signal)  →  Nebius 5% below
+*Spot / preemptible (vs cheapest hyperscaler spot, median of regional floors):*
+`H100 ` Nebius $2.15  vs  Azure $2.27 (median of 21 regional floors)  →  Nebius 5% below
+`H200 ` Nebius $2.45  vs  AWS $2.78 (median of 4 regional floors)  →  Nebius 12% below
+`B200 ` Nebius $3.95  vs  AWS $4.35 (median of 3 regional floors)  →  Nebius 9% below
+`B300 ` Nebius $4.30  vs  AWS $4.21 (median of 2 regional floors)  →  Nebius 2% above
 `L40S ` Nebius $0.90  |  no comparable hyperscaler spot (not offered, or newest-gen spot capacity not realistically available)
-_Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across zones (single-zone dips excluded)._
+_Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across its regional floors (single-region dips excluded; region-grain proxy, not per-AZ)._
 
 *Committed pricing (H100 benchmark, $/GPU-hr):*
-• 1yr: Nebius $2.30 vs AWS $2.58 (AWS list, all-upfront) → Nebius -11% vs list
+• 1yr: Nebius $2.30 vs AWS $5.06 (AWS list, all-upfront) → Nebius -55% vs list
 • 2yr: Nebius $2.05 (Nebius's deepest published H100 tier)
-• AWS 3yr (no Nebius 3yr): $2.97 no-upfront / $1.38 100%-prepaid — AWS 3yr all-upfront undercuts Nebius's 2yr $2.05, but locks 3 years + full prepayment
+• AWS 3yr (no Nebius 3yr): $2.97 no-upfront / $2.59 100%-prepaid
 • ⚠ Field intel: AWS 12mo deal seen at $1.80 (0% prepay) — below Nebius; list comparisons understate AWS's negotiated floor
 _Nebius committed list verified 2026-06-23._
 
@@ -53,7 +53,7 @@ _Signed reserve deals closed in the window (CRM deal reviews; autorenewals exclu
 *RTX PRO 6000 (inference / PAYG card) — vs RTX market:*
 `OD  ` Nebius $1.80  -10% vs market median $1.99  |  3/12 cheaper  |  floor: Beam $1.04
 `Spot` Nebius $0.95
-`Comm` Nebius committed from $1.42  |  market committed from $0.67
+`Comm` Nebius committed from $1.42  |  market committed from $0.66
 _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._
 
 
@@ -63,9 +63,7 @@ _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cl
 `B300 ` Headroom to hold or raise  |  mkt +0% / 30d
 _Action = neutral pricing prompt (premium can be a deliberate hold); see Decision Triggers table in Confluence._
 
-*Price moves ≥3%:*
-🔺 *Sfcompute* _(small provider)_ H100 spot: $1.95→$2.10/GPU-hr (+7.7% us)
-🔻 *Ionet* _(small provider)_ H200 on-demand: $3.79→$3.61/GPU-hr (-4.7% global)
-🔺 *AWS* _(hyperscaler)_ H200 spot: $2.32→$2.43/GPU-hr (+4.5% us-west-2)
+_No significant price moves today (0 minor changes below 3% threshold)._
+_Methodology note: 146 record(s) from AWS, Lambda, SF Compute restated by a parser fix — excluded from the moves above (measurement correction, not market)._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
