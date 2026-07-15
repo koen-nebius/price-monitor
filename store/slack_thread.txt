@@ -1,4 +1,4 @@
-*GPU Competitor Pricing — July 14, 2026*
+*GPU Competitor Pricing — July 15, 2026*
 
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -4% vs median  |  0/4 peers cheaper  |  floor: Crusoe $3.90
@@ -17,8 +17,8 @@
 *Spot / preemptible (vs cheapest hyperscaler spot, median of regional floors):*
 `H100 ` Nebius $2.15  vs  Azure $2.27 (median of 21 regional floors)  →  Nebius 5% below
 `H200 ` Nebius $2.45  vs  AWS $2.78 (median of 4 regional floors)  →  Nebius 12% below
-`B200 ` Nebius $3.95  vs  AWS $4.35 (median of 3 regional floors)  →  Nebius 9% below
-`B300 ` Nebius $4.30  vs  AWS $4.21 (median of 2 regional floors)  →  Nebius 2% above
+`B200 ` Nebius $3.95  vs  AWS $4.36 (median of 3 regional floors)  →  Nebius 9% below
+`B300 ` Nebius $4.30  vs  AWS $4.23 (median of 2 regional floors)  →  Nebius 2% above
 `L40S ` Nebius $0.90  |  no comparable hyperscaler spot (not offered, or newest-gen spot capacity not realistically available)
 _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across its regional floors (single-region dips excluded; region-grain proxy, not per-AZ)._
 
@@ -51,9 +51,9 @@ _Signed reserve deals closed in the window (CRM deal reviews; autorenewals exclu
 
 
 *RTX PRO 6000 (inference / PAYG card) — vs RTX market:*
-`OD  ` Nebius $1.80  -10% vs market median $1.99  |  3/12 cheaper  |  floor: Beam $1.04
+`OD  ` Nebius $1.80  -14% vs market median $2.09  |  2/11 cheaper  |  floor: Beam $1.04
 `Spot` Nebius $0.95
-`Comm` Nebius committed from $1.42  |  market committed from $0.66
+`Comm` Nebius committed from $1.42  |  market committed from $0.70
 _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._
 
 
@@ -63,7 +63,7 @@ _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cl
 `B300 ` Headroom to hold or raise  |  mkt +0% / 30d
 _Action = neutral pricing prompt (premium can be a deliberate hold); see Decision Triggers table in Confluence._
 
-_No significant price moves today (0 minor changes below 3% threshold)._
-_Methodology note: 146 record(s) from AWS, Lambda, SF Compute restated by a parser fix — excluded from the moves above (measurement correction, not market)._
+*Price moves ≥3%:*
+🔺 *Jarvis* _(small provider)_ H200 on-demand: $3.80→$3.99/GPU-hr (+5.0% global)
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
