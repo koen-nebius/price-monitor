@@ -1,6 +1,6 @@
-*GPU Pricing Daily — July 15, 2026*
+*GPU Pricing Daily — July 16, 2026*
 
-*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Jarvis H200 on-demand +5%
+*Changed in 24h:* AWS raised H200 spot +6% ($6.86→$7.29)
 
 *Position:* Nebius on-demand sits 43–49% below hyperscalers and below cluster-peer median (H100, H200, B200).
 

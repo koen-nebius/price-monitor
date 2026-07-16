@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-07-15",
-  "started_at": "2026-07-15T04:19:37.876583+00:00",
-  "completed_at": "2026-07-15T04:20:50.566545+00:00",
+  "run_date": "2026-07-16",
+  "started_at": "2026-07-16T04:28:56.283878+00:00",
+  "completed_at": "2026-07-16T04:30:05.988728+00:00",
   "status": "success",
-  "record_count": 1074,
-  "raw_record_count": 1074,
+  "record_count": 1079,
+  "raw_record_count": 1079,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 28,
+  "diff_count": 37,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 135
+      "record_count": 140
     },
     "oracle": {
       "status": "live",
@@ -135,11 +135,12 @@
     }
   },
   "warnings": [
+    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
   "post_thread": false,
   "is_weekly": false,
-  "significant_moves": 1,
+  "significant_moves": 0,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
