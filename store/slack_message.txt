@@ -1,6 +1,6 @@
-*GPU Pricing Daily — July 16, 2026*
+*GPU Pricing Daily — July 17, 2026*
 
-*Changed in 24h:* AWS raised H200 spot +6% ($6.86→$7.29)
+*Changed in 24h:* Scaleway cut B300 on-demand -5% ($9.01→$8.55) · 1 more major-provider move + 1 small-provider move — detail in Confluence
 
 *Position:* Nebius on-demand sits 43–49% below hyperscalers and below cluster-peer median (H100, H200, B200).
 
