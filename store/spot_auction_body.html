@@ -1,18 +1,19 @@
-<p><em>Last updated: July 17, 2026</em> — <strong>daily refreshed</strong>, directional. All prices in <strong>$/GPU-hr</strong>. Built as a competitive reference for the <strong>PVM Auctions</strong> floor/target discussion (<a href="https://nebius.atlassian.net/wiki/spaces/Billing/pages/1949172383">RFC 055</a>).</p>
+<p><em>Last updated: July 18, 2026</em> — <strong>daily refreshed</strong>, directional. All prices in <strong>$/GPU-hr</strong>. Built as a competitive reference for the <strong>PVM Auctions</strong> floor/target discussion (<a href="https://nebius.atlassian.net/wiki/spaces/Billing/pages/1949172383">RFC 055</a>).</p>
 <div data-type="panel-warning"><p><strong>Read me first.</strong> Spot/auction prices are volatile and partly field-sourced. Most neoclouds gate spot/auction pricing ("contact us"), so for B-series the only signal is negotiated deals from #price-intelligence (sales-reported, often committed rather than pure spot). Treat this as a directional anchor for floor/target setting, not as fixed competitor rates. The on-demand/committed benchmark is the higher-confidence page.</p></div>
 <h2>Competitor spot / auction reference</h2>
 <table data-layout="full-width"><tbody>
 <tr><th>GPU</th><th>Nebius preemptible</th><th>Cheapest hyperscaler spot (median of regional floors)</th><th>SF Compute market</th><th>Lowest field-intel deal (term)</th><th>Market floor reference</th></tr>
-<tr><td><strong>H100</strong></td><td>$2.15</td><td>$2.27 <em>(Azure)</em></td><td>$2.16</td><td>$1.80 <em>(1yr, AWS)</em></td><td><strong>$1.80</strong></td></tr>
-<tr><td><strong>H200</strong></td><td>$2.45</td><td>$2.77 <em>(AWS)</em></td><td>—</td><td>$2.00 <em>(1yr, AWS)</em></td><td><strong>$2.00</strong></td></tr>
-<tr><td><strong>B200</strong></td><td>$3.95</td><td>$4.41 <em>(AWS)</em></td><td>—</td><td>$3.20 <em>(2yr, GCP)</em></td><td><strong>$3.20</strong></td></tr>
-<tr><td><strong>B300</strong></td><td>$4.30</td><td>$4.20 <em>(AWS)</em></td><td>—</td><td>$3.50 <em>(3yr, Azure)</em></td><td><strong>$3.50</strong></td></tr>
+<tr><td><strong>H100</strong></td><td>$2.15</td><td>$2.27 <em>(Azure)</em></td><td>$2.14</td><td>$1.80 <em>(1yr, AWS)</em></td><td><strong>$1.80</strong></td></tr>
+<tr><td><strong>H200</strong></td><td>$2.45</td><td>$3.08 <em>(AWS)</em></td><td>—</td><td>$2.00 <em>(1yr, AWS)</em></td><td><strong>$2.00</strong></td></tr>
+<tr><td><strong>B200</strong></td><td>$3.95</td><td>$4.69 <em>(AWS)</em></td><td>—</td><td>$3.20 <em>(2yr, GCP)</em></td><td><strong>$3.20</strong></td></tr>
+<tr><td><strong>B300</strong></td><td>$4.30</td><td>$4.71 <em>(AWS)</em></td><td>—</td><td>$3.50 <em>(3yr, Azure)</em></td><td><strong>$3.50</strong></td></tr>
 </tbody></table>
 <p><em>"Market floor reference" = the lowest real competitor spot/auction signal observed (hyperscaler spot median, SF Compute market price, or a field-intel deal) — the closest proxy for where competitor auction/spot clears, and a sensible anchor for a PVM target price. The cost-based floor (electricity + overhead, ~$0.40 for Hoppers in discussion) is a separate, lower bound. Hyperscaler spot is interruptible with no capacity guarantee; field-intel deals are sales-reported and often committed, not pure spot. SF Compute is one of the few public spot-market exchanges (H100 only so far; B300 "coming this fall").</em></p>
 <h2>Short-term reserved market (1–6 month commitments)</h2>
 <p><em>Cheapest live short-term reserved offers (Vast.ai marketplace, prepaid 1–6 months) and, when available, transacted SF Compute window fills. Commodity SKUs on mixed hosts without enterprise SLAs — read as the market FLOOR for short-term committed capacity, not as cluster-class comparables. Relevant to the short-term reserve / capacity-block and auction (RFC 055) discussions.</em></p>
 <table><thead><tr><th>GPU</th><th>Source</th><th>$/GPU-hr</th><th>Node size</th><th>Region</th><th>Nebius 9mo committed (512+, 100%)</th><th>Nebius preemptible</th></tr></thead><tbody>
-<tr><td><strong>H100</strong></td><td>Vast.ai reserved offer</td><td><strong>$1.05</strong></td><td>2× GPU</td><td>Montana, US</td><td>$2.54</td><td>$2.15</td></tr>
-<tr><td><strong>RTX6000</strong></td><td>Vast.ai reserved offer</td><td><strong>$0.80</strong></td><td>1× GPU</td><td>Poland, PL</td><td>$1.64</td><td>$0.95</td></tr>
+<tr><td><strong>H100</strong></td><td>Vast.ai reserved offer</td><td><strong>$1.47</strong></td><td>2× GPU</td><td>France, FR</td><td>$2.54</td><td>$2.15</td></tr>
+<tr><td><strong>H200</strong></td><td>Vast.ai reserved offer</td><td><strong>$3.16</strong></td><td>1× GPU</td><td>Czechia, CZ</td><td>$3.09</td><td>$2.45</td></tr>
+<tr><td><strong>RTX6000</strong></td><td>Vast.ai reserved offer</td><td><strong>$0.67</strong></td><td>8× GPU</td><td>Florida, US</td><td>$1.64</td><td>$0.95</td></tr>
 </tbody></table>
 <p><em>Note: a true like-for-like — competitor GPU <strong>auctions</strong> — barely exists; Azure is the only major cloud with GPU spot bidding, and SF Compute is a market exchange. Nebius launching auctions would be largely unique, so "spot" is the nearest comparable.</em></p>
