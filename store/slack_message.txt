@@ -1,6 +1,6 @@
-*GPU Pricing Daily — July 18, 2026*
+*GPU Pricing Daily — July 19, 2026*
 
-*Changed in 24h:* AWS raised B300 spot +20% ($4.52→$5.43) · 2 more major-provider moves + 1 small-provider move — detail in Confluence
+*Changed in 24h:* AWS raised H200 spot +10% across 2 SKUs ($2.74→$3.08) · 2 more major-provider moves + 1 small-provider move — detail in Confluence
 
 *Position:* Nebius on-demand sits 43–49% below hyperscalers and below cluster-peer median (H100, H200, B200).
 

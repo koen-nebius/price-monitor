@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-07-18",
-  "started_at": "2026-07-18T04:17:22.425846+00:00",
-  "completed_at": "2026-07-18T04:18:43.839622+00:00",
+  "run_date": "2026-07-19",
+  "started_at": "2026-07-19T04:39:44.502033+00:00",
+  "completed_at": "2026-07-19T04:41:01.688319+00:00",
   "status": "success",
-  "record_count": 1082,
-  "raw_record_count": 1082,
-  "anomaly_count": 1,
+  "record_count": 1084,
+  "raw_record_count": 1084,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 35,
+  "diff_count": 40,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 11
+      "record_count": 9
     },
     "crusoe": {
       "status": "live",
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 140
+      "record_count": 145
     },
     "oracle": {
       "status": "live",
@@ -69,7 +69,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 3
+      "record_count": 2
     }
   },
   "provider_freshness": {
@@ -135,8 +135,6 @@
     }
   },
   "warnings": [
-    "vast H100 reserved_short: $1.05 \u2192 $1.47 (+40.4%) \u26a0 price anomaly",
-    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
   "post_thread": false,
