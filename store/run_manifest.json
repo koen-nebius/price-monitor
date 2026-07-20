@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-07-19",
-  "started_at": "2026-07-19T04:39:44.502033+00:00",
-  "completed_at": "2026-07-19T04:41:01.688319+00:00",
+  "run_date": "2026-07-20",
+  "started_at": "2026-07-20T04:56:32.854970+00:00",
+  "completed_at": "2026-07-20T04:57:46.148347+00:00",
   "status": "success",
-  "record_count": 1084,
-  "raw_record_count": 1084,
+  "record_count": 1088,
+  "raw_record_count": 1088,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 40,
+  "diff_count": 26,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 9
+      "record_count": 13
     },
     "crusoe": {
       "status": "live",
@@ -137,9 +137,9 @@
   "warnings": [
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": false,
-  "is_weekly": false,
-  "significant_moves": 1,
+  "post_thread": true,
+  "is_weekly": true,
+  "significant_moves": 0,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
