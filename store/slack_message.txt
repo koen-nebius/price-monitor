@@ -1,6 +1,6 @@
-*GPU Pricing Daily — July 21, 2026*
+*GPU Pricing Daily — July 22, 2026*
 
-*Changed in 24h:* GCP raised L4 spot +7% across 6 SKUs ($0.29→$0.31) · 6 more major-provider moves + 2 small-provider moves — detail in Confluence
+*Changed in 24h:* Scaleway raised B300 on-demand +5% ($8.58→$9.01) · 1 more major-provider move — detail in Confluence
 
 *Position:* Nebius on-demand sits 43–49% below hyperscalers and below cluster-peer median (H100, H200, B200).
 

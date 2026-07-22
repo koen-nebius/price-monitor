@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-07-21",
-  "started_at": "2026-07-21T04:38:02.260224+00:00",
-  "completed_at": "2026-07-21T04:39:09.596532+00:00",
+  "run_date": "2026-07-22",
+  "started_at": "2026-07-22T04:39:09.345562+00:00",
+  "completed_at": "2026-07-22T04:40:24.887513+00:00",
   "status": "success",
-  "record_count": 1087,
-  "raw_record_count": 1087,
-  "anomaly_count": 0,
+  "record_count": 1083,
+  "raw_record_count": 1083,
+  "anomaly_count": 5,
   "quarantined_count": 0,
-  "diff_count": 43,
+  "diff_count": 37,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 12
+      "record_count": 9
     },
     "crusoe": {
       "status": "live",
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 145
+      "record_count": 144
     },
     "oracle": {
       "status": "live",
@@ -135,11 +135,17 @@
     }
   },
   "warnings": [
+    "cp_fal-ai B200 on_demand: $6.25 \u2192 $3.49 (-44.2%) \u26a0 price anomaly",
+    "cp_fal-ai B300 on_demand: $8.50 \u2192 $4.49 (-47.2%) \u26a0 price anomaly",
+    "cp_hyperbolic B200 on_demand: $3.50 \u2192 $5.99 (+71.1%) \u26a0 price anomaly",
+    "cp_hyperbolic H100 on_demand: $1.50 \u2192 $2.89 (+92.7%) \u26a0 price anomaly",
+    "cp_hyperbolic H200 on_demand: $2.40 \u2192 $3.49 (+45.4%) \u26a0 price anomaly",
+    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
   "post_thread": false,
   "is_weekly": false,
-  "significant_moves": 2,
+  "significant_moves": 1,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
