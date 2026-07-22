@@ -700,16 +700,15 @@ def _build_reserve_wins_section() -> str:
     return "\n".join(html)
 
 
-def _format_rtx_callout(records: List[PriceRecord]) -> str:
+def _rtx_market_stats(records: List[PriceRecord]):
     """
-    RTX PRO 6000 (Blackwell 96GB inference/PAYG card) vs the broader RTX market.
-    Its competitors are inference platforms, not the curated training-cluster peers, so
-    we compare Nebius against the full set of providers that price RTX PRO 6000 rather
-    than forcing it through the cluster-GPU peer logic. Supports the RTX demand push.
+    Shared data for the RTX PRO 6000 surfaces (Slack callout + Confluence section):
+    Nebius OD/spot/committed vs the full RTX market. Returns None when Nebius or
+    competitor RTX prices are absent.
     """
     rtx = [r for r in records if r.gpu_model == "RTX6000"]
     if not rtx:
-        return ""
+        return None
     neb_od = min((r.price_per_gpu_hour_usd for r in rtx
                   if r.provider == "nebius" and r.consumption_type == "on_demand"), default=None)
     neb_sp = min((r.price_per_gpu_hour_usd for r in rtx
@@ -721,29 +720,46 @@ def _format_rtx_callout(records: List[PriceRecord]) -> str:
         if r.provider not in comp or r.price_per_gpu_hour_usd < comp[r.provider]:
             comp[r.provider] = r.price_per_gpu_hour_usd
     if neb_od is None or not comp:
-        return ""
-    prices = sorted(comp.values())
-    med = statistics.median(prices)
-    cheaper = sum(1 for p in prices if p < neb_od)
-    floor_prov = min(comp, key=comp.get)
-    vs = (neb_od - med) / med * 100
-    sign = "+" if vs >= 0 else ""
-    out = ["\n*RTX PRO 6000 (inference / PAYG card) — vs RTX market:*",
-           f"`OD  ` Nebius ${neb_od:.2f}  {sign}{vs:.0f}% vs market median ${med:.2f}  "
-           f"|  {cheaper}/{len(prices)} cheaper  |  floor: {_provider_display(floor_prov)} ${prices[0]:.2f}"]
-    if neb_sp is not None:
-        out.append(f"`Spot` Nebius ${neb_sp:.2f}")
-    # Committed: Nebius best committed tier vs any competitor committed in the market.
+        return None
+
     def _comm_min(is_nebius: bool):
         vals = [r.price_per_gpu_hour_usd for r in rtx
                 if (r.provider == "nebius") == is_nebius
                 and ("committed" in r.consumption_type or "reserved" in r.consumption_type)]
         return min(vals) if vals else None
-    neb_comm, comp_comm = _comm_min(True), _comm_min(False)
-    if neb_comm is not None:
-        c = f"`Comm` Nebius committed from ${neb_comm:.2f}"
-        if comp_comm is not None:
-            c += f"  |  market committed from ${comp_comm:.2f}"
+
+    prices = sorted(comp.values())
+    return {
+        "neb_od": neb_od, "neb_sp": neb_sp,
+        "median": statistics.median(prices),
+        "n_comp": len(prices),
+        "cheaper": sum(1 for p in prices if p < neb_od),
+        "floor_prov": min(comp, key=comp.get), "floor": prices[0],
+        "neb_comm": _comm_min(True), "comp_comm": _comm_min(False),
+    }
+
+
+def _format_rtx_callout(records: List[PriceRecord]) -> str:
+    """
+    RTX PRO 6000 (Blackwell 96GB inference/PAYG card) vs the broader RTX market.
+    Its competitors are inference platforms, not the curated training-cluster peers, so
+    we compare Nebius against the full set of providers that price RTX PRO 6000 rather
+    than forcing it through the cluster-GPU peer logic. Supports the RTX demand push.
+    """
+    s = _rtx_market_stats(records)
+    if not s:
+        return ""
+    vs = (s["neb_od"] - s["median"]) / s["median"] * 100
+    sign = "+" if vs >= 0 else ""
+    out = ["\n*RTX PRO 6000 (inference / PAYG card) — vs RTX market:*",
+           f"`OD  ` Nebius ${s['neb_od']:.2f}  {sign}{vs:.0f}% vs market median ${s['median']:.2f}  "
+           f"|  {s['cheaper']}/{s['n_comp']} cheaper  |  floor: {_provider_display(s['floor_prov'])} ${s['floor']:.2f}"]
+    if s["neb_sp"] is not None:
+        out.append(f"`Spot` Nebius ${s['neb_sp']:.2f}")
+    if s["neb_comm"] is not None:
+        c = f"`Comm` Nebius committed from ${s['neb_comm']:.2f}"
+        if s["comp_comm"] is not None:
+            c += f"  |  market committed from ${s['comp_comm']:.2f}"
         out.append(c)
     out.append("_RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._")
     return "\n".join(out)
@@ -2423,6 +2439,41 @@ def _build_price_moves_section(diffs: List[DiffEntry]) -> str:
     return "\n".join(html)
 
 
+def _build_rtx_section(records: List[PriceRecord]) -> str:
+    """
+    Confluence twin of the Slack RTX callout (shared _rtx_market_stats), so the
+    page shows every SKU Nebius sells — RTX PRO 6000 was previously visible only
+    in the Monday thread. Deliberately NOT merged into the exec tables: its
+    competitor set is inference platforms, not training-cluster peers.
+    """
+    s = _rtx_market_stats(records)
+    if not s:
+        return ""
+    vs = (s["neb_od"] - s["median"]) / s["median"] * 100
+    rows = [
+        '<h2>RTX PRO 6000 — Inference / PAYG Card</h2>',
+        '<p>Compared against the full RTX PRO 6000 market (inference platforms and '
+        'GPU rental clouds — Vast, fal, Beam, …), not the training-cluster peer set; '
+        'hyperscalers don\'t offer this card. Kept out of the Executive Benchmark for '
+        'that reason.</p>',
+        '<table data-layout="default"><tbody>',
+        '<tr><th>Tier</th><th>Nebius</th><th>Market</th><th>Position</th></tr>',
+        f'<tr><td>On-demand</td><td>${s["neb_od"]:.2f}</td>'
+        f'<td>median ${s["median"]:.2f} · floor {_provider_display(s["floor_prov"])} '
+        f'${s["floor"]:.2f} ({s["n_comp"]} providers)</td>'
+        f'<td>{vs:+.0f}% vs median · {s["cheaper"]}/{s["n_comp"]} providers cheaper</td></tr>',
+    ]
+    if s["neb_sp"] is not None:
+        rows.append(f'<tr><td>Spot / preemptible</td><td>${s["neb_sp"]:.2f}</td>'
+                    f'<td>—</td><td>—</td></tr>')
+    if s["neb_comm"] is not None:
+        mkt = f'from ${s["comp_comm"]:.2f}' if s["comp_comm"] is not None else '—'
+        rows.append(f'<tr><td>Committed</td><td>from ${s["neb_comm"]:.2f}</td>'
+                    f'<td>{mkt}</td><td>—</td></tr>')
+    rows.append('</tbody></table>')
+    return "\n".join(rows)
+
+
 def format_confluence_table(records: List[PriceRecord], run_date: str,
                             provider_status: dict = None,
                             diffs: List[DiffEntry] = None) -> str:
@@ -2513,6 +2564,11 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
         'per-token billing makes $/GPU-hr comparisons meaningless.</p>'
     )
     html.append(_build_peer_tables(records))
+
+    # ── Section 3b: RTX PRO 6000 (2026-07-22: was thread-only, so the page had
+    # no visible presence for a SKU Nebius actively sells — compute team asked
+    # where it was) ──────────────────────────────────────────────────────────
+    html.append(_build_rtx_section(records))
 
     # ── Section 4: Regional comparison ──────────────────────────────────────
     html.append('<h2>Regional Price Comparison — All Providers by Geography</h2>')
