@@ -14,6 +14,7 @@ Writes store/check_manifest_result.txt with a human-readable summary either way,
 so the CCR agent always has context for what to say.
 """
 import json
+import os
 import sys
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -198,6 +199,11 @@ def main() -> int:
     # degraded fetch — abrupt OR sustained — never lowers the bar it will be
     # judged against tomorrow. (Upward shifts DO fold in immediately, so a
     # legitimately grown provider raises its own bar within the window.)
+    # CI-only: the 07:00 posting routine re-runs this gate in a write-free
+    # checkout, where a second fold would just leave the file dirty (the CI
+    # run already folded and committed today's counts).
+    if not os.environ.get("GITHUB_ACTIONS"):
+        return 0
     try:
         for prov, info in pstatus.items():
             if prov in warn_providers:
