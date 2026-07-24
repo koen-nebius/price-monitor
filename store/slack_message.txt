@@ -1,5 +1,7 @@
-*GPU Pricing Daily — July 23, 2026*
+*GPU Pricing Daily — July 24, 2026*
 
-No competitor movement since yesterday's update (no price moves ≥3% on tracked providers).
+*Changed in 24h:* Scaleway cut B300 on-demand -5% ($9.01→$8.56) · 2 small-provider moves in thread
 
-Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>
+*Position:* Nebius on-demand sits 43–49% below hyperscalers and below cluster-peer median (H100, H200, B200).
+
+Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>

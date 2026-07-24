@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-07-23",
-  "started_at": "2026-07-23T04:42:18.880736+00:00",
-  "completed_at": "2026-07-23T04:43:49.452540+00:00",
+  "run_date": "2026-07-24",
+  "started_at": "2026-07-24T04:39:46.243530+00:00",
+  "completed_at": "2026-07-24T04:41:34.316043+00:00",
   "status": "success",
-  "record_count": 1062,
-  "raw_record_count": 1062,
+  "record_count": 1060,
+  "raw_record_count": 1060,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 48,
+  "diff_count": 23,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 12
+      "record_count": 11
     },
     "crusoe": {
       "status": "live",
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 120
+      "record_count": 119
     },
     "oracle": {
       "status": "live",
@@ -135,11 +135,12 @@
     }
   },
   "warnings": [
+    "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": false,
+  "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 0,
+  "significant_moves": 3,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
