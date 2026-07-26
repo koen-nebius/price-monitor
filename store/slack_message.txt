@@ -1,6 +1,6 @@
-*GPU Pricing Daily — July 25, 2026*
+*GPU Pricing Daily — July 26, 2026*
 
-*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Ionet H200 on-demand -24%
+*Changed in 24h:* Scaleway raised B300 on-demand +5% ($8.54→$9.01) · 1 more major-provider move + 1 small-provider move — detail in Confluence
 
 *Position:* Nebius on-demand sits 43–49% below hyperscalers and below cluster-peer median (H100, H200, B200).
 
