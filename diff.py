@@ -10,7 +10,9 @@ from typing import List, Dict, Optional, Tuple
 
 from schema import PriceRecord, DiffEntry
 from config import provider_tier, ALERT_THRESHOLD_PCT, PROVIDER_TIERS
-from comparability import enrich_comparability, is_cluster_class
+from comparability import (enrich_comparability, is_cluster_class,
+                           LOCAL_STORAGE_BUNDLED, LOCAL_STORAGE_VERIFIED,
+                           local_storage_info)
 
 INTEL_CSV = Path(__file__).parent / "store" / "intel.csv"
 HISTORY_CSV = Path(__file__).parent / "store" / "history.csv"
@@ -110,9 +112,47 @@ def record_key(r: PriceRecord) -> tuple:
     return (r.provider, r.gpu_model, r.instance_type, r.region, r.consumption_type)
 
 
+# Reversion damper (2026-07-27): a "price move" whose new level was already seen
+# within this window is an oscillation back to a recent level, not market news.
+# Trigger case: Scaleway B300 flip-flopped $8.5x <-> exactly $9.0075 six times in
+# six weeks (fixed EUR list price; the aggregator's FX conversion intermittently
+# snaps to a fixed fallback rate and back) and headlined the exec digest as
+# "raised +5%" / "cut -5%" each time. Typed as change_type="reversion" so every
+# market-move surface + the thread gate exclude it (same pattern as parser
+# restatements); disclosed via a note line instead.
+REVERSION_LOOKBACK_DAYS = 7
+REVERSION_MATCH_TOL = 0.015   # ≤1.5% = "same level" (FX wobble is <1%/day;
+                              # real moves are ≥3% by ALERT_THRESHOLD_PCT)
+
+
+def _recent_price_levels(days: int = REVERSION_LOOKBACK_DAYS) -> Dict[tuple, list]:
+    """
+    {(provider, gpu_model, consumption_type): [recent daily cheapest prices]} from
+    history.csv, excluding today (today's value is the change being judged).
+    """
+    out: Dict[tuple, list] = {}
+    if not HISTORY_CSV.exists():
+        return out
+    cutoff = (date.today() - timedelta(days=days)).isoformat()
+    today = date.today().isoformat()
+    with open(HISTORY_CSV, newline="") as f:
+        for r in csv.DictReader(f):
+            d = r.get("snapshot_date", "")
+            if not (cutoff <= d < today):
+                continue
+            try:
+                px = float(r["price_per_gpu_hour_usd"])
+            except (ValueError, TypeError):
+                continue
+            out.setdefault((r["provider"], r["gpu_model"],
+                            r["consumption_type"]), []).append(px)
+    return out
+
+
 def compute_diff(old: List[PriceRecord], new: List[PriceRecord]) -> List[DiffEntry]:
     old_map: Dict[tuple, PriceRecord] = {record_key(r): r for r in old}
     new_map: Dict[tuple, PriceRecord] = {record_key(r): r for r in new}
+    recent = _recent_price_levels()
 
     diffs: List[DiffEntry] = []
 
@@ -131,6 +171,18 @@ def compute_diff(old: List[PriceRecord], new: List[PriceRecord]) -> List[DiffEnt
                 old_pv = getattr(old_rec, "parser_version", "") or ""
                 new_pv = getattr(new_rec, "parser_version", "") or ""
                 change = "price_change" if old_pv == new_pv else "restatement"
+                if change == "price_change":
+                    # Reversion check: is the "new" price just a level this series
+                    # already sat at within the lookback window? (History grain is
+                    # cheapest per provider/gpu/ct — good enough: oscillating
+                    # sources flip the whole series, not one region.)
+                    levels = recent.get((new_rec.provider, new_rec.gpu_model,
+                                         new_rec.consumption_type), [])
+                    # (new_p can never match old_p here: the change gate already
+                    # requires ≥CHANGE_THRESHOLD movement, far above the 1.5% tol.)
+                    if any(l > 0 and abs(new_p - l) / l <= REVERSION_MATCH_TOL
+                           for l in levels):
+                        change = "reversion"
                 diffs.append(DiffEntry(
                     provider=new_rec.provider,
                     gpu_model=new_rec.gpu_model,
@@ -1307,6 +1359,12 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
         lines.append(f"_Methodology note: {len(restated)} record(s) from "
                      f"{', '.join(provs)} restated by a parser fix — excluded from the "
                      f"moves above (measurement correction, not market)._")
+    reverted = [d for d in diffs if d.change_type == "reversion"]
+    if reverted:
+        rp = sorted({f"{_provider_display(d.provider)} {d.gpu_model}" for d in reverted})
+        lines.append(f"_Jitter note: {len(reverted)} move(s) excluded as oscillation back "
+                     f"to a recent level ({'; '.join(rp[:4])}) — source/FX artifact, "
+                     f"not a repricing._")
 
     lines.append(f"\nFull benchmark table: {confluence_url}")
 
@@ -2226,6 +2284,12 @@ def _build_battlecards(records: List[PriceRecord]) -> str:
         '(third-party negotiated deals, unverifiable externally) or the Reserve-wins rates '
         '(our internal benchmarks, not offers — quoting them sets a floor in the customer\'s head). '
         'For a real competing committed quote, escalate to the pricing team rather than matching on the spot.</em></p>',
+        '<p><em><strong>Storage caveat:</strong> competitor list prices in these comparisons generally '
+        f'include local NVMe scratch (e.g. CoreWeave {LOCAL_STORAGE_BUNDLED["coreweave"]["note"]}, '
+        f'AWS {LOCAL_STORAGE_BUNDLED["aws"]["note"]} per 8-GPU node); Nebius bills storage separately, '
+        'and H100/H200/B200 hosts have no local NVMe (B300 has an opt-in local pack ≈ +$0.24/GPU-hr). '
+        'If the customer\'s TCO math includes storage, add Nebius network-storage cost before '
+        'comparing — details in the local-storage comparability note above.</em></p>',
         '<table data-layout="full-width"><tbody>',
         '<tr><th>Objection</th><th>Response (with the number)</th><th>Confidence</th></tr>',
     ]
@@ -2400,6 +2464,14 @@ def _build_price_moves_section(diffs: List[DiffEntry]) -> str:
                         f'their value changes vs the previous build are measurement '
                         f'corrections, not competitor moves, and are excluded from the '
                         f'list above.</em></p>')
+    reverted = [d for d in (diffs or []) if d.change_type == "reversion"]
+    if reverted:
+        rp = sorted({f"{_provider_display(d.provider)} {d.gpu_model}" for d in reverted})
+        restate_note += (f'<p><em>Jitter note: {len(reverted)} move(s) excluded as '
+                         f'oscillation back to a recent level ({"; ".join(rp[:6])}) — '
+                         f'a source/currency-conversion artifact, not a repricing '
+                         f'(e.g. EUR-priced providers relayed through an aggregator '
+                         f'FX layer).</em></p>')
     html = ['<h2>Price Moves (since previous build)</h2>']
     if not moves:
         html.append(f'<p><em>No significant price moves (≥{ALERT_THRESHOLD_PCT:.0f}%) '
@@ -2510,6 +2582,7 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
         'H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private).</p>'
     )
     html.append(_build_executive_table(records))
+    html.append(_build_local_storage_note())
 
     # ── Section 1b: daily change ledger (backs every Slack "detail" claim) ──
     html.append(_build_price_moves_section(diffs))
@@ -2701,6 +2774,38 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         '</em></p>'
     )
     return "\n".join(rows)
+
+
+def _build_local_storage_note() -> str:
+    """
+    Comparability footnote under the Executive Benchmark: whether the $/GPU-hr
+    list price includes local NVMe scratch. First product attribute normalized
+    on this page (the 2026-07-14 external review flagged that only form factor /
+    interconnect were) — data is hand-verified static config in comparability.py,
+    not scraped, so it carries its own verification date. Framing is neutral:
+    states the packaging difference, no verdict. Providers we haven't checked are
+    named explicitly so absence reads as "unverified", not "no bundled storage".
+    """
+    inc = "; ".join(f'{_provider_display(b)} {e["note"]}'
+                    for b, e in LOCAL_STORAGE_BUNDLED.items() if e["included"])
+    seen = set(LOCAL_STORAGE_BUNDLED)
+    unverified = []
+    for key in PROVIDER_TIERS["hyperscaler"] + PROVIDER_TIERS["enterprise_gpu_cloud"]:
+        base = key[3:] if key.startswith("cp_") else key
+        if base not in seen:
+            seen.add(base)
+            unverified.append(_provider_display(key))
+    unv = f' Not yet verified: {", ".join(unverified)}.' if unverified else ""
+    return (
+        '<p><em><strong>Comparability note — local storage:</strong> most competitor list '
+        f'prices above include local NVMe scratch in the $/GPU-hr rate (per 8-GPU node: {inc}). '
+        f'RunPod does not ({LOCAL_STORAGE_BUNDLED["runpod"]["note"]}). '
+        f'Nebius does not: {LOCAL_STORAGE_BUNDLED["nebius"]["note"]}. '
+        'Like-for-like TCO comparisons should add Nebius network-storage cost to the Nebius '
+        f'rate, or strip scratch from the competitor rate. Verified {LOCAL_STORAGE_VERIFIED} '
+        'from provider pricing pages/docs; static config, not scraped.'
+        f'{unv}</em></p>'
+    )
 
 
 def _term_bucket_cts(term: int):
@@ -2961,6 +3066,10 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
         '(api). Oracle does not publish committed GPU pricing publicly. '
         'Nebius: internal pricing model effective April 23rd 2026; enterprise tier (512+ GPU, 100% upfront). '
         'Standard tier (&lt;512 GPU) ~5–10% higher; 36-month H100/H200 available on request. '
+        'Storage basis: hyperscaler rates in this table include bundled local NVMe scratch per 8-GPU node '
+        f'(AWS {LOCAL_STORAGE_BUNDLED["aws"]["note"]}, Azure {LOCAL_STORAGE_BUNDLED["azure"]["note"]}, '
+        f'GCP {LOCAL_STORAGE_BUNDLED["gcp"]["note"]}); Nebius bills storage separately per GiB — '
+        'see the local-storage comparability note under the Executive Benchmark. '
         'Peer providers (Civo, Vultr) sourced from ComputePrices.com. '
         'Civo committed rates are public list prices, not negotiated. '
         'Nebius on-demand prices are uniform across regions (no US discount); availability by GPU: '
