@@ -53,6 +53,41 @@ _SXM_FABRIC = {
 #     _is_cluster_peer docstring's own counter-examples. Revisit only with evidence.
 _PER_GPU_CLUSTER_PROVIDERS = {"crusoe"}
 
+# ── Local storage bundling (product-attribute normalization, attribute #1) ──
+# The 2026-07-14 external review flagged that the report normalizes form factor /
+# interconnect but no product attributes. This is the first: whether the $/GPU-hr
+# list price INCLUDES local NVMe scratch. Near-static product config verified by
+# hand from provider pages/docs (not scraped) — same pattern as
+# _PER_GPU_CLUSTER_PROVIDERS. Keys are base provider names (cp_ prefix stripped).
+# "note" is the per-8-GPU-node detail rendered verbatim in footnotes; dict order
+# is display order (bundled entries roughly largest-first).
+LOCAL_STORAGE_VERIFIED = "2026-07-22"
+LOCAL_STORAGE_BUNDLED = {
+    "coreweave":  {"included": True,  "note": "61.44TB"},
+    "hyperstack": {"included": True,  "note": "32-48TB"},
+    "aws":        {"included": True,  "note": "30.72TB (p5 instance store)"},
+    "azure":      {"included": True,  "note": "28TiB (ND H100 v5)"},
+    "lambda":     {"included": True,  "note": "22TiB"},
+    "vultr":      {"included": True,  "note": "13TB VM / 30.72TB bare metal"},
+    "crusoe":     {"included": True,  "note": "7.7TB H100 / 15.4TB H200-B200"},
+    "gcp":        {"included": True,  "note": "6TB (a3, mandatory; a3-ultra 12TB)"},
+    "scaleway":   {"included": True,  "note": "3.2-12.8TB (24TB B300)"},
+    "together":   {"included": True,  "note": "size unpublished"},
+    "runpod":     {"included": False, "note": "all disk metered separately"},
+    "nebius":     {"included": False,
+                   "note": "H100/H200/B200 hosts have no local NVMe; all storage is "
+                           "network-attached, billed separately per GiB. B300 8-GPU "
+                           "preset has an opt-in 6×3.84TB local pack at "
+                           "$0.065/GiB-mo ≈ +$0.24/GPU-hr"},
+}
+
+
+def local_storage_info(provider: str) -> dict:
+    """Bundled-local-storage entry for a provider code (cp_ prefix ok); {} if unverified."""
+    p = provider.lower()
+    base = p[3:] if p.startswith("cp_") else p
+    return LOCAL_STORAGE_BUNDLED.get(base, {})
+
 
 def _classify(r: PriceRecord) -> Tuple[str, str]:
     prov = r.provider.lower()
