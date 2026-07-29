@@ -1,4 +1,4 @@
-*GPU Competitor Pricing — July 28, 2026*
+*GPU Competitor Pricing — July 29, 2026*
 
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -4% vs median  |  0/4 peers cheaper  |  floor: Crusoe $3.90
@@ -18,7 +18,7 @@
 `H100 ` Nebius $2.15  vs  Azure $2.27 (median of 21 regional floors)  →  Nebius 5% below
 `H200 ` Nebius $2.45  vs  AWS $3.38 (median of 4 regional floors)  →  Nebius 28% below
 `B200 ` Nebius $3.95  vs  GCP $4.93 (median of 6 regional floors)  →  Nebius 20% below
-`B300 ` Nebius $4.30  vs  AWS $5.34 (median of 2 regional floors)  →  Nebius 19% below
+`B300 ` Nebius $4.30  vs  AWS $5.45 (median of 2 regional floors)  →  Nebius 21% below
 `L40S ` Nebius $0.90  |  no comparable hyperscaler spot (not offered, or newest-gen spot capacity not realistically available)
 _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across its regional floors (single-region dips excluded; region-grain proxy, not per-AZ)._
 
@@ -52,9 +52,9 @@ _Signed reserve deals closed in the window (CRM deal reviews; autorenewals exclu
 
 
 *RTX PRO 6000 (inference / PAYG card) — vs RTX market:*
-`OD  ` Nebius $1.80  -14% vs market median $2.10  |  2/12 cheaper  |  floor: Beam $1.04
+`OD  ` Nebius $1.80  -12% vs market median $2.04  |  2/11 cheaper  |  floor: Beam $1.04
 `Spot` Nebius $0.95
-`Comm` Nebius committed from $1.42  |  market committed from $0.80
+`Comm` Nebius committed from $1.42  |  market committed from $0.67
 _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._
 
 
@@ -65,7 +65,9 @@ _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cl
 _Action = neutral pricing prompt (premium can be a deliberate hold); see Decision Triggers table in Confluence._
 
 *Price moves ≥3%:*
-🔻 *AWS* _(hyperscaler)_ H200 spot: $9.18→$8.76/GPU-hr (-4.5% ap-northeast-1)
-_Jitter note: 14 move(s) excluded as oscillation back to a recent level (AWS B200; AWS H200; Fal AI B200; Fal AI B300) — source/FX artifact, not a repricing._
+🔺 *Akamai Cloud* _(small provider)_ RTX6000 on-demand: $2.50→$3.00/GPU-hr (+20.0% global)
+🔺 *Together AI* _(major neocloud)_ H100 committed/reserved: $3.29→$3.45/GPU-hr (+4.9% global)
+🔺 *AWS* _(hyperscaler)_ B300 spot: $5.25→$5.46/GPU-hr (+4.1% us-east-1)
+_Jitter note: 4 move(s) excluded as oscillation back to a recent level (AWS B200; AWS H200; SF Compute H100) — source/FX artifact, not a repricing._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
