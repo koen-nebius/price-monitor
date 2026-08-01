@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-07-31",
-  "started_at": "2026-07-31T04:49:16.176120+00:00",
-  "completed_at": "2026-07-31T04:50:47.142557+00:00",
+  "run_date": "2026-08-01",
+  "started_at": "2026-08-01T04:43:18.543008+00:00",
+  "completed_at": "2026-08-01T04:44:40.305266+00:00",
   "status": "success",
-  "record_count": 1048,
-  "raw_record_count": 1048,
+  "record_count": 1054,
+  "raw_record_count": 1054,
   "anomaly_count": 1,
   "quarantined_count": 0,
-  "diff_count": 20,
+  "diff_count": 41,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 11
+      "record_count": 16
     },
     "crusoe": {
       "status": "live",
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 107
+      "record_count": 108
     },
     "oracle": {
       "status": "live",
@@ -135,14 +135,15 @@
     }
   },
   "warnings": [
-    "cp_sesterce L40S on_demand: $0.97 \u2192 $1.59 (+64.8%) \u26a0 price anomaly",
+    "vast RTX6000 reserved_short: $0.87 \u2192 $0.45 (-47.7%) \u26a0 price anomaly",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: coreweave GB200 on-demand: ours $10.50 (scrape) vs ComputePrices $42.00 (300% gap) \u2014 ours far below CP's freshest coverage \u2014 verify we didn't parse a non-GPU/spot row",
+    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
   "post_thread": false,
   "is_weekly": false,
-  "significant_moves": 1,
+  "significant_moves": 0,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
