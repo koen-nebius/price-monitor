@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-08-02",
-  "started_at": "2026-08-02T04:44:26.271253+00:00",
-  "completed_at": "2026-08-02T04:45:47.459778+00:00",
+  "run_date": "2026-08-03",
+  "started_at": "2026-08-03T04:53:07.274523+00:00",
+  "completed_at": "2026-08-03T04:54:15.318508+00:00",
   "status": "success",
-  "record_count": 1059,
-  "raw_record_count": 1059,
-  "anomaly_count": 3,
+  "record_count": 1063,
+  "raw_record_count": 1063,
+  "anomaly_count": 1,
   "quarantined_count": 0,
-  "diff_count": 40,
+  "diff_count": 28,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 11
+      "record_count": 12
     },
     "crusoe": {
       "status": "live",
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 117
+      "record_count": 119
     },
     "oracle": {
       "status": "live",
@@ -69,7 +69,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 3
+      "record_count": 4
     }
   },
   "provider_freshness": {
@@ -135,16 +135,15 @@
     }
   },
   "warnings": [
-    "cp_fal-ai B200 on_demand: $3.49 \u2192 $6.25 (+79.1%) \u26a0 price anomaly",
-    "cp_fal-ai B300 on_demand: $4.49 \u2192 $8.50 (+89.3%) \u26a0 price anomaly",
-    "vast RTX6000 reserved_short: $0.45 \u2192 $0.85 (+86.7%) \u26a0 price anomaly",
+    "cp_digitalocean H100 on_demand: $2.99 \u2192 $4.41 (+47.5%) \u26a0 price anomaly",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: coreweave GB200 on-demand: ours $10.50 (scrape) vs ComputePrices $42.00 (300% gap) \u2014 ours far below CP's freshest coverage \u2014 verify we didn't parse a non-GPU/spot row",
+    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": false,
-  "is_weekly": false,
-  "significant_moves": 0,
+  "post_thread": true,
+  "is_weekly": true,
+  "significant_moves": 2,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
