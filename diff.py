@@ -583,13 +583,19 @@ def _build_takeaway(records: List[PriceRecord], include_pressure: bool = True,
         for g in ("GB300", "B300", "B200", "H200", "H100"):
             if not by_gpu.get(g):
                 continue
-            px, term, _prov, _pp = min(by_gpu[g], key=lambda x: x[0])
-            cts, _lbl = _term_bucket_cts(term)
-            neb = _cheapest(records, "nebius", g, cts) if cts else None
-            if neb and px < neb:
-                d = (px - neb) / neb * 100
-                pressure = (f"the contested ground is committed deals — competitors quoting "
-                            f"{g} from ${px:.2f} vs our ${neb:.2f} ({d:+.0f}%)")
+            # Cheapest field row that has a COMPARABLE Nebius term bucket — not the
+            # cheapest row outright. (Until 2026-08-03 a single cheapest row with no
+            # comparable term, e.g. a 5yr GB300 quote, silently skipped the whole
+            # GPU and under-reported its committed pressure for weeks.)
+            for px, term, _prov, _pp in sorted(by_gpu[g], key=lambda x: x[0]):
+                cts, _lbl = _term_bucket_cts(term)
+                neb = _cheapest(records, "nebius", g, cts) if cts else None
+                if neb and px < neb:
+                    d = (px - neb) / neb * 100
+                    pressure = (f"the contested ground is committed deals — competitors quoting "
+                                f"{g} from ${px:.2f} vs our ${neb:.2f} ({d:+.0f}%)")
+                    break
+            if pressure:
                 break
     clauses = [c for c in (od, pressure) if c]
     if not clauses:
@@ -1324,7 +1330,11 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
             arrow = "🔺" if g["direction"] == "up" else "🔻"
             avg_pct = g["avg_pct"]
             sign = "+" if avg_pct > 0 else ""
-            tier_tag = f" _({g['tier_label']})_"
+            # Tier tags removed 2026-08-03 (Koen): "(small provider)" described our
+            # GPU-benchmark tier, but read as a company descriptor and was wrong
+            # there (DigitalOcean is small in GPU, huge in hosting). Tiers still
+            # drive signal weighting internally; they just aren't printed per line.
+            tier_tag = ""
             sku_count = g["sku_count"]
             best = g["peak"]
             best_pct = best.delta_pct or 0
@@ -2480,7 +2490,7 @@ def _build_price_moves_section(diffs: List[DiffEntry]) -> str:
             html.append(restate_note)
         return "\n".join(html)
     html.append('<table data-layout="default"><tbody>')
-    html.append('<tr><th>Provider</th><th>Tier</th><th>GPU</th><th>Type</th>'
+    html.append('<tr><th>Provider</th><th>GPU</th><th>Type</th>'
                 '<th>Move</th><th>Peak SKU (old→new)</th><th>SKUs</th></tr>')
     for g in moves[:25]:
         best = g["peak"]
@@ -2488,7 +2498,6 @@ def _build_price_moves_section(diffs: List[DiffEntry]) -> str:
         arrow = "▲" if g["direction"] == "up" else "▼"
         html.append(
             f'<tr><td><strong>{_provider_display(g["provider"])}</strong></td>'
-            f'<td>{g["tier_label"]}</td>'
             f'<td>{g["gpu"]}</td>'
             f'<td>{g["bucket"]}</td>'
             f'<td>{arrow} {g["avg_pct"]:+.1f}%'
