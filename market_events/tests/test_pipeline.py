@@ -84,6 +84,16 @@ class PipelineTests(unittest.TestCase):
             self.assertTrue(
                 all(row["metrics"] for row in store.coverage_history())
             )
+            latest_metrics = {
+                (row["event_type"], row["field"]): row
+                for row in store.coverage_history()[-1]["metrics"]
+            }
+            self.assertEqual(
+                latest_metrics[("source_health", "documents_extracted")][
+                    "applicable_count"
+                ],
+                1,
+            )
 
     def test_weekly_pipeline_uses_search_extract_and_crawl(self):
         registry = SourceRegistry([source()])

@@ -106,6 +106,13 @@ class BaseEvent:
         # Re-fetching the same fact should not create a new economic version.
         payload.pop("observed_at", None)
         payload.pop("raw_document_hash", None)
+        payload.pop("availability_checked_at", None)
+        if self.review_status == "candidate" and self.extraction_method.startswith(
+            "public_page_regex_candidate"
+        ):
+            # The collector's observation date is not the event's verified
+            # effective date. Keep it for review, but not for candidate diffing.
+            payload.pop("event_date", None)
         return payload
 
     def content_hash(self) -> str:
@@ -233,7 +240,6 @@ class CapacityAnnouncementEvent(BaseEvent):
         return {
             "source_id": self.source_id,
             "event_reference": self.event_reference,
-            "event_date": self.event_date,
             "region_scope": self.region_scope,
             "gpu_model": self.gpu_model,
         }

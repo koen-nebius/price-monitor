@@ -66,7 +66,13 @@ class MarketEventPipeline:
                 if key != "sources":
                     totals[key] += stats.get(key, 0)
         summary = RunSummary(run_id=run_id, **totals)
-        metrics = [metric.to_dict() for metric in coverage_report(self.store.current())]
+        current = self.store.current()
+        coverage_population = [
+            event
+            for event in current
+            if event.event_type != "source_health" or event.run_id == summary.run_id
+        ]
+        metrics = [metric.to_dict() for metric in coverage_report(coverage_population)]
         self.store.append_coverage_snapshot(
             run_id=summary.run_id,
             mode=mode,

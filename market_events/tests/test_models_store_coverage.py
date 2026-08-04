@@ -6,7 +6,8 @@ from pathlib import Path
 
 from market_events.coverage import coverage_report
 from market_events.models import CompetitorOfferEvent
-from market_events.normalize import normalize_fixture_row
+from market_events.normalize import PublicDocumentNormalizer, normalize_fixture_row
+from market_events.registry import SourceSpec
 from market_events.pipeline import ingest_fixture
 from market_events.store import AppendOnlyStore
 from market_events.tavily import RawDocument
@@ -43,6 +44,69 @@ class ModelsStoreCoverageTests(unittest.TestCase):
                 price_usd_per_gpu_hour=4.0,
                 is_price_change=True,
             ).validate()
+
+    def test_candidate_diff_ignores_refresh_timestamps_and_table_columns(self):
+        source = SourceSpec(
+            source_id="example",
+            provider="Example",
+            official_domains=("example.com",),
+            event_kinds=("pricing", "capacity"),
+        )
+        first_document = RawDocument(
+            source_id="example",
+            url="https://example.com/pricing",
+            title="Pricing",
+            content=(
+                "| H100 | $4.00 | $3.50 |\n"
+                "A deployment includes 10,000 H100 GPUs"
+            ),
+            collected_at="2026-08-04T00:00:00+00:00",
+            operation="extract",
+        )
+        refreshed_document = replace(
+            first_document,
+            collected_at="2026-08-05T00:00:00+00:00",
+        )
+        normalizer = PublicDocumentNormalizer()
+        first = normalizer.normalize(source, first_document)
+        refreshed = normalizer.normalize(source, refreshed_document)
+        self.assertEqual(len(first), 2)
+        offer = next(event for event in first if event.event_type == "competitor_offer")
+        self.assertFalse(offer.is_price_change)
+        self.assertIsNone(offer.previous_price_usd_per_gpu_hour)
+        self.assertEqual(offer.price_usd_per_gpu_hour, 3.50)
+        self.assertEqual(
+            [event.semantic_key() for event in first],
+            [event.semantic_key() for event in refreshed],
+        )
+        self.assertEqual(
+            [event.content_hash() for event in first],
+            [event.content_hash() for event in refreshed],
+        )
+
+    def test_explicit_from_to_price_change_and_gpu_model_number_guard(self):
+        source = SourceSpec(
+            source_id="example",
+            provider="Example",
+            official_domains=("example.com",),
+            event_kinds=("pricing", "capacity"),
+        )
+        document = RawDocument(
+            source_id="example",
+            url="https://example.com/pricing",
+            title="Pricing",
+            content=(
+                "H100 PAYG changed from $3.39 to $4.41 per GPU hour\n"
+                "How long is the waiting period to reserve an NVIDIA A100 GPU?"
+            ),
+            collected_at="2026-08-04T00:00:00+00:00",
+            operation="extract",
+        )
+        events = PublicDocumentNormalizer().normalize(source, document)
+        self.assertEqual(len(events), 1)
+        self.assertTrue(events[0].is_price_change)
+        self.assertEqual(events[0].previous_price_usd_per_gpu_hour, 3.39)
+        self.assertEqual(events[0].price_usd_per_gpu_hour, 4.41)
 
     def test_append_only_store_dedupes_and_versions_changes(self):
         with tempfile.TemporaryDirectory() as tmp:

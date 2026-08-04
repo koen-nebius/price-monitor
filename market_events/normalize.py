@@ -11,8 +11,12 @@ from .tavily import RawDocument
 
 GPU_RE = re.compile(r"\b(GB300|GB200|B300|B200|H200|H100|L40S|RTX\s*6000)\b", re.I)
 PRICE_RE = re.compile(r"\$\s*([0-9]+(?:\.[0-9]+)?)")
+PRICE_CHANGE_RE = re.compile(
+    r"\bfrom\s+\$\s*([0-9]+(?:\.[0-9]+)?)\s+to\s+\$\s*([0-9]+(?:\.[0-9]+)?)",
+    re.I,
+)
 GPU_COUNT_RE = re.compile(
-    r"([0-9][0-9,]*)\s+(?:NVIDIA\s+)?(?:GB300|GB200|B300|B200|H200|H100|L40S|RTX\s*6000)?\s*GPUs?\b",
+    r"(?<![A-Za-z0-9])([0-9][0-9,]*)\s+(?:NVIDIA\s+)?(?:GB300|GB200|B300|B200|H200|H100|L40S|RTX\s*6000)?\s*GPUs?\b",
     re.I,
 )
 POWER_RE = re.compile(r"([0-9]+(?:\.[0-9]+)?)\s*(GW|MW)\b", re.I)
@@ -117,7 +121,9 @@ class PublicDocumentNormalizer:
             prices = [float(value) for value in PRICE_RE.findall(line)]
             if not gpu_match or not prices:
                 continue
-            previous = prices[0] if len(prices) >= 2 else None
+            price_change = PRICE_CHANGE_RE.search(line)
+            previous = float(price_change.group(1)) if price_change else None
+            current = float(price_change.group(2)) if price_change else prices[-1]
             event = CompetitorOfferEvent(
                 source_id=source.source_id,
                 source_url=document.url,
@@ -135,9 +141,9 @@ class PublicDocumentNormalizer:
                 product_name=_gpu(gpu_match.group(1)),
                 configuration="Unspecified",
                 consumption_type=_lane(line),
-                price_usd_per_gpu_hour=prices[-1],
+                price_usd_per_gpu_hour=current,
                 previous_price_usd_per_gpu_hour=previous,
-                is_price_change=previous is not None,
+                is_price_change=price_change is not None,
                 availability_status="listed_only",
                 availability_checked_at=document.collected_at,
                 availability_evidence="Listed on an official page; bookability was not tested.",
