@@ -79,7 +79,7 @@ class SourceSpec:
     def assert_official_url(self, url: str) -> None:
         domain = domain_for_url(url)
         allowed = {canonical_domain(value) for value in self.official_domains}
-        if domain not in allowed:
+        if not any(domain == base or domain.endswith(f".{base}") for base in allowed):
             raise ValueError(
                 f"{self.source_id}: URL domain {domain} is not in official_domains {sorted(allowed)}"
             )

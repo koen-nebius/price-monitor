@@ -27,6 +27,16 @@ class RegistryAndTavilyTests(unittest.TestCase):
                 known_urls=("https://nebius.atlassian.net/wiki/example",),
             ).validate()
 
+    def test_official_subdomains_are_allowed_without_suffix_confusion(self):
+        source = SourceSpec(
+            source_id="example",
+            provider="Example",
+            official_domains=("example.com",),
+        )
+        source.assert_official_url("https://docs.example.com/gpu/pricing")
+        with self.assertRaisesRegex(ValueError, "not in official_domains"):
+            source.assert_official_url("https://example.com.attacker.test/gpu/pricing")
+
     def test_config_rejects_embedded_api_key(self):
         with self.assertRaisesRegex(ValueError, "environment"):
             TavilyConfig.from_dict({"api_key": "secret"})
@@ -45,7 +55,13 @@ class RegistryAndTavilyTests(unittest.TestCase):
                         "url": "https://www.digitalocean.com/blog/price-changes-gpus",
                         "title": "GPU pricing",
                         "content": "H100 PAYG $4.41 per GPU hour",
-                    }
+                    },
+                    {
+                        "url": "https://example.com/not-an-official-result",
+                        "title": "Stray result",
+                        "content": "H100 PAYG $0.01 per GPU hour",
+                    },
+                    {"url": "", "title": "Missing URL", "content": "H100 $0.01"},
                 ],
             }
 

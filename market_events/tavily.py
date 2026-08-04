@@ -111,7 +111,15 @@ class TavilyAdapter:
         documents = []
         for row in response.get("results", []):
             url = str(row.get("url") or "")
-            source.assert_official_url(url)
+            if not url:
+                continue
+            try:
+                source.assert_official_url(url)
+            except ValueError:
+                # Tavily domain filters are a discovery hint, not a trust boundary.
+                # Ignore any stray result instead of ingesting it or failing the
+                # source's otherwise valid official documents.
+                continue
             content = str(row.get("raw_content") or row.get("content") or "").strip()
             if not content:
                 continue
