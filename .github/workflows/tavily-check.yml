@@ -23,7 +23,7 @@ jobs:
           python3 - <<'PY'
           import os, sys
           key = os.environ.get("TAVILY_API_KEY", "")
-          print(f"secret present: {bool(key)} | length: {len(key)} | prefix: {key[:8] + '...' if key else 'NONE'}")
+          print(f"secret present: {bool(key)} | length: {len(key)}")
           if not key:
               sys.exit("FAIL: TAVILY_API_KEY is not set in this runner")
           from fetchers._tavily import available, fetch_text

@@ -1,0 +1,164 @@
+name: Enrich public GPU market events
+
+on:
+  schedule:
+    - cron: "47 2 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Public-source collection mode
+        required: true
+        default: daily
+        type: choice
+        options:
+          - daily
+          - weekly
+          - both
+
+concurrency:
+  group: market-events-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run offline market-event tests
+        id: tests
+        run: python3 -m unittest discover -s market_events/tests -v
+
+      - name: Validate official-public source registry
+        id: registry
+        run: python3 -m market_events.cli validate-registry
+
+      - name: Select collection cadence
+        id: cadence
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            mode="${{ inputs.mode }}"
+          elif [[ "$(date -u +%u)" == "7" ]]; then
+            mode="both"
+          else
+            mode="daily"
+          fi
+
+          case "$mode" in
+            daily)
+              echo "daily=true" >> "$GITHUB_OUTPUT"
+              echo "weekly=false" >> "$GITHUB_OUTPUT"
+              ;;
+            weekly)
+              echo "daily=false" >> "$GITHUB_OUTPUT"
+              echo "weekly=true" >> "$GITHUB_OUTPUT"
+              ;;
+            both)
+              echo "daily=true" >> "$GITHUB_OUTPUT"
+              echo "weekly=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unsupported mode: $mode" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Require Tavily secret
+        id: secret
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY }}
+        shell: bash
+        run: |
+          if [[ -z "${TAVILY_API_KEY:-}" ]]; then
+            echo "Repository secret TAVILY is required for market-event enrichment." >&2
+            exit 1
+          fi
+
+      - name: Collect registered public sources
+        id: collect
+        env:
+          TAVILY_API_KEY: ${{ secrets.TAVILY }}
+          MARKET_EVENT_STATE_DIR: market_events/state
+          MARKET_EVENT_RAW_DIR: ${{ runner.temp }}/market-events-raw
+        shell: bash
+        run: |
+          status=0
+          mkdir -p "$MARKET_EVENT_STATE_DIR" "$MARKET_EVENT_RAW_DIR"
+
+          if [[ "${{ steps.cadence.outputs.daily }}" == "true" ]]; then
+            if ! python3 -m market_events.cli run \
+              --mode daily \
+              --state-dir "$MARKET_EVENT_STATE_DIR" \
+              --raw-dir "$MARKET_EVENT_RAW_DIR" \
+              --execute \
+              --fail-on-source-error; then
+              status=1
+            fi
+          fi
+
+          if [[ "${{ steps.cadence.outputs.weekly }}" == "true" ]]; then
+            if ! python3 -m market_events.cli run \
+              --mode weekly \
+              --state-dir "$MARKET_EVENT_STATE_DIR" \
+              --raw-dir "$MARKET_EVENT_RAW_DIR" \
+              --execute \
+              --fail-on-source-error; then
+              status=1
+            fi
+          fi
+
+          exit "$status"
+
+      - name: Export current human-review queue
+        if: ${{ always() && steps.registry.outcome == 'success' && steps.secret.outcome == 'success' }}
+        run: |
+          python3 -m market_events.cli review-queue \
+            --state-dir market_events/state \
+            --output market_events/state/review_queue.jsonl
+
+      - name: Upload raw public documents
+        if: ${{ always() && steps.secret.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: market-event-raw-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/market-events-raw/raw_documents.jsonl
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Commit durable market-event state only
+        if: ${{ always() && steps.registry.outcome == 'success' && steps.secret.outcome == 'success' }}
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          for state_file in \
+            events.jsonl \
+            changes.jsonl \
+            coverage_history.jsonl \
+            reviews.jsonl \
+            review_queue.jsonl; do
+            path="market_events/state/$state_file"
+            if [[ -f "$path" ]]; then
+              git add -- "$path"
+            fi
+          done
+
+          if git diff --cached --quiet; then
+            echo "No market-event state changes to commit."
+          else
+            git commit -m "chore: refresh public market-event state [skip ci]"
+            git push
+          fi

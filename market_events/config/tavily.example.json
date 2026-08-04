@@ -1,0 +1,11 @@
+{
+  "api_key_env": "TAVILY_API_KEY",
+  "api_base": "https://api.tavily.com",
+  "timeout_seconds": 60,
+  "search_depth": "basic",
+  "extract_depth": "basic",
+  "max_results": 10,
+  "crawl_max_depth": 1,
+  "crawl_max_breadth": 20,
+  "crawl_limit": 30
+}

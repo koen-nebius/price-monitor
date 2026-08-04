@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+# Durable event state is intentionally versioned. Raw page bodies are not.
+state/raw_documents.jsonl
+state/*.tmp

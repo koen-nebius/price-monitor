@@ -1,0 +1,7 @@
+# Local fallback examples only. GitHub Actions is the reviewed recurring path.
+# Keep raw page bodies outside the versioned state directory.
+# Daily known-page extraction at 02:47 UTC.
+47 2 * * * cd /path/to/gpu-price-monitor && python3 -m market_events.cli run --mode daily --state-dir /durable/state/market_events --raw-dir /temporary/raw-market-documents --execute --fail-on-source-error
+
+# Weekly official-domain discovery every Sunday at 03:47 UTC.
+47 3 * * 0 cd /path/to/gpu-price-monitor && python3 -m market_events.cli run --mode weekly --state-dir /durable/state/market_events --raw-dir /temporary/raw-market-documents --execute --fail-on-source-error
