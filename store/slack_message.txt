@@ -1,9 +1,7 @@
-*GPU Pricing Daily — August 03, 2026*
+*GPU Pricing Daily — August 04, 2026*
 
-*Bottom line:* Nebius on-demand sits 43–49% below hyperscalers and below cluster-peer median (H100, H200, B200); the contested ground is committed deals — competitors quoting GB300 from $3.50 vs our $5.19 (-33%).
-Vs GPU clouds: below median on H100 -4%, H200 -25%, B200 -13%
-Reference: H100 interruptible: our $2.15 vs Azure spot $2.27 (median) (-5%)
+*Changed in 24h:* GCP raised H100 spot +9% across 16 SKUs ($4.21→$4.63) · 3 more major-provider moves — detail in Confluence
 
-*Price moves today:* AWS raised B300 spot +6% ($6.15→$6.53) · 1 more major-provider move + 2 small-provider moves in thread
+*Position:* Nebius on-demand sits 43–49% below hyperscalers and below cluster-peer median (H100, H200, B200).
 
-Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>
+Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>
