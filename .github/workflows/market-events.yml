@@ -1,6 +1,12 @@
 name: Enrich public GPU market events
 
 on:
+  push:
+    branches:
+      - codex/pricing-cockpit-market-enrichment
+    paths:
+      - .github/workflows/market-events.yml
+      - "market_events/**"
   schedule:
     - cron: "47 2 * * *"
   workflow_dispatch:
@@ -50,6 +56,8 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             mode="${{ inputs.mode }}"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            mode="both"
           elif [[ "$(date -u +%u)" == "7" ]]; then
             mode="both"
           else
