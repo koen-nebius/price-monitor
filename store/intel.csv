@@ -141,3 +141,5 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1784643870.877969,2026-07-21,H100,4.41,0,0,neocloud,DigitalOcean,on-demand new rate eff Aug 1 2026 (was $3.39)
 1784643870.877969,2026-07-21,H100,3.89,0,0,neocloud,DigitalOcean,on-demand 8-GPU droplet new rate eff Aug 1 2026 (was $2.99)
 1784643870.877969,2026-07-21,H200,4.47,0,0,neocloud,DigitalOcean,on-demand new rate eff Aug 1 2026 (was $3.44)
+1785773165.072339,2026-08-03,GB200,8.00,60,0,neocloud,PaleBlueDot,10K Vera Rubin 5yr 0% down end-2027 delivery
+1785773165.072339,2026-08-03,B300,3.08,36,20,neocloud,Lightning AI,B300 3yr 20% down AE intel
