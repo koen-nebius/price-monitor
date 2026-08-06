@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-08-05",
-  "started_at": "2026-08-05T04:32:59.900008+00:00",
-  "completed_at": "2026-08-05T04:34:07.839993+00:00",
+  "run_date": "2026-08-06",
+  "started_at": "2026-08-06T04:34:03.143586+00:00",
+  "completed_at": "2026-08-06T04:35:10.321330+00:00",
   "status": "success",
-  "record_count": 1067,
-  "raw_record_count": 1067,
-  "anomaly_count": 2,
+  "record_count": 1065,
+  "raw_record_count": 1065,
+  "anomaly_count": 1,
   "quarantined_count": 0,
-  "diff_count": 49,
+  "diff_count": 30,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 124
+      "record_count": 122
     },
     "oracle": {
       "status": "live",
@@ -135,15 +135,14 @@
     }
   },
   "warnings": [
-    "cp_sesterce L40S on_demand: $1.59 \u2192 $0.76 (-52.4%) \u26a0 price anomaly",
-    "cp_theta-edgecloud H200 on_demand: $2.49 \u2192 $3.69 (+48.2%) \u26a0 price anomaly",
+    "cp_beam B200 on_demand: $3.93 \u2192 $5.62 (+43.0%) \u26a0 price anomaly",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": true,
+  "post_thread": false,
   "is_weekly": false,
-  "significant_moves": 3,
+  "significant_moves": 2,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
