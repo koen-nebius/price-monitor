@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-08-07",
-  "started_at": "2026-08-07T04:05:02.557341+00:00",
-  "completed_at": "2026-08-07T04:06:18.985348+00:00",
+  "run_date": "2026-08-08",
+  "started_at": "2026-08-08T03:02:18.788221+00:00",
+  "completed_at": "2026-08-08T03:04:13.493866+00:00",
   "status": "success",
   "record_count": 1066,
   "raw_record_count": 1066,
-  "anomaly_count": 7,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 48,
+  "diff_count": 39,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -135,14 +135,9 @@
     }
   },
   "warnings": [
-    "cp_verda B200 spot: $2.14 \u2192 $3.06 (+42.9%) \u26a0 price anomaly",
-    "cp_verda B300 spot: $2.62 \u2192 $3.75 (+42.9%) \u26a0 price anomaly",
-    "cp_verda GB300 spot: $3.02 \u2192 $4.31 (+42.9%) \u26a0 price anomaly",
-    "cp_verda H100 spot: $1.14 \u2192 $1.62 (+42.9%) \u26a0 price anomaly",
-    "cp_verda H200 spot: $1.40 \u2192 $2.00 (+42.9%) \u26a0 price anomaly",
-    "cp_verda L40S spot: $0.48 \u2192 $0.69 (+42.9%) \u26a0 price anomaly",
-    "cp_verda RTX6000 spot: $0.66 \u2192 $0.94 (+42.9%) \u26a0 price anomaly",
+    "Nebius committed prices last verified 46 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
+    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
   "post_thread": false,
