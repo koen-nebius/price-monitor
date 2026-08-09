@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-08-08",
-  "started_at": "2026-08-08T03:02:18.788221+00:00",
-  "completed_at": "2026-08-08T03:04:13.493866+00:00",
+  "run_date": "2026-08-09",
+  "started_at": "2026-08-09T03:09:29.367626+00:00",
+  "completed_at": "2026-08-09T03:10:38.894660+00:00",
   "status": "success",
-  "record_count": 1066,
-  "raw_record_count": 1066,
+  "record_count": 1070,
+  "raw_record_count": 1070,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 39,
+  "diff_count": 30,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 123
+      "record_count": 128
     },
     "oracle": {
       "status": "live",
@@ -69,7 +69,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 3
+      "record_count": 2
     }
   },
   "provider_freshness": {
@@ -135,9 +135,8 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 46 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "Nebius committed prices last verified 47 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
-    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
   "post_thread": false,

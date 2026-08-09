@@ -1,7 +1,5 @@
-*GPU Pricing Daily — August 08, 2026*
+*GPU Pricing Daily — August 09, 2026*
 
-*Changed in 24h:* AWS cut H200 spot -6% ($6.25→$5.87)
-
-*Position:* Nebius on-demand sits 43–49% below hyperscalers and below cluster-peer median (H100, H200, B200).
+No competitor movement since yesterday's update (no price moves ≥3% on tracked providers).
 
 Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>
