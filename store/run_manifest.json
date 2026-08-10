@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-08-09",
-  "started_at": "2026-08-09T03:09:29.367626+00:00",
-  "completed_at": "2026-08-09T03:10:38.894660+00:00",
+  "run_date": "2026-08-10",
+  "started_at": "2026-08-10T03:20:08.367706+00:00",
+  "completed_at": "2026-08-10T03:21:28.274822+00:00",
   "status": "success",
-  "record_count": 1070,
-  "raw_record_count": 1070,
-  "anomaly_count": 0,
+  "record_count": 1066,
+  "raw_record_count": 1066,
+  "anomaly_count": 1,
   "quarantined_count": 0,
-  "diff_count": 30,
+  "diff_count": 29,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 128
+      "record_count": 123
     },
     "oracle": {
       "status": "live",
@@ -69,7 +69,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 2
+      "record_count": 3
     }
   },
   "provider_freshness": {
@@ -135,13 +135,14 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 47 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "Nebius committed prices last verified 48 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "cp_akamai-cloud RTX6000 on_demand: $3.00 \u2192 $4.50 (+50.0%) \u26a0 price anomaly",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": false,
-  "is_weekly": false,
-  "significant_moves": 0,
+  "post_thread": true,
+  "is_weekly": true,
+  "significant_moves": 1,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
