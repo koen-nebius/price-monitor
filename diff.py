@@ -539,6 +539,69 @@ def _field_committed_by_gpu(days: int = 90):
     return by_gpu
 
 
+POSITION_HISTORY_CSV = Path(__file__).parent / "store" / "position_history.csv"
+
+
+def record_position_history(records: List[PriceRecord]) -> None:
+    """
+    Persist today's computed position gaps (per SUMMARY GPU: on-demand gap vs
+    cluster-peer median and vs cheapest comparable hyperscaler) so the Monday
+    anchor can report week-over-week movement EXACTLY consistent with what was
+    published — reconstructing peer medians from history.csv can't reproduce
+    the live cluster-class filter (node_gpus isn't persisted there). Called by
+    main.py each run; same-day reruns overwrite (upsert on date+gpu+basis).
+    """
+    today = date.today().isoformat()
+    rows = []
+    if POSITION_HISTORY_CSV.exists():
+        with open(POSITION_HISTORY_CSV, newline="") as f:
+            rows = [r for r in csv.DictReader(f) if r["date"] != today]
+    for row in compute_position(records):
+        if (row["tier_label"] != "on_demand" or not row["nebius_price"]
+                or row["gpu"] not in SUMMARY_GPUS):
+            continue
+        if row.get("median_peer") and row["total_peers"] >= 2:
+            pct = (row["nebius_price"] - row["median_peer"]) / row["median_peer"] * 100
+            rows.append({"date": today, "gpu": row["gpu"], "basis": "peer_median",
+                         "gap_pct": f"{pct:.2f}"})
+        hyp = _best_comparable(records, row["gpu"], "on_demand", tiers=["hyperscaler"])
+        if hyp:
+            pct = (row["nebius_price"] - hyp.price_per_gpu_hour_usd) \
+                / hyp.price_per_gpu_hour_usd * 100
+            rows.append({"date": today, "gpu": row["gpu"], "basis": "hyperscaler",
+                         "gap_pct": f"{pct:.2f}"})
+    with open(POSITION_HISTORY_CSV, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["date", "gpu", "basis", "gap_pct"])
+        w.writeheader()
+        w.writerows(sorted(rows, key=lambda r: (r["date"], r["gpu"], r["basis"])))
+
+
+def _peer_gap_wow(gpu: str, current_pct: float):
+    """
+    Week-over-week movement of the peer-median gap in percentage points:
+    current gap minus the recorded gap 5-9 days ago (closest to 7). None when
+    no recorded point exists in that window (young file, provider outages).
+    """
+    if not POSITION_HISTORY_CSV.exists():
+        return None
+    today = date.today()
+    best = None   # (|days_from_7|, gap_pct)
+    with open(POSITION_HISTORY_CSV, newline="") as f:
+        for r in csv.DictReader(f):
+            if r["gpu"] != gpu or r["basis"] != "peer_median":
+                continue
+            try:
+                age = (today - date.fromisoformat(r["date"])).days
+                gap = float(r["gap_pct"])
+            except (ValueError, TypeError):
+                continue
+            if 5 <= age <= 9 and (best is None or abs(age - 7) < best[0]):
+                best = (abs(age - 7), gap)
+    if best is None:
+        return None
+    return current_pct - best[1]
+
+
 def _range_stability_weeks(current_range: str) -> int:
     """
     How many whole weeks the rounded hyperscaler-gap range string (e.g. "43–49")
@@ -1100,6 +1163,12 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
             trend_tag = ""
             if _t and abs(_t[0]) >= 5:
                 trend_tag = f" (mkt {'+' if _t[0] >= 0 else ''}{_t[0]:.0f}%/{_t[1]}d)"
+            # Week-over-week movement of the gap itself (2026-08-11, Koen: the
+            # static levels need motion). Shown only when a recorded point ~7d
+            # back exists; sub-1pp movement renders as "=" to keep noise out.
+            wow = _peer_gap_wow(row["gpu"], pct)
+            if wow is not None:
+                trend_tag += f" ({wow:+.0f}pp WoW)" if abs(wow) >= 1 else " (= WoW)"
             if pct >= 3:
                 above.append(f"{row['gpu']} +{pct:.0f}%{trend_tag}")
             elif pct <= -3:
