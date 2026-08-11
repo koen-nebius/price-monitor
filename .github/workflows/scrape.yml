@@ -96,7 +96,7 @@ jobs:
                   store/run_manifest.json store/slack_message.txt \
                   store/slack_thread.txt store/confluence_body.html \
                   store/spot_auction_body.html store/intel.csv \
-                  store/provider_baseline.json
+                  store/provider_baseline.json store/position_history.csv
           if git diff --cached --quiet; then
             echo "No changes — no commit needed"
           else

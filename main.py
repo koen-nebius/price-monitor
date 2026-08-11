@@ -404,6 +404,10 @@ def run(providers=None, test=False):
     save_snapshot(all_records, today)              # raw snapshot — includes everything
     save_last_snapshot(accepted_records)           # baseline for next diff — accepted only
     append_history_records(accepted_records, today)  # trend CSV — accepted only
+    # Persist today's computed position gaps so the Monday anchor can report
+    # week-over-week movement consistent with what was actually published.
+    from diff import record_position_history
+    record_position_history(accepted_records)
 
     # ── Compute diff ─────────────────────────────────────────────────────────
     diffs = []
