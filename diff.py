@@ -539,6 +539,50 @@ def _field_committed_by_gpu(days: int = 90):
     return by_gpu
 
 
+def _range_stability_weeks(current_range: str) -> int:
+    """
+    How many whole weeks the rounded hyperscaler-gap range string (e.g. "43–49")
+    has been exactly what it is today, per history.csv. Used to tag the position
+    line with "(unchanged Nw)" — the range is computed against hyperscaler LIST
+    prices, which are sticky for quarters, so it can sit still for months and the
+    stillness itself is the signal. Returns 0 when history is missing/short.
+    """
+    if not HISTORY_CSV.exists():
+        return 0
+    neb: Dict[str, Dict[str, float]] = {}
+    hyp: Dict[str, Dict[str, list]] = {}
+    with open(HISTORY_CSV, newline="") as f:
+        for r in csv.DictReader(f):
+            if r["consumption_type"] != "on_demand":
+                continue
+            d, g = r["snapshot_date"], r["gpu_model"]
+            try:
+                px = float(r["price_per_gpu_hour_usd"])
+            except (ValueError, TypeError):
+                continue
+            if r["provider"] == "nebius":
+                neb.setdefault(d, {})[g] = px
+            elif (r["provider"] in ("aws", "gcp", "azure", "oracle")
+                  and r.get("form_factor") == "SXM"):
+                hyp.setdefault(d, {}).setdefault(g, []).append(px)
+    since = None
+    for d in sorted(neb, reverse=True):
+        day_gaps = []
+        for g in SUMMARY_GPUS:
+            if g in neb[d] and hyp.get(d, {}).get(g):
+                h = min(hyp[d][g])
+                day_gaps.append((h - neb[d][g]) / h * 100)
+        if not day_gaps:
+            continue
+        rng = f"{min(day_gaps):.0f}–{max(day_gaps):.0f}"
+        if rng != current_range:
+            break
+        since = d
+    if since is None:
+        return 0
+    return (date.today() - date.fromisoformat(since)).days // 7
+
+
 def _build_takeaway(records: List[PriceRecord], include_pressure: bool = True,
                     label: str = "Bottom line") -> str:
     """
@@ -559,21 +603,45 @@ def _build_takeaway(records: List[PriceRecord], include_pressure: bool = True,
         if neb and hyp:
             gaps.append((hyp.price_per_gpu_hour_usd - neb.price_per_gpu_hour_usd)
                         / hyp.price_per_gpu_hour_usd * 100)
-    # On-demand vs cluster-peer median (revenue-driver GPUs only).
-    peer_below = []
+    # On-demand vs cluster-peer median (revenue-driver GPUs only). GPUs with a
+    # single public cluster-peer list (B300: only Scaleway publishes) get a named
+    # vs-peer clause instead of a fake one-provider "median" (2026-08-11, Koen:
+    # B300 belongs in the position line). GB300 stays out by construction: no
+    # Nebius on-demand exists (no-PAYG decision) — its story is the committed
+    # contested-ground clause below.
+    peer_below, single_peer = [], []
     for row in compute_position(records):
-        if (row["tier_label"] == "on_demand" and row["nebius_price"]
-                and row["gpu"] in SUMMARY_GPUS
-                and row.get("median_peer") and row["total_peers"] >= 2):
+        if (row["tier_label"] != "on_demand" or not row["nebius_price"]
+                or row["gpu"] not in SUMMARY_GPUS):
+            continue
+        if row.get("median_peer") and row["total_peers"] >= 2:
             pct = (row["nebius_price"] - row["median_peer"]) / row["median_peer"] * 100
             if pct <= -3:
                 peer_below.append(row["gpu"])
+        elif row["total_peers"] == 1 and row.get("cheapest_peers_detail"):
+            pname, ppx = row["cheapest_peers_detail"][0]
+            pct = (row["nebius_price"] - ppx) / ppx * 100
+            if pct <= -3:
+                single_peer.append(f"{row['gpu']} {pct:.0f}% vs "
+                                   f"{_provider_display(pname)} (sole public peer list)")
     od = None
     if gaps:
         lo, hi = min(gaps), max(gaps)
         od = f"on-demand sits {lo:.0f}–{hi:.0f}% below hyperscalers"
+        # A range that hasn't moved in weeks is stability, not news — say so
+        # explicitly instead of restating it daily as if fresh (2026-08-11).
+        wk = _range_stability_weeks(f"{lo:.0f}–{hi:.0f}")
+        if wk >= 3:
+            od += f" (unchanged {wk}w)"
         if peer_below:
             od += f" and below cluster-peer median ({', '.join(peer_below[:3])})"
+        if single_peer:
+            od += f"; {'; '.join(single_peer[:2])}"
+        rtx = _rtx_market_stats(records)
+        if rtx:
+            rvs = (rtx["neb_od"] - rtx["median"]) / rtx["median"] * 100
+            od += (f". RTX PRO 6000 {rvs:+.0f}% vs inference-market median "
+                   f"({rtx['n_comp']} providers)")
     # Committed pressure: the hottest GPU where a competitor deal undercuts Nebius committed.
     # Skipped when the action flag already carries this point, so the same committed-deal
     # SKU is not stated twice in one post.

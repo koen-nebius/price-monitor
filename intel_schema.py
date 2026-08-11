@@ -8,7 +8,8 @@ the data boundary: every intel.csv row must validate, or it's dropped. This prot
 decision-trigger "competitor field deal" column and the sales battlecards, which now read
 directly from this file.
 """
-GPU_MODELS = {"H100", "H200", "B200", "B300", "GB200", "GB300", "L40S", "RTX6000"}
+GPU_MODELS = {"H100", "H200", "B200", "B300", "GB200", "GB300", "L40S", "RTX6000",
+              "VR"}   # VR = Vera Rubin (added 2026-08-11; quotes were polluting GB300)
 PROVIDER_TYPES = {
     "hyperscaler", "neocloud", "broker",
     "undisclosed_hyperscaler", "undisclosed_neocloud", "undisclosed",
