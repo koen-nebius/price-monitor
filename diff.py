@@ -40,6 +40,11 @@ GPU_ORDER = ["H100", "H200", "B200", "B300", "GB200", "GB300", "L40S"]
 # to "2%"). Adjust this list to re-weight the headline.
 SUMMARY_GPUS = ["H100", "H200", "B200", "B300", "GB300"]
 
+# GPUs that exist ONLY as field intel (no public list price anywhere): rendered
+# in the field-intel/committed sections but never in list-price tables.
+# VR = Vera Rubin — no provider publishes rental pricing as of 2026-08-11.
+FIELD_ONLY_GPUS = ["VR"]
+
 # A recorded competitive loss drives the "lost a deal" action (summary headline, thread
 # flag, recommended action) for this many days after the loss date, then DECAYS: the red
 # "lost deal" badge stays in the Confluence decision-trigger table (with its date) until
@@ -686,7 +691,7 @@ def _build_takeaway(records: List[PriceRecord], include_pressure: bool = True,
             pct = (row["nebius_price"] - ppx) / ppx * 100
             if pct <= -3:
                 single_peer.append(f"{row['gpu']} {pct:.0f}% vs "
-                                   f"{_provider_display(pname)} (sole public peer list)")
+                                   f"{_provider_display(pname)} (sole public cluster-peer list)")
     od = None
     if gaps:
         lo, hi = min(gaps), max(gaps)
@@ -711,7 +716,7 @@ def _build_takeaway(records: List[PriceRecord], include_pressure: bool = True,
     pressure = None
     if include_pressure:
         by_gpu = _field_committed_by_gpu(90)
-        for g in ("GB300", "B300", "B200", "H200", "H100"):
+        for g in ("VR", "GB300", "B300", "B200", "H200", "H100"):
             if not by_gpu.get(g):
                 continue
             # Cheapest field row that has a COMPARABLE Nebius term bucket — not the
@@ -741,7 +746,7 @@ def _format_field_committed_callout(records: List[PriceRecord]) -> str:
     where the 2026 competition actually happens (B300/GB300), and peers don't publish it.
     """
     by_gpu = _field_committed_by_gpu(90)
-    present = [g for g in GPU_ORDER if by_gpu.get(g)]
+    present = [g for g in GPU_ORDER + FIELD_ONLY_GPUS if by_gpu.get(g)]
     if not present:
         return ""
     lines = ["\n*Committed — negotiated competitor deals (field intel, #price-intelligence, 90d):*"]
@@ -2485,11 +2490,13 @@ def _build_availability_note(records: List[PriceRecord]) -> str:
 
 def _build_short_term_reserved_section(records: List[PriceRecord]) -> str:
     """
-    Short-term reserved market (1-6mo prepaid marketplace offers + transacted
-    SF Compute fills). The SHORT end of the committed curve — a floor signal
-    for short-term reserve / capacity-block discussions (RFC 055), NOT an
-    enterprise cluster-class comparable. Source integration per
-    analysis/reserve_price_sources.md (research 2026-07-07).
+    Short-term reserved market (days-to-months commitments): Vast.ai prepaid
+    marketplace offers, transacted SF Compute fills, and — since 2026-08-11 —
+    AWS EC2 Capacity Blocks published effective rates. Mixed quality tiers: AWS
+    CB is enterprise-grade published pricing; the marketplace rows remain a
+    floor signal, NOT an enterprise cluster-class comparable. Source
+    integration per analysis/reserve_price_sources.md (2026-07-07 research +
+    2026-08-11 B300/GB300 sweep).
     """
     rows = [r for r in records if r.consumption_type == "reserved_short"]
     if not rows:
@@ -2497,11 +2504,12 @@ def _build_short_term_reserved_section(records: List[PriceRecord]) -> str:
     from config import NEBIUS_COMMITTED_PRICES
     html = [
         '<h2>Short-term reserved market (1–6 month commitments)</h2>',
-        '<p><em>Cheapest live short-term reserved offers (Vast.ai marketplace, prepaid '
-        '1–6 months) and, when available, transacted SF Compute window fills. Commodity '
-        'SKUs on mixed hosts without enterprise SLAs — read as the market FLOOR for '
-        'short-term committed capacity, not as cluster-class comparables. Relevant to '
-        'the short-term reserve / capacity-block and auction (RFC 055) discussions.</em></p>',
+        '<p><em>Cheapest live short-term reserved offers: AWS EC2 Capacity Blocks '
+        '(published effective rates, enterprise-grade), Vast.ai marketplace '
+        '(prepaid 1–6 months, commodity SKUs on mixed hosts without enterprise SLAs) '
+        'and, when available, transacted SF Compute window fills. Marketplace rows '
+        'read as the market FLOOR for short-term committed capacity, not as '
+        'cluster-class comparables; AWS CB is directly comparable.</em></p>',
         '<table><thead><tr><th>GPU</th><th>Source</th><th>$/GPU-hr</th><th>Node size</th>'
         '<th>Region</th><th>Nebius 9mo committed (512+, 100%)</th><th>Nebius preemptible</th>'
         '</tr></thead><tbody>',
@@ -2517,7 +2525,10 @@ def _build_short_term_reserved_section(records: List[PriceRecord]) -> str:
         n9_td = f"${n9:.2f}" if n9 else "—"
         pv = pvm.get(r.gpu_model)
         pv_td = f"${pv:.2f}" if pv else "—"
-        src = "SF Compute fills (transacted)" if r.provider == "sfcompute" else "Vast.ai reserved offer"
+        src = {"sfcompute": "SF Compute fills (transacted)",
+               "aws": "AWS Capacity Blocks (published)",
+               "vast": "Vast.ai reserved offer"}.get(
+            r.provider, f"{_provider_display(r.provider)} reserved offer")
         html.append(
             f'<tr><td><strong>{r.gpu_model}</strong></td><td>{src}</td>'
             f'<td><strong>${r.price_per_gpu_hour_usd:.2f}</strong></td>'
@@ -2986,7 +2997,7 @@ def _build_field_committed_section(records: List[PriceRecord]) -> str:
         by_gpu[(r.get("gpu_model") or "").upper()].append(
             (px, term, r.get("provider_name") or r.get("provider_type") or "?",
              r.get("prepay_pct") or "?"))
-    present = [g for g in GPU_ORDER if by_gpu.get(g)]
+    present = [g for g in GPU_ORDER + FIELD_ONLY_GPUS if by_gpu.get(g)]
     if not present:
         return ""
     html = [

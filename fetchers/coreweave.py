@@ -15,7 +15,7 @@ from schema import PriceRecord
 
 logger = logging.getLogger(__name__)
 
-PRICING_URL = "https://www.coreweave.com/gpu-cloud-pricing"
+PRICING_URL = "https://www.coreweave.com/pricing"
 SOURCE_URL = PRICING_URL
 
 NEBIUS_GPUS = {"H100", "H200", "B200", "B300", "GB200", "GB300", "L40S"}

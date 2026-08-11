@@ -43,8 +43,8 @@ SOURCE_URL  = PRICING_URL
 HYPERSTACK_GPU_MAP = {
     "H200": "H200",
     "H100": "H100",
-    "B200": None,   # contact us
-    "B300": None,   # reservation-only, no public on-demand
+    "B200": "B200",   # public since ~Aug 2026 ($6.00 OD / $5.10 reserved)
+    "B300": "B300",   # public since Aug 2026 ($7.40 OD)
     "A100": None,
     "RTX":  None,
     "L40":  None,
@@ -105,7 +105,7 @@ def _parse_pricing(raw: str, now: str) -> List[PriceRecord]:
     # Three numbers between GPU name and price distinguish on-demand rows from
     # reservation rows which have only "$price Reserve here"
     for m in re.finditer(
-        r'NVIDIA\s+((?:H100|H200)(?:\s+\w+)?)\s+\d[\d.]+\s+\d+\s+\d+\s+\$?\s*([\d.]+)',
+        r'NVIDIA\s+((?:H100|H200|B200|B300)(?:\s+\w+)?)\s+\d[\d.]+\s+\d+\s+\d+\s+\$?\s*([\d.]+)',
         text, re.IGNORECASE
     ):
         gpu_model = _match_gpu(m.group(1))
@@ -118,7 +118,7 @@ def _parse_pricing(raw: str, now: str) -> List[PriceRecord]:
 
     # ── Reserved: "NVIDIA <GPU> $<price> Reserve here" (starting-from price) ──
     for m in re.finditer(
-        r'NVIDIA\s+((?:H100|H200)(?:\s+\w+)?)\s+\$?\s*([\d.]+)\s+Reserve\s+here',
+        r'NVIDIA\s+((?:H100|H200|B200|B300)(?:\s+\w+)?)\s+\$?\s*([\d.]+)\s+Reserve\s+here',
         text, re.IGNORECASE
     ):
         gpu_model = _match_gpu(m.group(1))
@@ -137,7 +137,7 @@ def _parse_pricing(raw: str, now: str) -> List[PriceRecord]:
     if spot_start >= 0:
         spot_text = text[spot_start:spot_start + 500]
         for m in re.finditer(
-            r'NVIDIA\s+((?:H100|H200)(?:\s+\w+)?)\s+\$?\s*([\d.]+)',
+            r'NVIDIA\s+((?:H100|H200|B200|B300)(?:\s+\w+)?)\s+\$?\s*([\d.]+)',
             spot_text, re.IGNORECASE
         ):
             gpu_model = _match_gpu(m.group(1))

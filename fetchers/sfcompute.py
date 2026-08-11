@@ -51,6 +51,13 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
     try:
         html = http_get(URL, timeout=20).decode("utf-8", errors="replace")
         price = _parse_h100(html)
+        # B300 launch watch (2026-08-11): SF Compute's banner says B300s come to
+        # the market "this fall". The day the site starts quoting B300, flag it
+        # loudly so we extend the parser + add 'b300' to sfcompute_fills
+        # GPU_TYPES — an orderbook B300 clearing price is a big new data point.
+        if "B300" in html.upper().replace(" ", ""):
+            logger.warning("SF Compute page now mentions B300 — check whether the "
+                           "market went live and extend sfcompute/sfcompute_fills")
     except Exception as e:
         logger.warning(f"SF Compute plain fetch failed: {e}")
 

@@ -41,6 +41,13 @@ GPU_MAP = {
         ],
     },
     "azure": {
+        # GB300 TRIPWIRE (2026-08-11): size is documented on Microsoft Learn
+        # (2 Grace + 4 B300 per VM) but the Retail Prices API returns ZERO rows
+        # today. Pre-registering it costs one empty API probe per day and
+        # auto-ingests the price the day Azure publishes it.
+        "GB300": [
+            {"instance_type": "Standard_ND128isr_GB300_v6", "gpu_count": 4, "vcpu": 128, "ram_gb": 1600},
+        ],
         "H100": [
             {"instance_type": "Standard_ND96isr_H100_v5", "gpu_count": 8, "vcpu": 96, "ram_gb": 900},
             # Cheapest Azure H100 entry point: 1× H100 NVL 94GB, no InfiniBand
@@ -83,7 +90,9 @@ AZURE_REGIONS = [
 ]
 
 PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices", "oracle", "hyperstack", "runpod", "sfcompute", "together",
-             "vast_reserved"]   # short-term reserved marketplace floor (see analysis/reserve_price_sources.md)
+             "vast_reserved",   # short-term reserved marketplace floor (see analysis/reserve_price_sources.md)
+             "verda",           # ex-DataCrunch; only GB300 public API price besides Oracle (2026-08-11 research)
+             "aws_capacity_blocks"]  # published effective CB rates (reserved_short; B300 $14.04 etc.)
 # SF Compute transacted fills need a free bearer token; only register the
 # provider when the token is present so quiet skips don't read as failures.
 import os as _os
@@ -127,7 +136,7 @@ PROVIDER_TIERS = {
         "cp_civo", "cp_tensordock", "cp_latitude", "cp_acecloud",
         "cp_scaleway", "cp_paperspace", "cp_jarvis", "cp_sesterce",
         "cp_upcloud", "cp_beyond-pl", "cp_koyeb", "cp_ionet",
-        "cp_vast", "cp_vultr", "cp_verda", "cp_akamai",
+        "cp_vast", "cp_vultr", "cp_verda", "verda", "cp_akamai",   # verda = direct API fetcher (verda.py); cp_verda kept as cross-ref
         "cp_packet-ai", "cp_gcore", "together",  # Together = direct fetcher (together.py); also enterprise tier
         "sfcompute",  # spot-market exchange (H100 clearing price) — distinct pricing mechanism
     ],

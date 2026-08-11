@@ -28,7 +28,7 @@ OCI_GPU_SHAPES = {
 # Fallback: match GPU model from displayName keywords when shape name not found
 # Order matters: longer/more specific matches first
 OCI_GPU_KEYWORDS = [
-    ("GB300",  "GB300",  8),
+    ("GB300",  "GB300",  4),   # GB300.42 = 4 B300 + 2 Grace per node
     ("GB200",  "GB200",  4),
     ("B300",   "B300",   8),
     ("B200",   "B200",   8),

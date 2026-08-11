@@ -251,7 +251,8 @@ def run(providers=None, test=False):
     # outage triggers a cache fallback that can resurrect the stale cp_* twin, double-
     # counting against the direct fetcher (e.g. cp_together-ai alongside direct together).
     # Drop them unconditionally at assembly so direct always wins.
-    SUPERSEDED_AGGREGATORS = {"cp_oracle", "cp_together-ai", "cp_hyperstack"}
+    SUPERSEDED_AGGREGATORS = {"cp_oracle", "cp_together-ai", "cp_hyperstack",
+                              "cp_verda"}   # direct verda.py fetcher since 2026-08-11
     _before = len(all_records)
     all_records = [r for r in all_records if r.provider not in SUPERSEDED_AGGREGATORS]
     if len(all_records) < _before:
