@@ -26,7 +26,7 @@ seed_20260501_03,2026-05-01,GB300,4.00,36,50,undisclosed,Undisclosed,3yr 50% upf
 seed_20260428_01,2026-04-28,GB300,6.18,12,30,nebius,Nebius,Nebius own quote for reference 30% down 1yr
 seed_20260414_01,2026-04-14,B200,3.45,0,0,undisclosed,Undisclosed,on-demand 600-GPU deal
 seed_20260414_02,2026-04-14,B200,4.25,0,25,hyperscaler,AWS,through reseller 25% down
-seed_20260413_01,2026-04-13,GB200,4.75,36,25,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 25% prepay Vera Rubin GPU deal
+seed_20260413_01,2026-04-13,VR,4.75,36,25,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 25% prepay Vera Rubin GPU deal
 seed_20260413_02,2026-04-13,B300,3.95,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay biotech deal
 seed_20260409_01,2026-04-09,B300,3.98,36,25,neocloud,CoreWeave,3yr 25% down Jan 2027 earliest delivery
 seed_20260402_01,2026-04-02,GB300,4.00,36,0,neocloud,CoreWeave (unconfirmed),3yr 0% upfront 5000-GPU deal
@@ -66,7 +66,7 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1776195934.303569,2026-04-14,B200,3.45,0,0,undisclosed,Undisclosed,on-demand 600-GPU deal
 1776195386.853129,2026-04-14,B200,4.35,0,0,broker,Lyceum,AWS nodes German broker 0% down
 1776195386.853129,2026-04-14,B200,4.25,0,25,broker,Lyceum,AWS nodes German broker 25% down
-1776113165.196659,2026-04-13,GB200,4.75,36,25,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 25% prepay Vera Rubin GPU deal
+1776113165.196659,2026-04-13,VR,4.75,36,25,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 25% prepay Vera Rubin GPU deal
 1776103400.900209,2026-04-13,B300,3.95,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay biotech w/ PR obligations
 1776103400.900209,2026-04-13,B300,4.0,0,0,neocloud,CoreWeave,July 2026 availability low $4s unconfirmed
 1775752732.729229,2026-04-09,B300,3.98,36,25,neocloud,CoreWeave,3yr 25% down 256 GPUs Jan 2027 earliest
@@ -82,7 +82,7 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1772084259.091249,2026-02-26,B300,4.25,0,35,broker,Undisclosed,marketplace 2500 GPUs March delivery
 1771847940.814249,2026-02-23,B200,4.26,12,0,neocloud,Lambda,1yr reserve raised from $3.49
 1771847940.814249,2026-02-23,B200,4.62,0,0,neocloud,Lambda,on-demand raised from $3.79
-1770687750.323659,2026-02-10,GB200,4.74,60,0,undisclosed,Undisclosed,NVIDIA pricing model 5yr Vera Rubin
+1770687750.323659,2026-02-10,VR,4.74,60,0,undisclosed,Undisclosed,NVIDIA pricing model 5yr Vera Rubin
 1769448492.806549,2026-01-26,B200,2.75,6,0,neocloud,Together,6mo reservation B200
 1769448492.806549,2026-01-26,B200,2.8,12,0,neocloud,CoreWeave,1yr reservation B200
 1768438488.843219,2026-01-15,B300,3.05,24,0,neocloud,Hydrahost,2yr 512 GPUs sold deal
@@ -141,7 +141,7 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1784643870.877969,2026-07-21,H100,4.41,0,0,neocloud,DigitalOcean,on-demand new rate eff Aug 1 2026 (was $3.39)
 1784643870.877969,2026-07-21,H100,3.89,0,0,neocloud,DigitalOcean,on-demand 8-GPU droplet new rate eff Aug 1 2026 (was $2.99)
 1784643870.877969,2026-07-21,H200,4.47,0,0,neocloud,DigitalOcean,on-demand new rate eff Aug 1 2026 (was $3.44)
-1785773165.072339,2026-08-03,GB200,8.00,60,0,neocloud,PaleBlueDot,10K Vera Rubin 5yr 0% down end-2027 delivery
+1785773165.072339,2026-08-03,VR,8.00,60,0,neocloud,PaleBlueDot,10K Vera Rubin 5yr 0% down end-2027 delivery
 1785773165.072339,2026-08-03,B300,3.08,36,20,neocloud,Lightning AI,B300 3yr 20% down AE intel
 1786040857.456889,2026-08-06,VR,6.00,0,0,undisclosed,Undisclosed,VR mkt $6s-high 7s; hyperscalers low-high 7s (Reflection intel Q2-Q4 2027)
 1786044803.953839,2026-08-06,B300,4.25,12,20,neocloud,Yotta,200xB300 1yr 20% down Sep delivery via Geodesic Labs

@@ -60,18 +60,65 @@ def check_cross_table_consistency(records: List[PriceRecord]) -> List[str]:
     return problems
 
 
+def check_field_only_gpus(records: List[PriceRecord]) -> List[str]:
+    """
+    Regression guard for field-intel-only GPUs (VR, 2026-08-11 incident):
+    1. No intel.csv row whose notes name Vera Rubin may be filed under another
+       gpu_model — misfiled VR quotes polluted GB300 AND GB200 field stats and
+       were compared against Nebius GB300 committed pricing on the live page.
+    2. Every FIELD_ONLY_GPUS model with intel rows in the 90d window must render
+       in the field-intel sections (they used to iterate GPU_ORDER only, which
+       silently dropped VR)...
+    3. ...and its rendered block must NOT price-compare against Nebius (no
+       Nebius list/committed tier exists for field-only GPUs by definition).
+    """
+    import csv as _csv
+    import re as _re
+    import diff as _diff
+
+    problems: List[str] = []
+
+    with open("store/intel.csv", newline="") as f:
+        for r in _csv.DictReader(f):
+            notes = r.get("notes", "")
+            if (("Vera Rubin" in notes or "VR200" in notes)
+                    and r.get("gpu_model") != "VR"):
+                problems.append(f"intel misfile: Vera Rubin quote filed as "
+                                f"{r.get('gpu_model')} ({r.get('message_date')}: {notes[:50]})")
+
+    _diff.enrich_comparability(records)
+    intel_gpus = {r.get("gpu_model") for r in _diff._load_intel(days=90)}
+    for g in _diff.FIELD_ONLY_GPUS:
+        if g not in intel_gpus:
+            continue
+        for name, out in (
+                ("field-intel section", _diff._build_field_intel_callout(records)),
+                ("field committed section", _diff._build_field_committed_section(records)),
+        ):
+            if g not in out:
+                problems.append(f"{g}: has intel rows but is missing from the {name}")
+                continue
+            zone = out[out.find(g):out.find(g) + 800]
+            if _re.search(r"vs Nebius \$|Nebius \$[\d.]", zone):
+                problems.append(f"{g}: {name} price-compares a field-only GPU "
+                                f"against a Nebius price")
+    return problems
+
+
 def main() -> int:
     records = load_last_snapshot()
     if not records:
         print("no snapshot to check — skipping (not a failure)")
         return 0
     problems = check_cross_table_consistency(records)
+    problems += check_field_only_gpus(records)
     if problems:
         print("CROSS-TABLE CONSISTENCY FAILURES:")
         for p in problems:
             print(f"  ✗ {p}")
         return 1
-    print(f"cross-table consistency OK ({len(records)} records checked)")
+    print(f"cross-table consistency OK ({len(records)} records checked, "
+          f"incl. field-only GPU guards)")
     return 0
 
 

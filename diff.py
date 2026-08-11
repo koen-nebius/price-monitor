@@ -1751,7 +1751,7 @@ def _build_field_intel_callout(records: List[PriceRecord]) -> str:
     )
 
     has_data = False
-    for gpu in GPU_ORDER:
+    for gpu in GPU_ORDER + FIELD_ONLY_GPUS:
         rows = sorted(by_gpu.get(gpu, []), key=lambda r: r["message_date"], reverse=True)
         if not rows:
             continue
