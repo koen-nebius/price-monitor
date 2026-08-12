@@ -61,12 +61,18 @@ def fetch() -> List[AvailabilityRecord]:
     records: List[AvailabilityRecord] = []
     denied = False
     error_codes: dict = {}
+    # The describe API has a small account-level quota (exhausted by repeated
+    # test runs on 2026-08-12). Backoff cannot refill an empty quota — after 3
+    # consecutive quota errors give up for this run instead of burning ~16min.
+    consecutive_quota_errors = 0
 
     for region in CB_REGIONS:
         if denied:
             break
         client = boto3.client("ec2", region_name=region)
         for itype, gpu_model in INSTANCE_GPU_MAP.items():
+            if consecutive_quota_errors >= 3:
+                break
             resp = None
             for attempt, backoff in enumerate([0] + BACKOFF_S):
                 if backoff:
@@ -80,6 +86,7 @@ def fetch() -> List[AvailabilityRecord]:
                         EndDateRange=now_dt + timedelta(days=WINDOW_DAYS),
                         MaxResults=20,
                     )
+                    consecutive_quota_errors = 0
                     break
                 except ClientError as e:
                     code = e.response.get("Error", {}).get("Code", "")
@@ -89,8 +96,10 @@ def fetch() -> List[AvailabilityRecord]:
                                        "(add the permission to activate this signal)")
                         denied = True
                         break
-                    if code == "CapacityBlockDescribeLimitExceeded" and backoff != BACKOFF_S[-1]:
-                        continue   # retry with the next backoff
+                    if code == "CapacityBlockDescribeLimitExceeded":
+                        if backoff != BACKOFF_S[-1]:
+                            continue   # retry with the next backoff
+                        consecutive_quota_errors += 1
                     # Region/type not supported or throttled out → summarize
                     # codes + first full message at the end (a silent all-error
                     # run looked identical to IAM-pending on 2026-08-12).
