@@ -54,6 +54,7 @@ def fetch() -> List[AvailabilityRecord]:
 
     records: List[AvailabilityRecord] = []
     denied = False
+    error_codes: dict = {}
 
     for region in CB_REGIONS:
         if denied:
@@ -77,8 +78,11 @@ def fetch() -> List[AvailabilityRecord]:
                                    "(add the permission to activate this signal)")
                     denied = True
                     break
-                # Region/type not supported → a plain not-offered, keep quiet
-                logger.debug(f"AWS CB {region}/{itype}: {code}")
+                # Region/type not supported → not-offered; keep per-call logs
+                # quiet but SUMMARIZE codes at the end (a silent all-error run
+                # looked identical to IAM-pending on 2026-08-12).
+                error_codes.setdefault(code or "unknown", []).append(f"{region}/{itype}")
+                logger.debug(f"AWS CB {region}/{itype}: {code}: {e}")
                 continue
             except Exception as e:
                 logger.error(f"AWS CB {region}/{itype}: {e}")
@@ -112,5 +116,8 @@ def fetch() -> List[AvailabilityRecord]:
 
     if denied:
         return []
+    for code, calls in error_codes.items():
+        logger.warning(f"AWS CB: {len(calls)} call(s) errored with {code} "
+                       f"(e.g. {calls[0]})")
     logger.info(f"AWS capacity blocks: {len(records)} records")
     return records
