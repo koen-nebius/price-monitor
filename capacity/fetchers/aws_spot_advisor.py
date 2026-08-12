@@ -17,7 +17,7 @@ import logging
 from datetime import datetime, timezone
 from typing import List
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ def fetch() -> List[AvailabilityRecord]:
                 provider="aws", gpu_model=gpu_model, region="global",
                 consumption_type="spot", state="available",
                 metric_type="regions_with_capacity", metric_value=float(len(regions)),
-                detail=f"spot pools in {len(regions)} region(s) (advisor, ~weekly refresh)",
+                detail=f"spot pools in {plural(len(regions), 'region')} (advisor, ~weekly refresh)",
                 fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
             ))
         else:

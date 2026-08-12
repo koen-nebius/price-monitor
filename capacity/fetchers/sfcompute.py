@@ -19,7 +19,7 @@ import re
 from datetime import datetime, timezone
 from typing import List
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -59,14 +59,25 @@ def _ticker_records(now: str) -> List[AvailabilityRecord]:
         avg = latest.get("avg")
         if avg is None:
             continue
-        # A clearing price existing = the market is transacting = purchasable.
+        # $0.00 (or near-zero) = no trades printed, NOT an available market.
+        # Emitting it as a price fabricated a number on an exec artifact
+        # (caught in the 2026-08-12 red-team pass).
+        if float(avg) <= 0.05:
+            records.append(AvailabilityRecord(
+                provider="sfcompute", gpu_model=gpu_model, region="global",
+                consumption_type="reserved_short", state="unknown",
+                metric_type="clearing_price_usd", metric_value=None,
+                detail="no trades printed on the exchange",
+                fetched_at=now, source_url=SOURCE_URL, data_source="web_scrape",
+            ))
+            continue
+        # A real clearing price = the market is transacting = purchasable.
         records.append(AvailabilityRecord(
             provider="sfcompute", gpu_model=gpu_model, region="global",
             consumption_type="reserved_short", state="available",
             metric_type="clearing_price_usd", metric_value=round(float(avg), 2),
-            detail=f"market clearing avg ${avg:.2f}/GPU-hr "
-                   f"(range ${latest.get('bottom', 0):.2f}–${latest.get('top', 0):.2f}); "
-                   f"price level/trend = scarcity signal",
+            detail=f"clearing avg ${avg:.2f}/GPU-hr "
+                   f"(range ${latest.get('bottom', 0):.2f}-${latest.get('top', 0):.2f})",
             fetched_at=now, source_url=SOURCE_URL, data_source="web_scrape",
         ))
     return records
@@ -93,7 +104,7 @@ def _availability_records(now: str, token: str) -> List[AvailabilityRecord]:
                 provider="sfcompute", gpu_model=gpu_model, region=site,
                 consumption_type="reserved_short", state="available",
                 metric_type="stock_level", metric_value=float(max_nodes * 8),
-                detail=f"up to {max_nodes} node(s) ({max_nodes * 8} GPUs) purchasable",
+                detail=f"up to {plural(max_nodes, 'node')} ({max_nodes * 8} GPUs) purchasable",
                 instance_type=alias,
                 fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
             ))

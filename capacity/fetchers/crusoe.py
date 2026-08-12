@@ -16,7 +16,7 @@ import re
 from datetime import datetime, timezone
 from typing import List
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +80,7 @@ def fetch() -> List[AvailabilityRecord]:
             provider="crusoe", gpu_model=model, region="global",
             consumption_type="on_demand", state=state,
             metric_type="listed_offering", metric_value=float(n),
-            detail=f"offered in {n} zone(s): {', '.join(sorted(zones))} "
+            detail=f"offered in {plural(n, 'zone')}: {', '.join(sorted(zones))} "
                    f"(footprint, not live stock)",
             fetched_at=now, source_url=SOURCE_URL, data_source="web_scrape",
         ))

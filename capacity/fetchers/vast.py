@@ -18,7 +18,7 @@ import urllib.parse
 from datetime import datetime, timezone
 from typing import List
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -82,10 +82,13 @@ def fetch() -> List[AvailabilityRecord]:
 
         capped = " (64-offer page cap hit — true depth larger)" if n_offers >= 64 else ""
         if n_gpus == 0:
-            state, detail = "sold_out", "no rentable offers listed"
+            # Zero listings on a commodity marketplace is a structural absence
+            # (nobody rents GB200 racks on Vast), not a sellout — rendering it
+            # sold_out manufactured scarcity signal (red-team 2026-08-12).
+            state, detail = "not_offered", "no offers listed (not traded on this marketplace)"
         elif n_gpus <= _LIMITED_MAX_GPUS:
             state = "limited"
-            detail = (f"only {n_gpus} GPU(s) across {n_offers} offer(s), "
+            detail = (f"only {plural(n_gpus, 'GPU')} across {plural(n_offers, 'offer')}, "
                       f"min ${min_price:.2f}/GPU-hr")
         else:
             state = "available"

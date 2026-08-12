@@ -17,7 +17,7 @@ import urllib.parse
 from datetime import datetime, timezone
 from typing import List, Set
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ def fetch() -> List[AvailabilityRecord]:
                 provider="azure", gpu_model=gpu_model, region="global",
                 consumption_type=ct, state=state,
                 metric_type="listed_offering", metric_value=float(n),
-                detail=f"{sku}: priced in {n} region(s) (offering, can overstate deployment)",
+                detail=f"{sku}: priced in {plural(n, 'region')} (offering, can overstate deployment)",
                 instance_type=sku,
                 fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
             ))
@@ -101,7 +101,7 @@ def fetch() -> List[AvailabilityRecord]:
                 provider="azure", gpu_model=gpu_model, region="global",
                 consumption_type="on_demand", state="limited",
                 metric_type="listed_offering", metric_value=float(len(regions)),
-                detail=f"NEW SKU LISTED: {', '.join(skus[:3])} in {len(regions)} region(s)",
+                detail=f"NEW SKU LISTED: {', '.join(skus[:3])} in {plural(len(regions), 'region')}",
                 instance_type=skus[0],
                 fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
             ))

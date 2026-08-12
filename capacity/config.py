@@ -27,15 +27,49 @@ PROVIDER_LABELS = {
     "azure": "Azure", "oracle": "Oracle",
 }
 
-# Providers whose signal is a real-time capacity/stock readout (vs a static
-# offering list). Used to weight the per-GPU market verdict: only live-stock
-# signals count toward tight/loose; offering lists provide coverage context.
-# gmi = provider-declared badges (self-reported but live); crusoe/nebius stay
-# footprint-only until their live endpoints are activated (see fetcher docs).
-LIVE_STOCK_PROVIDERS = {
-    "lambda", "hyperstack", "verda", "scaleway", "runpod", "vast",
-    "sfcompute", "voltage_park", "gmi",
-    "aws",   # spot advisor now; Capacity Blocks lead time once IAM extended
+# ---------------------------------------------------------------------------
+# Signal classes — the epistemic backbone of every artifact (STORM redesign
+# 2026-08-12). A cell's glyph, wording, and whether it counts toward the
+# tightness read all key off the CLASS, never off raw provider identity:
+#   live          — provider's own real-time stock API. Counts toward k/n.
+#   spot          — AWS spot advisor pools (~weekly). Own context line only.
+#   marketplace   — commodity depth (Vast) / exchange clearing (SF Compute).
+#                   Numbers, never peer states; never counted in k/n.
+#   self_reported — provider marketing badges (GMI). Shown as claims only.
+#   footprint     — static "where it is SOLD" (docs/price lists). Never
+#                   renders as available; only add/remove diffs are signal.
+# A record with data_source="aggregator" (Shadeform) is treated as live but
+# marked "via aggregator" and flagged non-independent (✱) in counts.
+# ---------------------------------------------------------------------------
+SIGNAL_CLASS = {
+    "lambda": "live", "scaleway": "live", "runpod": "live",
+    "voltage_park": "live", "hyperstack": "live", "verda": "live",
+    "together": "live",
+    "aws": "spot",            # becomes lead-time (live) once CB IAM lands
+    "vast": "marketplace", "sfcompute": "marketplace",
+    "gmi": "self_reported",
+    "coreweave": "footprint", "crusoe": "footprint", "gcp": "footprint",
+    "azure": "footprint", "nebius": "footprint",  # nebius renders as own reference block
+}
+
+# Fetchers registered but awaiting a credential — counted as "pending", not
+# "failed", in freshness lines so the day a REAL source breaks stands out.
+PENDING_ACTIVATION = {"aws_capacity_blocks", "hyperstack", "together", "verda"}
+
+# GPUs whose tightness moves Nebius pricing/capacity decisions — the digest
+# strip and thread blocks cover exactly these, in this order.
+FLAGSHIP_GPUS = ["H100", "H200", "B200", "B300"]
+# Rendered compactly after the flagships.
+SECONDARY_GPUS = ["L40S", "RTX6000"]
+# Footprint-expansion tracking only (no live market exists yet).
+FOOTPRINT_ONLY_GPUS = ["GB200", "GB300"]
+
+# Enterprise peers for the price join (pricing monitor provider keys).
+PRICE_JOIN_PEERS = {
+    "coreweave": "coreweave", "lambda": "lambda", "crusoe": "crusoe",
+    "hyperstack": "hyperstack", "cp_hyperstack": "hyperstack",
+    "cp_voltage": "voltage_park", "cp_gmi-cloud": "gmi",
+    "cp_scaleway": "scaleway", "verda": "verda", "together": "together",
 }
 
 # Fetcher registry — provider key; module of the same name under

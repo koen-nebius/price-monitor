@@ -17,7 +17,7 @@ import os
 from datetime import datetime, timedelta, timezone
 from typing import List
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +105,7 @@ def fetch() -> List[AvailabilityRecord]:
                 consumption_type="reserved_short", state=state,
                 metric_type="lead_time_days", metric_value=round(lead_days, 1),
                 detail=f"earliest 24h block in {lead_days:.1f}d, "
-                       f"{len(offerings)} offering(s), upfront from ${cheapest:,.0f}",
+                       f"{plural(len(offerings), 'offering')}, upfront from ${cheapest:,.0f}",
                 instance_type=itype,
                 fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
             ))

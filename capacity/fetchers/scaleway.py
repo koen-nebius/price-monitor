@@ -13,7 +13,7 @@ import re
 from datetime import datetime, timezone
 from typing import List
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ def fetch() -> List[AvailabilityRecord]:
             provider="scaleway", gpu_model=model, region="global",
             consumption_type="on_demand", state=state,
             metric_type="regions_with_capacity", metric_value=float(n_avail),
-            detail=f"available in {n_avail}/{n_total} zone(s) with the SKU",
+            detail=f"available in {n_avail} of {plural(n_total, 'zone')} carrying the SKU",
             fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
         ))
 

@@ -90,12 +90,16 @@ def run(providers=None, test=False):
         store.save_snapshot(all_records, today)
         store.append_history(all_records, today)
 
+    from capacity.config import PENDING_ACTIVATION
     live_count = sum(1 for s in provider_status.values() if s["status"] == "live")
+    real_failed = [p for p in failed if p not in PENDING_ACTIVATION]
     manifest = {
         "run_date": today.isoformat(),
         "started_at": started.isoformat(),
         "completed_at": datetime.now(timezone.utc).isoformat(),
-        "status": "success" if not failed else ("partial" if live_count else "failed"),
+        # Pending-activation providers (missing keys) are not failures — a
+        # permanently "partial" status would train readers to ignore it.
+        "status": "success" if not real_failed else ("partial" if live_count else "failed"),
         "record_count": len(all_records),
         "diff_count": len(diff),
         "provider_count": len(selected),
@@ -104,42 +108,15 @@ def run(providers=None, test=False):
         "stale_providers": stale,
         "provider_status": provider_status,
         "post_thread": True,
-        "method_rows": _method_rows(),
     }
 
-    write_artifacts(all_records, diff, manifest)
+    write_artifacts(all_records, diff, manifest, old_records)
     if not test:
         store.save_run_manifest(manifest)
 
     logger.info(f"Capacity run complete: {len(all_records)} records, "
                 f"{len(diff)} changes, {live_count}/{len(selected)} live")
     return manifest
-
-
-def _method_rows():
-    """Provider → signal → semantics, rendered into the Confluence method table."""
-    return [
-        ("Lambda", "instance-types API: regions_with_capacity_available",
-         "Live per-region launchability of each instance type; empty list = sold out fleet-wide."),
-        ("Hyperstack", "public GPU-pricing page stock badges / stock API",
-         "Provider-reported per-model stock status in their EU/NA regions."),
-        ("Verda", "instance-availability API (per location)",
-         "Live bookability per instance type per DC (Finland/Iceland)."),
-        ("Scaleway", "public availability API (per zone)",
-         "Provider-reported enum per GPU SKU: available / scarce / shortage."),
-        ("RunPod", "GraphQL stockStatus per GPU type",
-         "Marketplace-wide stock label (High/Medium/Low/None) for Secure Cloud."),
-        ("Vast.ai", "public search API offer depth",
-         "Count of rentable GPUs listed right now — market depth, not DC inventory."),
-        ("SF Compute", "market index price",
-         "H100 exchange clearing price; price level & moves proxy scarcity."),
-        ("AWS", "Capacity Blocks offerings: earliest start date",
-         "Days until the earliest reservable GPU block per region — lead time = scarcity."),
-        ("Nebius", "public console/API platform availability",
-         "Outside-in view of which GPU platforms our own regions offer publicly."),
-        ("GCP", "accelerator-zones listing",
-         "Which zones OFFER each GPU family (static offering, not live stock)."),
-    ]
 
 
 if __name__ == "__main__":

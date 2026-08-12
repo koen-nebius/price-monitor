@@ -21,7 +21,7 @@ import urllib.request
 from datetime import datetime, timezone
 from typing import List
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +103,7 @@ def fetch() -> List[AvailabilityRecord]:
             # scraps, not cluster capacity → limited.
             if not largest_avail:
                 state = "limited"
-            detail = (f"{len(regions)} region(s): {', '.join(sorted(regions))}; "
+            detail = (f"{plural(len(regions), 'region')}: {', '.join(sorted(regions))}; "
                       f"{n_avail_types}/{n_types} sizes launchable"
                       + ("" if largest_avail else f" (largest size {largest} sold out)"))
             records.append(AvailabilityRecord(
@@ -127,7 +127,7 @@ def fetch() -> List[AvailabilityRecord]:
                 provider="lambda", gpu_model=gpu_model, region="global",
                 consumption_type="on_demand", state="sold_out",
                 metric_type="regions_with_capacity", metric_value=0.0,
-                detail=f"all {n_types} instance size(s) show no region with capacity",
+                detail=f"all {plural(n_types, 'instance size')} show no region with capacity",
                 instance_type=largest,
                 fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
             ))

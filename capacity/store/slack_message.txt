@@ -1,11 +1,11 @@
-*GPU Capacity Daily — August 12, 2026*
+*GPU Capacity Daily — Wednesday 12 Aug 2026*
+No decision trigger hit.
+_Watch (Self-service): Nebius H100, H200 not bookable via Shadeform's resale view today (verify in console before reacting)_
 
-*Changes since yesterday:*
-• RunPod H100 on-demand: limited → available
-• RunPod L40S (EU-NL-1) on-demand: available → sold_out
-• RunPod L40S (US-NC-1) on-demand: available → sold_out
-• Verda B200 on-demand: sold_out → available
-• …and 1 more (thread)
-_14/18 sources live today._
+*Cluster-scale (8x) stock at live sources:*  H100 1/6✱ · H200 1/2✱ · B200 0/3✱ · B300 0/3✱
+_k/n = live sources with cluster stock (1x-only counts as no); ✱ includes an aggregator read_
 
-Full matrix (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/2164457614/GPU+Competitor+Capacity+%E2%80%94+Live+Overview|Confluence>
+No material changes on live sources.
+
+*Gauges:* SF Compute H100 clears $1.94 (short-term reserve) · Vast H100 depth 66 GPUs, floor $0.79 (commodity)
+_all 14 activated sources live · 4 sources pending activation_ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/2164457614/GPU+Competitor+Capacity+%E2%80%94+Live+Overview|matrix, battlecard, method>

@@ -23,8 +23,11 @@ LEAD_TIME_MOVE_DAYS = 5.0
 _MEANINGFUL = {"available", "limited", "sold_out"}
 
 
-def _key(r: AvailabilityRecord) -> Tuple[str, str, str, str]:
-    return (r.provider, r.gpu_model, r.region, r.consumption_type)
+def _key(r: AvailabilityRecord) -> Tuple[str, str, str, str, str]:
+    # instance_type is part of the identity: RunPod's H100 SXM/NVL/PCIe are
+    # three different products; collapsing them made the diff report phantom
+    # "limited → available" flips whenever the surviving variant changed.
+    return (r.provider, r.gpu_model, r.region, r.consumption_type, r.instance_type)
 
 
 def _index(records: List[AvailabilityRecord]) -> Dict[Tuple, AvailabilityRecord]:
@@ -52,7 +55,7 @@ def compute_diff(new: List[AvailabilityRecord],
         if o is None:
             if n.state in _MEANINGFUL:
                 entries.append(CapacityDiffEntry(
-                    *key, change_type="added",
+                    *key[:4], instance_type=key[4], change_type="added",
                     new_state=n.state, new_value=n.metric_value,
                     detail=f"now tracked: {n.state}" + (f" ({n.detail})" if n.detail else ""),
                 ))
@@ -63,7 +66,7 @@ def compute_diff(new: List[AvailabilityRecord],
             # two meaningful states (e.g. available -> sold_out).
             if n.state in _MEANINGFUL and o.state in _MEANINGFUL:
                 entries.append(CapacityDiffEntry(
-                    *key, change_type="state_change",
+                    *key[:4], instance_type=key[4], change_type="state_change",
                     old_state=o.state, new_state=n.state,
                     old_value=o.metric_value, new_value=n.metric_value,
                     detail=n.detail,
@@ -76,7 +79,7 @@ def compute_diff(new: List[AvailabilityRecord],
             if n.metric_type == "lead_time_days":
                 if abs(n.metric_value - o.metric_value) >= LEAD_TIME_MOVE_DAYS:
                     entries.append(CapacityDiffEntry(
-                        *key, change_type="metric_move",
+                        *key[:4], instance_type=key[4], change_type="metric_move",
                         old_state=o.state, new_state=n.state,
                         old_value=o.metric_value, new_value=n.metric_value,
                         detail=f"lead time {o.metric_value:.0f}d → {n.metric_value:.0f}d",
@@ -85,7 +88,7 @@ def compute_diff(new: List[AvailabilityRecord],
                 pct = (n.metric_value - o.metric_value) / o.metric_value * 100
                 if abs(pct) >= METRIC_MOVE_PCT:
                     entries.append(CapacityDiffEntry(
-                        *key, change_type="metric_move",
+                        *key[:4], instance_type=key[4], change_type="metric_move",
                         old_state=o.state, new_state=n.state,
                         old_value=o.metric_value, new_value=n.metric_value,
                         detail=f"{n.metric_type} {o.metric_value:g} → {n.metric_value:g} ({pct:+.0f}%)",
@@ -94,7 +97,7 @@ def compute_diff(new: List[AvailabilityRecord],
     for key, o in old_idx.items():
         if key not in new_idx and o.state in _MEANINGFUL:
             entries.append(CapacityDiffEntry(
-                *key, change_type="removed",
+                *key[:4], instance_type=key[4], change_type="removed",
                 old_state=o.state, old_value=o.metric_value,
                 detail="signal disappeared from source",
             ))

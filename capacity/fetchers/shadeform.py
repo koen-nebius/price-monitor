@@ -20,7 +20,7 @@ import os
 from datetime import datetime, timezone
 from typing import List
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -91,13 +91,13 @@ def fetch() -> List[AvailabilityRecord]:
         n_avail, n_total = len(avail), len(regions)
         if n_avail == 0:
             state = "sold_out"
-            detail = f"0/{n_total} region(s) available (via Shadeform)"
+            detail = f"bookable in 0 of {plural(n_total, 'region')} (via Shadeform)"
         elif n_avail <= 1 and n_total > 2:
             state = "limited"
-            detail = f"{n_avail}/{n_total} region(s) available (via Shadeform)"
+            detail = f"bookable in {n_avail} of {plural(n_total, 'region')} (via Shadeform)"
         else:
             state = "available"
-            detail = f"{n_avail}/{n_total} region(s) available (via Shadeform)"
+            detail = f"bookable in {n_avail} of {plural(n_total, 'region')} (via Shadeform)"
         records.append(AvailabilityRecord(
             provider=provider, gpu_model=gpu_model, region="global",
             consumption_type="on_demand", state=state,

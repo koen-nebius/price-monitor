@@ -1,27 +1,44 @@
-*Capacity matrix — state per provider (best region)*
+*Evidence — Wednesday 12 Aug 2026*
 
-*H100* — _mixed_
-   ⚠️ Nebius (self-service, but only eu-north1 (footprint)) · ✅ CoreWeave (7 regions) · ⚠️ Lambda (3 region(s): us-south-2, us-south-3, us-southeast-1; 3/5 …) · ✅ Crusoe · ⛔ Hyperstack · ⛔ Verda · ✅ Scaleway (1 region) · ⛔ Voltage Park · ✅ GMI Cloud · ✅ RunPod (12 regions, 4 sold out) · ✅ Vast.ai · ✅ SF Compute · ✅ AWS (12 regions) · ✅ GCP (15 regions) · ✅ Azure
+*H100 — cluster stock at 1/6 live sources*
+• In stock: Scaleway
+• Degraded: Lambda (4 regions: us-south-2, us-south-3, us-southeast-1, us-west-3) · RunPod (stock 1x: High, 8x: Low)
+• Sold out: Hyperstack✱ (bookable in 0 of 3 regions (via Shadeform)) · Verda✱ (bookable in 0 of 3 regions (via Shadeform)) · Voltage Park (0 GPUs listed (Ethernet and InfiniBand))
+• Claims: GMI badge 'AVAILABLE NOW' (from $2.00) — self-reported, not counted
+• Market: Vast 66 GPUs listed, floor $0.79 · SF Compute clears $1.94 · AWS spot pools in 12 regions (advisor, ~weekly)
+• Nebius shelf: Finland
+• ⚠️ Nebius canary: listed self-service but not buyable via Shadeform today (bookable in 0 of 1 region (via Shadeform))
 
-*H200* — _mixed_
-   ✅ Nebius (4 regions) · ✅ CoreWeave (7 regions) · ⚠️ Crusoe (offered in 1 zone(s): eu-iceland1-a (footprint, not live …) · ⛔ Verda · ✅ GMI Cloud · ⚠️ RunPod (1x stock Low, but no 8-GPU (cluster) stock) · ✅ Vast.ai · ✅ SF Compute · ✅ AWS (10 regions) · ✅ GCP (8 regions) · ✅ Azure
+*H200 — cluster stock at 1/2 live sources*
+• In stock: Verda✱
+• Degraded: RunPod (1x stock Low, but no 8-GPU (cluster) stock)
+• Claims: GMI badge 'AVAILABLE NOW' (from $2.60) — self-reported, not counted
+• Market: Vast 63 GPUs listed, floor $1.67 · AWS spot pools in 10 regions (advisor, ~weekly)
+• Nebius shelf: Finland, Iceland, Paris, Kansas (US)
+• ⚠️ Nebius canary: listed self-service but not buyable via Shadeform today (bookable in 0 of 3 regions (via Shadeform))
 
-*B200* — _mixed_
-   ✅ Nebius (2 regions) · ✅ CoreWeave (6 regions) · ⛔ Lambda · ✅ Crusoe · ✅ Verda · ⚠️ GMI Cloud (badge 'Limited Availability' (from $4.00)) · ⚠️ RunPod (1x stock Low, but no 8-GPU (cluster) stock) · ✅ Vast.ai · ✅ SF Compute · ✅ AWS (3 regions) · ✅ GCP (10 regions)
+*B200 — cluster stock at 0/3 live sources*
+• Degraded: RunPod (1x stock Low, but no 8-GPU (cluster) stock)
+• Sold out: Lambda (all 3 instance sizes show no region with capacity) · Verda✱ (bookable in 0 of 1 region (via Shadeform))
+• Claims: GMI badge 'Limited Availability' (from $4.00) — self-reported, not counted
+• Market: Vast 60 GPUs listed, floor $4.63 · AWS spot pools in 3 regions (advisor, ~weekly)
+• Nebius shelf: Israel, Kansas (US)
 
-*B300* — _mixed_
-   ✅ Nebius (2 regions) · ✅ CoreWeave (4 regions) · ⚠️ Crusoe (offered in 1 zone(s): eu-iceland1-a (footprint, not live …) · ✅ Verda · ⛔ Scaleway (fr-par-2) · ⛔ RunPod (all 2 regions) · ✅ Vast.ai · ✅ AWS (1 region)
+*B300 — cluster stock at 0/3 live sources*
+• Degraded: RunPod (1x stock Low, but no 8-GPU (cluster) stock)
+• Sold out: Scaleway (available in 0 of 1 zone carrying the SKU) · Verda✱ (bookable in 0 of 2 regions (via Shadeform))
+• Market: Vast 29 GPUs listed, floor $7.50 · AWS spot pools in 1 region (advisor, ~weekly)
+• Nebius shelf: eu-west2, London (UK)
 
-*GB200* — _thin live signal (2 sources)_
-   ✅ CoreWeave (6 regions) · ⚠️ Crusoe (offered in 1 zone(s): eu-iceland1-a (footprint, not live …) · ✅ GMI Cloud · ⛔ Vast.ai · ✅ GCP (4 regions) · ✅ Azure
+*L40S*: stock at 2/3 live sources (0/3 at scale) · *RTX6000*: stock at 1/3 live sources (1/3 at scale)
 
-*GB300* — _thin live signal (1 source)_
-   ⚠️ CoreWeave (deployed in only 2 of 18 GA AZs: CA-EAST-01A, US-WEST-01A…) · ⚠️ GMI Cloud (badge 'AVAILABLE NOW' but Pre order (not yet deliverable)) · ✅ GCP (3 regions)
+*No live market yet (footprint only, where it is sold):*
+*GB200*: CoreWeave 6 AZs · GCP 5 zones · Azure 19 priced regions · Crusoe 1 zone · GMI badge 'AVAILABLE NOW' (from $8.00)
+*GB300*: CoreWeave 2 AZs · GCP 5 zones · GMI badge 'AVAILABLE NOW' but Pre order (not yet deliverable)
 
-*L40S* — _mixed_
-   ⚠️ Nebius (self-service, but only eu-north1 (footprint)) · ⚠️ CoreWeave (deployed in only 1 of 18 GA AZs: US-EAST-04A (footprint, …) · ✅ Crusoe · ⛔ Verda · ⚠️ Scaleway (available in 0/2 zone(s) with the SKU) · ⚠️ RunPod (1x stock Low, but no 8-GPU (cluster) stock) · ✅ Vast.ai · ✅ AWS (7 regions)
+*All changes (previous build, 12 Aug 12:10 UTC):*
+• RunPod H100 [NVIDIA H100 PCIe]: limited → sold_out (live)
+• Verda H200: regions_with_capacity 2 → 1 (-50%) (via aggregator ✱)
+• RunPod region-level: 6 sellouts / 1 restocks (H100 AP-IN-1, H100 AP-JP-1, H100 EU-FR-1 +6 more)
 
-*RTX6000* — _mixed_
-   ⚠️ Nebius (self-service, but only us-central1 (footprint)) · ✅ CoreWeave (10 regions) · ⛔ Hyperstack · ⛔ Verda · ⚠️ RunPod (stock 1x: High, 8x: Low) · ✅ Vast.ai · ✅ GCP (20 regions)
-
-_✅ available · ⚠️ limited · ⛔ sold out · ? no live signal. 'Available' = at least one region/SKU with live capacity._
+_Public shelf at list price, not provider utilization · footprint = where it is sold, not whether in stock · transitions matter more than levels_

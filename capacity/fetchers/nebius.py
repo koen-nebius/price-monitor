@@ -101,18 +101,19 @@ def fetch() -> List[AvailabilityRecord]:
     for model, regions in sorted(model_regions.items()):
         n = len(regions)
         sales_gated = model in gated
+        # Footprint width is a PRODUCT choice, not a stock state — deriving
+        # "limited" from it painted our own company with a warning emoji next
+        # to peers' checkmarks (red-team 2026-08-12). State stays neutral;
+        # the renderer shows Nebius as a labeled reference block.
         if n == 0:
             state, detail = "not_offered", "no region lists the platform"
         elif sales_gated:
-            state = "limited"
-            detail = (f"offered in {n} region(s): {', '.join(sorted(regions))} — "
-                      f"sales-gated ('Contact us', no self-service price)")
-        elif n <= 1:
-            state = "limited"
-            detail = f"self-service, but only {', '.join(sorted(regions))} (footprint)"
+            state = "available"
+            detail = (f"sales-gated ('Contact us', no self-service price): "
+                      f"{', '.join(sorted(regions))}")
         else:
             state = "available"
-            detail = f"self-service in {n} region(s): {', '.join(sorted(regions))} (footprint)"
+            detail = f"self-service: {', '.join(sorted(regions))}"
         records.append(AvailabilityRecord(
             provider="nebius", gpu_model=model, region="global",
             consumption_type="on_demand", state=state,

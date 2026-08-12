@@ -73,6 +73,13 @@ class CapacityDiffEntry:
     old_value: Optional[float] = None
     new_value: Optional[float] = None
     detail: str = ""
+    instance_type: str = ""  # SKU variant the change belongs to ("" = provider-level)
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+
+def plural(n, word: str) -> str:
+    """'3 regions' / '1 region' — '(s)' strings undermine number-trust."""
+    n = int(n)
+    return f"{n} {word}{'s' if n != 1 else ''}"

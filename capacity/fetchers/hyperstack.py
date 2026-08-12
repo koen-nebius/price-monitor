@@ -16,7 +16,7 @@ import re
 from datetime import datetime, timezone
 from typing import List
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ def fetch() -> List[AvailabilityRecord]:
             provider="hyperstack", gpu_model=gpu_model, region="global",
             consumption_type="on_demand", state=state,
             metric_type="stock_level", metric_value=float(best),
-            detail=f"stock in {n_regions} region(s), best {best}+" if best else "0 in all regions",
+            detail=f"stock in {plural(n_regions, 'region')}, best {best}+" if best else "0 in all regions",
             fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
         ))
 

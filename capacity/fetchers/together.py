@@ -14,7 +14,7 @@ import os
 from datetime import datetime, timezone
 from typing import List
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -81,10 +81,10 @@ def fetch() -> List[AvailabilityRecord]:
         elif value == 0:
             state, detail = "sold_out", "headroom 0 replicas"
         elif value <= _LIMITED_MAX_HEADROOM and not gte:
-            state, detail = "limited", f"headroom {value} replica(s)"
+            state, detail = "limited", f"headroom {plural(value, 'replica')}"
         else:
             state = "available"
-            detail = f"headroom {'≥' if gte else ''}{value} replica(s)"
+            detail = f"headroom {'≥' if gte else ''}{plural(value, 'replica')}"
         if state == "available":
             per_model_regions.setdefault(gpu_model, set()).add(region)
         records.append(AvailabilityRecord(
@@ -101,7 +101,7 @@ def fetch() -> List[AvailabilityRecord]:
         n_regions_total = sum(1 for (m, _r) in best if m == gpu_model)
         if regions:
             state = "available"
-            detail = f"headroom in {len(regions)}/{n_regions_total} region(s)"
+            detail = f"headroom in {len(regions)} of {plural(n_regions_total, 'region')}"
         else:
             any_known = any(v[0] >= 0 for (m, _r), v in best.items() if m == gpu_model)
             state = "sold_out" if any_known else "unknown"
