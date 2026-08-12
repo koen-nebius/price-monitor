@@ -1,6 +1,6 @@
 {
  "lambda": {
-  "fetched_at": "2026-08-12T13:02:19.179640+00:00",
+  "fetched_at": "2026-08-12T13:06:54.182929+00:00",
   "records": [
    {
     "provider": "lambda",
@@ -12,7 +12,7 @@
     "metric_value": 0.0,
     "detail": "all 3 instance sizes show no region with capacity",
     "instance_type": "gpu_8x_b200_sxm6",
-    "fetched_at": "2026-08-12T13:02:18.662191+00:00",
+    "fetched_at": "2026-08-12T13:06:53.403442+00:00",
     "source_url": "https://cloud.lambdalabs.com",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -27,7 +27,7 @@
     "metric_value": 3.0,
     "detail": "3 regions: us-south-2, us-south-3, us-southeast-1; 3/5 sizes launchable (largest size gpu_8x_h100_sxm5 sold out)",
     "instance_type": "gpu_8x_h100_sxm5",
-    "fetched_at": "2026-08-12T13:02:18.662191+00:00",
+    "fetched_at": "2026-08-12T13:06:53.403442+00:00",
     "source_url": "https://cloud.lambdalabs.com",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -42,7 +42,7 @@
     "metric_value": 1.0,
     "detail": "launchable sizes: gpu_1x_h100_sxm5, gpu_2x_h100_sxm5",
     "instance_type": "gpu_1x_h100_sxm5",
-    "fetched_at": "2026-08-12T13:02:18.662191+00:00",
+    "fetched_at": "2026-08-12T13:06:53.403442+00:00",
     "source_url": "https://cloud.lambdalabs.com",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -55,9 +55,9 @@
     "state": "available",
     "metric_type": "regions_with_capacity",
     "metric_value": 1.0,
-    "detail": "launchable sizes: gpu_1x_h100_sxm5",
+    "detail": "launchable sizes: gpu_1x_h100_sxm5, gpu_2x_h100_sxm5",
     "instance_type": "gpu_1x_h100_sxm5",
-    "fetched_at": "2026-08-12T13:02:18.662191+00:00",
+    "fetched_at": "2026-08-12T13:06:53.403442+00:00",
     "source_url": "https://cloud.lambdalabs.com",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -72,7 +72,7 @@
     "metric_value": 1.0,
     "detail": "launchable sizes: gpu_1x_h100_sxm5, gpu_2x_h100_sxm5, gpu_4x_h100_sxm5",
     "instance_type": "gpu_1x_h100_sxm5",
-    "fetched_at": "2026-08-12T13:02:18.662191+00:00",
+    "fetched_at": "2026-08-12T13:06:53.403442+00:00",
     "source_url": "https://cloud.lambdalabs.com",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -80,7 +80,7 @@
   ]
  },
  "coreweave": {
-  "fetched_at": "2026-08-12T13:02:19.313023+00:00",
+  "fetched_at": "2026-08-12T13:06:54.635244+00:00",
   "records": [
    {
     "provider": "coreweave",
@@ -92,7 +92,7 @@
     "metric_value": 2.0,
     "detail": "deployed in only 2 of 18 GA AZs: CA-EAST-01A, US-WEST-01A (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -107,7 +107,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -122,7 +122,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -137,7 +137,7 @@
     "metric_value": 6.0,
     "detail": "deployed in 6 of 18 GA AZs (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -152,7 +152,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -167,7 +167,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -182,7 +182,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -197,7 +197,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -212,7 +212,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -227,7 +227,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -242,7 +242,7 @@
     "metric_value": 4.0,
     "detail": "deployed in 4 of 18 GA AZs (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -257,7 +257,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -272,7 +272,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -287,7 +287,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -302,7 +302,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -317,7 +317,7 @@
     "metric_value": 6.0,
     "detail": "deployed in 6 of 18 GA AZs (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -332,7 +332,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -347,7 +347,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -362,7 +362,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -377,7 +377,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -392,7 +392,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -407,7 +407,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -422,7 +422,7 @@
     "metric_value": 7.0,
     "detail": "deployed in 7 of 18 GA AZs (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -437,7 +437,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -452,7 +452,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -467,7 +467,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -482,7 +482,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -497,7 +497,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -512,7 +512,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -527,7 +527,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -542,7 +542,7 @@
     "metric_value": 7.0,
     "detail": "deployed in 7 of 18 GA AZs (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -557,7 +557,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -572,7 +572,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -587,7 +587,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -602,7 +602,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -617,7 +617,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -632,7 +632,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -647,7 +647,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -662,7 +662,7 @@
     "metric_value": 10.0,
     "detail": "deployed in 10 of 18 GA AZs (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -677,7 +677,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -692,7 +692,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -707,7 +707,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -722,7 +722,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -737,7 +737,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -752,7 +752,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -767,7 +767,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -782,7 +782,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -797,7 +797,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -812,7 +812,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -827,7 +827,7 @@
     "metric_value": 1.0,
     "detail": "deployed in only 1 of 18 GA AZs: US-EAST-04A (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -842,7 +842,7 @@
     "metric_value": 1.0,
     "detail": "deployed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.185133+00:00",
+    "fetched_at": "2026-08-12T13:06:54.188785+00:00",
     "source_url": "https://docs.coreweave.com/platform/instances/availability-matrix",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -850,7 +850,7 @@
   ]
  },
  "gcp_zones": {
-  "fetched_at": "2026-08-12T13:02:20.732377+00:00",
+  "fetched_at": "2026-08-12T13:06:55.511226+00:00",
   "records": [
    {
     "provider": "gcp",
@@ -862,7 +862,7 @@
     "metric_value": 11.0,
     "detail": "offered in 11 zones across 10 regions (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -877,7 +877,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -892,7 +892,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -907,7 +907,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -922,7 +922,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -937,7 +937,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -952,7 +952,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -967,7 +967,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -982,7 +982,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -997,7 +997,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1012,7 +1012,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1027,7 +1027,7 @@
     "metric_value": 5.0,
     "detail": "offered in 5 zones across 4 regions (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1042,7 +1042,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1057,7 +1057,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1072,7 +1072,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1087,7 +1087,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1102,7 +1102,7 @@
     "metric_value": 5.0,
     "detail": "offered in 5 zones across 3 regions (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1117,7 +1117,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1132,7 +1132,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1147,7 +1147,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1162,7 +1162,7 @@
     "metric_value": 23.0,
     "detail": "offered in 23 zones across 15 regions (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1177,7 +1177,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1192,7 +1192,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1207,7 +1207,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1222,7 +1222,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1237,7 +1237,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1252,7 +1252,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1267,7 +1267,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1282,7 +1282,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1297,7 +1297,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1312,7 +1312,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1327,7 +1327,7 @@
     "metric_value": 3.0,
     "detail": "3 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1342,7 +1342,7 @@
     "metric_value": 3.0,
     "detail": "3 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1357,7 +1357,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1372,7 +1372,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1387,7 +1387,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1402,7 +1402,7 @@
     "metric_value": 8.0,
     "detail": "offered in 8 zones across 8 regions (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1417,7 +1417,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1432,7 +1432,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1447,7 +1447,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1462,7 +1462,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1477,7 +1477,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1492,7 +1492,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1507,7 +1507,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1522,7 +1522,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1537,7 +1537,7 @@
     "metric_value": 40.0,
     "detail": "offered in 40 zones across 20 regions (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1552,7 +1552,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1567,7 +1567,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1582,7 +1582,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1597,7 +1597,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1612,7 +1612,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1627,7 +1627,7 @@
     "metric_value": 3.0,
     "detail": "3 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1642,7 +1642,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1657,7 +1657,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1672,7 +1672,7 @@
     "metric_value": 3.0,
     "detail": "3 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1687,7 +1687,7 @@
     "metric_value": 3.0,
     "detail": "3 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1702,7 +1702,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1717,7 +1717,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1732,7 +1732,7 @@
     "metric_value": 3.0,
     "detail": "3 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1747,7 +1747,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1762,7 +1762,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1777,7 +1777,7 @@
     "metric_value": 3.0,
     "detail": "3 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1792,7 +1792,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1807,7 +1807,7 @@
     "metric_value": 3.0,
     "detail": "3 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1822,7 +1822,7 @@
     "metric_value": 1.0,
     "detail": "1 zone (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1837,7 +1837,7 @@
     "metric_value": 2.0,
     "detail": "2 zones (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:19.318569+00:00",
+    "fetched_at": "2026-08-12T13:06:54.640895+00:00",
     "source_url": "https://cloud.google.com/compute/docs/gpus/gpu-regions-zones",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -1845,7 +1845,7 @@
   ]
  },
  "runpod": {
-  "fetched_at": "2026-08-12T13:02:32.945490+00:00",
+  "fetched_at": "2026-08-12T13:21:18.861319+00:00",
   "records": [
    {
     "provider": "runpod",
@@ -1857,7 +1857,7 @@
     "metric_value": 0.0,
     "detail": "1x stock Low, but no 8-GPU (cluster) stock",
     "instance_type": "NVIDIA B200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -1867,12 +1867,12 @@
     "gpu_model": "B300",
     "region": "global",
     "consumption_type": "on_demand",
-    "state": "limited",
+    "state": "sold_out",
     "metric_type": "stock_status_label",
     "metric_value": 0.0,
-    "detail": "1x stock Low, but no 8-GPU (cluster) stock",
+    "detail": "no Secure Cloud stock at 1x or 8x",
     "instance_type": "NVIDIA B300 SXM6 AC",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -1887,7 +1887,7 @@
     "metric_value": 1.0,
     "detail": "stock 1x: High, 8x: Low",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -1902,7 +1902,7 @@
     "metric_value": 0.0,
     "detail": "1x stock Low, but no 8-GPU (cluster) stock",
     "instance_type": "NVIDIA H100 NVL",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -1912,12 +1912,12 @@
     "gpu_model": "H100",
     "region": "global",
     "consumption_type": "on_demand",
-    "state": "sold_out",
+    "state": "limited",
     "metric_type": "stock_status_label",
     "metric_value": 0.0,
-    "detail": "no Secure Cloud stock at 1x or 8x",
+    "detail": "1x stock Low, but no 8-GPU (cluster) stock",
     "instance_type": "NVIDIA H100 PCIe",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -1932,7 +1932,7 @@
     "metric_value": 1.0,
     "detail": "stock 1x: Medium, 8x: Low",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -1947,7 +1947,7 @@
     "metric_value": 0.0,
     "detail": "no Secure Cloud stock at 1x or 8x",
     "instance_type": "NVIDIA H200 NVL",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -1957,12 +1957,12 @@
     "gpu_model": "L40S",
     "region": "global",
     "consumption_type": "on_demand",
-    "state": "limited",
+    "state": "sold_out",
     "metric_type": "stock_status_label",
     "metric_value": 0.0,
-    "detail": "1x stock Low, but no 8-GPU (cluster) stock",
+    "detail": "no Secure Cloud stock at 1x or 8x",
     "instance_type": "NVIDIA L40S",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -1977,7 +1977,7 @@
     "metric_value": 0.0,
     "detail": "no Secure Cloud stock at 1x or 8x",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Max-Q Workstation Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -1990,9 +1990,9 @@
     "state": "limited",
     "metric_type": "stock_status_label",
     "metric_value": 1.0,
-    "detail": "stock 1x: High, 8x: Low",
+    "detail": "stock 1x: Medium, 8x: Low",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2002,12 +2002,12 @@
     "gpu_model": "RTX6000",
     "region": "global",
     "consumption_type": "on_demand",
-    "state": "limited",
+    "state": "sold_out",
     "metric_type": "stock_status_label",
     "metric_value": 0.0,
-    "detail": "1x stock Low, but no 8-GPU (cluster) stock",
+    "detail": "no Secure Cloud stock at 1x or 8x",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2022,7 +2022,7 @@
     "metric_value": 2.0,
     "detail": "DC India: stock Medium",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2037,7 +2037,7 @@
     "metric_value": 0.0,
     "detail": "DC India: sold out",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2052,7 +2052,7 @@
     "metric_value": 1.0,
     "detail": "DC Japan: stock Low",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2067,7 +2067,7 @@
     "metric_value": 1.0,
     "detail": "DC Japan: stock Low",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2082,7 +2082,7 @@
     "metric_value": 1.0,
     "detail": "DC Canada: stock Low",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2092,12 +2092,12 @@
     "gpu_model": "RTX6000",
     "region": "CA-MTL-3",
     "consumption_type": "on_demand",
-    "state": "available",
+    "state": "sold_out",
     "metric_type": "stock_status_label",
-    "metric_value": 1.0,
-    "detail": "DC Canada: stock Low",
+    "metric_value": 0.0,
+    "detail": "DC Canada: sold out",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2112,7 +2112,7 @@
     "metric_value": 1.0,
     "detail": "DC Canada: stock Low",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2127,7 +2127,7 @@
     "metric_value": 0.0,
     "detail": "DC Canada: sold out",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2137,12 +2137,12 @@
     "gpu_model": "RTX6000",
     "region": "EU-CZ-1",
     "consumption_type": "on_demand",
-    "state": "available",
+    "state": "sold_out",
     "metric_type": "stock_status_label",
-    "metric_value": 1.0,
-    "detail": "DC Europe: stock Low",
+    "metric_value": 0.0,
+    "detail": "DC Europe: sold out",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2157,7 +2157,7 @@
     "metric_value": 1.0,
     "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2172,7 +2172,7 @@
     "metric_value": 0.0,
     "detail": "DC France: sold out",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2182,12 +2182,12 @@
     "gpu_model": "H100",
     "region": "EU-FR-1",
     "consumption_type": "on_demand",
-    "state": "sold_out",
+    "state": "available",
     "metric_type": "stock_status_label",
-    "metric_value": 0.0,
-    "detail": "DC France: sold out",
+    "metric_value": 1.0,
+    "detail": "DC France: stock Low",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2202,7 +2202,7 @@
     "metric_value": 0.0,
     "detail": "DC Europe: sold out",
     "instance_type": "NVIDIA B300 SXM6 AC",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2212,12 +2212,12 @@
     "gpu_model": "L40S",
     "region": "EU-NL-1",
     "consumption_type": "on_demand",
-    "state": "available",
+    "state": "sold_out",
     "metric_type": "stock_status_label",
-    "metric_value": 1.0,
-    "detail": "DC Europe: stock Low",
+    "metric_value": 0.0,
+    "detail": "DC Europe: sold out",
     "instance_type": "NVIDIA L40S",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2232,7 +2232,7 @@
     "metric_value": 1.0,
     "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2242,12 +2242,12 @@
     "gpu_model": "RTX6000",
     "region": "EU-NL-1",
     "consumption_type": "on_demand",
-    "state": "sold_out",
+    "state": "available",
     "metric_type": "stock_status_label",
-    "metric_value": 0.0,
-    "detail": "DC Europe: sold out",
+    "metric_value": 1.0,
+    "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2262,7 +2262,7 @@
     "metric_value": 0.0,
     "detail": "DC Europe: sold out",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2272,12 +2272,12 @@
     "gpu_model": "B200",
     "region": "EU-RO-1",
     "consumption_type": "on_demand",
-    "state": "sold_out",
+    "state": "available",
     "metric_type": "stock_status_label",
-    "metric_value": 0.0,
-    "detail": "DC Europe: sold out",
+    "metric_value": 1.0,
+    "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA B200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2292,7 +2292,7 @@
     "metric_value": 1.0,
     "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2307,7 +2307,7 @@
     "metric_value": 1.0,
     "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2322,7 +2322,7 @@
     "metric_value": 1.0,
     "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA B300 SXM6 AC",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2337,7 +2337,7 @@
     "metric_value": 0.0,
     "detail": "DC Europe: sold out",
     "instance_type": "NVIDIA H100 NVL",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2352,7 +2352,7 @@
     "metric_value": 0.0,
     "detail": "DC Europe: sold out",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2367,7 +2367,7 @@
     "metric_value": 0.0,
     "detail": "DC Europe: sold out",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2382,7 +2382,7 @@
     "metric_value": 1.0,
     "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2397,7 +2397,7 @@
     "metric_value": 0.0,
     "detail": "DC Europe: sold out",
     "instance_type": "NVIDIA L40S",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2412,7 +2412,7 @@
     "metric_value": 1.0,
     "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2427,7 +2427,7 @@
     "metric_value": 1.0,
     "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2442,7 +2442,7 @@
     "metric_value": 1.0,
     "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2457,7 +2457,7 @@
     "metric_value": 1.0,
     "detail": "DC Europe: stock Low",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2472,7 +2472,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2487,7 +2487,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA B200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2497,12 +2497,12 @@
     "gpu_model": "H200",
     "region": "US-CA-2",
     "consumption_type": "on_demand",
-    "state": "sold_out",
+    "state": "available",
     "metric_type": "stock_status_label",
-    "metric_value": 0.0,
-    "detail": "DC United States: sold out",
+    "metric_value": 1.0,
+    "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2512,12 +2512,12 @@
     "gpu_model": "H100",
     "region": "US-CA-2",
     "consumption_type": "on_demand",
-    "state": "available",
+    "state": "sold_out",
     "metric_type": "stock_status_label",
-    "metric_value": 1.0,
-    "detail": "DC United States: stock Low",
+    "metric_value": 0.0,
+    "detail": "DC United States: sold out",
     "instance_type": "NVIDIA H100 NVL",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2532,7 +2532,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2547,7 +2547,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2562,7 +2562,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2577,7 +2577,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA H100 NVL",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2592,7 +2592,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA L40S",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2607,7 +2607,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2622,7 +2622,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA H100 NVL",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2632,12 +2632,12 @@
     "gpu_model": "H100",
     "region": "US-KS-2",
     "consumption_type": "on_demand",
-    "state": "sold_out",
+    "state": "available",
     "metric_type": "stock_status_label",
-    "metric_value": 0.0,
-    "detail": "DC United States: sold out",
+    "metric_value": 1.0,
+    "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA H100 PCIe",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2652,7 +2652,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2667,7 +2667,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA H200 NVL",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2682,7 +2682,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA L40S",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2697,7 +2697,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2712,7 +2712,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2722,12 +2722,12 @@
     "gpu_model": "RTX6000",
     "region": "US-NC-1",
     "consumption_type": "on_demand",
-    "state": "sold_out",
+    "state": "available",
     "metric_type": "stock_status_label",
-    "metric_value": 0.0,
-    "detail": "DC United States: sold out",
+    "metric_value": 1.0,
+    "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2742,7 +2742,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2757,7 +2757,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA L40S",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2772,7 +2772,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2787,7 +2787,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA B200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2802,7 +2802,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2817,7 +2817,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA H100 80GB HBM3",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2832,7 +2832,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA B200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2847,7 +2847,7 @@
     "metric_value": 1.0,
     "detail": "DC United States: stock Low",
     "instance_type": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2862,7 +2862,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA H200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2877,7 +2877,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA L40S",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2892,7 +2892,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA L40S",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2907,7 +2907,7 @@
     "metric_value": 0.0,
     "detail": "DC United States: sold out",
     "instance_type": "NVIDIA B200",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2917,12 +2917,12 @@
     "gpu_model": "B300",
     "region": "US-WA-2",
     "consumption_type": "on_demand",
-    "state": "available",
+    "state": "sold_out",
     "metric_type": "stock_status_label",
-    "metric_value": 1.0,
-    "detail": "DC United States: stock Low",
+    "metric_value": 0.0,
+    "detail": "DC United States: sold out",
     "instance_type": "NVIDIA B300 SXM6 AC",
-    "fetched_at": "2026-08-12T13:02:32.283510+00:00",
+    "fetched_at": "2026-08-12T13:21:18.005390+00:00",
     "source_url": "https://www.runpod.io/gpu-cloud",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2930,7 +2930,7 @@
   ]
  },
  "vast": {
-  "fetched_at": "2026-08-12T13:02:33.745414+00:00",
+  "fetched_at": "2026-08-12T13:21:21.656094+00:00",
   "records": [
    {
     "provider": "vast",
@@ -2939,10 +2939,10 @@
     "consumption_type": "on_demand",
     "state": "available",
     "metric_type": "offer_depth_gpus",
-    "metric_value": 67.0,
-    "detail": "67 GPUs / 35 offers, min $0.79/GPU-hr, 9 countries",
+    "metric_value": 60.0,
+    "detail": "60 GPUs / 31 offers, min $0.79/GPU-hr, 8 countries",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.951682+00:00",
+    "fetched_at": "2026-08-12T13:21:18.868030+00:00",
     "source_url": "https://vast.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2954,10 +2954,10 @@
     "consumption_type": "on_demand",
     "state": "available",
     "metric_type": "offer_depth_gpus",
-    "metric_value": 78.0,
-    "detail": "78 GPUs / 27 offers, min $1.67/GPU-hr, 6 countries",
+    "metric_value": 81.0,
+    "detail": "81 GPUs / 29 offers, min $1.67/GPU-hr, 7 countries",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.951682+00:00",
+    "fetched_at": "2026-08-12T13:21:18.868030+00:00",
     "source_url": "https://vast.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2972,7 +2972,7 @@
     "metric_value": 62.0,
     "detail": "62 GPUs / 22 offers, min $4.63/GPU-hr, 1 country",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.951682+00:00",
+    "fetched_at": "2026-08-12T13:21:18.868030+00:00",
     "source_url": "https://vast.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -2984,10 +2984,10 @@
     "consumption_type": "on_demand",
     "state": "available",
     "metric_type": "offer_depth_gpus",
-    "metric_value": 23.0,
-    "detail": "23 GPUs / 5 offers, min $8.13/GPU-hr, 2 countries",
+    "metric_value": 31.0,
+    "detail": "31 GPUs / 6 offers, min $8.13/GPU-hr, 3 countries",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.951682+00:00",
+    "fetched_at": "2026-08-12T13:21:18.868030+00:00",
     "source_url": "https://vast.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3002,7 +3002,7 @@
     "metric_value": 0.0,
     "detail": "no offers listed (not traded on this marketplace)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.951682+00:00",
+    "fetched_at": "2026-08-12T13:21:18.868030+00:00",
     "source_url": "https://vast.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3014,10 +3014,10 @@
     "consumption_type": "on_demand",
     "state": "available",
     "metric_type": "offer_depth_gpus",
-    "metric_value": 105.0,
-    "detail": "105 GPUs / 32 offers, min $0.40/GPU-hr, 8 countries",
+    "metric_value": 106.0,
+    "detail": "106 GPUs / 32 offers, min $0.40/GPU-hr, 8 countries",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.951682+00:00",
+    "fetched_at": "2026-08-12T13:21:18.868030+00:00",
     "source_url": "https://vast.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3029,10 +3029,10 @@
     "consumption_type": "on_demand",
     "state": "available",
     "metric_type": "offer_depth_gpus",
-    "metric_value": 107.0,
-    "detail": "107 GPUs / 58 offers, min $0.66/GPU-hr, 15 countries",
+    "metric_value": 112.0,
+    "detail": "112 GPUs / 60 offers, min $0.66/GPU-hr, 15 countries",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.951682+00:00",
+    "fetched_at": "2026-08-12T13:21:18.868030+00:00",
     "source_url": "https://vast.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3040,7 +3040,7 @@
   ]
  },
  "crusoe": {
-  "fetched_at": "2026-08-12T13:02:32.278462+00:00",
+  "fetched_at": "2026-08-12T13:21:17.999644+00:00",
   "records": [
    {
     "provider": "crusoe",
@@ -3052,7 +3052,7 @@
     "metric_value": 3.0,
     "detail": "offered in 3 zones: eu-iceland1-a, eu-norway1-a, us-west1-a (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.221781+00:00",
+    "fetched_at": "2026-08-12T13:21:17.741212+00:00",
     "source_url": "https://docs.crusoecloud.com/compute/virtual-machines/overview/index.html",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -3067,7 +3067,7 @@
     "metric_value": 1.0,
     "detail": "offered in 1 zone: eu-iceland1-a (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.221781+00:00",
+    "fetched_at": "2026-08-12T13:21:17.741212+00:00",
     "source_url": "https://docs.crusoecloud.com/compute/virtual-machines/overview/index.html",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -3082,7 +3082,7 @@
     "metric_value": 1.0,
     "detail": "offered in 1 zone: eu-iceland1-a (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.221781+00:00",
+    "fetched_at": "2026-08-12T13:21:17.741212+00:00",
     "source_url": "https://docs.crusoecloud.com/compute/virtual-machines/overview/index.html",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -3097,7 +3097,7 @@
     "metric_value": 3.0,
     "detail": "offered in 3 zones: eu-iceland1-a, us-east1-a, us-southcentral1-a (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.221781+00:00",
+    "fetched_at": "2026-08-12T13:21:17.741212+00:00",
     "source_url": "https://docs.crusoecloud.com/compute/virtual-machines/overview/index.html",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -3112,7 +3112,7 @@
     "metric_value": 1.0,
     "detail": "offered in 1 zone: eu-iceland1-a (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.221781+00:00",
+    "fetched_at": "2026-08-12T13:21:17.741212+00:00",
     "source_url": "https://docs.crusoecloud.com/compute/virtual-machines/overview/index.html",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -3127,7 +3127,7 @@
     "metric_value": 2.0,
     "detail": "offered in 2 zones: us-east1-a, us-southcentral1-a (footprint, not live stock)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:32.221781+00:00",
+    "fetched_at": "2026-08-12T13:21:17.741212+00:00",
     "source_url": "https://docs.crusoecloud.com/compute/virtual-machines/overview/index.html",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -3135,7 +3135,7 @@
   ]
  },
  "azure_regions": {
-  "fetched_at": "2026-08-12T13:02:23.260748+00:00",
+  "fetched_at": "2026-08-12T13:06:56.770023+00:00",
   "records": [
    {
     "provider": "azure",
@@ -3147,7 +3147,7 @@
     "metric_value": 24.0,
     "detail": "Standard_ND96isr_H100_v5: priced in 24 regions (offering, can overstate deployment)",
     "instance_type": "Standard_ND96isr_H100_v5",
-    "fetched_at": "2026-08-12T13:02:20.738303+00:00",
+    "fetched_at": "2026-08-12T13:06:55.517313+00:00",
     "source_url": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3162,7 +3162,7 @@
     "metric_value": 24.0,
     "detail": "Standard_ND96isr_H100_v5: priced in 24 regions (offering, can overstate deployment)",
     "instance_type": "Standard_ND96isr_H100_v5",
-    "fetched_at": "2026-08-12T13:02:20.738303+00:00",
+    "fetched_at": "2026-08-12T13:06:55.517313+00:00",
     "source_url": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3177,7 +3177,7 @@
     "metric_value": 31.0,
     "detail": "Standard_ND96isr_H200_v5: priced in 31 regions (offering, can overstate deployment)",
     "instance_type": "Standard_ND96isr_H200_v5",
-    "fetched_at": "2026-08-12T13:02:20.738303+00:00",
+    "fetched_at": "2026-08-12T13:06:55.517313+00:00",
     "source_url": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3192,7 +3192,7 @@
     "metric_value": 31.0,
     "detail": "Standard_ND96isr_H200_v5: priced in 31 regions (offering, can overstate deployment)",
     "instance_type": "Standard_ND96isr_H200_v5",
-    "fetched_at": "2026-08-12T13:02:20.738303+00:00",
+    "fetched_at": "2026-08-12T13:06:55.517313+00:00",
     "source_url": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3207,7 +3207,7 @@
     "metric_value": 19.0,
     "detail": "Standard_ND128isr_NDR_GB200_v6: priced in 19 regions (offering, can overstate deployment)",
     "instance_type": "Standard_ND128isr_NDR_GB200_v6",
-    "fetched_at": "2026-08-12T13:02:20.738303+00:00",
+    "fetched_at": "2026-08-12T13:06:55.517313+00:00",
     "source_url": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3222,7 +3222,7 @@
     "metric_value": 19.0,
     "detail": "Standard_ND128isr_NDR_GB200_v6: priced in 19 regions (offering, can overstate deployment)",
     "instance_type": "Standard_ND128isr_NDR_GB200_v6",
-    "fetched_at": "2026-08-12T13:02:20.738303+00:00",
+    "fetched_at": "2026-08-12T13:06:55.517313+00:00",
     "source_url": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3230,7 +3230,7 @@
   ]
  },
  "aws_spot_advisor": {
-  "fetched_at": "2026-08-12T13:02:23.378308+00:00",
+  "fetched_at": "2026-08-12T13:06:57.506938+00:00",
   "records": [
    {
     "provider": "aws",
@@ -3242,7 +3242,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "g6e.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3257,7 +3257,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3272,7 +3272,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5en.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3287,7 +3287,7 @@
     "metric_value": 1.0,
     "detail": "spot pool live, interruption 5-10%",
     "instance_type": "p5en.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3302,7 +3302,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "g6e.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3317,7 +3317,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3332,7 +3332,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5en.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3347,7 +3347,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3362,7 +3362,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5en.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3377,7 +3377,7 @@
     "metric_value": 3.0,
     "detail": "spot pool live, interruption 15-20%",
     "instance_type": "g6e.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3392,7 +3392,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3407,7 +3407,7 @@
     "metric_value": 1.0,
     "detail": "spot pool live, interruption 5-10%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3422,7 +3422,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3437,7 +3437,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3452,7 +3452,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5en.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3467,7 +3467,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5en.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3482,7 +3482,7 @@
     "metric_value": 2.0,
     "detail": "spot pool live, interruption 10-15%",
     "instance_type": "g6e.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3497,7 +3497,7 @@
     "metric_value": 2.0,
     "detail": "spot pool live, interruption 10-15%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3512,7 +3512,7 @@
     "metric_value": 1.0,
     "detail": "spot pool live, interruption 5-10%",
     "instance_type": "p5en.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3527,7 +3527,7 @@
     "metric_value": 1.0,
     "detail": "spot pool live, interruption 5-10%",
     "instance_type": "p6-b200.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3542,7 +3542,7 @@
     "metric_value": 1.0,
     "detail": "spot pool live, interruption 5-10%",
     "instance_type": "g6e.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3557,7 +3557,7 @@
     "metric_value": 4.0,
     "detail": "spot pool live, interruption >20%",
     "instance_type": "g6e.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3572,7 +3572,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3587,7 +3587,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3602,7 +3602,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5en.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3617,7 +3617,7 @@
     "metric_value": 4.0,
     "detail": "spot pool live, interruption >20%",
     "instance_type": "g6e.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3632,7 +3632,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3647,7 +3647,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5en.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3662,7 +3662,7 @@
     "metric_value": 2.0,
     "detail": "spot pool live, interruption 10-15%",
     "instance_type": "p6-b200.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3677,7 +3677,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p6-b300.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3692,7 +3692,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "g6e.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3707,7 +3707,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3722,7 +3722,7 @@
     "metric_value": 0.0,
     "detail": "spot pool live, interruption <5%",
     "instance_type": "p5en.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3737,7 +3737,7 @@
     "metric_value": 2.0,
     "detail": "spot pool live, interruption 10-15%",
     "instance_type": "p6-b200.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3752,52 +3752,7 @@
     "metric_value": 2.0,
     "detail": "spot pool live, interruption 10-15%",
     "instance_type": "g6e.48xlarge",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
-    "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
-    "data_source": "official_api",
-    "parser_version": "1.0"
-   },
-   {
-    "provider": "aws",
-    "gpu_model": "H100",
-    "region": "global",
-    "consumption_type": "spot",
-    "state": "available",
-    "metric_type": "regions_with_capacity",
-    "metric_value": 12.0,
-    "detail": "spot pools in 12 regions (advisor, ~weekly refresh)",
-    "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
-    "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
-    "data_source": "official_api",
-    "parser_version": "1.0"
-   },
-   {
-    "provider": "aws",
-    "gpu_model": "B300",
-    "region": "global",
-    "consumption_type": "spot",
-    "state": "available",
-    "metric_type": "regions_with_capacity",
-    "metric_value": 1.0,
-    "detail": "spot pools in 1 region (advisor, ~weekly refresh)",
-    "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
-    "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
-    "data_source": "official_api",
-    "parser_version": "1.0"
-   },
-   {
-    "provider": "aws",
-    "gpu_model": "L40S",
-    "region": "global",
-    "consumption_type": "spot",
-    "state": "available",
-    "metric_type": "regions_with_capacity",
-    "metric_value": 9.0,
-    "detail": "spot pools in 9 regions (advisor, ~weekly refresh)",
-    "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3812,7 +3767,7 @@
     "metric_value": 3.0,
     "detail": "spot pools in 3 regions (advisor, ~weekly refresh)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3827,7 +3782,52 @@
     "metric_value": 10.0,
     "detail": "spot pools in 10 regions (advisor, ~weekly refresh)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:23.265542+00:00",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
+    "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
+    "data_source": "official_api",
+    "parser_version": "1.0"
+   },
+   {
+    "provider": "aws",
+    "gpu_model": "B300",
+    "region": "global",
+    "consumption_type": "spot",
+    "state": "available",
+    "metric_type": "regions_with_capacity",
+    "metric_value": 1.0,
+    "detail": "spot pools in 1 region (advisor, ~weekly refresh)",
+    "instance_type": "",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
+    "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
+    "data_source": "official_api",
+    "parser_version": "1.0"
+   },
+   {
+    "provider": "aws",
+    "gpu_model": "L40S",
+    "region": "global",
+    "consumption_type": "spot",
+    "state": "available",
+    "metric_type": "regions_with_capacity",
+    "metric_value": 9.0,
+    "detail": "spot pools in 9 regions (advisor, ~weekly refresh)",
+    "instance_type": "",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
+    "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
+    "data_source": "official_api",
+    "parser_version": "1.0"
+   },
+   {
+    "provider": "aws",
+    "gpu_model": "H100",
+    "region": "global",
+    "consumption_type": "spot",
+    "state": "available",
+    "metric_type": "regions_with_capacity",
+    "metric_value": 12.0,
+    "detail": "spot pools in 12 regions (advisor, ~weekly refresh)",
+    "instance_type": "",
+    "fetched_at": "2026-08-12T13:06:56.775286+00:00",
     "source_url": "https://aws.amazon.com/ec2/spot/instance-advisor/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3835,7 +3835,7 @@
   ]
  },
  "scaleway": {
-  "fetched_at": "2026-08-12T13:02:38.078558+00:00",
+  "fetched_at": "2026-08-12T13:21:27.371529+00:00",
   "records": [
    {
     "provider": "scaleway",
@@ -3847,7 +3847,7 @@
     "metric_value": 0.0,
     "detail": "B300-SXM-2-288G: sold_out; B300-SXM-4-288G: sold_out; B300-SXM-8-288G: sold_out",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:33.750955+00:00",
+    "fetched_at": "2026-08-12T13:21:21.662082+00:00",
     "source_url": "https://www.scaleway.com/en/pricing/gpu/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3862,7 +3862,7 @@
     "metric_value": 2.0,
     "detail": "H100-1-80G: limited; H100-2-80G: sold_out; H100-SXM-2-80G: available; H100-SXM-4-80G: available; H100-SXM-8-80G: available",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:33.750955+00:00",
+    "fetched_at": "2026-08-12T13:21:21.662082+00:00",
     "source_url": "https://www.scaleway.com/en/pricing/gpu/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3877,7 +3877,7 @@
     "metric_value": 1.0,
     "detail": "H100-1-80G: limited; H100-2-80G: sold_out",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:33.750955+00:00",
+    "fetched_at": "2026-08-12T13:21:21.662082+00:00",
     "source_url": "https://www.scaleway.com/en/pricing/gpu/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3892,7 +3892,7 @@
     "metric_value": 1.0,
     "detail": "L40S-1-48G: available; L40S-2-48G: sold_out; L40S-4-48G: sold_out; L40S-8-48G: sold_out",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:33.750955+00:00",
+    "fetched_at": "2026-08-12T13:21:21.662082+00:00",
     "source_url": "https://www.scaleway.com/en/pricing/gpu/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3907,7 +3907,7 @@
     "metric_value": 1.0,
     "detail": "L40S-1-48G: limited; L40S-2-48G: sold_out; L40S-4-48G: sold_out; L40S-8-48G: sold_out",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:33.750955+00:00",
+    "fetched_at": "2026-08-12T13:21:21.662082+00:00",
     "source_url": "https://www.scaleway.com/en/pricing/gpu/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3922,7 +3922,7 @@
     "metric_value": 0.0,
     "detail": "available in 0 of 1 zone carrying the SKU",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:33.750955+00:00",
+    "fetched_at": "2026-08-12T13:21:21.662082+00:00",
     "source_url": "https://www.scaleway.com/en/pricing/gpu/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3937,7 +3937,7 @@
     "metric_value": 1.0,
     "detail": "available in 1 of 2 zones carrying the SKU",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:33.750955+00:00",
+    "fetched_at": "2026-08-12T13:21:21.662082+00:00",
     "source_url": "https://www.scaleway.com/en/pricing/gpu/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3952,7 +3952,7 @@
     "metric_value": 0.0,
     "detail": "available in 0 of 2 zones carrying the SKU",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:33.750955+00:00",
+    "fetched_at": "2026-08-12T13:21:21.662082+00:00",
     "source_url": "https://www.scaleway.com/en/pricing/gpu/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3960,7 +3960,7 @@
   ]
  },
  "voltage_park": {
-  "fetched_at": "2026-08-12T13:02:38.294908+00:00",
+  "fetched_at": "2026-08-12T13:21:27.776792+00:00",
   "records": [
    {
     "provider": "voltage_park",
@@ -3972,7 +3972,7 @@
     "metric_value": 0.0,
     "detail": "0 GPUs listed (Ethernet and InfiniBand)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.083386+00:00",
+    "fetched_at": "2026-08-12T13:21:27.376758+00:00",
     "source_url": "https://www.voltagepark.com/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -3980,7 +3980,7 @@
   ]
  },
  "gmi": {
-  "fetched_at": "2026-08-12T13:02:38.547993+00:00",
+  "fetched_at": "2026-08-12T13:21:28.068567+00:00",
   "records": [
    {
     "provider": "gmi",
@@ -3992,7 +3992,7 @@
     "metric_value": 2.0,
     "detail": "badge 'AVAILABLE NOW' (from $8.00)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.300165+00:00",
+    "fetched_at": "2026-08-12T13:21:27.782376+00:00",
     "source_url": "https://www.gmicloud.ai/pricing",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4007,7 +4007,7 @@
     "metric_value": 1.0,
     "detail": "badge 'AVAILABLE NOW' but Pre order (not yet deliverable)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.300165+00:00",
+    "fetched_at": "2026-08-12T13:21:27.782376+00:00",
     "source_url": "https://www.gmicloud.ai/pricing",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4022,7 +4022,7 @@
     "metric_value": 2.0,
     "detail": "badge 'AVAILABLE NOW' (from $2.00)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.300165+00:00",
+    "fetched_at": "2026-08-12T13:21:27.782376+00:00",
     "source_url": "https://www.gmicloud.ai/pricing",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4037,7 +4037,7 @@
     "metric_value": 2.0,
     "detail": "badge 'AVAILABLE NOW' (from $2.60)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.300165+00:00",
+    "fetched_at": "2026-08-12T13:21:27.782376+00:00",
     "source_url": "https://www.gmicloud.ai/pricing",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4052,7 +4052,7 @@
     "metric_value": 1.0,
     "detail": "badge 'Limited Availability' (from $4.00)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.300165+00:00",
+    "fetched_at": "2026-08-12T13:21:27.782376+00:00",
     "source_url": "https://www.gmicloud.ai/pricing",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4060,7 +4060,7 @@
   ]
  },
  "sfcompute": {
-  "fetched_at": "2026-08-12T13:02:38.823922+00:00",
+  "fetched_at": "2026-08-12T13:21:28.412387+00:00",
   "records": [
    {
     "provider": "sfcompute",
@@ -4072,7 +4072,7 @@
     "metric_value": 1.94,
     "detail": "clearing avg $1.94/GPU-hr (range $0.01-$2.25)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.553478+00:00",
+    "fetched_at": "2026-08-12T13:21:28.074675+00:00",
     "source_url": "https://sfcompute.com/",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4087,7 +4087,7 @@
     "metric_value": null,
     "detail": "no trades printed on the exchange",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.553478+00:00",
+    "fetched_at": "2026-08-12T13:21:28.074675+00:00",
     "source_url": "https://sfcompute.com/",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4102,7 +4102,7 @@
     "metric_value": null,
     "detail": "no trades printed on the exchange",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.553478+00:00",
+    "fetched_at": "2026-08-12T13:21:28.074675+00:00",
     "source_url": "https://sfcompute.com/",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4110,19 +4110,19 @@
   ]
  },
  "shadeform": {
-  "fetched_at": "2026-08-12T13:02:39.008444+00:00",
+  "fetched_at": "2026-08-12T13:21:28.768521+00:00",
   "records": [
    {
     "provider": "crusoe",
     "gpu_model": "L40S",
     "region": "global",
     "consumption_type": "on_demand",
-    "state": "sold_out",
+    "state": "available",
     "metric_type": "regions_with_capacity",
-    "metric_value": 0.0,
-    "detail": "bookable in 0 of 2 regions (via Shadeform)",
+    "metric_value": 1.0,
+    "detail": "bookable in 1 of 2 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4137,7 +4137,7 @@
     "metric_value": 0.0,
     "detail": "bookable in 0 of 3 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4152,7 +4152,7 @@
     "metric_value": 0.0,
     "detail": "bookable in 0 of 1 region (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4167,7 +4167,7 @@
     "metric_value": 0.0,
     "detail": "bookable in 0 of 2 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4179,10 +4179,10 @@
     "consumption_type": "on_demand",
     "state": "available",
     "metric_type": "regions_with_capacity",
-    "metric_value": 3.0,
-    "detail": "bookable in 3 of 11 regions (via Shadeform)",
+    "metric_value": 4.0,
+    "detail": "bookable in 4 of 11 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4197,7 +4197,7 @@
     "metric_value": 0.0,
     "detail": "bookable in 0 of 1 region (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4212,7 +4212,7 @@
     "metric_value": 0.0,
     "detail": "bookable in 0 of 3 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4227,7 +4227,7 @@
     "metric_value": 0.0,
     "detail": "bookable in 0 of 1 region (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4242,7 +4242,7 @@
     "metric_value": 2.0,
     "detail": "bookable in 2 of 2 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4257,7 +4257,7 @@
     "metric_value": 1.0,
     "detail": "bookable in 1 of 2 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4272,7 +4272,7 @@
     "metric_value": 0.0,
     "detail": "bookable in 0 of 1 region (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4287,7 +4287,7 @@
     "metric_value": 0.0,
     "detail": "bookable in 0 of 2 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4302,7 +4302,7 @@
     "metric_value": 0.0,
     "detail": "bookable in 0 of 3 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4317,7 +4317,7 @@
     "metric_value": 1.0,
     "detail": "bookable in 1 of 2 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4332,7 +4332,7 @@
     "metric_value": 0.0,
     "detail": "bookable in 0 of 2 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4342,12 +4342,12 @@
     "gpu_model": "RTX6000",
     "region": "global",
     "consumption_type": "on_demand",
-    "state": "available",
+    "state": "limited",
     "metric_type": "regions_with_capacity",
-    "metric_value": 2.0,
-    "detail": "bookable in 2 of 3 regions (via Shadeform)",
+    "metric_value": 1.0,
+    "detail": "bookable in 1 of 3 regions (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4362,7 +4362,7 @@
     "metric_value": 0.0,
     "detail": "bookable in 0 of 1 region (via Shadeform)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:38.828997+00:00",
+    "fetched_at": "2026-08-12T13:21:28.418026+00:00",
     "source_url": "https://www.shadeform.ai/",
     "data_source": "aggregator",
     "parser_version": "1.0"
@@ -4370,7 +4370,7 @@
   ]
  },
  "nebius": {
-  "fetched_at": "2026-08-12T13:02:40.437399+00:00",
+  "fetched_at": "2026-08-12T13:21:31.034514+00:00",
   "records": [
    {
     "provider": "nebius",
@@ -4382,7 +4382,7 @@
     "metric_value": 2.0,
     "detail": "self-service: me-west1, us-central1",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4397,7 +4397,7 @@
     "metric_value": 1.0,
     "detail": "listed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4412,7 +4412,7 @@
     "metric_value": 1.0,
     "detail": "listed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4427,7 +4427,7 @@
     "metric_value": 2.0,
     "detail": "self-service: eu-west2, uk-south1",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4442,7 +4442,7 @@
     "metric_value": 1.0,
     "detail": "listed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4457,7 +4457,7 @@
     "metric_value": 1.0,
     "detail": "listed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4472,7 +4472,7 @@
     "metric_value": 1.0,
     "detail": "self-service: eu-north1",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4487,7 +4487,7 @@
     "metric_value": 1.0,
     "detail": "listed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4502,7 +4502,7 @@
     "metric_value": 4.0,
     "detail": "self-service: eu-north1, eu-north2, eu-west1, us-central1",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4517,7 +4517,7 @@
     "metric_value": 1.0,
     "detail": "listed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4532,7 +4532,7 @@
     "metric_value": 1.0,
     "detail": "listed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4547,7 +4547,7 @@
     "metric_value": 1.0,
     "detail": "listed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4562,7 +4562,7 @@
     "metric_value": 1.0,
     "detail": "listed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4577,7 +4577,7 @@
     "metric_value": 1.0,
     "detail": "self-service: eu-north1",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4592,7 +4592,7 @@
     "metric_value": 1.0,
     "detail": "listed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4607,7 +4607,7 @@
     "metric_value": 1.0,
     "detail": "self-service: us-central1",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4622,7 +4622,7 @@
     "metric_value": 1.0,
     "detail": "listed (footprint)",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:39.013753+00:00",
+    "fetched_at": "2026-08-12T13:21:28.774122+00:00",
     "source_url": "https://docs.nebius.com/overview/regions",
     "data_source": "web_scrape",
     "parser_version": "1.0"
@@ -4630,7 +4630,7 @@
   ]
  },
  "hyperstack": {
-  "fetched_at": "2026-08-12T13:02:40.805441+00:00",
+  "fetched_at": "2026-08-12T13:21:31.588184+00:00",
   "records": [
    {
     "provider": "hyperstack",
@@ -4642,7 +4642,7 @@
     "metric_value": 8.0,
     "detail": "~8 available",
     "instance_type": "H200-141G-SXM5",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4657,7 +4657,7 @@
     "metric_value": 75.0,
     "detail": "75+ available",
     "instance_type": "H100-80G-PCIe-NVLink-spot",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4669,10 +4669,10 @@
     "consumption_type": "on_demand",
     "state": "available",
     "metric_type": "stock_level",
-    "metric_value": 100.0,
-    "detail": "100+ available",
+    "metric_value": 75.0,
+    "detail": "75+ available",
     "instance_type": "H100-80G-PCIe-spot",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4682,12 +4682,12 @@
     "gpu_model": "H100",
     "region": "CANADA-1",
     "consumption_type": "on_demand",
-    "state": "sold_out",
+    "state": "limited",
     "metric_type": "stock_level",
-    "metric_value": 0.0,
-    "detail": "0 in stock, +0 planned",
+    "metric_value": 2.0,
+    "detail": "~2 available, +0 planned",
     "instance_type": "H100-80G-PCIe",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4702,7 +4702,7 @@
     "metric_value": 7.0,
     "detail": "~7 available",
     "instance_type": "L40-spot",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4717,7 +4717,7 @@
     "metric_value": 0.0,
     "detail": "0 in stock",
     "instance_type": "B200-SXM",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4732,7 +4732,7 @@
     "metric_value": 0.0,
     "detail": "0 in stock",
     "instance_type": "H100-80G-PCIe-NVLink",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4747,7 +4747,7 @@
     "metric_value": 0.0,
     "detail": "0 in stock",
     "instance_type": "H100-80G-SXM5",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4762,7 +4762,7 @@
     "metric_value": 10.0,
     "detail": "10+ available, +0 planned",
     "instance_type": "L40",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4777,7 +4777,7 @@
     "metric_value": 8.0,
     "detail": "stock in 1 region, best 8+",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4789,10 +4789,10 @@
     "consumption_type": "on_demand",
     "state": "available",
     "metric_type": "stock_level",
-    "metric_value": 100.0,
-    "detail": "stock in 2 regions, best 100+",
+    "metric_value": 75.0,
+    "detail": "stock in 3 regions, best 75+",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4807,7 +4807,7 @@
     "metric_value": 10.0,
     "detail": "stock in 2 regions, best 10+",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4822,7 +4822,7 @@
     "metric_value": 0.0,
     "detail": "0 in all regions",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:40.442608+00:00",
+    "fetched_at": "2026-08-12T13:21:31.039880+00:00",
     "source_url": "https://docs.hyperstack.cloud/docs/hardware/gpu-stock-information/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4830,7 +4830,7 @@
   ]
  },
  "together": {
-  "fetched_at": "2026-08-12T13:02:41.126637+00:00",
+  "fetched_at": "2026-08-12T13:21:31.919670+00:00",
   "records": [
    {
     "provider": "together",
@@ -4842,7 +4842,7 @@
     "metric_value": 5.0,
     "detail": "headroom \u22655 replicas",
     "instance_type": "ins_CbZewxokWY9PDCRMyxTAn",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4857,7 +4857,7 @@
     "metric_value": 5.0,
     "detail": "headroom \u22655 replicas",
     "instance_type": "ins_CbZewxokWY9PDCRMyxTAn",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4872,7 +4872,7 @@
     "metric_value": 0.0,
     "detail": "region listed, no headroom reported",
     "instance_type": "ins_CbZewxokWY9PDCRMyxTAn",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4887,7 +4887,7 @@
     "metric_value": 5.0,
     "detail": "headroom \u22655 replicas",
     "instance_type": "ins_CdFyvYkCrSNB7cFztpPjt",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4902,7 +4902,7 @@
     "metric_value": 0.0,
     "detail": "region listed, no headroom reported",
     "instance_type": "ins_CbJEQJq2M4EdXKo8zWt4V",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4917,7 +4917,7 @@
     "metric_value": 0.0,
     "detail": "region listed, no headroom reported",
     "instance_type": "ins_CbJEQJq2M4EdXKo8zWt4V",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4932,7 +4932,7 @@
     "metric_value": 0.0,
     "detail": "region listed, no headroom reported",
     "instance_type": "ins_CbJEQJq2M4EdXKo8zWt4V",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4947,7 +4947,7 @@
     "metric_value": 5.0,
     "detail": "headroom \u22655 replicas",
     "instance_type": "ins_CbJEQJq2M4EdXKo8zWt4V",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4962,7 +4962,7 @@
     "metric_value": 0.0,
     "detail": "region listed, no headroom reported",
     "instance_type": "ins_CbJEQJq2M4EdXKo8zWt4V",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4977,7 +4977,7 @@
     "metric_value": 0.0,
     "detail": "region listed, no headroom reported",
     "instance_type": "ins_CbJEQJq2M4EdXKo8zWt4V",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -4992,7 +4992,7 @@
     "metric_value": 0.0,
     "detail": "region listed, no headroom reported",
     "instance_type": "ins_CbJEQJq2M4EdXKo8zWt4V",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -5007,7 +5007,7 @@
     "metric_value": 5.0,
     "detail": "headroom \u22655 replicas",
     "instance_type": "ins_CbJEQJq2M4EdXKo8zWt4V",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -5022,37 +5022,7 @@
     "metric_value": 5.0,
     "detail": "headroom \u22655 replicas",
     "instance_type": "ins_CdbbhPbBtUxM1gDhiLFPF",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
-    "source_url": "https://docs.together.ai/",
-    "data_source": "official_api",
-    "parser_version": "1.0"
-   },
-   {
-    "provider": "together",
-    "gpu_model": "H100",
-    "region": "global",
-    "consumption_type": "on_demand",
-    "state": "available",
-    "metric_type": "regions_with_capacity",
-    "metric_value": 2.0,
-    "detail": "headroom in 2 of 8 regions",
-    "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
-    "source_url": "https://docs.together.ai/",
-    "data_source": "official_api",
-    "parser_version": "1.0"
-   },
-   {
-    "provider": "together",
-    "gpu_model": "GB300",
-    "region": "global",
-    "consumption_type": "on_demand",
-    "state": "available",
-    "metric_type": "regions_with_capacity",
-    "metric_value": 1.0,
-    "detail": "headroom in 1 of 1 region",
-    "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -5067,7 +5037,7 @@
     "metric_value": 1.0,
     "detail": "headroom in 1 of 1 region",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -5082,7 +5052,37 @@
     "metric_value": 2.0,
     "detail": "headroom in 2 of 3 regions",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:40.810773+00:00",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
+    "source_url": "https://docs.together.ai/",
+    "data_source": "official_api",
+    "parser_version": "1.0"
+   },
+   {
+    "provider": "together",
+    "gpu_model": "GB300",
+    "region": "global",
+    "consumption_type": "on_demand",
+    "state": "available",
+    "metric_type": "regions_with_capacity",
+    "metric_value": 1.0,
+    "detail": "headroom in 1 of 1 region",
+    "instance_type": "",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
+    "source_url": "https://docs.together.ai/",
+    "data_source": "official_api",
+    "parser_version": "1.0"
+   },
+   {
+    "provider": "together",
+    "gpu_model": "H100",
+    "region": "global",
+    "consumption_type": "on_demand",
+    "state": "available",
+    "metric_type": "regions_with_capacity",
+    "metric_value": 2.0,
+    "detail": "headroom in 2 of 8 regions",
+    "instance_type": "",
+    "fetched_at": "2026-08-12T13:21:31.593817+00:00",
     "source_url": "https://docs.together.ai/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -5090,23 +5090,8 @@
   ]
  },
  "verda": {
-  "fetched_at": "2026-08-12T13:02:43.343866+00:00",
+  "fetched_at": "2026-08-12T13:21:34.576488+00:00",
   "records": [
-   {
-    "provider": "verda",
-    "gpu_model": "RTX6000",
-    "region": "FIN-01",
-    "consumption_type": "on_demand",
-    "state": "limited",
-    "metric_type": "binary",
-    "metric_value": 4.0,
-    "detail": "deployable sizes: 4x (no 8x node)",
-    "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:41.132161+00:00",
-    "source_url": "https://verda.com/",
-    "data_source": "official_api",
-    "parser_version": "1.0"
-   },
    {
     "provider": "verda",
     "gpu_model": "H200",
@@ -5115,9 +5100,9 @@
     "state": "available",
     "metric_type": "binary",
     "metric_value": 8.0,
-    "detail": "deployable sizes: 8x",
+    "detail": "deployable sizes: 1x, 8x",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:41.132161+00:00",
+    "fetched_at": "2026-08-12T13:21:31.925511+00:00",
     "source_url": "https://verda.com/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -5132,52 +5117,7 @@
     "metric_value": 8.0,
     "detail": "deployable sizes: 8x",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:41.132161+00:00",
-    "source_url": "https://verda.com/",
-    "data_source": "official_api",
-    "parser_version": "1.0"
-   },
-   {
-    "provider": "verda",
-    "gpu_model": "H100",
-    "region": "global",
-    "consumption_type": "on_demand",
-    "state": "sold_out",
-    "metric_type": "binary",
-    "metric_value": 0.0,
-    "detail": "in catalog but deployable in no location",
-    "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:41.132161+00:00",
-    "source_url": "https://verda.com/",
-    "data_source": "official_api",
-    "parser_version": "1.0"
-   },
-   {
-    "provider": "verda",
-    "gpu_model": "B300",
-    "region": "global",
-    "consumption_type": "on_demand",
-    "state": "sold_out",
-    "metric_type": "binary",
-    "metric_value": 0.0,
-    "detail": "in catalog but deployable in no location",
-    "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:41.132161+00:00",
-    "source_url": "https://verda.com/",
-    "data_source": "official_api",
-    "parser_version": "1.0"
-   },
-   {
-    "provider": "verda",
-    "gpu_model": "L40S",
-    "region": "global",
-    "consumption_type": "on_demand",
-    "state": "sold_out",
-    "metric_type": "binary",
-    "metric_value": 0.0,
-    "detail": "in catalog but deployable in no location",
-    "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:41.132161+00:00",
+    "fetched_at": "2026-08-12T13:21:31.925511+00:00",
     "source_url": "https://verda.com/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -5192,7 +5132,7 @@
     "metric_value": 0.0,
     "detail": "in catalog but deployable in no location",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:41.132161+00:00",
+    "fetched_at": "2026-08-12T13:21:31.925511+00:00",
     "source_url": "https://verda.com/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -5207,7 +5147,67 @@
     "metric_value": 0.0,
     "detail": "in catalog but deployable in no location",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:41.132161+00:00",
+    "fetched_at": "2026-08-12T13:21:31.925511+00:00",
+    "source_url": "https://verda.com/",
+    "data_source": "official_api",
+    "parser_version": "1.0"
+   },
+   {
+    "provider": "verda",
+    "gpu_model": "B300",
+    "region": "global",
+    "consumption_type": "on_demand",
+    "state": "sold_out",
+    "metric_type": "binary",
+    "metric_value": 0.0,
+    "detail": "in catalog but deployable in no location",
+    "instance_type": "",
+    "fetched_at": "2026-08-12T13:21:31.925511+00:00",
+    "source_url": "https://verda.com/",
+    "data_source": "official_api",
+    "parser_version": "1.0"
+   },
+   {
+    "provider": "verda",
+    "gpu_model": "L40S",
+    "region": "global",
+    "consumption_type": "on_demand",
+    "state": "sold_out",
+    "metric_type": "binary",
+    "metric_value": 0.0,
+    "detail": "in catalog but deployable in no location",
+    "instance_type": "",
+    "fetched_at": "2026-08-12T13:21:31.925511+00:00",
+    "source_url": "https://verda.com/",
+    "data_source": "official_api",
+    "parser_version": "1.0"
+   },
+   {
+    "provider": "verda",
+    "gpu_model": "H100",
+    "region": "global",
+    "consumption_type": "on_demand",
+    "state": "sold_out",
+    "metric_type": "binary",
+    "metric_value": 0.0,
+    "detail": "in catalog but deployable in no location",
+    "instance_type": "",
+    "fetched_at": "2026-08-12T13:21:31.925511+00:00",
+    "source_url": "https://verda.com/",
+    "data_source": "official_api",
+    "parser_version": "1.0"
+   },
+   {
+    "provider": "verda",
+    "gpu_model": "H200",
+    "region": "FIN-03",
+    "consumption_type": "spot",
+    "state": "limited",
+    "metric_type": "binary",
+    "metric_value": 1.0,
+    "detail": "deployable sizes: 1x (no 8x node)",
+    "instance_type": "",
+    "fetched_at": "2026-08-12T13:21:31.925511+00:00",
     "source_url": "https://verda.com/",
     "data_source": "official_api",
     "parser_version": "1.0"
@@ -5222,7 +5222,7 @@
     "metric_value": 8.0,
     "detail": "deployable sizes: 8x",
     "instance_type": "",
-    "fetched_at": "2026-08-12T13:02:41.132161+00:00",
+    "fetched_at": "2026-08-12T13:21:31.925511+00:00",
     "source_url": "https://verda.com/",
     "data_source": "official_api",
     "parser_version": "1.0"
