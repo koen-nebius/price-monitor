@@ -1,6 +1,8 @@
 *GPU Capacity Daily — August 12, 2026*
 
 *Changes since yesterday:*
-• RunPod B300 (EUR-IS-1) on-demand: available → sold_out
-• GMI Cloud GB300 on-demand: available → limited
+• RunPod H100 (AP-JP-1) on-demand: sold_out → available
+• RunPod L40S (US-TX-3) on-demand: sold_out → available
 _14/18 sources live today._
+
+Full matrix (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/2164457614/GPU+Competitor+Capacity+%E2%80%94+Live+Overview|Confluence>
