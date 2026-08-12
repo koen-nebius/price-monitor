@@ -1,7 +1,5 @@
-*GPU Pricing Daily — August 11, 2026*
+*GPU Pricing Daily — August 12, 2026*
 
-*Changed in 24h:* GCP raised H100 spot +7% across 13 SKUs ($6.61→$7.28) · 5 more major-provider moves — detail in Confluence
-
-*Position:* Nebius on-demand sits 43–49% below hyperscalers and below cluster-peer median (H100, H200, B200).
+No movement on live sources (no price moves ≥3%), but 14/17 sources live today (aws_capacity_blocks, sfcompute, verda stale/missing) — movement there can't be confirmed.
 
 Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>
