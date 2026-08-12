@@ -14,6 +14,7 @@ AccessDenied and starts emitting records the day the permission is added.
 """
 import logging
 import os
+import time
 from datetime import datetime, timedelta, timezone
 from typing import List
 
@@ -31,11 +32,16 @@ INSTANCE_GPU_MAP = {
 }
 
 # Capacity Blocks regions (docs, Aug 2026). Errors for not-offered regions are
-# caught per-call, so an outdated list degrades gracefully.
-CB_REGIONS = ["us-east-1", "us-east-2", "us-west-2", "eu-north-1", "ap-northeast-1"]
+# caught per-call, so an outdated list degrades gracefully. Kept to 4 regions:
+# DescribeCapacityBlockOfferings is aggressively rate-limited
+# (CapacityBlockDescribeLimitExceeded on back-to-back calls, seen 2026-08-12).
+CB_REGIONS = ["us-east-1", "us-east-2", "us-west-2", "eu-north-1"]
 
 LIMITED_LEAD_DAYS = 7.0
 WINDOW_DAYS = 14
+# Pacing + backoff against the describe rate limit
+CALL_SPACING_S = 4
+BACKOFF_S = [15, 45]
 
 
 def fetch() -> List[AvailabilityRecord]:
@@ -61,31 +67,43 @@ def fetch() -> List[AvailabilityRecord]:
             break
         client = boto3.client("ec2", region_name=region)
         for itype, gpu_model in INSTANCE_GPU_MAP.items():
-            try:
-                resp = client.describe_capacity_block_offerings(
-                    InstanceType=itype,
-                    InstanceCount=1,
-                    CapacityDurationHours=24,
-                    StartDateRange=now_dt + timedelta(hours=1),
-                    EndDateRange=now_dt + timedelta(days=WINDOW_DAYS),
-                    MaxResults=20,
-                )
-            except ClientError as e:
-                code = e.response.get("Error", {}).get("Code", "")
-                if code in ("UnauthorizedOperation", "AccessDenied", "AccessDeniedException"):
-                    logger.warning("AWS capacity blocks: IAM lacks "
-                                   "ec2:DescribeCapacityBlockOfferings — skipping provider "
-                                   "(add the permission to activate this signal)")
-                    denied = True
+            resp = None
+            for attempt, backoff in enumerate([0] + BACKOFF_S):
+                if backoff:
+                    time.sleep(backoff)
+                try:
+                    resp = client.describe_capacity_block_offerings(
+                        InstanceType=itype,
+                        InstanceCount=1,
+                        CapacityDurationHours=24,
+                        StartDateRange=now_dt + timedelta(hours=1),
+                        EndDateRange=now_dt + timedelta(days=WINDOW_DAYS),
+                        MaxResults=20,
+                    )
                     break
-                # Region/type not supported → not-offered; keep per-call logs
-                # quiet but SUMMARIZE codes at the end (a silent all-error run
-                # looked identical to IAM-pending on 2026-08-12).
-                error_codes.setdefault(code or "unknown", []).append(f"{region}/{itype}")
-                logger.debug(f"AWS CB {region}/{itype}: {code}: {e}")
-                continue
-            except Exception as e:
-                logger.error(f"AWS CB {region}/{itype}: {e}")
+                except ClientError as e:
+                    code = e.response.get("Error", {}).get("Code", "")
+                    if code in ("UnauthorizedOperation", "AccessDenied", "AccessDeniedException"):
+                        logger.warning("AWS capacity blocks: IAM lacks "
+                                       "ec2:DescribeCapacityBlockOfferings — skipping provider "
+                                       "(add the permission to activate this signal)")
+                        denied = True
+                        break
+                    if code == "CapacityBlockDescribeLimitExceeded" and backoff != BACKOFF_S[-1]:
+                        continue   # retry with the next backoff
+                    # Region/type not supported or throttled out → summarize
+                    # codes + first full message at the end (a silent all-error
+                    # run looked identical to IAM-pending on 2026-08-12).
+                    error_codes.setdefault(code or "unknown", []).append(
+                        f"{region}/{itype}: {e.response.get('Error', {}).get('Message', '')[:120]}")
+                    break
+                except Exception as e:
+                    logger.error(f"AWS CB {region}/{itype}: {e}")
+                    break
+            time.sleep(CALL_SPACING_S)
+            if denied or resp is None:
+                if denied:
+                    break
                 continue
 
             offerings = resp.get("CapacityBlockOfferings", [])
@@ -117,7 +135,6 @@ def fetch() -> List[AvailabilityRecord]:
     if denied:
         return []
     for code, calls in error_codes.items():
-        logger.warning(f"AWS CB: {len(calls)} call(s) errored with {code} "
-                       f"(e.g. {calls[0]})")
+        logger.warning(f"AWS CB: {len(calls)} call(s) errored with {code} — {calls[0]}")
     logger.info(f"AWS capacity blocks: {len(records)} records")
     return records
