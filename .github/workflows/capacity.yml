@@ -54,6 +54,15 @@ jobs:
           echo "--- Pipeline complete ---"
           grep -E "records|WARNING|ERROR|changes" /tmp/capacity.log || true
 
+      - name: Update Confluence page (soft-fail)
+        # Basic-auth REST straight from the build — the 07:10 routine is
+        # Slack-only (its Atlassian MCP connector proved flaky on 2026-08-12
+        # while this path worked).
+        env:
+          CONFLUENCE_EMAIL: ${{ secrets.CONFLUENCE_EMAIL }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+        run: python3 capacity/notify_confluence.py
+
       - name: Commit fresh capacity data + post artifacts if changed
         run: |
           git config user.name  "github-actions[bot]"
