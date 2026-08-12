@@ -1,10 +1,10 @@
 {
  "run_date": "2026-08-12",
- "started_at": "2026-08-12T12:35:56.972007+00:00",
- "completed_at": "2026-08-12T12:36:14.116181+00:00",
+ "started_at": "2026-08-12T12:57:58.140150+00:00",
+ "completed_at": "2026-08-12T12:58:33.275173+00:00",
  "status": "success",
- "record_count": 343,
- "diff_count": 50,
+ "record_count": 341,
+ "diff_count": 25,
  "provider_count": 18,
  "live_provider_count": 17,
  "failed_providers": [
@@ -82,7 +82,7 @@
   },
   "verda": {
    "status": "live",
-   "record_count": 9
+   "record_count": 7
   }
  },
  "post_thread": true
