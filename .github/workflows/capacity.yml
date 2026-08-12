@@ -49,6 +49,13 @@ jobs:
           LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
           TAVILY_API_KEY: ${{ secrets.TAVILY }}
           SFCOMPUTE_TOKEN: ${{ secrets.SFCOMPUTE_TOKEN }}
+          # Pending-activation sources — each fetcher soft-skips until its
+          # secret exists, then activates on the next run automatically.
+          HYPERSTACK_API_KEY: ${{ secrets.HYPERSTACK_API_KEY }}
+          TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
+          VERDA_CLIENT_ID: ${{ secrets.VERDA_CLIENT_ID }}
+          VERDA_CLIENT_SECRET: ${{ secrets.VERDA_CLIENT_SECRET }}
+          SHADEFORM_API_KEY: ${{ secrets.SHADEFORM_API_KEY }}
         run: |
           python3 -m capacity.main 2>&1 | tee /tmp/capacity.log
           echo "--- Pipeline complete ---"
