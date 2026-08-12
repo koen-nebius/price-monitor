@@ -55,9 +55,10 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
         # the market "this fall". The day the site starts quoting B300, flag it
         # loudly so we extend the parser + add 'b300' to sfcompute_fills
         # GPU_TYPES — an orderbook B300 clearing price is a big new data point.
-        if "B300" in html.upper().replace(" ", ""):
-            logger.warning("SF Compute page now mentions B300 — check whether the "
-                           "market went live and extend sfcompute/sfcompute_fills")
+        import re as _re
+        if _re.search(r"B300[^$]{0,60}\$\s*\d", html, _re.I):
+            logger.warning("SF Compute page now shows a B300 PRICE — the market "
+                           "likely went live; extend sfcompute/sfcompute_fills")
     except Exception as e:
         logger.warning(f"SF Compute plain fetch failed: {e}")
 

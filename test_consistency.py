@@ -105,6 +105,31 @@ def check_field_only_gpus(records: List[PriceRecord]) -> List[str]:
     return problems
 
 
+def check_provider_dispatch() -> List[str]:
+    """
+    Every provider registered in config.PROVIDERS must resolve to an importable
+    fetcher module with a callable fetch() via main.PROVIDER_MODULES. Guards the
+    2026-08-12 failure mode: providers added to config but not to the dispatcher
+    ran as status=error on their first production cycle. No network involved.
+    """
+    import importlib
+    problems: List[str] = []
+    from config import PROVIDERS
+    from main import PROVIDER_MODULES
+    for p in PROVIDERS:
+        mod = PROVIDER_MODULES.get(p)
+        if mod is None:
+            problems.append(f"provider {p!r} in config.PROVIDERS has no PROVIDER_MODULES entry")
+            continue
+        try:
+            m = importlib.import_module(f"fetchers.{mod}")
+            if not callable(getattr(m, "fetch", None)):
+                problems.append(f"fetchers.{mod} has no callable fetch()")
+        except Exception as e:
+            problems.append(f"fetchers.{mod} import failed: {e}")
+    return problems
+
+
 def main() -> int:
     records = load_last_snapshot()
     if not records:
@@ -112,6 +137,7 @@ def main() -> int:
         return 0
     problems = check_cross_table_consistency(records)
     problems += check_field_only_gpus(records)
+    problems += check_provider_dispatch()
     if problems:
         print("CROSS-TABLE CONSISTENCY FAILURES:")
         for p in problems:

@@ -572,42 +572,40 @@ def run(providers=None, test=False):
     }
 
 
+# Provider fetch-key -> fetcher module. Every entry in config.PROVIDERS MUST
+# have a row here — enforced by test_consistency.check_provider_dispatch, so a
+# provider registered in config without a dispatcher entry fails the publish
+# gate instead of erroring silently at 01:23 UTC (2026-08-12 incident: verda +
+# aws_capacity_blocks were added to PROVIDERS but not to the old if/elif chain
+# and ran as status=error on their first production cycle).
+PROVIDER_MODULES = {
+    "aws": "aws",
+    "gcp": "gcp",
+    "azure": "azure",
+    "coreweave": "coreweave",
+    "lambda": "lambda_labs",
+    "crusoe": "crusoe",
+    "nebius": "nebius",
+    "nebius_committed": "nebius_committed",
+    "computeprices": "computeprices",
+    "oracle": "oracle",
+    "hyperstack": "hyperstack",
+    "runpod": "runpod",
+    "sfcompute": "sfcompute",
+    "together": "together",
+    "vast_reserved": "vast_reserved",
+    "sfcompute_fills": "sfcompute_fills",
+    "verda": "verda",
+    "aws_capacity_blocks": "aws_capacity_blocks",
+}
+
+
 def _fetch_provider(provider: str):
-    if provider == "aws":
-        from fetchers.aws import fetch
-    elif provider == "gcp":
-        from fetchers.gcp import fetch
-    elif provider == "azure":
-        from fetchers.azure import fetch
-    elif provider == "coreweave":
-        from fetchers.coreweave import fetch
-    elif provider == "lambda":
-        from fetchers.lambda_labs import fetch
-    elif provider == "crusoe":
-        from fetchers.crusoe import fetch
-    elif provider == "nebius":
-        from fetchers.nebius import fetch
-    elif provider == "nebius_committed":
-        from fetchers.nebius_committed import fetch
-    elif provider == "computeprices":
-        from fetchers.computeprices import fetch
-    elif provider == "oracle":
-        from fetchers.oracle import fetch
-    elif provider == "hyperstack":
-        from fetchers.hyperstack import fetch
-    elif provider == "runpod":
-        from fetchers.runpod import fetch
-    elif provider == "sfcompute":
-        from fetchers.sfcompute import fetch
-    elif provider == "together":
-        from fetchers.together import fetch
-    elif provider == "vast_reserved":
-        from fetchers.vast_reserved import fetch
-    elif provider == "sfcompute_fills":
-        from fetchers.sfcompute_fills import fetch
-    else:
-        raise ValueError(f"Unknown provider: {provider}")
-    return fetch()
+    module = PROVIDER_MODULES.get(provider)
+    if module is None:
+        raise ValueError(f"Unknown provider: {provider} — add it to PROVIDER_MODULES")
+    import importlib
+    return importlib.import_module(f"fetchers.{module}").fetch()
 
 
 if __name__ == "__main__":
