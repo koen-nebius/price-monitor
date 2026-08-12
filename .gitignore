@@ -15,4 +15,12 @@ store/*.html
 !store/slack_thread.txt
 !store/confluence_body.html
 !store/spot_auction_body.html
+# Capacity monitor store — same policy: no daily snapshots, DO commit the
+# cache/last-snapshot/manifest/history + ready-to-post artifacts
+capacity/store/????-??-??.json
+capacity/store/*.txt
+capacity/store/*.html
+!capacity/store/slack_message.txt
+!capacity/store/slack_thread.txt
+!capacity/store/confluence_body.html
 .DS_Store

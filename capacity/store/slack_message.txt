@@ -1,0 +1,6 @@
+*GPU Capacity Daily — August 12, 2026*
+
+*Changes since yesterday:*
+• RunPod B300 (EUR-IS-1) on-demand: available → sold_out
+• GMI Cloud GB300 on-demand: available → limited
+_14/18 sources live today._

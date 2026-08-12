@@ -1,0 +1,144 @@
+{
+ "run_date": "2026-08-12",
+ "started_at": "2026-08-12T11:21:39.929362+00:00",
+ "completed_at": "2026-08-12T11:21:59.257125+00:00",
+ "status": "partial",
+ "record_count": 305,
+ "diff_count": 3,
+ "provider_count": 18,
+ "live_provider_count": 14,
+ "failed_providers": [
+  "aws_capacity_blocks",
+  "hyperstack",
+  "together",
+  "verda"
+ ],
+ "stale_providers": [],
+ "provider_status": {
+  "lambda": {
+   "status": "live",
+   "record_count": 6
+  },
+  "coreweave": {
+   "status": "live",
+   "record_count": 51
+  },
+  "gcp_zones": {
+   "status": "live",
+   "record_count": 66
+  },
+  "azure_regions": {
+   "status": "live",
+   "record_count": 6
+  },
+  "aws_spot_advisor": {
+   "status": "live",
+   "record_count": 40
+  },
+  "aws_capacity_blocks": {
+   "status": "failed",
+   "record_count": 0
+  },
+  "crusoe": {
+   "status": "live",
+   "record_count": 6
+  },
+  "runpod": {
+   "status": "live",
+   "record_count": 72
+  },
+  "vast": {
+   "status": "live",
+   "record_count": 7
+  },
+  "scaleway": {
+   "status": "live",
+   "record_count": 8
+  },
+  "voltage_park": {
+   "status": "live",
+   "record_count": 1
+  },
+  "gmi": {
+   "status": "live",
+   "record_count": 5
+  },
+  "sfcompute": {
+   "status": "live",
+   "record_count": 3
+  },
+  "shadeform": {
+   "status": "live",
+   "record_count": 17
+  },
+  "nebius": {
+   "status": "live",
+   "record_count": 17
+  },
+  "hyperstack": {
+   "status": "failed",
+   "record_count": 0
+  },
+  "together": {
+   "status": "failed",
+   "record_count": 0
+  },
+  "verda": {
+   "status": "failed",
+   "record_count": 0
+  }
+ },
+ "post_thread": true,
+ "method_rows": [
+  [
+   "Lambda",
+   "instance-types API: regions_with_capacity_available",
+   "Live per-region launchability of each instance type; empty list = sold out fleet-wide."
+  ],
+  [
+   "Hyperstack",
+   "public GPU-pricing page stock badges / stock API",
+   "Provider-reported per-model stock status in their EU/NA regions."
+  ],
+  [
+   "Verda",
+   "instance-availability API (per location)",
+   "Live bookability per instance type per DC (Finland/Iceland)."
+  ],
+  [
+   "Scaleway",
+   "public availability API (per zone)",
+   "Provider-reported enum per GPU SKU: available / scarce / shortage."
+  ],
+  [
+   "RunPod",
+   "GraphQL stockStatus per GPU type",
+   "Marketplace-wide stock label (High/Medium/Low/None) for Secure Cloud."
+  ],
+  [
+   "Vast.ai",
+   "public search API offer depth",
+   "Count of rentable GPUs listed right now \u2014 market depth, not DC inventory."
+  ],
+  [
+   "SF Compute",
+   "market index price",
+   "H100 exchange clearing price; price level & moves proxy scarcity."
+  ],
+  [
+   "AWS",
+   "Capacity Blocks offerings: earliest start date",
+   "Days until the earliest reservable GPU block per region \u2014 lead time = scarcity."
+  ],
+  [
+   "Nebius",
+   "public console/API platform availability",
+   "Outside-in view of which GPU platforms our own regions offer publicly."
+  ],
+  [
+   "GCP",
+   "accelerator-zones listing",
+   "Which zones OFFER each GPU family (static offering, not live stock)."
+  ]
+ ]
+}
