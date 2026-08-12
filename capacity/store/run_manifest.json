@@ -1,10 +1,10 @@
 {
  "run_date": "2026-08-12",
- "started_at": "2026-08-12T12:11:34.405111+00:00",
- "completed_at": "2026-08-12T12:11:53.610525+00:00",
+ "started_at": "2026-08-12T12:13:11.161139+00:00",
+ "completed_at": "2026-08-12T12:13:29.296691+00:00",
  "status": "success",
  "record_count": 305,
- "diff_count": 11,
+ "diff_count": 5,
  "provider_count": 18,
  "live_provider_count": 14,
  "failed_providers": [

@@ -7,5 +7,5 @@ _k/n = live sources with cluster stock (1x-only counts as no); ✱ includes an a
 
 No material changes on live sources.
 
-*Gauges:* SF Compute H100 clears $1.94 (short-term reserve) · Vast H100 depth 66 GPUs, floor $0.79 (commodity)
+*Gauges:* SF Compute H100 clears $1.94 (short-term reserve) · Vast H100 depth 67 GPUs, floor $0.79 (commodity)
 _all 14 activated sources live · 4 sources pending activation_ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/2164457614/GPU+Competitor+Capacity+%E2%80%94+Live+Overview|matrix, battlecard, method>

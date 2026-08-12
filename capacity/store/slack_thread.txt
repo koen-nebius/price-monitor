@@ -5,13 +5,13 @@
 • Degraded: Lambda (4 regions: us-south-2, us-south-3, us-southeast-1, us-west-3) · RunPod (stock 1x: High, 8x: Low)
 • Sold out: Hyperstack✱ (bookable in 0 of 3 regions (via Shadeform)) · Verda✱ (bookable in 0 of 3 regions (via Shadeform)) · Voltage Park (0 GPUs listed (Ethernet and InfiniBand))
 • Claims: GMI badge 'AVAILABLE NOW' (from $2.00) — self-reported, not counted
-• Market: Vast 66 GPUs listed, floor $0.79 · SF Compute clears $1.94 · AWS spot pools in 12 regions (advisor, ~weekly)
+• Market: Vast 67 GPUs listed, floor $0.79 · SF Compute clears $1.94 · AWS spot pools in 12 regions (advisor, ~weekly)
 • Nebius shelf: Finland
 • ⚠️ Nebius canary: listed self-service but not buyable via Shadeform today (bookable in 0 of 1 region (via Shadeform))
 
 *H200 — cluster stock at 1/2 live sources*
 • In stock: Verda✱
-• Degraded: RunPod (1x stock Low, but no 8-GPU (cluster) stock)
+• Degraded: RunPod (stock 1x: Low, 8x: Low)
 • Claims: GMI badge 'AVAILABLE NOW' (from $2.60) — self-reported, not counted
 • Market: Vast 63 GPUs listed, floor $1.67 · AWS spot pools in 10 regions (advisor, ~weekly)
 • Nebius shelf: Finland, Iceland, Paris, Kansas (US)
@@ -36,9 +36,7 @@
 *GB200*: CoreWeave 6 AZs · GCP 5 zones · Azure 19 priced regions · Crusoe 1 zone · GMI badge 'AVAILABLE NOW' (from $8.00)
 *GB300*: CoreWeave 2 AZs · GCP 5 zones · GMI badge 'AVAILABLE NOW' but Pre order (not yet deliverable)
 
-*All changes (previous build, 12 Aug 12:10 UTC):*
-• RunPod H100 [NVIDIA H100 PCIe]: limited → sold_out (live)
-• Verda H200: regions_with_capacity 2 → 1 (-50%) (via aggregator ✱)
-• RunPod region-level: 6 sellouts / 1 restocks (H100 AP-IN-1, H100 AP-JP-1, H100 EU-FR-1 +6 more)
+*All changes (previous build, 12 Aug 12:11 UTC):*
+• RunPod region-level: 0 sellouts / 5 restocks (L40S EUR-IS-2, H200 EUR-IS-5, H200 US-CA-2 +2 more)
 
 _Public shelf at list price, not provider utilization · footprint = where it is sold, not whether in stock · transitions matter more than levels_

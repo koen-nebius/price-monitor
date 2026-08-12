@@ -6,7 +6,7 @@
 <tr><td><strong>Pricing sign-off</strong></td><td>Cluster-scale stock at live sources: H100 1/6; H200 1/2; B200 0/3; B300 0/3. Nebius H100, H200 not bookable via Shadeform's resale view today (verify in console before reacting). Cheapest bookable H100 peer: Lambda $3.29 (Voltage Park lists $1.99 but is sold out)</td><td>Tightness per GPU + Triggers</td></tr>
 <tr><td><strong>PAYG product</strong></td><td>Peers short on cluster capacity: H100, H200, B200, B300 — spillover demand candidates. Peers monetize scarcity via short-term guaranteed products (AWS Capacity Blocks, Lambda 1-Click, SF Compute exchange); Nebius has no equivalent product (see pricing page product-gap table).</td><td>Tightness per GPU</td></tr>
 <tr><td><strong>Self-service &amp; fraud</strong></td><td>Peers sold out (any size): H100: 3, H200: 0, B200: 2, B300: 2. Displaced demand (incl. abusive) lands on whoever still sells self-service. Nebius H100, H200 not bookable via Shadeform's resale view today (verify in console before reacting)</td><td>Live matrix</td></tr>
-<tr><td><strong>GTM</strong></td><td>Safe-to-quote sellouts: Lambda H100; RunPod H100; Voltage Park H100; expired: RunPod H100 restocked (NVIDIA H100 80GB HBM3). Grades in the battlecard section — never quote badges or aggregator reads.</td><td>Battlecard</td></tr>
+<tr><td><strong>GTM</strong></td><td>Safe-to-quote sellouts: Lambda H100; RunPod H100; Voltage Park H100; expired: RunPod L40S restocked (NVIDIA L40S); RunPod H200 restocked (NVIDIA H200); RunPod H200 restocked (NVIDIA H200); RunPod L40S restocked (NVIDIA L40S); RunPod L40S restocked (NVIDIA L40S). Grades in the battlecard section — never quote badges or aggregator reads.</td><td>Battlecard</td></tr>
 <tr><td><strong>Capacity / reserve</strong></td><td>Short-term H100 clears $1.94 on SF Compute vs Nebius OD $3.85. GPUs with no cluster stock at any live peer: B200, B300 — displaced enterprise demand; hold capacity firm for reserve asks there.</td><td>Market gauges</td></tr>
 </tbody></table>
 <h2>Decision Triggers</h2>
@@ -37,7 +37,7 @@
 <tr><td>Hyperstack</td><td><strong>H100</strong></td><td>bookable in 0 of 3 regions (via Shadeform)</td><td><span data-type="status" data-color="yellow">verify first (aggregator)</span></td></tr>
 <tr><td>Verda</td><td><strong>H100</strong></td><td>bookable in 0 of 3 regions (via Shadeform)</td><td><span data-type="status" data-color="yellow">verify first (aggregator)</span></td></tr>
 <tr><td>Voltage Park</td><td><strong>H100</strong></td><td>0 GPUs listed (Ethernet and InfiniBand)</td><td><span data-type="status" data-color="green">safe (provider's own API)</span></td></tr>
-<tr><td>RunPod</td><td><strong>H200</strong></td><td>no cluster-scale stock: 1x stock Low, but no 8-GPU (cluster) stock</td><td><span data-type="status" data-color="green">safe (provider's own API)</span></td></tr>
+<tr><td>RunPod</td><td><strong>H200</strong></td><td>no cluster-scale stock: stock 1x: Low, 8x: Low</td><td><span data-type="status" data-color="green">safe (provider's own API)</span></td></tr>
 <tr><td>RunPod</td><td><strong>B200</strong></td><td>no cluster-scale stock: 1x stock Low, but no 8-GPU (cluster) stock</td><td><span data-type="status" data-color="green">safe (provider's own API)</span></td></tr>
 <tr><td>Lambda</td><td><strong>B200</strong></td><td>all 3 instance sizes show no region with capacity</td><td><span data-type="status" data-color="green">safe (provider's own API)</span></td></tr>
 <tr><td>Verda</td><td><strong>B200</strong></td><td>bookable in 0 of 1 region (via Shadeform)</td><td><span data-type="status" data-color="yellow">verify first (aggregator)</span></td></tr>
@@ -45,13 +45,13 @@
 <tr><td>Scaleway</td><td><strong>B300</strong></td><td>available in 0 of 1 zone carrying the SKU</td><td><span data-type="status" data-color="green">safe (provider's own API)</span></td></tr>
 <tr><td>Verda</td><td><strong>B300</strong></td><td>bookable in 0 of 2 regions (via Shadeform)</td><td><span data-type="status" data-color="yellow">verify first (aggregator)</span></td></tr>
 </tbody></table>
-<p><strong>Expired talk tracks (restocked):</strong> RunPod H100 restocked (NVIDIA H100 80GB HBM3)</p>
+<p><strong>Expired talk tracks (restocked):</strong> RunPod L40S restocked (NVIDIA L40S); RunPod H200 restocked (NVIDIA H200); RunPod H200 restocked (NVIDIA H200); RunPod L40S restocked (NVIDIA L40S); RunPod L40S restocked (NVIDIA L40S)</p>
 <h2>Live-Stock Matrix</h2>
 <p><em>Only providers with a live or self-reported signal. ✱ = via aggregator today (direct feed pending or down). GMI is provider-declared and never counted in verdicts.</em></p>
 <table data-layout="full-width"><tbody>
 <tr><th>GPU</th><th>Lambda</th><th>Scaleway</th><th>RunPod</th><th>Voltage Park</th><th>Verda</th><th>Hyperstack</th><th>GMI Cloud (badge)</th></tr>
 <tr><td><strong>H100</strong></td><td><span data-type="status" data-color="yellow">Degraded</span><br/><em>4 regions: us-south-2, us-south-3, us-southeast-1, us-west-3</em></td><td><span data-type="status" data-color="green">In stock</span><br/><em>available in 1 of 2 zones carrying the SKU</em></td><td><span data-type="status" data-color="yellow">Degraded</span><br/><em>stock 1x: High, 8x: Low</em></td><td><span data-type="status" data-color="red">Sold out</span><br/><em>0 GPUs listed (Ethernet and InfiniBand)</em></td><td><span data-type="status" data-color="red">Sold out</span>✱<br/><em>bookable in 0 of 3 regions (via Shadeform)</em></td><td><span data-type="status" data-color="red">Sold out</span>✱<br/><em>bookable in 0 of 3 regions (via Shadeform)</em></td><td><span data-type="status" data-color="green">In stock</span><br/><em>badge 'AVAILABLE NOW' (from $2.00)</em></td></tr>
-<tr><td><strong>H200</strong></td><td>—</td><td>—</td><td><span data-type="status" data-color="yellow">Degraded</span><br/><em>1x stock Low, but no 8-GPU (cluster) stock</em></td><td>—</td><td><span data-type="status" data-color="green">In stock</span>✱<br/><em>bookable in 1 of 2 regions (via Shadeform)</em></td><td>—</td><td><span data-type="status" data-color="green">In stock</span><br/><em>badge 'AVAILABLE NOW' (from $2.60)</em></td></tr>
+<tr><td><strong>H200</strong></td><td>—</td><td>—</td><td><span data-type="status" data-color="yellow">Degraded</span><br/><em>stock 1x: Low, 8x: Low</em></td><td>—</td><td><span data-type="status" data-color="green">In stock</span>✱<br/><em>bookable in 1 of 2 regions (via Shadeform)</em></td><td>—</td><td><span data-type="status" data-color="green">In stock</span><br/><em>badge 'AVAILABLE NOW' (from $2.60)</em></td></tr>
 <tr><td><strong>B200</strong></td><td><span data-type="status" data-color="red">Sold out</span><br/><em>all 3 instance sizes show no region with capacity</em></td><td>—</td><td><span data-type="status" data-color="yellow">Degraded</span><br/><em>1x stock Low, but no 8-GPU (cluster) stock</em></td><td>—</td><td><span data-type="status" data-color="red">Sold out</span>✱<br/><em>bookable in 0 of 1 region (via Shadeform)</em></td><td>—</td><td><span data-type="status" data-color="yellow">Degraded</span><br/><em>badge 'Limited Availability' (from $4.00)</em></td></tr>
 <tr><td><strong>B300</strong></td><td>—</td><td><span data-type="status" data-color="red">Sold out</span><br/><em>available in 0 of 1 zone carrying the SKU</em></td><td><span data-type="status" data-color="yellow">Degraded</span><br/><em>1x stock Low, but no 8-GPU (cluster) stock</em></td><td>—</td><td><span data-type="status" data-color="red">Sold out</span>✱<br/><em>bookable in 0 of 2 regions (via Shadeform)</em></td><td>—</td><td>—</td></tr>
 <tr><td><strong>L40S</strong></td><td>—</td><td><span data-type="status" data-color="yellow">Degraded</span><br/><em>available in 0 of 2 zones carrying the SKU</em></td><td><span data-type="status" data-color="yellow">Degraded</span><br/><em>1x stock Low, but no 8-GPU (cluster) stock</em></td><td>—</td><td><span data-type="status" data-color="red">Sold out</span>✱<br/><em>bookable in 0 of 2 regions (via Shadeform)</em></td><td>—</td><td>—</td></tr>
@@ -72,28 +72,20 @@
 <h2>Market Gauges</h2>
 <table data-layout="default"><tbody>
 <tr><th>GPU</th><th>SF Compute clearing (short-term reserve)</th><th>Vast depth (commodity)</th><th>AWS spot pools</th></tr>
-<tr><td><strong>H100</strong></td><td>$1.94</td><td>66 GPUs, floor $0.79</td><td>12 regions</td></tr>
+<tr><td><strong>H100</strong></td><td>$1.94</td><td>67 GPUs, floor $0.79</td><td>12 regions</td></tr>
 <tr><td><strong>H200</strong></td><td>no trades</td><td>63 GPUs, floor $1.67</td><td>10 regions</td></tr>
 <tr><td><strong>B200</strong></td><td>no trades</td><td>60 GPUs, floor $4.63</td><td>3 regions</td></tr>
 <tr><td><strong>B300</strong></td><td>no trades</td><td>29 GPUs, floor $7.50</td><td>1 region</td></tr>
 <tr><td><strong>L40S</strong></td><td>no trades</td><td>104 GPUs, floor $0.40</td><td>9 regions</td></tr>
-<tr><td><strong>RTX6000</strong></td><td>no trades</td><td>97 GPUs, floor $0.73</td><td>—</td></tr>
+<tr><td><strong>RTX6000</strong></td><td>no trades</td><td>99 GPUs, floor $0.66</td><td>—</td></tr>
 </tbody></table>
-<h2>Changes (previous build, 12 Aug 12:10 UTC)</h2>
-<p><strong>Material (live/marketplace, provider-level):</strong></p><ul>
-<li>RunPod H100 [NVIDIA H100 PCIe]: limited → sold_out (live)</li>
-</ul>
-<p><strong>Other (10):</strong></p><ul>
-<li>RunPod H100 AP-IN-1: stock_status_label 1 → 2 (+100%) (live)</li>
-<li>RunPod H100 AP-JP-1 [NVIDIA H100 80GB HBM3]: sold_out → available (live)</li>
-<li>RunPod H100 EU-FR-1 [NVIDIA H100 80GB HBM3]: available → sold_out (live)</li>
-<li>RunPod L40S EU-NL-1 [NVIDIA L40S]: available → sold_out (live)</li>
-<li>RunPod L40S EUR-IS-2 [NVIDIA L40S]: available → sold_out (live)</li>
-<li>RunPod H100 US-KS-2 [NVIDIA H100 PCIe]: available → sold_out (live)</li>
-<li>RunPod L40S US-NC-1 [NVIDIA L40S]: available → sold_out (live)</li>
-<li>RunPod RTX6000 US-NC-2: stock_status_label 1 → 2 (+100%) (live)</li>
-<li>RunPod B200 US-NC-2 [NVIDIA B200]: available → sold_out (live)</li>
-<li>Verda H200: regions_with_capacity 2 → 1 (-50%) (via aggregator ✱)</li>
+<h2>Changes (previous build, 12 Aug 12:11 UTC)</h2>
+<p><strong>Other (5):</strong></p><ul>
+<li>RunPod L40S EUR-IS-2 [NVIDIA L40S]: sold_out → available (live)</li>
+<li>RunPod H200 EUR-IS-5 [NVIDIA H200]: sold_out → available (live)</li>
+<li>RunPod H200 US-CA-2 [NVIDIA H200]: sold_out → available (live)</li>
+<li>RunPod L40S US-MO-1 [NVIDIA L40S]: sold_out → available (live)</li>
+<li>RunPod L40S US-NC-1 [NVIDIA L40S]: sold_out → available (live)</li>
 </ul>
 <h2>Provider Detail</h2>
 <ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">Full per-region, per-SKU detail (long)</ac:parameter><ac:rich-text-body>
@@ -244,19 +236,19 @@
 <tr><td>RunPod</td><td><strong>H200</strong></td><td>EU-FR-1</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC France: sold out</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>H200</strong></td><td>EUR-IS-2</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>DC Europe: stock Low</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>H200</strong></td><td>EUR-IS-4</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>DC Europe: stock Low</em></td><td>live stock</td></tr>
-<tr><td>RunPod</td><td><strong>H200</strong></td><td>EUR-IS-5</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC Europe: sold out</em></td><td>live stock</td></tr>
-<tr><td>RunPod</td><td><strong>H200</strong></td><td>US-CA-2</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC United States: sold out</em></td><td>live stock</td></tr>
+<tr><td>RunPod</td><td><strong>H200</strong></td><td>EUR-IS-5</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>DC Europe: stock Low</em></td><td>live stock</td></tr>
+<tr><td>RunPod</td><td><strong>H200</strong></td><td>US-CA-2</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>DC United States: stock Low</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>H200</strong></td><td>US-GA-2</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>DC United States: stock Low</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>H200</strong></td><td>US-MD-1</td><td>NVIDIA H200 NVL</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC United States: sold out</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>H200</strong></td><td>US-NC-1</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>DC United States: stock Low</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>H200</strong></td><td>US-PA-1</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC United States: sold out</em></td><td>live stock</td></tr>
-<tr><td>RunPod</td><td><strong>H200</strong></td><td>global</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="yellow">Degraded</span></td><td><em>1x stock Low, but no 8-GPU (cluster) stock</em></td><td>live stock</td></tr>
+<tr><td>RunPod</td><td><strong>H200</strong></td><td>global</td><td>NVIDIA H200</td><td>on_demand</td><td><span data-type="status" data-color="yellow">Degraded</span></td><td><em>stock 1x: Low, 8x: Low</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>H200</strong></td><td>global</td><td>NVIDIA H200 NVL</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>no Secure Cloud stock at 1x or 8x</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>L40S</strong></td><td>EU-NL-1</td><td>NVIDIA L40S</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC Europe: sold out</em></td><td>live stock</td></tr>
-<tr><td>RunPod</td><td><strong>L40S</strong></td><td>EUR-IS-2</td><td>NVIDIA L40S</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC Europe: sold out</em></td><td>live stock</td></tr>
+<tr><td>RunPod</td><td><strong>L40S</strong></td><td>EUR-IS-2</td><td>NVIDIA L40S</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>DC Europe: stock Low</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>L40S</strong></td><td>US-IL-1</td><td>NVIDIA L40S</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC United States: sold out</em></td><td>live stock</td></tr>
-<tr><td>RunPod</td><td><strong>L40S</strong></td><td>US-MO-1</td><td>NVIDIA L40S</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC United States: sold out</em></td><td>live stock</td></tr>
-<tr><td>RunPod</td><td><strong>L40S</strong></td><td>US-NC-1</td><td>NVIDIA L40S</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC United States: sold out</em></td><td>live stock</td></tr>
+<tr><td>RunPod</td><td><strong>L40S</strong></td><td>US-MO-1</td><td>NVIDIA L40S</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>DC United States: stock Low</em></td><td>live stock</td></tr>
+<tr><td>RunPod</td><td><strong>L40S</strong></td><td>US-NC-1</td><td>NVIDIA L40S</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>DC United States: stock Low</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>L40S</strong></td><td>US-TX-3</td><td>NVIDIA L40S</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC United States: sold out</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>L40S</strong></td><td>US-TX-4</td><td>NVIDIA L40S</td><td>on_demand</td><td><span data-type="status" data-color="red">Sold out</span></td><td><em>DC United States: sold out</em></td><td>live stock</td></tr>
 <tr><td>RunPod</td><td><strong>L40S</strong></td><td>global</td><td>NVIDIA L40S</td><td>on_demand</td><td><span data-type="status" data-color="yellow">Degraded</span></td><td><em>1x stock Low, but no 8-GPU (cluster) stock</em></td><td>live stock</td></tr>
@@ -281,10 +273,10 @@
 <tr><td>RunPod</td><td><strong>RTX6000</strong></td><td>global</td><td>NVIDIA RTX PRO 6000 Blackwell Workstation Edition</td><td>on_demand</td><td><span data-type="status" data-color="yellow">Degraded</span></td><td><em>1x stock Low, but no 8-GPU (cluster) stock</em></td><td>live stock</td></tr>
 <tr><td>Vast.ai</td><td><strong>B200</strong></td><td>global</td><td>—</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>60 GPUs / 21 offers, min $4.63/GPU-hr, 1 country</em></td><td>marketplace</td></tr>
 <tr><td>Vast.ai</td><td><strong>B300</strong></td><td>global</td><td>—</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>29 GPUs / 7 offers, min $7.50/GPU-hr, 2 countries</em></td><td>marketplace</td></tr>
-<tr><td>Vast.ai</td><td><strong>H100</strong></td><td>global</td><td>—</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>66 GPUs / 33 offers, min $0.79/GPU-hr, 7 countries</em></td><td>marketplace</td></tr>
+<tr><td>Vast.ai</td><td><strong>H100</strong></td><td>global</td><td>—</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>67 GPUs / 34 offers, min $0.79/GPU-hr, 7 countries</em></td><td>marketplace</td></tr>
 <tr><td>Vast.ai</td><td><strong>H200</strong></td><td>global</td><td>—</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>63 GPUs / 23 offers, min $1.67/GPU-hr, 6 countries</em></td><td>marketplace</td></tr>
 <tr><td>Vast.ai</td><td><strong>L40S</strong></td><td>global</td><td>—</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>104 GPUs / 31 offers, min $0.40/GPU-hr, 8 countries</em></td><td>marketplace</td></tr>
-<tr><td>Vast.ai</td><td><strong>RTX6000</strong></td><td>global</td><td>—</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>97 GPUs / 55 offers, min $0.73/GPU-hr, 12 countries</em></td><td>marketplace</td></tr>
+<tr><td>Vast.ai</td><td><strong>RTX6000</strong></td><td>global</td><td>—</td><td>on_demand</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>99 GPUs / 57 offers, min $0.66/GPU-hr, 14 countries</em></td><td>marketplace</td></tr>
 <tr><td>SF Compute</td><td><strong>B200</strong></td><td>global</td><td>—</td><td>reserved_short</td><td><span data-type="status" data-color="neutral">?</span></td><td><em>no trades printed on the exchange</em></td><td>marketplace</td></tr>
 <tr><td>SF Compute</td><td><strong>H100</strong></td><td>global</td><td>—</td><td>reserved_short</td><td><span data-type="status" data-color="green">In stock</span></td><td><em>clearing avg $1.94/GPU-hr (range $0.01-$2.25)</em></td><td>marketplace</td></tr>
 <tr><td>SF Compute</td><td><strong>H200</strong></td><td>global</td><td>—</td><td>reserved_short</td><td><span data-type="status" data-color="neutral">?</span></td><td><em>no trades printed on the exchange</em></td><td>marketplace</td></tr>
