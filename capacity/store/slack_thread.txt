@@ -1,16 +1,16 @@
 *Capacity matrix — state per provider (best region)*
 
 *H100* — _mixed_
-   ⚠️ Nebius (self-service, but only eu-north1 (footprint)) · ✅ CoreWeave (7 regions) · ⚠️ Lambda (4 region(s): us-south-2, us-south-3, us-southeast-1, us-w…) · ✅ Crusoe · ⛔ Hyperstack · ⛔ Verda · ✅ Scaleway (1 region) · ⛔ Voltage Park · ✅ GMI Cloud · ⚠️ RunPod (stock 1x: High, 8x: Low) · ✅ Vast.ai · ✅ SF Compute · ✅ AWS (12 regions) · ✅ GCP (15 regions) · ✅ Azure
+   ⚠️ Nebius (self-service, but only eu-north1 (footprint)) · ✅ CoreWeave (7 regions) · ⚠️ Lambda (3 region(s): us-south-2, us-south-3, us-southeast-1; 3/5 …) · ✅ Crusoe · ⛔ Hyperstack · ⛔ Verda · ✅ Scaleway (1 region) · ⛔ Voltage Park · ✅ GMI Cloud · ✅ RunPod (12 regions, 4 sold out) · ✅ Vast.ai · ✅ SF Compute · ✅ AWS (12 regions) · ✅ GCP (15 regions) · ✅ Azure
 
 *H200* — _mixed_
    ✅ Nebius (4 regions) · ✅ CoreWeave (7 regions) · ⚠️ Crusoe (offered in 1 zone(s): eu-iceland1-a (footprint, not live …) · ⛔ Verda · ✅ GMI Cloud · ⚠️ RunPod (1x stock Low, but no 8-GPU (cluster) stock) · ✅ Vast.ai · ✅ SF Compute · ✅ AWS (10 regions) · ✅ GCP (8 regions) · ✅ Azure
 
 *B200* — _mixed_
-   ✅ Nebius (2 regions) · ✅ CoreWeave (6 regions) · ⛔ Lambda · ✅ Crusoe · ⛔ Verda · ⚠️ GMI Cloud (badge 'Limited Availability' (from $4.00)) · ⚠️ RunPod (1x stock Low, but no 8-GPU (cluster) stock) · ✅ Vast.ai · ✅ SF Compute · ✅ AWS (3 regions) · ✅ GCP (10 regions)
+   ✅ Nebius (2 regions) · ✅ CoreWeave (6 regions) · ⛔ Lambda · ✅ Crusoe · ✅ Verda · ⚠️ GMI Cloud (badge 'Limited Availability' (from $4.00)) · ⚠️ RunPod (1x stock Low, but no 8-GPU (cluster) stock) · ✅ Vast.ai · ✅ SF Compute · ✅ AWS (3 regions) · ✅ GCP (10 regions)
 
 *B300* — _mixed_
-   ✅ Nebius (2 regions) · ✅ CoreWeave (4 regions) · ⚠️ Crusoe (offered in 1 zone(s): eu-iceland1-a (footprint, not live …) · ⛔ Verda · ⛔ Scaleway (fr-par-2) · ⛔ RunPod (all 2 regions) · ✅ Vast.ai · ✅ AWS (1 region)
+   ✅ Nebius (2 regions) · ✅ CoreWeave (4 regions) · ⚠️ Crusoe (offered in 1 zone(s): eu-iceland1-a (footprint, not live …) · ✅ Verda · ⛔ Scaleway (fr-par-2) · ⛔ RunPod (all 2 regions) · ✅ Vast.ai · ✅ AWS (1 region)
 
 *GB200* — _thin live signal (2 sources)_
    ✅ CoreWeave (6 regions) · ⚠️ Crusoe (offered in 1 zone(s): eu-iceland1-a (footprint, not live …) · ✅ GMI Cloud · ⛔ Vast.ai · ✅ GCP (4 regions) · ✅ Azure
