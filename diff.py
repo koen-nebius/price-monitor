@@ -2527,6 +2527,7 @@ def _build_short_term_reserved_section(records: List[PriceRecord]) -> str:
         pv_td = f"${pv:.2f}" if pv else "—"
         src = {"sfcompute": "SF Compute fills (transacted)",
                "aws": "AWS Capacity Blocks (published)",
+               "lambda": "Lambda 1-Click Cluster (2wk-1yr)",
                "vast": "Vast.ai reserved offer"}.get(
             r.provider, f"{_provider_display(r.provider)} reserved offer")
         html.append(

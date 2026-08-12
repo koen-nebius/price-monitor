@@ -58,6 +58,74 @@ INSTANCE_GPU_MAP = {
 }
 
 
+ONE_CLICK_URL = "https://lambda.ai/pricing"
+
+def _fetch_one_click_clusters(now: str):
+    """
+    Lambda 1-Click Clusters — their SHORT-TERM RESERVED product (2 weeks to
+    1 year, multi-node InfiniBand clusters, priced per GPU-hr by cluster size).
+    Added 2026-08-12 after Danila read the $6.16 16-GPU tier as an H100 raise:
+    it's a different consumption type, priced ~50% ABOVE Lambda's own on-demand
+    (guaranteed-capacity premium, same economics as AWS Capacity Blocks).
+    Emits consumption_type="reserved_short" (cheapest tier per GPU, per the
+    short-term-reserved section convention). Server-rendered page, plain fetch.
+    """
+    import re as _re
+    import urllib.request as _rq
+    req = _rq.Request(ONE_CLICK_URL, headers={"User-Agent": "Mozilla/5.0 (price-monitor/1.0)"})
+    with _rq.urlopen(req, timeout=30) as resp:
+        html = resp.read().decode("utf-8", "replace")
+    text = _re.sub(r"<[^>]+>", "|", html)
+    text = _re.sub(r"\s*\|+\s*", "|", text)
+    pat = r"NVIDIA ((?:HGX )?[A-Z]+\d{2,3}\w*)[|\s]+2 weeks\s*[–-]\s*1 year[|\s]+(\d+)\+?[|\s]+\$\s*([\d.]+)"
+    if not _re.search(pat, text):
+        # Cloudflare may serve cloud IPs a JS shell — escalate to Tavily's
+        # rendered-text extract (same ladder, whitespace-separated).
+        from fetchers._tavily import tavily_fetch_text
+        tav = tavily_fetch_text(ONE_CLICK_URL)
+        if tav:
+            text = tav
+    best = {}
+    for m in _re.finditer(pat, text):
+        gpu = _match_gpu(m.group(1))
+        if not gpu:
+            continue
+        n, px = int(m.group(2)), float(m.group(3))
+        if not (0.5 <= px <= 30):
+            continue
+        if gpu not in best or px < best[gpu][1]:
+            best[gpu] = (n, px)
+    records = []
+    for gpu, (n, px) in best.items():
+        records.append(PriceRecord(
+            provider="lambda",
+            gpu_model=gpu,
+            gpu_count=n,
+            instance_type=f"1-click-cluster-{n}x",
+            region="us",
+            consumption_type="reserved_short",
+            price_per_hour_usd=px * n,
+            price_per_gpu_hour_usd=px,
+            fetched_at=now,
+            source_url=ONE_CLICK_URL,
+            data_source="web_scrape",
+        ))
+    if records:
+        logger.info("Lambda 1-Click Clusters: "
+                    + ", ".join(f"{r.gpu_model} ${r.price_per_gpu_hour_usd:.2f} ({r.gpu_count}x)"
+                                for r in records))
+    return records
+
+
+def _one_click_safe(now: str):
+    """1-Click Clusters records, or [] — never let the add-on break the main fetch."""
+    try:
+        return _fetch_one_click_clusters(now)
+    except Exception as e:
+        logger.warning(f"Lambda 1-Click Clusters fetch failed: {e}")
+        return []
+
+
 def fetch(regions: List[str] = None) -> List[PriceRecord]:
     now = datetime.now(timezone.utc).isoformat()
     api_key = os.environ.get("LAMBDA_API_KEY")
@@ -83,7 +151,7 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
                 # Supplement with SkyPilot catalog for any GPU models the API didn't return
                 # (e.g. L40S which is not always listed in the API response)
                 records = _supplement_with_skypilot(records, now)
-                return records
+                return records + _one_click_safe(now)
         except Exception as e:
             logger.info(f"Lambda Labs API failed ({e})")
 
@@ -93,11 +161,11 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
         # Supplement with SkyPilot catalog for GPU models missing from the scrape
         # (e.g. L40S is not listed on lambda.ai/instances as of mid-2025)
         records = _supplement_with_skypilot(records, now)
-        return records
+        return records + _one_click_safe(now)
 
     # Tier 3: SkyPilot catalog fallback — public GitHub CSV, no Cloudflare
     logger.warning("Lambda Labs: scrape returned 0 records — trying SkyPilot catalog fallback")
-    return _fetch_skypilot_catalog(now)
+    return _fetch_skypilot_catalog(now) + _one_click_safe(now)
 
 
 def _supplement_with_skypilot(records: List[PriceRecord], now: str) -> List[PriceRecord]:
