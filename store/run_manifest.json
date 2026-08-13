@@ -1,20 +1,15 @@
 {
-  "run_date": "2026-08-12",
-  "started_at": "2026-08-12T03:30:58.077784+00:00",
-  "completed_at": "2026-08-12T03:32:26.871979+00:00",
-  "status": "partial",
-  "record_count": 1058,
-  "raw_record_count": 1058,
+  "run_date": "2026-08-13",
+  "started_at": "2026-08-13T03:34:19.261535+00:00",
+  "completed_at": "2026-08-13T03:35:42.767575+00:00",
+  "status": "success",
+  "record_count": 1080,
+  "raw_record_count": 1080,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 39,
-  "failed_providers": [
-    "verda",
-    "aws_capacity_blocks"
-  ],
-  "stale_providers": [
-    "sfcompute"
-  ],
+  "diff_count": 51,
+  "failed_providers": [],
+  "stale_providers": [],
   "provider_status": {
     "aws": {
       "status": "live",
@@ -34,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 10
+      "record_count": 12
     },
     "crusoe": {
       "status": "live",
@@ -65,9 +60,8 @@
       "record_count": 16
     },
     "sfcompute": {
-      "status": "cache",
-      "record_count": 1,
-      "cache_age_hours": 24.3
+      "status": "live",
+      "record_count": 1
     },
     "together": {
       "status": "live",
@@ -75,15 +69,15 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 1
+      "record_count": 2
     },
     "verda": {
-      "status": "error",
-      "record_count": 0
+      "status": "live",
+      "record_count": 14
     },
     "aws_capacity_blocks": {
-      "status": "error",
-      "record_count": 0
+      "status": "live",
+      "record_count": 5
     }
   },
   "provider_freshness": {
@@ -136,8 +130,8 @@
       "age_hours": null
     },
     "sfcompute": {
-      "status": "cached",
-      "age_hours": 24.3
+      "status": "live",
+      "age_hours": null
     },
     "together": {
       "status": "live",
@@ -148,17 +142,18 @@
       "age_hours": null
     },
     "verda": {
-      "status": "error",
+      "status": "live",
       "age_hours": null
     },
     "aws_capacity_blocks": {
-      "status": "error",
+      "status": "live",
       "age_hours": null
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 50 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "Nebius committed prices last verified 51 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
+    "cross-check: coreweave GB200 on-demand: ours $10.50 (scrape) vs ComputePrices $42.00 (300% gap) \u2014 ours far below CP's freshest coverage \u2014 verify we didn't parse a non-GPU/spot row",
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],

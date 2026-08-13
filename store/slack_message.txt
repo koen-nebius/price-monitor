@@ -1,5 +1,7 @@
-*GPU Pricing Daily — August 12, 2026*
+*GPU Pricing Daily — August 13, 2026*
 
-No movement on live sources (no price moves ≥3%), but 14/17 sources live today (aws_capacity_blocks, sfcompute, verda stale/missing) — movement there can't be confirmed.
+*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Sfcompute H100 spot -5%
+
+*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 8w) and below cluster-peer median (H100, H200, B200); B300 -9% vs Scaleway (sole public cluster-peer list). RTX PRO 6000 -12% vs inference-market median (11 providers).
 
 Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>
