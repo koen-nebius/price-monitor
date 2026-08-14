@@ -42,7 +42,7 @@ PENDING_LABELS = {
 # Method & semantics per provider — rendered on Confluence with the class and
 # today's basis so no reader has to guess what a cell means.
 METHOD = {
-    "lambda":       ("live",          "instance-types API: per-region launchability; empty = sold out fleet-wide"),
+    "lambda":       ("live",          "instance-types API: per-region launchability; empty = sold out in all regions"),
     "scaleway":     ("live",          "public availability API: available / scarce / shortage per zone per SKU"),
     "runpod":       ("live",          "GraphQL stock labels (1x and 8x cluster) + per-datacenter availability"),
     "voltage_park": ("live",          "public locations API: live rentable GPU counts per fabric"),
@@ -80,11 +80,11 @@ def _fresh_line(manifest: dict) -> Tuple[str, str]:
         names = ", ".join(PROVIDER_LABELS.get(p, p) for p in problems)
         short = f"{n_live}/{n_act} activated sources live (issue: {names})"
         color = "yellow"
-    pend = f" · {len(f['pending'])} sources pending activation" if f["pending"] else ""
+    pend = f" · {plural(len(f['pending']), 'source')} pending activation" if f["pending"] else ""
     html = (f'<span data-type="status" data-color="{color}">'
             f'{n_live}/{n_act} activated sources live</span>'
             + (f"<em>{pend}</em>" if pend else ""))
-    return short + pend, html
+    return (short + pend).capitalize(), html
 
 
 def _baseline_label(old_records: List[AvailabilityRecord]) -> str:
@@ -104,7 +104,11 @@ def _mark(read: dict) -> str:
 
 def _streak(read: dict, gpu: str) -> str:
     d = insights.days_in_state(read["provider"], gpu, read["state"])
-    return f", day {d}" if d and d >= 2 else ""
+    # A streak spanning the whole history just restates the monitor's age —
+    # only show streaks that are shorter than the days tracked.
+    if not d or d < 2 or d >= insights.history_days():
+        return ""
+    return f" (day {d})"
 
 
 def _material_changes(records: List[AvailabilityRecord],
@@ -118,7 +122,7 @@ def _material_changes(records: List[AvailabilityRecord],
         tt = insights.tightness(records, t["gpu"])
         kn = f"{tt['k_cluster']}/{tt['n']}" if tt else "?"
         if t["new"] == "sold_out":
-            out.append(f"• {prov} {t['gpu']} sold out (own API). Cluster stock now at "
+            out.append(f"• {prov} {t['gpu']} sold out in all regions (own API). Cluster stock now at "
                        f"{kn} live sources; supports holding {t['gpu']} price.")
         elif t["new"] == "available" and t["old"] == "sold_out":
             out.append(f"• {prov} {t['gpu']} fully restocked (own API). Supply loosening; "
@@ -147,39 +151,37 @@ def render_slack(records: List[AvailabilityRecord],
     lines = [f"*GPU Capacity Daily — {today}*"]
     hard = [t for t in triggers if t.get("level") != "watch"]
     watch = [t for t in triggers if t.get("level") == "watch"]
+    material = _material_changes(records, old_records)
+
     if hard:
         for t in hard[:3]:
             lines.append(f"*TRIGGER ({t['owner']}):* {t['text']}")
-    else:
-        lines.append("No decision trigger hit.")
+    elif not material:
+        # One honest null line instead of two near-duplicates; scoped to what
+        # the checks actually inspect (flagship GPUs, provider level).
+        lines.append("No trigger hit; no material change on flagship GPUs.")
     for t in watch[:2]:
         lines.append(f"_Watch ({t['owner']}): {t['text']}_")
     lines.append("")
 
-    # Cluster-scale strip
-    strip, any_agg = [], False
+    # Cluster-scale strip. Legend lives in the Confluence method section —
+    # repeating it daily to the same 6 readers was noise. ✱ can only sit in
+    # the denominator now (aggregator reads never count as cluster stock).
+    strip = []
     for gpu in FLAGSHIP_GPUS:
         t = insights.tightness(records, gpu)
         if not t:
             continue
         mark = "✱" if t["any_aggregator"] else ""
         strip.append(f"{gpu} {t['k_cluster']}/{t['n']}{mark}")
-        any_agg = any_agg or t["any_aggregator"]
     if strip:
         lines.append("*Cluster-scale (8x) stock at live sources:*  " + " · ".join(strip))
-        note = "k/n = live sources with cluster stock (1x-only counts as no)"
-        if any_agg:
-            note += "; ✱ includes an aggregator read"
-        lines.append(f"_{note}_")
         lines.append("")
 
-    material = _material_changes(records, old_records)
     if material:
         lines.append("*Material changes:*")
         lines.extend(material)
-    else:
-        lines.append("No material changes on live sources.")
-    lines.append("")
+        lines.append("")
 
     # Gauges — H100 as the market bellwether, only real numbers
     g = insights.market_gauges(records, "H100")
@@ -204,53 +206,70 @@ def render_slack(records: List[AvailabilityRecord],
 
 # ── Slack thread ─────────────────────────────────────────────────────────────
 
-def _gpu_block(records: List[AvailabilityRecord], gpu: str) -> List[str]:
+def _normalize_partial(provider: str, detail: str) -> str:
+    """Plain short reason for a partial read; raw fetcher prose was truncating
+    mid-caveat. '1x High' beats '1x stock High, but no 8-GPU (cluster) stock'."""
+    import re as _re
+    d = detail or ""
+    m = _re.search(r"1x[: ]+(?:stock )?(High|Medium|Low)", d, _re.I)
+    if m:
+        return f"1x {m.group(1)}"
+    m = _re.search(r"(\d+) regions?:", d)
+    if m:
+        return f"small sizes in {plural(int(m.group(1)), 'region')}, 8x sold out"
+    if "no 8x" in d:
+        return "no 8x node"
+    return _short(d, 40)
+
+
+def _gpu_block(records: List[AvailabilityRecord], gpu: str,
+               skip_gauges: bool = False, first_aws: List[bool] = None) -> List[str]:
     t = insights.tightness(records, gpu)
     if not t:
         return []
-    lines = [f"*{gpu} — cluster stock at {t['k_cluster']}/{t['n']} live sources*"]
 
     groups = {"available": [], "limited": [], "sold_out": []}
     for r in t["reads"]:
         entry = f"{r['label']}{_mark(r)}" + _streak(r, gpu)
-        groups[r["state"]].append((entry, r["detail"], r["aggregator"]))
+        groups[r["state"]].append((entry, r["detail"]))
 
     if groups["available"]:
-        lines.append("• In stock: " + " · ".join(e for e, _d, _a in groups["available"]))
+        head = " · ".join(e for e, _d in groups["available"])
+    else:
+        head = f"none of {t['n']} live sources"
+    lines = [f"*{gpu}* in stock: {head}"]
+
     if groups["limited"]:
-        det = " · ".join(f"{e} ({_short(d)})" for e, d, _a in groups["limited"])
-        lines.append(f"• Degraded: {det}")
+        det = " · ".join(
+            f"{e} ({_normalize_partial(e.split('✱')[0].strip(), d)})" for e, d in groups["limited"])
+        lines.append(f"• Partial: {det}")
     if groups["sold_out"]:
-        det = " · ".join(f"{e} ({_short(d)})" for e, d, _a in groups["sold_out"])
-        lines.append(f"• Sold out: {det}")
+        # State + ✱ already say everything; details restating "0" are noise
+        lines.append("• Sold out: " + " · ".join(e for e, _d in groups["sold_out"]))
 
-    # Claims (badges)
-    badges = [r for r in records if r.provider == "gmi" and r.gpu_model == gpu
-              and r.region == "global"]
-    if badges:
-        b = badges[0]
-        lines.append(f"• Claims: GMI {_short(b.detail)} — self-reported, not counted")
-
-    # Depth / spot
+    # Market depth line (H100 gauges live in the digest — no repeat here)
     g = insights.market_gauges(records, gpu)
     depth_bits = []
-    if g.get("vast_gpus") is not None:
-        floor = f", floor {g['vast_floor']}" if g.get("vast_floor") else ""
-        depth_bits.append(f"Vast {g['vast_gpus']} GPUs listed{floor}")
-    if g.get("sfc_clearing"):
-        depth_bits.append(f"SF Compute clears ${g['sfc_clearing']:.2f}")
+    if not skip_gauges:
+        if g.get("vast_gpus"):
+            floor = f", floor {g['vast_floor']}" if g.get("vast_floor") else ""
+            depth_bits.append(f"Vast {g['vast_gpus']} GPUs listed{floor}")
+        if g.get("sfc_clearing"):
+            depth_bits.append(f"SF Compute clears ${g['sfc_clearing']:.2f}")
     if g.get("aws_spot_regions"):
-        depth_bits.append(f"AWS spot pools in {plural(g['aws_spot_regions'], 'region')} (advisor, ~weekly)")
-    if depth_bits:
-        lines.append("• Market: " + " · ".join(depth_bits))
+        note = ""
+        if first_aws is not None and not first_aws[0]:
+            note = " (advisor, ~weekly)"
+            first_aws[0] = True
+        depth_bits.append(f"AWS spot pools in {plural(g['aws_spot_regions'], 'region')}{note}")
 
-    # Nebius reference
     ref = insights.nebius_reference(records, gpu)
+    tail = ""
     if ref["regions"]:
         gate = " (sales-gated)" if ref["sales_gated"] else ""
-        lines.append(f"• Nebius shelf: {', '.join(ref['regions'])}{gate}")
-    if ref.get("canary"):
-        lines.append(f"• ⚠️ Nebius canary: {ref['canary']}")
+        tail = f"; Nebius self-service: {', '.join(ref['regions'])}{gate}"
+    if depth_bits or tail:
+        lines.append("• Market: " + " · ".join(depth_bits) + tail)
 
     lines.append("")
     return lines
@@ -276,37 +295,57 @@ def _describe_change(c: CapacityDiffEntry,
                     tag = "via aggregator ✱"
                 break
     where = f" {c.region}" if c.region and c.region != "global" else ""
-    sku = f" [{c.instance_type}]" if c.instance_type and c.change_type == "state_change" else ""
+    human = {"available": "in stock", "limited": "partial", "sold_out": "sold out",
+             "not_offered": "not offered", "unknown": "unknown"}
+    metric_name = {"offer_depth_gpus": "listed depth", "stock_level": "stock",
+                   "regions_with_capacity": "regions with capacity",
+                   "clearing_price_usd": "clearing price", "lead_time_days": "lead time"}
     if c.change_type == "state_change":
-        return f"{prov} {c.gpu_model}{where}{sku}: {c.old_state} → {c.new_state} ({tag})"
+        return (f"{prov} {c.gpu_model}{where}: {human.get(c.old_state, c.old_state)} → "
+                f"{human.get(c.new_state, c.new_state)} ({tag})")
     if c.change_type == "metric_move":
+        name = next((v for k, v in metric_name.items() if k in (c.detail or "")), None)
+        if name and c.old_value is not None and c.new_value is not None:
+            capped = "+, page-capped" if "page cap" in (c.detail or "") else ""
+            return (f"{prov} {c.gpu_model}{where}: {name} "
+                    f"{c.old_value:g} → {c.new_value:g}{capped} ({tag})")
         return f"{prov} {c.gpu_model}{where}: {c.detail} ({tag})"
     if c.change_type == "added":
-        return f"{prov} {c.gpu_model}{where}: now tracked, {c.new_state} ({tag})"
+        return f"{prov} {c.gpu_model}{where}: now tracked, {human.get(c.new_state, c.new_state)} ({tag})"
     return f"{prov} {c.gpu_model}{where}: {c.detail} ({tag})"
 
 
 def _render_thread(records, diff, manifest, old_records) -> str:
     today = datetime.now(timezone.utc).strftime("%A %d %b %Y")
     lines = [f"*Evidence — {today}*", ""]
+    first_aws = [False]
 
-    for gpu in FLAGSHIP_GPUS:
-        lines.extend(_gpu_block(records, gpu))
+    # A "footprint-only" GPU with an actual live read auto-promotes to a full
+    # block (Together was live-selling GB300 while the thread claimed "no live
+    # market" — red-team 2026-08-14).
+    promoted = [g for g in FOOTPRINT_ONLY_GPUS if insights.tightness(records, g)]
+
+    for gpu in FLAGSHIP_GPUS + promoted:
+        lines.extend(_gpu_block(records, gpu, skip_gauges=(gpu == "H100"),
+                                first_aws=first_aws))
 
     # Secondary GPUs, one line each
     sec_bits = []
     for gpu in SECONDARY_GPUS:
         t = insights.tightness(records, gpu)
         if t:
-            sec_bits.append(f"*{gpu}*: stock at {t['k_any']}/{t['n']} live sources "
-                            f"({t['k_cluster']}/{t['n']} at scale)")
+            sec_bits.append(f"*{gpu}* in stock at {t['k_any']}/{t['n']} live sources "
+                            f"({t['k_cluster']}/{t['n']} at 8x)")
     if sec_bits:
         lines.append(" · ".join(sec_bits))
         lines.append("")
 
-    # Footprint-only generations
+    # Footprint-only generations (label with the full product name)
+    fp_label = {"GB200": "GB200 NVL72", "GB300": "GB300 NVL72"}
     fp_lines = []
     for gpu in FOOTPRINT_ONLY_GPUS:
+        if gpu in promoted:
+            continue
         bits = []
         for prov in ("coreweave", "gcp", "azure", "crusoe"):
             rows = [r for r in records if r.provider == prov and r.gpu_model == gpu
@@ -315,43 +354,36 @@ def _render_thread(records, diff, manifest, old_records) -> str:
                 unit = {"coreweave": "AZ", "gcp": "zone", "azure": "priced region",
                         "crusoe": "zone"}[prov]
                 bits.append(f"{PROVIDER_LABELS[prov]} {plural(int(rows[0].metric_value), unit)}")
-        badge = next((r for r in records if r.provider == "gmi" and r.gpu_model == gpu
-                      and r.region == "global"), None)
-        if badge:
-            bits.append(f"GMI {_short(badge.detail, 60)}")
         if bits:
-            fp_lines.append(f"*{gpu}*: " + " · ".join(bits))
+            fp_lines.append(f"*{fp_label.get(gpu, gpu)}*: " + " · ".join(bits))
     if fp_lines:
-        lines.append("*No live market yet (footprint only, where it is sold):*")
+        lines.append("*Footprint only (where it is sold, not stock):*")
         lines.extend(fp_lines)
         lines.append("")
 
-    # Full change list with provenance. Provider-level rows individually;
-    # per-DC/zone churn compressed to one line per provider (RunPod alone can
-    # flip a dozen DCs a day — real, but not worth a dozen bullets).
+    # GMI badges once, consolidated — a signal that is "never counted" does
+    # not deserve a bullet per GPU
+    badges = sorted((r for r in records if r.provider == "gmi" and r.region == "global"),
+                    key=lambda r: r.gpu_model)
+    if badges:
+        bits = [f"{fp_label.get(b.gpu_model, b.gpu_model)} "
+                f"{_short(b.detail.replace('badge ', '').replace(' (not yet deliverable)', ''), 60)}"
+                for b in badges]
+        lines.append(f"_GMI badges (self-reported, never counted): {' · '.join(bits)}_")
+        lines.append("")
+
+    # Changes: provider-level only in Slack; per-DC churn lives on Confluence
     baseline = _baseline_label(old_records)
     changes = [c for c in diff if c.change_type in ("state_change", "metric_move")]
     provider_level = [c for c in changes if c.region == "global"]
-    region_level = [c for c in changes if c.region != "global"]
-    lines.append(f"*All changes ({baseline}):*")
-    if not changes:
-        lines.append("• none")
+    n_region = len(changes) - len(provider_level)
+    lines.append(f"*Changes ({baseline}):*")
+    if not provider_level:
+        lines.append("• none at provider level")
     for c in provider_level[:12]:
         lines.append(f"• {_describe_change(c, records)}")
-    by_prov: Dict[str, list] = {}
-    for c in region_level:
-        by_prov.setdefault(c.provider, []).append(c)
-    for prov, items in sorted(by_prov.items()):
-        sell = sum(1 for c in items if c.new_state == "sold_out")
-        restock = sum(1 for c in items if c.old_state == "sold_out")
-        sample = ", ".join(f"{c.gpu_model} {c.region}" for c in items[:3])
-        more = f" +{len(items) - 3} more" if len(items) > 3 else ""
-        lines.append(f"• {PROVIDER_LABELS.get(prov, prov)} region-level: "
-                     f"{sell} sellouts / {restock} restocks ({sample}{more})")
-    lines.append("")
-    lines.append("_Public shelf at list price, not provider utilization · "
-                 "footprint = where it is sold, not whether in stock · "
-                 "transitions matter more than levels_")
+    if n_region:
+        lines.append(f"_+{plural(n_region, 'datacenter-level change')} on Confluence_")
     return "\n".join(lines)
 
 
@@ -390,7 +422,8 @@ def render_confluence(records: List[AvailabilityRecord],
     hist_days = insights.history_days()
     _, fresh_html = _fresh_line(manifest)
 
-    tight = {g: insights.tightness(records, g) for g in FLAGSHIP_GPUS + SECONDARY_GPUS}
+    tight = {g: insights.tightness(records, g)
+             for g in FLAGSHIP_GPUS + SECONDARY_GPUS + FOOTPRINT_ONLY_GPUS}
     tight = {g: t for g, t in tight.items() if t}
 
     h = []
@@ -495,7 +528,7 @@ def render_confluence(records: List[AvailabilityRecord],
              "<th>Read</th><th>Cheapest bookable peer (OD)</th>"
              "<th>Cheapest listed (if different)</th><th>Nebius OD</th>"
              "<th>Nebius self-service regions</th></tr>")
-    for gpu in FLAGSHIP_GPUS + SECONDARY_GPUS:
+    for gpu in FLAGSHIP_GPUS + SECONDARY_GPUS + FOOTPRINT_ONLY_GPUS:
         t = tight.get(gpu)
         if not t:
             continue
@@ -553,7 +586,7 @@ def render_confluence(records: List[AvailabilityRecord],
     h.append('<table data-layout="full-width"><tbody>')
     h.append("<tr><th>GPU</th>" + "".join(f"<th>{_esc(PROVIDER_LABELS[p])}"
              + (" (badge)" if p == "gmi" else "") + "</th>" for p in live_provs) + "</tr>")
-    state_disp = {"available": ("green", "In stock"), "limited": ("yellow", "Degraded"),
+    state_disp = {"available": ("green", "In stock"), "limited": ("yellow", "Partial"),
                   "sold_out": ("red", "Sold out"), "unknown": ("neutral", "?"),
                   "not_offered": ("neutral", "—")}
     for gpu in FLAGSHIP_GPUS + SECONDARY_GPUS:

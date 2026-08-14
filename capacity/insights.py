@@ -65,29 +65,33 @@ def plural(n: int, word: str) -> str:
 # ── Per-provider live reads ──────────────────────────────────────────────────
 
 def live_reads(records: List[AvailabilityRecord], gpu: str) -> List[dict]:
-    """One read per LIVE provider for a GPU (on-demand, global row).
-    cluster_ok reflects the fetchers' convention: global state 'available'
-    means the flagship/8x class has stock; 'limited' means degraded (1x-only,
-    single zone, thin count); 'sold_out' means none."""
+    """One read per LIVE provider for a GPU (on-demand, global rows).
+
+    Multi-SKU providers: most-available state across DIRECT variant rows wins
+    (first-variant-wins misstated RunPod RTX6000 as fully sold out while its
+    Server Edition had stock — red-team 2026-08-14). Aggregator rows are a
+    fallback only, and can never prove CLUSTER stock: Shadeform booleans
+    cannot see instance size, so cluster_ok requires a direct 'available'."""
     reads = []
     for provider, cls in SIGNAL_CLASS.items():
         if cls != "live" or provider == "nebius":
             continue
         rows = [r for r in records
                 if r.provider == provider and r.gpu_model == gpu
-                and r.consumption_type == "on_demand" and r.region == "global"]
+                and r.consumption_type == "on_demand" and r.region == "global"
+                and r.state in _RANK]
         if not rows:
             continue
         direct = [r for r in rows if r.data_source != "aggregator"]
-        row = direct[0] if direct else rows[0]
-        if row.state in ("not_offered", "unknown"):
-            continue
+        pool = direct or rows
+        row = min(pool, key=lambda r: _RANK[r.state])
+        is_agg = row.data_source == "aggregator"
         reads.append({
             "provider": provider,
             "label": PROVIDER_LABELS.get(provider, provider),
             "state": row.state,
-            "aggregator": row.data_source == "aggregator",
-            "cluster_ok": row.state == "available",
+            "aggregator": is_agg,
+            "cluster_ok": row.state == "available" and not is_agg,
             "detail": row.detail,
         })
     return sorted(reads, key=lambda x: ({"available": 0, "limited": 1, "sold_out": 2}[x["state"]], x["label"]))
@@ -320,7 +324,7 @@ def evaluate_triggers(records: List[AvailabilityRecord],
             fired.append({
                 "id": "T1", "owner": "Pricing",
                 "text": f"{PROVIDER_LABELS.get(t['provider'], t['provider'])} {t['gpu']} "
-                        f"{verb} fleet-wide (own API)",
+                        f"{verb} in all regions (own API)",
             })
 
     # T2 — cluster-scale in-stock share crosses 1/3 or 2/3 on a flagship GPU
@@ -341,15 +345,19 @@ def evaluate_triggers(records: List[AvailabilityRecord],
                 })
 
     # T3 — Nebius canary: listed self-service but not bookable per the
-    # aggregator. level="watch": the read is Shadeform's RESALE view of
-    # Nebius, not our console — worth a line, not a siren.
-    canary_gpus = [gpu for gpu in FLAGSHIP_GPUS
-                   if nebius_reference(records, gpu).get("canary")]
-    if canary_gpus:
+    # aggregator. Fires on TRANSITION only — the same line every day since
+    # launch is wallpaper, not signal (red-team 2026-08-14). The persistent
+    # condition lives in the Confluence TL;DR instead.
+    canary_now = [gpu for gpu in FLAGSHIP_GPUS
+                  if nebius_reference(records, gpu).get("canary")]
+    canary_before = [gpu for gpu in FLAGSHIP_GPUS
+                     if old_records and nebius_reference(old_records, gpu).get("canary")]
+    new_canaries = [g for g in canary_now if g not in canary_before]
+    if new_canaries:
         fired.append({
             "id": "T3", "owner": "Self-service", "level": "watch",
-            "text": f"Nebius {', '.join(canary_gpus)} not bookable via Shadeform's "
-                    f"resale view today (verify in console before reacting)",
+            "text": f"NEW: Nebius {', '.join(new_canaries)} not bookable via Shadeform's "
+                    f"resale view (verify in console before reacting)",
         })
 
     # de-dup identical texts (T1 can repeat across SKU variants)

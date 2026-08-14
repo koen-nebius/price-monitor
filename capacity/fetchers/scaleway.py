@@ -92,19 +92,31 @@ def fetch() -> List[AvailabilityRecord]:
         ))
 
     for model, states in per_model.items():
+        # Basis = BOOKABLE zones (available or scarce). Counting only fully
+        # 'available' zones printed "available in 0 of 2 zones" on a
+        # limited-state row — two bases in one cell (red-team 2026-08-14).
         n_avail = sum(1 for s in states if s == "available")
+        n_scarce = sum(1 for s in states if s == "limited")
+        n_bookable = n_avail + n_scarce
         n_total = len(states)
         if n_avail:
             state = "available"
-        elif any(s == "limited" for s in states):
+        elif n_scarce:
             state = "limited"
         else:
             state = "sold_out"
+        bits = []
+        if n_avail:
+            bits.append(f"{n_avail} available")
+        if n_scarce:
+            bits.append(f"{n_scarce} scarce")
+        detail = (f"bookable in {n_bookable} of {plural(n_total, 'zone')} carrying the SKU"
+                  + (f" ({', '.join(bits)})" if bits else ""))
         records.append(AvailabilityRecord(
             provider="scaleway", gpu_model=model, region="global",
             consumption_type="on_demand", state=state,
-            metric_type="regions_with_capacity", metric_value=float(n_avail),
-            detail=f"available in {n_avail} of {plural(n_total, 'zone')} carrying the SKU",
+            metric_type="regions_with_capacity", metric_value=float(n_bookable),
+            detail=detail,
             fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
         ))
 

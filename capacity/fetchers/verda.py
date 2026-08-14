@@ -20,7 +20,7 @@ import urllib.request
 from datetime import datetime, timezone
 from typing import List
 
-from capacity.schema import AvailabilityRecord
+from capacity.schema import AvailabilityRecord, plural
 
 logger = logging.getLogger(__name__)
 
@@ -88,8 +88,12 @@ def fetch() -> List[AvailabilityRecord]:
             logger.error(f"Verda instance-availability (spot={spot}) failed: {e}")
             continue
 
-        # location → model → set of deployable sizes
+        # location → model → set of deployable sizes (deduped: the API can
+        # return a location twice; verbatim duplicate rows polluted the
+        # 2026-08-14 diff with a "0 sellouts / 0 restocks" churn line)
         seen_models = set()
+        model_best: dict = {}   # model → largest size across ALL locations
+        emitted = set()
         for loc in locations:
             code = loc.get("location_code", "unknown")
             sizes: dict = {}
@@ -98,8 +102,12 @@ def fetch() -> List[AvailabilityRecord]:
                 if model:
                     sizes.setdefault(model, set()).add(count)
             for model, counts in sizes.items():
+                if (model, code, ct) in emitted:
+                    continue
+                emitted.add((model, code, ct))
                 seen_models.add(model)
                 largest = max(counts)
+                model_best[model] = max(model_best.get(model, 0), largest)
                 state = "available" if largest >= 8 else "limited"
                 detail = (f"deployable sizes: {', '.join(f'{c}x' for c in sorted(counts))}"
                           + ("" if largest >= 8 else " (no 8x node)"))
@@ -110,6 +118,22 @@ def fetch() -> List[AvailabilityRecord]:
                     detail=detail,
                     fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
                 ))
+
+        # GLOBAL rollup per model — without it the renderer had no direct
+        # global row and fell back to Shadeform booleans, publishing
+        # "Verda H100 sold out" while this API showed an 8x node deployable
+        # (red-team catch 2026-08-14).
+        for model, largest in model_best.items():
+            n_locs = sum(1 for (m, _c, c2) in emitted if m == model and c2 == ct)
+            state = "available" if largest >= 8 else "limited"
+            records.append(AvailabilityRecord(
+                provider="verda", gpu_model=model, region="global",
+                consumption_type=ct, state=state,
+                metric_type="regions_with_capacity", metric_value=float(n_locs),
+                detail=(f"deployable in {plural(n_locs, 'location')}, largest node {largest}x"
+                        + ("" if largest >= 8 else " (no 8x node)")),
+                fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
+            ))
 
         # Models in the catalog but in NO location's availability list = sold out.
         # Catalog is keyless — reuse the pricing fetcher's endpoint.

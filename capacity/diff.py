@@ -73,7 +73,11 @@ def compute_diff(new: List[AvailabilityRecord],
                 ))
             continue
 
-        # Same state — check quantitative moves
+        # Same state — check quantitative moves. Ordinal label ranks
+        # (stock_status_label) are not quantities: a "1 → 0 (-100%)" bullet is
+        # noise when the state itself did not change.
+        if n.metric_type == "stock_status_label":
+            continue
         if n.metric_value is not None and o.metric_value is not None \
                 and n.metric_type == o.metric_type:
             if n.metric_type == "lead_time_days":
