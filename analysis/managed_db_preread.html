@@ -1,0 +1,85 @@
+<p><em>Pre-read for the Aiven managed-database pricing discussion (Koen Brörmann × Steven Kuhn,
+w/c 2026-08-17). All prices verified against provider pages/APIs on 2026-08-15; every number
+was independently refetched from its source. Basis notes inline. Internal only.</em></p>
+
+<h2>Context</h2>
+<p>Nebius is adding managed database engines (Valkey first; PostgreSQL/MySQL/Kafka candidates)
+in partnership with Aiven; metering/SKU setup is in progress separately. This pre-read gives the
+market pricing picture and the structural choices, so the meeting can focus on the commercial
+model rather than data gathering.</p>
+
+<h2>Managed Valkey / in-memory cache — 8GB-class, single node</h2>
+<table data-layout="default"><tbody>
+<tr><th>Provider</th><th>$/month</th><th>$/GB-RAM-hr</th><th>HA (2-node)</th><th>Note</th></tr>
+<tr><td>DigitalOcean Managed Valkey</td><td>$120</td><td>~$0.021</td><td>$240 (2.0×)</td><td>monthly-capped billing</td></tr>
+<tr><td>AWS ElastiCache (Valkey)</td><td>$128</td><td>$0.0134</td><td>$256 (2.0×)</td><td>r7g.large = 13GB node; cheapest per-GB in market</td></tr>
+<tr><td><strong>Aiven Valkey — AWS substrate</strong></td><td><strong>$140</strong></td><td><strong>$0.0256</strong></td><td><strong>$280 (2.0×)</strong></td><td>DO substrate $110 · GCP $165 · Azure $250</td></tr>
+<tr><td>Vultr Managed Valkey</td><td>$144</td><td>~$0.025</td><td>$260 (1.8×)</td><td></td></tr>
+<tr><td>Azure Cache (classic C4)</td><td>$153</td><td>$0.0162</td><td>$383 (Standard)</td><td>13GB tier</td></tr>
+<tr><td>AWS MemoryDB (Valkey)</td><td>$158</td><td>$0.0166</td><td>$316 (2.0×)</td><td>durable in-memory</td></tr>
+<tr><td>GCP Memorystore (Valkey)</td><td>~$159</td><td>$0.0167</td><td>~2×</td><td>13GB smallest fitting node</td></tr>
+<tr><td>OVH Public Cloud Valkey</td><td>€108</td><td>€0.0184</td><td>€215-ish</td><td>EU-centric</td></tr>
+<tr><td>Upstash (serverless)</td><td>$200 (fixed 10GB)</td><td>—</td><td>—</td><td>serverless comparison point</td></tr>
+<tr><td>ElastiCache Serverless (Valkey)</td><td>~$491 steady 8GB</td><td>$0.084</td><td>n/a</td><td>only wins for spiky/idle workloads</td></tr>
+</tbody></table>
+<p><em>Read: the 8GB-class managed cache market clears at $110–165/mo outside Azure. Aiven's own
+list on its cheapest big-cloud substrate (AWS, $140) is ~1.9× AWS-native per GB — Aiven sells
+multi-cloud portability, not price leadership.</em></p>
+
+<h2>Managed PostgreSQL / MySQL — ~4 vCPU / 16GB / 100GB SSD</h2>
+<table data-layout="default"><tbody>
+<tr><th>Provider</th><th>Single $/mo</th><th>HA $/mo</th><th>Basis</th></tr>
+<tr><td>UpCloud</td><td>~$171</td><td>~$326</td><td>plan + 100GB</td></tr>
+<tr><td>Scaleway</td><td>€149</td><td>€226</td><td>components</td></tr>
+<tr><td>GCP Cloud SQL (Enterprise)</td><td>~$219</td><td>~2×</td><td>vCPU+RAM+storage components</td></tr>
+<tr><td>DigitalOcean</td><td>$244</td><td>$488</td><td>290GB bundled</td></tr>
+<tr><td>AWS RDS (m7g.xlarge)</td><td>$258</td><td>$515 (exactly 2×)</td><td>instance + gp3 components</td></tr>
+<tr><td>Azure Flexible Server</td><td>$271</td><td>~2× (zone-redundant)</td><td>components</td></tr>
+<tr><td>Vultr</td><td>$288</td><td>$480</td><td>384GB NVMe bundled</td></tr>
+<tr><td>OVH</td><td>€286</td><td>€651</td><td>1.6TB bundled</td></tr>
+<tr><td><strong>Aiven — AWS substrate</strong></td><td><strong>$310</strong></td><td><strong>$710 (2.29×)</strong></td><td><strong>350GB bundled; GCP $330/$880 · Azure $395/$1,050</strong></td></tr>
+</tbody></table>
+<p><em>PostgreSQL and MySQL are price-identical at AWS and at Aiven — engine choice is
+price-neutral for community engines. Kafka reference: Aiven 3-broker entry $215–265/mo.</em></p>
+
+<h2>Structural facts that shape the decision</h2>
+<ul>
+<li><strong>Aiven's full price matrix is a public no-auth API</strong>
+(api.aiven.io/v1/service_types: every plan × cloud × region with hourly rate, specs, backup
+config). A Nebius substrate would literally be a new column in this matrix. We snapshot this API
+daily in the price monitor as of 2026-08-15, so movement is tracked from now on.</li>
+<li><strong>Substrate spread is precedented and large:</strong> the same Valkey plan is $110 on
+DigitalOcean, $140 on AWS, $165 on GCP, $250 on Azure. Aiven already prices aggressively on
+value substrates — the DigitalOcean column is the natural template for a Nebius column.</li>
+<li><strong>Aiven's markup structure:</strong> ~2.0× raw compute for caches, ~2.5× for
+PostgreSQL (estimate basis: plan price vs equivalent bare VM). Relevant for any
+revenue-share / substrate-rate negotiation.</li>
+<li><strong>Valkey is structurally cheaper than Redis:</strong> AWS prices Valkey -20% (nodes)
+to -33% (serverless) below Redis OSS and adds end-of-life surcharges (+80–160%/node) to old
+Redis versions. New SKUs should anchor to Valkey-era rates, not legacy Redis.</li>
+<li><strong>Pricing-model norm:</strong> flat per-service-hour T-shirt plans, everything bundled
+(backups/PITR, egress, TLS, monitoring); HA bought as a plan-family step. Clean 2× HA at
+AWS/DO/GCP; Aiven charges 2.3–2.7× on GCP/Azure. Per-service-hour with clean 2× HA is both the
+market norm and the simplest metering.</li>
+<li><strong>Free tiers:</strong> Aiven keeps perpetual free plans off the big-3 clouds
+(DigitalOcean only for Kafka; small free PG/MySQL/Valkey on AWS regions) — a deliberate
+lead-gen vs revenue split we can copy or skip.</li>
+</ul>
+
+<h2>Open questions for the meeting</h2>
+<ul>
+<li>Engine scope: Valkey only at launch, or PG/MySQL/Kafka in the same wave?</li>
+<li>Commercial model: resell on Nebius paper vs Aiven list with Nebius substrate vs BYOC
+(Aiven BYOC = customer pays infra + custom management fee, commitment required)?</li>
+<li>Who owns the customer-facing list price, and does the Aiven agreement constrain our floor?</li>
+<li>Metering unit for the SKUs (per-service-hour flat, matching the market norm?) — aligns with
+the metering/SKU work already running with Liubov Pavlova.</li>
+<li>Free/developer tier stance.</li>
+</ul>
+
+<p><em>Sources: aiven.io pricing API, aws.amazon.com/elasticache + /rds + /memorydb,
+cloud.google.com Memorystore + Cloud SQL, azure.microsoft.com Cache + Flexible Server,
+digitalocean.com, vultr.com, ovhcloud.com, upcloud.com, scaleway.com, upstash.com. Verified
+2026-08-15 by the competitor price-monitor pipeline team; per-number verification notes on
+request. Sibling references: GPU Competitor Pricing — Daily Overview (list-price monitor);
+storage pricing benchmark in preparation.</em></p>

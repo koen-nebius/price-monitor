@@ -77,6 +77,11 @@ jobs:
           echo "--- Pipeline complete ---"
           cat /tmp/scrape.log | grep -E "records|WARNING|ERROR|Diff" || true
 
+      - name: Aiven price-matrix snapshot (managed-DB partnership tracking)
+        # Public no-auth API; soft-fails. History accrues in store/aiven_prices.csv
+        # so the future Nebius substrate column lands on an existing baseline.
+        run: python3 scripts/aiven_snapshot.py
+
       - name: Publish gate (completeness vs baseline)
         # Fails the job on a materially incomplete fetch (e.g. a provider at
         # <50% of its 7-run baseline) so degraded artifacts are NEVER committed.
@@ -96,7 +101,8 @@ jobs:
                   store/run_manifest.json store/slack_message.txt \
                   store/slack_thread.txt store/confluence_body.html \
                   store/spot_auction_body.html store/intel.csv \
-                  store/provider_baseline.json store/position_history.csv
+                  store/provider_baseline.json store/position_history.csv \
+                  store/aiven_prices.csv
           if git diff --cached --quiet; then
             echo "No changes — no commit needed"
           else
