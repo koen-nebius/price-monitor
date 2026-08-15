@@ -328,3 +328,59 @@ CONFLUENCE_PAGE_TITLE = "GPU Competitor Pricing — Live Overview"
 CONFLUENCE_PAGE_URL = "https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview"
 
 SLACK_CHANNEL = "#competitor-pricing"
+
+
+# ─── Competitor storage & memory pricing (verified benchmark table) ─────────
+# Values verified against each provider's own page/API on the date below (30-
+# agent sweep, every published number refetched). This is a CURATED table, not
+# a scrape: storage list prices move ~quarterly and an exec artifact should not
+# flap with parser noise. scripts/storage_drift_check.py probes the machine-
+# readable sources daily and flags drift in run_manifest warnings; update the
+# value + STORAGE_PRICES_VERIFIED here when drift is confirmed. Currency EUR
+# rows are rendered as EUR (never silently FX-converted — the Scaleway lesson).
+STORAGE_PRICES_VERIFIED = "2026-08-15"
+STORAGE_PRICES = {
+    # $/GiB-month standard/hot tier; egress $/GB to internet (first paid tier)
+    "object": [
+        {"provider": "ovh", "name": "Object Storage", "price": 0.007, "currency": "EUR", "egress": 0.0, "note": "hot standard, no egress fee", "source": "https://www.ovhcloud.com/en/public-cloud/prices/"},
+        {"provider": "backblaze", "name": "B2", "price": 0.00695, "currency": "USD", "egress": 0.01, "note": "egress free up to 3x stored", "source": "https://www.backblaze.com/cloud-storage/pricing"},
+        {"provider": "nebius", "name": "Object Storage Standard", "price": 0.0147, "currency": "USD", "egress": 0.015, "note": "Intelligent tiers warm $0.030/cold $0.010 are egress-free", "source": "https://nebius.com/prices"},
+        {"provider": "cloudflare", "name": "R2 Standard", "price": 0.015, "currency": "USD", "egress": 0.0, "note": "zero egress", "source": "https://developers.cloudflare.com/r2/pricing/"},
+        {"provider": "vultr", "name": "Object Storage", "price": 0.018, "currency": "USD", "egress": 0.01, "note": "1TB egress included", "source": "https://www.vultr.com/pricing/"},
+        {"provider": "gcp", "name": "GCS Standard (regional)", "price": 0.020, "currency": "USD", "egress": 0.12, "note": "", "source": "https://cloud.google.com/storage/pricing"},
+        {"provider": "digitalocean", "name": "Spaces", "price": 0.02, "currency": "USD", "egress": 0.01, "note": "250GiB base $5; 1TiB egress included", "source": "https://www.digitalocean.com/pricing/spaces-object-storage"},
+        {"provider": "azure", "name": "Blob Hot LRS", "price": 0.0208, "currency": "USD", "egress": 0.087, "note": "first 100GB/mo egress free", "source": "https://azure.microsoft.com/en-us/pricing/details/storage/blobs/"},
+        {"provider": "aws", "name": "S3 Standard", "price": 0.023, "currency": "USD", "egress": 0.09, "note": "AWS billing GB = GiB; 100GB/mo egress free", "source": "https://aws.amazon.com/s3/pricing/"},
+        {"provider": "coreweave", "name": "AI Object Storage (hot)", "price": 0.06, "currency": "USD", "egress": 0.0, "note": "warm $0.03 / cold $0.015; zero egress", "source": "https://www.coreweave.com/pricing"},
+    ],
+    # $/GiB-month, general-purpose SSD class; IOPS/throughput included noted
+    "block": [
+        {"provider": "hetzner", "name": "Cloud Volumes", "price": 0.044, "currency": "EUR", "note": "", "source": "https://www.hetzner.com/cloud/"},
+        {"provider": "nebius", "name": "Network SSD (erasure-coded)", "price": 0.071, "currency": "USD", "note": "non-replicated $0.053; IO-M3 $0.118", "source": "https://nebius.com/prices"},
+        {"provider": "aws", "name": "EBS gp3", "price": 0.08, "currency": "USD", "note": "3,000 IOPS + 125MB/s included", "source": "https://aws.amazon.com/ebs/pricing/"},
+        {"provider": "crusoe", "name": "Persistent Disk", "price": 0.08, "currency": "USD", "note": "", "source": "https://docs.crusoecloud.com/storage/disks/overview"},
+        {"provider": "gcp", "name": "Hyperdisk Balanced", "price": 0.08, "currency": "USD", "note": "+$0.005/IOPS-mo +$0.04/MBps-mo provisioned; PD-SSD flat $0.17", "source": "https://cloud.google.com/compute/disks-image-pricing"},
+        {"provider": "azure", "name": "Premium SSD v2", "price": 0.0803, "currency": "USD", "note": "3,000 IOPS + 125MB/s free baseline", "source": "https://azure.microsoft.com/en-us/pricing/details/managed-disks/"},
+        {"provider": "scaleway", "name": "Block SBS 5K IOPS", "price": 0.0949, "currency": "EUR", "note": "15K tier €0.1292", "source": "https://www.scaleway.com/en/pricing/storage/"},
+        {"provider": "digitalocean", "name": "Volumes", "price": 0.10, "currency": "USD", "note": "", "source": "https://www.digitalocean.com/pricing/block-storage"},
+        {"provider": "vultr", "name": "NVMe Block", "price": 0.10, "currency": "USD", "note": "HDD class $0.04", "source": "https://www.vultr.com/pricing/"},
+    ],
+    # $/GiB-month shared/parallel filesystems (GPU-cluster relevant)
+    "shared_fs": [
+        {"provider": "coreweave", "name": "Distributed File Storage", "price": 0.07, "currency": "USD", "note": "", "source": "https://www.coreweave.com/pricing"},
+        {"provider": "nebius", "name": "Shared Filesystem", "price": 0.08, "currency": "USD", "note": "WEKA tier $0.10", "source": "https://nebius.com/prices"},
+        {"provider": "vultr", "name": "File System NVMe", "price": 0.10, "currency": "USD", "note": "", "source": "https://www.vultr.com/pricing/"},
+        {"provider": "aws", "name": "FSx for Lustre (persistent-125)", "price": 0.145, "currency": "USD", "note": "", "source": "https://aws.amazon.com/fsx/lustre/pricing/"},
+        {"provider": "together", "name": "Shared Filesystem", "price": 0.16, "currency": "USD", "note": "GPU clusters", "source": "https://docs.together.ai/docs/cluster-storage"},
+        {"provider": "lambda", "name": "Cloud Filesystem", "price": 0.20, "currency": "USD", "note": "", "source": "https://lambda.ai/service/gpu-cloud"},
+        {"provider": "gcp", "name": "Filestore Basic SSD", "price": 0.30, "currency": "USD", "note": "zonal $0.25 / basic HDD $0.16", "source": "https://cloud.google.com/filestore/pricing"},
+    ],
+    # $/GiB-RAM-hour as a standalone component (for config cost math)
+    "ram": [
+        {"provider": "nebius", "name": "VM RAM (published)", "price": 0.0032, "currency": "USD", "note": "published list rate", "source": "https://docs.nebius.com/compute/resources/pricing"},
+        {"provider": "aws", "name": "EC2 RAM (derived m6i/r6i)", "price": 0.00375, "currency": "USD", "note": "derived estimate", "source": "https://aws.amazon.com/ec2/pricing/on-demand/"},
+        {"provider": "azure", "name": "VM RAM (derived Dsv5/Esv5)", "price": 0.00375, "currency": "USD", "note": "derived estimate", "source": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/"},
+        {"provider": "digitalocean", "name": "Droplet RAM (derived)", "price": 0.0039, "currency": "USD", "note": "derived estimate", "source": "https://www.digitalocean.com/pricing/droplets"},
+        {"provider": "scaleway", "name": "POP2 RAM (derived)", "price": 0.00369, "currency": "EUR", "note": "derived estimate", "source": "https://www.scaleway.com/en/pricing/"},
+    ],
+}

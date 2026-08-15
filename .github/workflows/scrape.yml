@@ -51,6 +51,12 @@ jobs:
           CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
         run: python3 scripts/intel_inbox_merge.py
 
+      - name: Storage benchmark drift check
+        # Probes machine-readable storage-price sources vs config.STORAGE_PRICES;
+        # writes store/storage_drift.txt which main.py folds into manifest
+        # warnings (internal-only). Soft-fail by design.
+        run: python3 scripts/storage_drift_check.py || true
+
       - name: Run full pipeline
         env:
           GCP_API_KEY: ${{ secrets.GCP_API_KEY }}
@@ -90,6 +96,19 @@ jobs:
         # this also updates store/provider_baseline.json (committed below).
         run: python3 check_manifest.py
 
+      - name: Publish storage page to Confluence
+        # Sibling page published straight from the data build (storage moves
+        # ~quarterly; no reason to route through the posting routine). Upsert
+        # by title via the same generic publisher as the preread.
+        continue-on-error: true
+        env:
+          CONFLUENCE_EMAIL: ${{ secrets.CONFLUENCE_EMAIL }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          PREREAD_FILE: store/storage_body.html
+          PREREAD_TITLE: "Competitor Storage Pricing"
+          PREREAD_SPACE: "PR"
+        run: python3 scripts/publish_preread.py
+
       - name: Commit fresh data + ready-to-post artifacts if changed
         run: |
           git config user.name  "github-actions[bot]"
@@ -102,7 +121,8 @@ jobs:
                   store/slack_thread.txt store/confluence_body.html \
                   store/spot_auction_body.html store/intel.csv \
                   store/provider_baseline.json store/position_history.csv \
-                  store/aiven_prices.csv
+                  store/aiven_prices.csv store/storage_body.html \
+                  store/storage_prices_prev.json
           if git diff --cached --quiet; then
             echo "No changes — no commit needed"
           else

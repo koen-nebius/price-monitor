@@ -479,6 +479,43 @@ def run(providers=None, test=False):
     if implausible:
         logger.warning(f"Implausible-price records excluded from output: {implausible}")
 
+    # ── Storage benchmark: change lines + sibling page + drift warnings ─────
+    # (2026-08-15) STORAGE_PRICES is a curated verified table; when a value is
+    # deliberately updated, the change surfaces once in the daily digest.
+    try:
+        from config import STORAGE_PRICES
+        prev_path = STORE_DIR / "storage_prices_prev.json"
+        flat = {f"{sec}:{r['provider']}:{r['name']}": (r["price"], r.get("currency", "USD"))
+                for sec, rows in STORAGE_PRICES.items() for r in rows}
+        prev = json.loads(prev_path.read_text()) if prev_path.exists() else {}
+        storage_moves = []
+        for k, (px, cur) in flat.items():
+            old = prev.get(k)
+            if old and abs(old[0] - px) > 1e-9:
+                sym = "€" if cur == "EUR" else "$"
+                _sec, prov, name = k.split(":", 2)
+                storage_moves.append(f"{prov.title()} {name} {sym}{old[0]:g}→{sym}{px:g}/GiB-mo")
+        prev_path.write_text(json.dumps({k: list(v) for k, v in flat.items()}, indent=0))
+        if storage_moves:
+            line = "*Storage:* " + " · ".join(storage_moves[:3])
+            # Insert above the standing footer so the line reads as part of the
+            # day's changes (slack_summary is posted verbatim by the routine).
+            anchor = "\nFull benchmark (live, updated daily):"
+            if anchor in slack_summary:
+                slack_summary = slack_summary.replace(anchor, f"\n{line}" + anchor, 1)
+            else:
+                slack_summary += f"\n\n{line}"
+            logger.info(f"Storage benchmark changes: {storage_moves}")
+        from storage_page import format_storage_page
+        with open(STORE_DIR / "storage_body.html", "w") as f:
+            f.write(format_storage_page(run_date))
+        drift_file = STORE_DIR / "storage_drift.txt"
+        if drift_file.exists():
+            for _l in drift_file.read_text().splitlines():
+                warnings.append(_l)   # internal-only, like other data-quality warnings
+    except Exception as e:
+        logger.warning(f"storage benchmark step failed (non-blocking): {e}")
+
     slack_path = STORE_DIR / "slack_message.txt"
     with open(slack_path, "w") as f:
         f.write(slack_summary)
