@@ -1,10 +1,10 @@
 {
- "run_date": "2026-08-14",
- "started_at": "2026-08-14T04:21:00.480425+00:00",
- "completed_at": "2026-08-14T04:24:35.009484+00:00",
+ "run_date": "2026-08-15",
+ "started_at": "2026-08-15T03:08:49.318017+00:00",
+ "completed_at": "2026-08-15T03:12:26.856432+00:00",
  "status": "success",
- "record_count": 355,
- "diff_count": 41,
+ "record_count": 360,
+ "diff_count": 43,
  "provider_count": 18,
  "live_provider_count": 17,
  "failed_providers": [
@@ -18,7 +18,7 @@
   },
   "coreweave": {
    "status": "live",
-   "record_count": 55
+   "record_count": 56
   },
   "gcp_zones": {
    "status": "live",
@@ -82,7 +82,7 @@
   },
   "verda": {
    "status": "live",
-   "record_count": 14
+   "record_count": 18
   }
  },
  "post_thread": true
