@@ -3,14 +3,14 @@
 <table data-layout="default"><tbody>
 <tr><th>Provider</th><th>Service</th><th>$/GiB-mo</th><th>Egress $/GB</th><th>Note</th></tr>
 <tr><td><strong>Backblaze</strong></td><td>B2</td><td>$0.0069</td><td>$0.01</td><td>egress free up to 3x stored</td></tr>
-<tr><td><strong>Ovh</strong></td><td>Object Storage</td><td>€0.007</td><td>free</td><td>hot standard, no egress fee</td></tr>
+<tr><td><strong>OVH</strong></td><td>Object Storage</td><td>€0.007</td><td>free</td><td>hot standard, no egress fee</td></tr>
 <tr><td><strong>Nebius</strong></td><td>Object Storage Standard</td><td>$0.0147</td><td>$0.015</td><td>Intelligent tiers warm $0.030/cold $0.010 are egress-free</td></tr>
 <tr><td><strong>Cloudflare</strong></td><td>R2 Standard</td><td>$0.015</td><td>free</td><td>zero egress</td></tr>
 <tr><td><strong>Vultr</strong></td><td>Object Storage</td><td>$0.018</td><td>$0.01</td><td>1TB egress included</td></tr>
-<tr><td><strong>Gcp</strong></td><td>GCS Standard (regional)</td><td>$0.02</td><td>$0.12</td><td></td></tr>
+<tr><td><strong>GCP</strong></td><td>GCS Standard (regional)</td><td>$0.02</td><td>$0.12</td><td></td></tr>
 <tr><td><strong>Digitalocean</strong></td><td>Spaces</td><td>$0.02</td><td>$0.01</td><td>250GiB base $5; 1TiB egress included</td></tr>
 <tr><td><strong>Azure</strong></td><td>Blob Hot LRS</td><td>$0.0208</td><td>$0.087</td><td>first 100GB/mo egress free</td></tr>
-<tr><td><strong>Aws</strong></td><td>S3 Standard</td><td>$0.023</td><td>$0.09</td><td>AWS billing GB = GiB; 100GB/mo egress free</td></tr>
+<tr><td><strong>AWS</strong></td><td>S3 Standard</td><td>$0.023</td><td>$0.09</td><td>AWS billing GB = GiB; 100GB/mo egress free</td></tr>
 <tr><td><strong>Coreweave</strong></td><td>AI Object Storage (hot)</td><td>$0.06</td><td>free</td><td>warm $0.03 / cold $0.015; zero egress</td></tr>
 </tbody></table>
 <p><em>Egress is the real differentiator: a single full read-out of stored data costs ~4 months of storage at AWS ($0.09/GB) vs zero at R2/OVH/CoreWeave and $0.015 at Nebius. Position: Nebius object ($0.0147) undercuts every hyperscaler.</em></p>
@@ -19,9 +19,9 @@
 <tr><th>Provider</th><th>Service</th><th>$/GiB-mo</th><th>Included performance</th></tr>
 <tr><td><strong>Hetzner</strong></td><td>Cloud Volumes</td><td>€0.044</td><td></td></tr>
 <tr><td><strong>Nebius</strong></td><td>Network SSD (erasure-coded)</td><td>$0.071</td><td>non-replicated $0.053; IO-M3 $0.118</td></tr>
-<tr><td><strong>Aws</strong></td><td>EBS gp3</td><td>$0.08</td><td>3,000 IOPS + 125MB/s included</td></tr>
+<tr><td><strong>AWS</strong></td><td>EBS gp3</td><td>$0.08</td><td>3,000 IOPS + 125MB/s included</td></tr>
 <tr><td><strong>Crusoe</strong></td><td>Persistent Disk</td><td>$0.08</td><td></td></tr>
-<tr><td><strong>Gcp</strong></td><td>Hyperdisk Balanced</td><td>$0.08</td><td>+$0.005/IOPS-mo +$0.04/MBps-mo provisioned; PD-SSD flat $0.17</td></tr>
+<tr><td><strong>GCP</strong></td><td>Hyperdisk Balanced</td><td>$0.08</td><td>+$0.005/IOPS-mo +$0.04/MBps-mo provisioned; PD-SSD flat $0.17</td></tr>
 <tr><td><strong>Azure</strong></td><td>Premium SSD v2</td><td>$0.0803</td><td>3,000 IOPS + 125MB/s free baseline</td></tr>
 <tr><td><strong>Scaleway</strong></td><td>Block SBS 5K IOPS</td><td>€0.0949</td><td>15K tier €0.1292</td></tr>
 <tr><td><strong>Digitalocean</strong></td><td>Volumes</td><td>$0.1</td><td></td></tr>
@@ -34,21 +34,21 @@
 <tr><td><strong>Coreweave</strong></td><td>Distributed File Storage</td><td>$0.07</td><td></td></tr>
 <tr><td><strong>Nebius</strong></td><td>Shared Filesystem</td><td>$0.08</td><td>WEKA tier $0.10</td></tr>
 <tr><td><strong>Vultr</strong></td><td>File System NVMe</td><td>$0.1</td><td></td></tr>
-<tr><td><strong>Aws</strong></td><td>FSx for Lustre (persistent-125)</td><td>$0.145</td><td></td></tr>
+<tr><td><strong>AWS</strong></td><td>FSx for Lustre (persistent-125)</td><td>$0.145</td><td></td></tr>
 <tr><td><strong>Together</strong></td><td>Shared Filesystem</td><td>$0.16</td><td>GPU clusters</td></tr>
 <tr><td><strong>Lambda</strong></td><td>Cloud Filesystem</td><td>$0.2</td><td></td></tr>
-<tr><td><strong>Gcp</strong></td><td>Filestore Basic SSD</td><td>$0.3</td><td>zonal $0.25 / basic HDD $0.16</td></tr>
+<tr><td><strong>GCP</strong></td><td>Filestore Basic SSD</td><td>$0.3</td><td>zonal $0.25 / basic HDD $0.16</td></tr>
 </tbody></table>
 <h2>Memory (RAM) as a priced component</h2>
 <table data-layout="default"><tbody>
 <tr><th>Provider</th><th>Basis</th><th>$/GiB-RAM-hr</th><th>Note</th></tr>
 <tr><td><strong>Nebius</strong></td><td>VM RAM (published)</td><td>$0.0032</td><td>published list rate</td></tr>
 <tr><td><strong>Scaleway</strong></td><td>POP2 RAM (derived)</td><td>€0.0037</td><td>derived estimate</td></tr>
-<tr><td><strong>Aws</strong></td><td>EC2 RAM (derived m6i/r6i)</td><td>$0.0037</td><td>derived estimate</td></tr>
+<tr><td><strong>AWS</strong></td><td>EC2 RAM (derived m6i/r6i)</td><td>$0.0037</td><td>derived estimate</td></tr>
 <tr><td><strong>Azure</strong></td><td>VM RAM (derived Dsv5/Esv5)</td><td>$0.0037</td><td>derived estimate</td></tr>
 <tr><td><strong>Digitalocean</strong></td><td>Droplet RAM (derived)</td><td>$0.0039</td><td>derived estimate</td></tr>
 </tbody></table>
 <p><em>Only Nebius publishes a standalone RAM rate; hyperscaler figures are derived from same-vCPU instance-family deltas and marked as estimates. Managed in-memory services (Valkey/Redis-class) are benchmarked separately on the Managed Database Pricing page.</em></p>
 <h2>Methodology</h2>
 <p>Curated table, source URL per row (in the repo config). A daily automated drift check re-fetches the machine-readable sources and flags mismatches in the pipeline run manifest; confirmed changes update this table with a new verification date. Storage price CHANGES also surface as a line in the daily #competitor-pricing digest. Units: binary GiB per month; AWS bills GB=2^30 bytes so published rates compare 1:1.</p>
-<p><em>Data date 2026-08-15 · table verified 2026-08-15 · generated 2026-08-15 08:20 UTC by the price-monitor pipeline.</em></p>
+<p><em>Data date August 16, 2026 · table verified 2026-08-15 · generated 2026-08-16 02:37 UTC by the price-monitor pipeline.</em></p>

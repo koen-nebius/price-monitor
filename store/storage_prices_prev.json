@@ -1,1 +1,126 @@
-{"object:ovh:Object Storage": [0.007, "EUR"], "object:backblaze:B2": [0.00695, "USD"], "object:nebius:Object Storage Standard": [0.0147, "USD"], "object:cloudflare:R2 Standard": [0.015, "USD"], "object:vultr:Object Storage": [0.018, "USD"], "object:gcp:GCS Standard (regional)": [0.02, "USD"], "object:digitalocean:Spaces": [0.02, "USD"], "object:azure:Blob Hot LRS": [0.0208, "USD"], "object:aws:S3 Standard": [0.023, "USD"], "object:coreweave:AI Object Storage (hot)": [0.06, "USD"], "block:hetzner:Cloud Volumes": [0.044, "EUR"], "block:nebius:Network SSD (erasure-coded)": [0.071, "USD"], "block:aws:EBS gp3": [0.08, "USD"], "block:crusoe:Persistent Disk": [0.08, "USD"], "block:gcp:Hyperdisk Balanced": [0.08, "USD"], "block:azure:Premium SSD v2": [0.0803, "USD"], "block:scaleway:Block SBS 5K IOPS": [0.0949, "EUR"], "block:digitalocean:Volumes": [0.1, "USD"], "block:vultr:NVMe Block": [0.1, "USD"], "shared_fs:coreweave:Distributed File Storage": [0.07, "USD"], "shared_fs:nebius:Shared Filesystem": [0.08, "USD"], "shared_fs:vultr:File System NVMe": [0.1, "USD"], "shared_fs:aws:FSx for Lustre (persistent-125)": [0.145, "USD"], "shared_fs:together:Shared Filesystem": [0.16, "USD"], "shared_fs:lambda:Cloud Filesystem": [0.2, "USD"], "shared_fs:gcp:Filestore Basic SSD": [0.3, "USD"], "ram:nebius:VM RAM (published)": [0.0032, "USD"], "ram:aws:EC2 RAM (derived m6i/r6i)": [0.00375, "USD"], "ram:azure:VM RAM (derived Dsv5/Esv5)": [0.00375, "USD"], "ram:digitalocean:Droplet RAM (derived)": [0.0039, "USD"], "ram:scaleway:POP2 RAM (derived)": [0.00369, "EUR"]}
+{
+"object:ovh:Object Storage": [
+0.007,
+"EUR"
+],
+"object:backblaze:B2": [
+0.00695,
+"USD"
+],
+"object:nebius:Object Storage Standard": [
+0.0147,
+"USD"
+],
+"object:cloudflare:R2 Standard": [
+0.015,
+"USD"
+],
+"object:vultr:Object Storage": [
+0.018,
+"USD"
+],
+"object:gcp:GCS Standard (regional)": [
+0.02,
+"USD"
+],
+"object:digitalocean:Spaces": [
+0.02,
+"USD"
+],
+"object:azure:Blob Hot LRS": [
+0.0208,
+"USD"
+],
+"object:aws:S3 Standard": [
+0.023,
+"USD"
+],
+"object:coreweave:AI Object Storage (hot)": [
+0.06,
+"USD"
+],
+"block:hetzner:Cloud Volumes": [
+0.044,
+"EUR"
+],
+"block:nebius:Network SSD (erasure-coded)": [
+0.071,
+"USD"
+],
+"block:aws:EBS gp3": [
+0.08,
+"USD"
+],
+"block:crusoe:Persistent Disk": [
+0.08,
+"USD"
+],
+"block:gcp:Hyperdisk Balanced": [
+0.08,
+"USD"
+],
+"block:azure:Premium SSD v2": [
+0.0803,
+"USD"
+],
+"block:scaleway:Block SBS 5K IOPS": [
+0.0949,
+"EUR"
+],
+"block:digitalocean:Volumes": [
+0.1,
+"USD"
+],
+"block:vultr:NVMe Block": [
+0.1,
+"USD"
+],
+"shared_fs:coreweave:Distributed File Storage": [
+0.07,
+"USD"
+],
+"shared_fs:nebius:Shared Filesystem": [
+0.08,
+"USD"
+],
+"shared_fs:vultr:File System NVMe": [
+0.1,
+"USD"
+],
+"shared_fs:aws:FSx for Lustre (persistent-125)": [
+0.145,
+"USD"
+],
+"shared_fs:together:Shared Filesystem": [
+0.16,
+"USD"
+],
+"shared_fs:lambda:Cloud Filesystem": [
+0.2,
+"USD"
+],
+"shared_fs:gcp:Filestore Basic SSD": [
+0.3,
+"USD"
+],
+"ram:nebius:VM RAM (published)": [
+0.0032,
+"USD"
+],
+"ram:aws:EC2 RAM (derived m6i/r6i)": [
+0.00375,
+"USD"
+],
+"ram:azure:VM RAM (derived Dsv5/Esv5)": [
+0.00375,
+"USD"
+],
+"ram:digitalocean:Droplet RAM (derived)": [
+0.0039,
+"USD"
+],
+"ram:scaleway:POP2 RAM (derived)": [
+0.00369,
+"EUR"
+]
+}
