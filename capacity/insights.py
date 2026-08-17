@@ -321,10 +321,10 @@ def evaluate_triggers(records: List[AvailabilityRecord],
     for t in provider_transitions(records, old_records, direct_only=True):
         if t["new"] == "sold_out" or (t["old"] == "sold_out" and t["new"] == "available"):
             verb = "sold out" if t["new"] == "sold_out" else "restocked"
+            label = PROVIDER_LABELS.get(t['provider'], t['provider'])
             fired.append({
-                "id": "T1", "owner": "Pricing",
-                "text": f"{PROVIDER_LABELS.get(t['provider'], t['provider'])} {t['gpu']} "
-                        f"{verb} in all regions (own API)",
+                "id": "T1", "owner": "pricing",
+                "text": f"{label} {t['gpu']} {verb} in all its regions (per {label}'s API)",
             })
 
     # T2 — cluster-scale in-stock share crosses 1/3 or 2/3 on a flagship GPU
@@ -339,7 +339,7 @@ def evaluate_triggers(records: List[AvailabilityRecord],
             if (old_share - threshold) * (new_share - threshold) < 0:
                 direction = "fell below" if new_share < old_share else "rose above"
                 fired.append({
-                    "id": "T2", "owner": "Pricing",
+                    "id": "T2", "owner": "pricing",
                     "text": f"{gpu} cluster-scale in-stock share {direction} "
                             f"{threshold:.0%}: now {new_t['k_cluster']}/{new_t['n']} live sources",
                 })
@@ -355,9 +355,9 @@ def evaluate_triggers(records: List[AvailabilityRecord],
     new_canaries = [g for g in canary_now if g not in canary_before]
     if new_canaries:
         fired.append({
-            "id": "T3", "owner": "Self-service", "level": "watch",
-            "text": f"NEW: Nebius {', '.join(new_canaries)} not bookable via Shadeform's "
-                    f"resale view (verify in console before reacting)",
+            "id": "T3", "owner": "self-service", "level": "watch",
+            "text": f"Nebius {', '.join(new_canaries)} not bookable in Shadeform's "
+                    f"resale view, new since yesterday (not checked in our console)",
         })
 
     # de-dup identical texts (T1 can repeat across SKU variants)

@@ -72,30 +72,33 @@ def _fresh_line(manifest: dict) -> Tuple[str, str]:
     """(short slack line, confluence html line)"""
     f = insights.freshness(manifest)
     n_act, n_live = len(f["activated"]), len(f["live"])
-    problems = f["failed"] + f["stale"]
-    if not problems:
-        short = f"all {n_live} activated sources live"
+    bits = []
+    if not f["failed"] and not f["stale"]:
+        short = f"Feeds: all {n_live} live"
         color = "green"
     else:
-        names = ", ".join(PROVIDER_LABELS.get(p, p) for p in problems)
-        short = f"{n_live}/{n_act} activated sources live (issue: {names})"
+        if f["stale"]:
+            bits.append("cached today: " + ", ".join(PROVIDER_LABELS.get(p, p) for p in f["stale"]))
+        if f["failed"]:
+            bits.append("down: " + ", ".join(PROVIDER_LABELS.get(p, p) for p in f["failed"]))
+        short = f"Feeds: {n_live}/{n_act} live ({'; '.join(bits)})"
         color = "yellow"
-    pend = f" · {plural(len(f['pending']), 'source')} pending activation" if f["pending"] else ""
+    pend = f" · {len(f['pending'])} awaiting access" if f["pending"] else ""
     html = (f'<span data-type="status" data-color="{color}">'
-            f'{n_live}/{n_act} activated sources live</span>'
+            f'{n_live}/{n_act} feeds live</span>'
             + (f"<em>{pend}</em>" if pend else ""))
-    return (short + pend).capitalize(), html
+    return short + pend, html
 
 
 def _baseline_label(old_records: List[AvailabilityRecord]) -> str:
     ts = [r.fetched_at for r in old_records if r.fetched_at]
     if not ts:
-        return "first build"
+        return "first run"
     try:
         dt = datetime.fromisoformat(max(ts))
-        return "previous build, " + dt.strftime("%d %b %H:%M UTC")
+        return "since previous run, " + dt.strftime("%d %b %H:%M UTC")
     except ValueError:
-        return "previous build"
+        return "since previous run"
 
 
 def _mark(read: dict) -> str:
@@ -108,7 +111,8 @@ def _streak(read: dict, gpu: str) -> str:
     # only show streaks that are shorter than the days tracked.
     if not d or d < 2 or d >= insights.history_days():
         return ""
-    return f" (day {d})"
+    suffix = {1: "st", 2: "nd", 3: "rd"}.get(d if d < 20 else d % 10, "th")
+    return f" ({d}{suffix} day)"
 
 
 def _event_phrase(t: dict) -> Optional[str]:
@@ -167,7 +171,7 @@ def _digest_movement(records: List[AvailabilityRecord],
     if looser:
         reads.append(f"{', '.join(looser)} loosening (watch for price pressure)")
     if reads:
-        lines.append("*Read:* " + " · ".join(reads) + ".")
+        lines.append("*So what:* " + " · ".join(reads) + ".")
     return lines
 
 
@@ -187,13 +191,13 @@ def render_slack(records: List[AvailabilityRecord],
 
     if hard:
         for t in hard[:3]:
-            lines.append(f"*TRIGGER ({t['owner']}):* {t['text']}")
+            lines.append(f"*Heads-up ({t['owner']}):* {t['text']}")
     elif not movement:
         # One honest null line instead of two near-duplicates; scoped to what
         # the checks actually inspect (flagship GPUs, provider level).
-        lines.append("No trigger hit; no material change on flagship GPUs.")
+        lines.append("Quiet day: no provider-level moves on flagship GPUs (own APIs).")
     for t in watch[:2]:
-        lines.append(f"_Watch ({t['owner']}): {t['text']}_")
+        lines.append(f"_Unconfirmed ({t['owner']}): {t['text']}_")
     lines.append("")
 
     # Cluster-scale strip WITH day-over-day movement — "3/7" without "was 4/7"
@@ -208,11 +212,15 @@ def render_slack(records: List[AvailabilityRecord],
         old_t = insights.tightness(old_records, gpu) if old_records else None
         delta = ""
         if old_t and old_t["k_cluster"] != t["k_cluster"]:
-            arrow = "↓" if t["k_cluster"] < old_t["k_cluster"] else "↑"
-            delta = f" ({arrow} from {old_t['k_cluster']}/{old_t['n']})"
-        strip.append(f"{gpu} {t['k_cluster']}/{t['n']}{mark}{delta}")
+            delta = f" (was {old_t['k_cluster']}/{old_t['n']})"
+        unit = " live sources" if not strip else ""
+        strip.append(f"{gpu} at {t['k_cluster']}/{t['n']}{unit}{mark}{delta}" if not strip
+                     else f"{gpu} {t['k_cluster']}/{t['n']}{mark}{delta}")
     if strip:
-        lines.append("*Cluster-scale (8x) stock at live sources:*  " + " · ".join(strip))
+        lines.append("*Competitor 8x node stock:*  " + " · ".join(strip))
+        if any("✱" in s for s in strip):
+            lines.append("_✱ = includes a third-party read (never proof of 8x stock; "
+                         "don't quote to customers)_")
         lines.append("")
 
     if movement:
@@ -223,18 +231,19 @@ def render_slack(records: List[AvailabilityRecord],
     g = insights.market_gauges(records, "H100")
     gauge_bits = []
     if g.get("sfc_clearing"):
-        gauge_bits.append(f"SF Compute H100 clears ${g['sfc_clearing']:.2f} (short-term reserve)")
+        gauge_bits.append(f"SF Compute H100 clearing price ${g['sfc_clearing']:.2f} "
+                          f"(short-term reserve market)")
     if g.get("vast_gpus"):
-        floor = f", floor {g['vast_floor']}" if g.get("vast_floor") else ""
-        gauge_bits.append(f"Vast H100 depth {g['vast_gpus']} GPUs{floor} (commodity)")
+        floor = f", cheapest {g['vast_floor']}" if g.get("vast_floor") else ""
+        gauge_bits.append(f"Vast H100 {g['vast_gpus']} GPUs listed{floor} (marketplace)")
     if gauge_bits:
-        lines.append("*Gauges:* " + " · ".join(gauge_bits))
+        lines.append("*Market:* " + " · ".join(gauge_bits))
 
     fresh_short, _ = _fresh_line(manifest)
     url = _page_url()
     tail = f"_{fresh_short}_"
     if url:
-        tail += f" · <{url}|matrix, battlecard, method>"
+        tail += f" · <{url}|matrix · battlecard · method>"
     lines.append(tail)
 
     return "\n".join(lines), _render_thread(records, diff, manifest, old_records)
@@ -249,7 +258,7 @@ def _normalize_partial(provider: str, detail: str) -> str:
     d = detail or ""
     m = _re.search(r"1x[: ]+(?:stock )?(High|Medium|Low)", d, _re.I)
     if m:
-        return f"1x {m.group(1)}"
+        return f"1x only, stock {m.group(1)}"
     m = _re.search(r"(\d+) regions?:", d)
     if m:
         return f"small sizes in {plural(int(m.group(1)), 'region')}, 8x sold out"
@@ -257,7 +266,7 @@ def _normalize_partial(provider: str, detail: str) -> str:
     if m:
         return f"~{m.group(2)} GPUs, {m.group(1)}"
     if "no 8x" in d:
-        return "no 8x node"
+        return "no 8x nodes"
     return _short(d, 40)
 
 
@@ -276,42 +285,46 @@ def _gpu_block(records: List[AvailabilityRecord], gpu: str,
         head = " · ".join(e + (f" ({s})" if s else "") for e, s, _d in groups["available"])
     else:
         head = f"none of {t['n']} live sources"
-    lines = [f"*{gpu}* in stock: {head}"]
+    incl = " (incl. 8x)" if gpu in FLAGSHIP_GPUS else ""
+    lines = [f"*{gpu}* in stock{incl}: {head}"]
 
+    state_bits = []
     if groups["limited"]:
-        # One paren per provider: "(1x Low, day 3)" — never "(day 3) (1x Low)"
+        # One paren per provider: "(1x only, stock Low, 3rd day)"
         det = " · ".join(
             f"{e} ({_normalize_partial(e, d)}{', ' + s if s else ''})"
             for e, s, d in groups["limited"])
-        lines.append(f"• Partial: {det}")
+        state_bits.append(f"Partial: {det}")
     if groups["sold_out"]:
         # State + ✱ already say everything; details restating "0" are noise
-        lines.append("• Sold out: " + " · ".join(
+        state_bits.append("Sold out: " + " · ".join(
             e + (f" ({s})" if s else "") for e, s, _d in groups["sold_out"]))
+    if state_bits:
+        lines.append("• " + "; ".join(state_bits))
 
     # Market depth line (H100 gauges live in the digest — no repeat here)
     g = insights.market_gauges(records, gpu)
     depth_bits = []
     if not skip_gauges:
         if g.get("vast_gpus"):
-            floor = f", floor {g['vast_floor']}" if g.get("vast_floor") else ""
+            floor = f", cheapest {g['vast_floor']}" if g.get("vast_floor") else ""
             depth_bits.append(f"Vast {g['vast_gpus']} GPUs listed{floor}")
         if g.get("sfc_clearing"):
             depth_bits.append(f"SF Compute clears ${g['sfc_clearing']:.2f}")
     if g.get("aws_spot_regions"):
         note = ""
         if first_aws is not None and not first_aws[0]:
-            note = " (advisor, ~weekly)"
+            note = " (spot advisor, ~weekly)"
             first_aws[0] = True
         depth_bits.append(f"AWS spot pools in {plural(g['aws_spot_regions'], 'region')}{note}")
+    if depth_bits:
+        lines.append("• Market: " + " · ".join(depth_bits))
 
+    # Nebius is us, not "the market" — its own labeled line
     ref = insights.nebius_reference(records, gpu)
-    tail = ""
     if ref["regions"]:
         gate = " (sales-gated)" if ref["sales_gated"] else ""
-        tail = f"; Nebius self-service: {', '.join(ref['regions'])}{gate}"
-    if depth_bits or tail:
-        lines.append("• Market: " + " · ".join(depth_bits) + tail)
+        lines.append(f"• Nebius: self-service in {', '.join(ref['regions'])}{gate}")
 
     lines.append("")
     return lines
@@ -343,14 +356,16 @@ def _describe_change(c: CapacityDiffEntry,
                    "regions_with_capacity": "regions with capacity",
                    "clearing_price_usd": "clearing price", "lead_time_days": "lead time"}
     if c.change_type == "state_change":
+        suffix = "" if tag == "live" else f" ({tag})"
         return (f"{prov} {c.gpu_model}{where}: {human.get(c.old_state, c.old_state)} → "
-                f"{human.get(c.new_state, c.new_state)} ({tag})")
+                f"{human.get(c.new_state, c.new_state)}{suffix}")
     if c.change_type == "metric_move":
         name = next((v for k, v in metric_name.items() if k in (c.detail or "")), None)
         if name and c.old_value is not None and c.new_value is not None:
             capped = "+, page-capped" if "page cap" in (c.detail or "") else ""
+            suffix = "" if tag == "live" else f" ({tag})"
             return (f"{prov} {c.gpu_model}{where}: {name} "
-                    f"{c.old_value:g} → {c.new_value:g}{capped} ({tag})")
+                    f"{c.old_value:g} → {c.new_value:g}{capped}{suffix}")
         return f"{prov} {c.gpu_model}{where}: {c.detail} ({tag})"
     if c.change_type == "added":
         return f"{prov} {c.gpu_model}{where}: now tracked, {human.get(c.new_state, c.new_state)} ({tag})"
@@ -359,7 +374,7 @@ def _describe_change(c: CapacityDiffEntry,
 
 def _render_thread(records, diff, manifest, old_records) -> str:
     today = datetime.now(timezone.utc).strftime("%A %d %b %Y")
-    lines = [f"*Evidence — {today}*", ""]
+    lines = [f"*Detail · {today}*", ""]
     first_aws = [False]
 
     # A "footprint-only" GPU with an actual live read auto-promotes to a full
@@ -382,9 +397,77 @@ def _render_thread(records, diff, manifest, old_records) -> str:
         lines.append(" · ".join(sec_bits))
         lines.append("")
 
-    # Footprint-only generations (label with the full product name)
+    # Changes first (decision-relevant), then static footprint/badges.
+    # Default provenance is the provider's own API; only exceptions are marked.
+    baseline = _baseline_label(old_records)
+    changes = [c for c in diff if c.change_type in ("state_change", "metric_move")]
+    provider_level = [c for c in changes if c.region == "global"]
+    n_region = len(changes) - len(provider_level)
+
+    # One basis per provider: when a direct feed returned data today, that
+    # provider's aggregator-sourced diff rows are noise (mixed bases made the
+    # 17-Aug list contradict itself)
+    direct_today = {r.provider for r in records
+                    if r.region == "global" and r.data_source != "aggregator"}
+    provider_level = [c for c in provider_level
+                      if not (c.provider in direct_today
+                              and _change_is_aggregator(c, records, old_records))]
+
+    gpu_order = {g: i for i, g in enumerate(FLAGSHIP_GPUS + SECONDARY_GPUS + FOOTPRINT_ONLY_GPUS)}
+    provider_level.sort(key=lambda c: (gpu_order.get(c.gpu_model, 99), c.provider))
+
+    human = {"available": "in stock", "limited": "partial", "sold_out": "sold out"}
+    change_lines = []
+
+    # Variant merge within (provider, gpu); then cross-GPU merge of identical
+    # transitions per provider ("RunPod H100 · H200 · B200: partial → sold out")
+    grouped: Dict[tuple, list] = {}
+    for c in provider_level:
+        grouped.setdefault((c.provider, c.gpu_model, c.change_type), []).append(c)
+
+    simple_states: Dict[tuple, list] = {}   # (provider, old, new) → [gpu]
+    for (prov_key, gpu, ctype), items in grouped.items():
+        if ctype == "state_change" and len(items) == 1:
+            c = items[0]
+            simple_states.setdefault((prov_key, c.old_state, c.new_state), []).append((gpu, c))
+
+    emitted_simple = set()
+    for (prov_key, old_s, new_s), gpu_items in simple_states.items():
+        if len(gpu_items) >= 2:
+            prov = PROVIDER_LABELS.get(prov_key, prov_key)
+            gpus = " · ".join(g for g, _c in gpu_items)
+            agg = _change_is_aggregator(gpu_items[0][1], records, old_records)
+            tag = " (via aggregator ✱)" if agg else ""
+            change_lines.append(f"• {prov} {gpus}: {human.get(old_s, old_s)} → "
+                                f"{human.get(new_s, new_s)}{tag}")
+            emitted_simple.update((prov_key, g) for g, _c in gpu_items)
+
+    for (prov_key, gpu, ctype), items in grouped.items():
+        if (prov_key, gpu) in emitted_simple:
+            continue
+        if ctype == "state_change" and len(items) > 1:
+            prov = PROVIDER_LABELS.get(prov_key, prov_key)
+            parts = " · ".join(
+                f"{_variant_tag(c.instance_type, gpu)} {human.get(c.old_state, c.old_state)}"
+                f" → {human.get(c.new_state, c.new_state)}" for c in items)
+            agg = _change_is_aggregator(items[0], records, old_records)
+            tag = " (via aggregator ✱)" if agg else ""
+            change_lines.append(f"• {prov} {gpu}: {parts}{tag}")
+        else:
+            for c in items:
+                change_lines.append(f"• {_describe_change(c, records)}")
+
+    lines.append(f"*Changes ({baseline}; own APIs unless marked):*")
+    if change_lines:
+        lines.extend(change_lines[:12])
+    else:
+        lines.append("• none at provider level")
+    if n_region:
+        lines.append(f"_+{plural(n_region, 'datacenter-level change')} on Confluence_")
+    lines.append("")
+
+    # Footprint-only generations (full product names; offered ≠ in stock)
     fp_label = {"GB200": "GB200 NVL72", "GB300": "GB300 NVL72"}
-    fp_lines = []
     for gpu in FOOTPRINT_ONLY_GPUS:
         if gpu in promoted:
             continue
@@ -397,11 +480,8 @@ def _render_thread(records, diff, manifest, old_records) -> str:
                         "crusoe": "zone"}[prov]
                 bits.append(f"{PROVIDER_LABELS[prov]} {plural(int(rows[0].metric_value), unit)}")
         if bits:
-            fp_lines.append(f"*{fp_label.get(gpu, gpu)}*: " + " · ".join(bits))
-    if fp_lines:
-        lines.append("*Footprint only (where it is sold, not stock):*")
-        lines.extend(fp_lines)
-        lines.append("")
+            lines.append(f"*{fp_label.get(gpu, gpu)}* footprint only "
+                         f"(where it's offered, not whether in stock): " + " · ".join(bits))
 
     # GMI badges once, consolidated — a signal that is "never counted" does
     # not deserve a bullet per GPU
@@ -412,53 +492,6 @@ def _render_thread(records, diff, manifest, old_records) -> str:
                 f"{_short(b.detail.replace('badge ', '').replace(' (not yet deliverable)', ''), 60)}"
                 for b in badges]
         lines.append(f"_GMI badges (self-reported, never counted): {' · '.join(bits)}_")
-        lines.append("")
-
-    # Changes: provider-level only in Slack; per-DC churn lives on Confluence
-    baseline = _baseline_label(old_records)
-    changes = [c for c in diff if c.change_type in ("state_change", "metric_move")]
-    provider_level = [c for c in changes if c.region == "global"]
-    n_region = len(changes) - len(provider_level)
-
-    # One basis per provider: when a direct feed returned data today, that
-    # provider's aggregator-sourced diff rows are noise (mixed bases made the
-    # 17-Aug list contradict itself: "Verda B300 ✱ up" next to direct reads)
-    direct_today = {r.provider for r in records
-                    if r.region == "global" and r.data_source != "aggregator"}
-    provider_level = [c for c in provider_level
-                      if not (c.provider in direct_today
-                              and _change_is_aggregator(c, records, old_records))]
-
-    # Merge SKU-variant flips into one bullet per (provider, GPU) — two bare
-    # "RunPod H100" lines with opposite directions read as a contradiction
-    gpu_order = {g: i for i, g in enumerate(FLAGSHIP_GPUS + SECONDARY_GPUS + FOOTPRINT_ONLY_GPUS)}
-    provider_level.sort(key=lambda c: (gpu_order.get(c.gpu_model, 99), c.provider))
-    grouped: Dict[tuple, list] = {}
-    for c in provider_level:
-        grouped.setdefault((c.provider, c.gpu_model, c.change_type), []).append(c)
-
-    lines.append(f"*Changes ({baseline}):*")
-    shown = 0
-    human = {"available": "in stock", "limited": "partial", "sold_out": "sold out"}
-    for (prov_key, gpu, ctype), items in grouped.items():
-        if shown >= 12:
-            break
-        if ctype == "state_change" and len(items) > 1:
-            prov = PROVIDER_LABELS.get(prov_key, prov_key)
-            parts = " · ".join(
-                f"{_variant_tag(c.instance_type, gpu)} {human.get(c.old_state, c.old_state)}"
-                f" → {human.get(c.new_state, c.new_state)}" for c in items)
-            tag = "via aggregator ✱" if _change_is_aggregator(items[0], records, old_records) else "live"
-            lines.append(f"• {prov} {gpu}: {parts} ({tag})")
-            shown += 1
-        else:
-            for c in items:
-                lines.append(f"• {_describe_change(c, records)}")
-                shown += 1
-    if shown == 0:
-        lines.append("• none at provider level")
-    if n_region:
-        lines.append(f"_+{plural(n_region, 'datacenter-level change')} on Confluence_")
     return "\n".join(lines)
 
 
