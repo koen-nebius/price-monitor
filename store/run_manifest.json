@@ -1,11 +1,11 @@
 {
-  "run_date": "2026-08-16",
-  "started_at": "2026-08-16T02:36:34.855993+00:00",
-  "completed_at": "2026-08-16T02:37:59.043300+00:00",
+  "run_date": "2026-08-17",
+  "started_at": "2026-08-17T02:36:01.351082+00:00",
+  "completed_at": "2026-08-17T02:37:21.578717+00:00",
   "status": "success",
-  "record_count": 1078,
-  "raw_record_count": 1078,
-  "anomaly_count": 0,
+  "record_count": 1081,
+  "raw_record_count": 1081,
+  "anomaly_count": 1,
   "quarantined_count": 0,
   "diff_count": 28,
   "failed_providers": [],
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 11
+      "record_count": 12
     },
     "crusoe": {
       "status": "live",
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 128
+      "record_count": 129
     },
     "oracle": {
       "status": "live",
@@ -69,7 +69,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 2
+      "record_count": 3
     },
     "verda": {
       "status": "live",
@@ -151,13 +151,14 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 54 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "Nebius committed prices last verified 55 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "cp_gpuoutlet L40S on_demand: $1.37 \u2192 $0.69 (-49.6%) \u26a0 price anomaly",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": false,
-  "is_weekly": false,
+  "post_thread": true,
+  "is_weekly": true,
   "significant_moves": 2,
   "generated_outputs": {
     "slack_message": true,
