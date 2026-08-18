@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 STORE_DIR = Path(__file__).parent / "store"
 
 PENDING_LABELS = {
-    "aws_capacity_blocks": "AWS Capacity Blocks (IAM pending)",
+    "aws_capacity_blocks": "AWS Capacity Blocks (account needs CB service quota via AWS Support)",
     "hyperstack": "Hyperstack (free key pending)",
     "together": "Together AI (free key pending)",
     "verda": "Verda (free key pending)",
@@ -151,7 +151,8 @@ def _digest_movement(records: List[AvailabilityRecord],
 
     lines = []
     if phrases:
-        lines.append("*Also moved:* " + " · ".join(phrases) + " _(all own APIs)_")
+        suffix = " _(own API)_" if len(phrases) == 1 else " _(all own APIs)_"
+        lines.append("• *Moved:* " + " · ".join(phrases) + suffix)
 
     # One read line: direction where cluster-share actually moved, grouped so
     # the so-what appears once (numbers live in the strip's ↓/↑ deltas)
@@ -171,7 +172,7 @@ def _digest_movement(records: List[AvailabilityRecord],
     if looser:
         reads.append(f"{', '.join(looser)} loosening (watch for price pressure)")
     if reads:
-        lines.append("*So what:* " + " · ".join(reads) + ".")
+        lines.append("• *So what:* " + " · ".join(reads) + ".")
     return lines
 
 
@@ -217,15 +218,13 @@ def render_slack(records: List[AvailabilityRecord],
         strip.append(f"{gpu} at {t['k_cluster']}/{t['n']}{unit}{mark}{delta}" if not strip
                      else f"{gpu} {t['k_cluster']}/{t['n']}{mark}{delta}")
     if strip:
-        lines.append("*Competitor 8x node stock:*  " + " · ".join(strip))
+        lines.append("• *Competitor 8x node stock:* " + " · ".join(strip))
         if any("✱" in s for s in strip):
             lines.append("_✱ = includes a third-party read (never proof of 8x stock; "
                          "don't quote to customers)_")
-        lines.append("")
 
     if movement:
         lines.extend(movement)
-        lines.append("")
 
     # Gauges — H100 as the market bellwether, only real numbers
     g = insights.market_gauges(records, "H100")
@@ -237,7 +236,7 @@ def render_slack(records: List[AvailabilityRecord],
         floor = f", cheapest {g['vast_floor']}" if g.get("vast_floor") else ""
         gauge_bits.append(f"Vast H100 {g['vast_gpus']} GPUs listed{floor} (marketplace)")
     if gauge_bits:
-        lines.append("*Market:* " + " · ".join(gauge_bits))
+        lines.append("• *Market:* " + " · ".join(gauge_bits))
 
     fresh_short, _ = _fresh_line(manifest)
     url = _page_url()
