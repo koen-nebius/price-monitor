@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-08-17",
-  "started_at": "2026-08-17T02:36:01.351082+00:00",
-  "completed_at": "2026-08-17T02:37:21.578717+00:00",
+  "run_date": "2026-08-18",
+  "started_at": "2026-08-18T02:30:56.683266+00:00",
+  "completed_at": "2026-08-18T02:32:46.760366+00:00",
   "status": "success",
-  "record_count": 1081,
-  "raw_record_count": 1081,
-  "anomaly_count": 1,
+  "record_count": 1083,
+  "raw_record_count": 1083,
+  "anomaly_count": 2,
   "quarantined_count": 0,
-  "diff_count": 28,
+  "diff_count": 45,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 129
+      "record_count": 132
     },
     "oracle": {
       "status": "live",
@@ -69,7 +69,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 3
+      "record_count": 2
     },
     "verda": {
       "status": "live",
@@ -151,15 +151,17 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 55 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
-    "cp_gpuoutlet L40S on_demand: $1.37 \u2192 $0.69 (-49.6%) \u26a0 price anomaly",
+    "Nebius committed prices last verified 56 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "cp_fal-ai B200 on_demand: $6.25 \u2192 $3.49 (-44.2%) \u26a0 price anomaly",
+    "cp_fal-ai B300 on_demand: $8.50 \u2192 $4.49 (-47.2%) \u26a0 price anomaly",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
+    "cross-check: crusoe H100 on-demand: ours $3.90 (scrape) vs ComputePrices $5.50 (41% gap) \u2014 ours far below CP's freshest coverage \u2014 verify we didn't parse a non-GPU/spot row",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": true,
-  "is_weekly": true,
-  "significant_moves": 2,
+  "post_thread": false,
+  "is_weekly": false,
+  "significant_moves": 0,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
