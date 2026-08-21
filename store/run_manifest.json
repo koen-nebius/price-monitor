@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-08-20",
-  "started_at": "2026-08-20T02:32:06.579912+00:00",
-  "completed_at": "2026-08-20T02:34:02.921021+00:00",
+  "run_date": "2026-08-21",
+  "started_at": "2026-08-21T02:38:16.819654+00:00",
+  "completed_at": "2026-08-21T02:39:47.330506+00:00",
   "status": "success",
-  "record_count": 1101,
-  "raw_record_count": 1101,
-  "anomaly_count": 1,
+  "record_count": 1096,
+  "raw_record_count": 1096,
+  "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 64,
+  "diff_count": 37,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 15
+      "record_count": 14
     },
     "crusoe": {
       "status": "live",
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 144
+      "record_count": 143
     },
     "oracle": {
       "status": "live",
@@ -69,7 +69,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 5
+      "record_count": 2
     },
     "verda": {
       "status": "live",
@@ -151,15 +151,14 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 58 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
-    "cp_lium L40S on_demand: $0.76 \u2192 $0.38 (-50.0%) \u26a0 price anomaly",
+    "Nebius committed prices last verified 59 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": true,
+  "post_thread": false,
   "is_weekly": false,
-  "significant_moves": 10,
+  "significant_moves": 0,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true

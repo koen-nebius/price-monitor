@@ -1,7 +1,5 @@
-*GPU Pricing Daily — August 20, 2026*
+*GPU Pricing Daily — August 21, 2026*
 
-*Changed in 24h:* Azure raised H200 reserved 3yr +13% across 7 SKUs ($6.06→$6.86) · 1 more major-provider move + 4 small-provider moves in thread
+No competitor movement since yesterday's update (no price moves ≥3% on tracked providers).
 
-*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 9w) and below cluster-peer median (H100, H200, B200); B300 -10% vs Scaleway (sole public cluster-peer list). RTX PRO 6000 -12% vs inference-market median (17 providers).
-
-Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>
+Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>
