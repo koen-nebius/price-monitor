@@ -1,7 +1,7 @@
-*GPU Pricing Daily — August 22, 2026*
+*GPU Pricing Daily — August 23, 2026*
 
-*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Acecloud H200 on-demand +8% · 1 small-provider move — detail in Confluence
+*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Hinode RTX6000 on-demand +60% · 6 small-provider moves in thread
 
-*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 9w) and below cluster-peer median (H100, H200, B200); B300 -10% vs Scaleway (sole public cluster-peer list). RTX PRO 6000 -12% vs inference-market median (16 providers).
+*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 9w) and below cluster-peer median (H100, H200, B200); B300 -11% vs Scaleway (sole public cluster-peer list). RTX PRO 6000 -12% vs inference-market median (16 providers).
 
-Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>
+Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>

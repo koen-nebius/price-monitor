@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-08-22",
-  "started_at": "2026-08-22T02:29:51.543534+00:00",
-  "completed_at": "2026-08-22T02:31:13.452801+00:00",
+  "run_date": "2026-08-23",
+  "started_at": "2026-08-23T02:38:42.593091+00:00",
+  "completed_at": "2026-08-23T02:40:20.353603+00:00",
   "status": "success",
-  "record_count": 1099,
-  "raw_record_count": 1099,
-  "anomaly_count": 0,
+  "record_count": 1103,
+  "raw_record_count": 1103,
+  "anomaly_count": 2,
   "quarantined_count": 0,
-  "diff_count": 25,
+  "diff_count": 37,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -45,7 +45,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 144
+      "record_count": 146
     },
     "oracle": {
       "status": "live",
@@ -69,7 +69,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 2
+      "record_count": 4
     },
     "verda": {
       "status": "live",
@@ -151,14 +151,16 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 60 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "Nebius committed prices last verified 61 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "cp_hinode RTX6000 on_demand: $6.99 \u2192 $11.15 (+59.5%) \u26a0 price anomaly",
+    "cp_lyceum-technology L40S on_demand: $1.19 \u2192 $1.69 (+42.0%) \u26a0 price anomaly",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": false,
+  "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 1,
+  "significant_moves": 7,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
