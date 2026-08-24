@@ -1,9 +1,9 @@
-*GPU Capacity Daily — Sunday 23 Aug 2026*
-*Heads-up (pricing):* Hyperstack B300 sold out in all its regions (per Hyperstack's API)
-*Heads-up (pricing):* H200 cluster-scale in-stock share fell below 33%: now 1/4 live sources
+*GPU Capacity Daily — Monday 24 Aug 2026*
+*Heads-up (pricing):* Hyperstack H200 sold out in all its regions (per Hyperstack's API)
+*Heads-up (pricing):* Verda B300 sold out in all its regions (per Verda's API)
 
-• *Competitor 8x node stock:* H100 at 4/7 live sources (was 3/7) · H200 1/4 (was 2/4) · B200 1/5 · B300 0/4
-• *Moved:* RunPod H100 back at cluster scale · Verda H200 lost cluster-scale (1x remains) · Verda B300 restocked 1x only _(all own APIs)_
-• *So what:* H200 tightening (supports holding price) · H100 loosening (watch for price pressure).
-• *Market:* SF Compute H100 clearing price $2.18 (short-term reserve market) · Vast H100 106 GPUs listed, cheapest $1.33 (marketplace)
+• *Competitor 8x node stock:* H100 at 3/7 live sources (was 4/7) · H200 1/4 · B200 1/5 · B300 0/4
+• *Moved:* RunPod H100 lost cluster-scale (1x remains) _(own API)_
+• *So what:* H100 tightening (supports holding price).
+• *Market:* SF Compute H100 clearing price $2.18 (short-term reserve market) · Vast H100 61 GPUs listed, cheapest $1.34 (marketplace)
 _Feeds: all 17 live · 1 awaiting access_ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/2164457614/GPU+Competitor+Capacity+%E2%80%94+Live+Overview|matrix · battlecard · method>
