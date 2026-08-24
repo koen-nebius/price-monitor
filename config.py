@@ -17,6 +17,15 @@ GPU_MAP = {
         "B300": [
             {"instance_type": "p6-b300.48xlarge", "gpu_count": 8, "vcpu": 192, "ram_gb": 4096},
         ],
+        "RTX6000": [
+            # g7e = RTX PRO 6000 Blackwell Server Edition, 96GB GDDR7 per GPU
+            # (verified from offer-file gpu/gpuMemory attributes 2026-08-24).
+            # Plain g7 is a 32GB-per-GPU card (different SKU) — not tracked.
+            {"instance_type": "g7e.2xlarge",  "gpu_count": 1, "vcpu": 8,   "ram_gb": 64},
+            {"instance_type": "g7e.12xlarge", "gpu_count": 2, "vcpu": 48,  "ram_gb": 512},
+            {"instance_type": "g7e.24xlarge", "gpu_count": 4, "vcpu": 96,  "ram_gb": 1024},
+            {"instance_type": "g7e.48xlarge", "gpu_count": 8, "vcpu": 192, "ram_gb": 2048},
+        ],
         "L40S": [
             # Exclude g6e.8xlarge (32 vCPU/GPU) and g6e.16xlarge (64 vCPU/GPU) —
             # CPU-heavy instances that inflate per-GPU price; not representative for GPU comparison
@@ -41,6 +50,15 @@ GPU_MAP = {
         ],
     },
     "azure": {
+        "RTX6000": [
+            # NC v6 = RTX PRO 6000 Blackwell Server Edition 96GB (learn.microsoft
+            # nc-rtxpro6000-bse-v6-series, verified 2026-08-24; 36 vCPU per GPU)
+            {"instance_type": "Standard_NC36ds_xl_RTXPRO6000BSE_v6",  "gpu_count": 1, "vcpu": 36,  "ram_gb": 132},
+            {"instance_type": "Standard_NC36lds_xl_RTXPRO6000BSE_v6", "gpu_count": 1, "vcpu": 36,  "ram_gb": 72},
+            {"instance_type": "Standard_NC72ds_xl_RTXPRO6000BSE_v6",  "gpu_count": 2, "vcpu": 72,  "ram_gb": 264},
+            {"instance_type": "Standard_NC144ds_xl_RTXPRO6000BSE_v6", "gpu_count": 4, "vcpu": 144, "ram_gb": 516},
+            {"instance_type": "Standard_NC288ds_xl_RTXPRO6000BSE_v6", "gpu_count": 8, "vcpu": 288, "ram_gb": 1032},
+        ],
         # GB300 TRIPWIRE (2026-08-11): size is documented on Microsoft Learn
         # (2 Grace + 4 B300 per VM) but the Retail Prices API returns ZERO rows
         # today. Pre-registering it costs one empty API probe per day and

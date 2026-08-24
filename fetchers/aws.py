@@ -142,6 +142,11 @@ def _fetch_region(region: str, fetched_at: str) -> List[PriceRecord]:
             continue
         if attrs.get("capacitystatus") != "Used":
             continue
+        # Skip SQL-Server-preinstalled variants (g-family ships Linux+SQL SKUs
+        # that pass the OS filter and would duplicate each instance at inflated
+        # prices — surfaced by the g7e RTX addition, 2026-08-24).
+        if attrs.get("preInstalledSw", "NA") != "NA":
+            continue
 
         gpu_model, spec = _ALL_INSTANCE_TYPES[instance_type]
 

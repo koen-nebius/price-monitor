@@ -708,7 +708,7 @@ def _build_takeaway(records: List[PriceRecord], include_pressure: bool = True,
         rtx = _rtx_market_stats(records)
         if rtx:
             rvs = (rtx["neb_od"] - rtx["median"]) / rtx["median"] * 100
-            od += (f". RTX PRO 6000 {rvs:+.0f}% vs inference-market median "
+            od += (f". RTX PRO 6000 {rvs:+.0f}% vs RTX market median "
                    f"({rtx['n_comp']} providers)")
     # Committed pressure: the hottest GPU where a competitor deal undercuts Nebius committed.
     # Skipped when the action flag already carries this point, so the same committed-deal
@@ -976,7 +976,8 @@ def _format_rtx_callout(records: List[PriceRecord]) -> str:
         if s["comp_comm"] is not None:
             c += f"  |  market committed from ${s['comp_comm']:.2f}"
         out.append(c)
-    out.append("_RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._")
+    out.append("_RTX market = inference platforms and GPU clouds, plus AWS (g7e) and "
+               "Azure (NC v6), which list the card since 2026 — not training-cluster peers._")
     return "\n".join(out)
 
 
