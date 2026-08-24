@@ -926,12 +926,15 @@ def _rtx_market_stats(records: List[PriceRecord]):
     # Market interruptible/spot floor (Krenev 2026-08-24: the spot section is
     # hyperscaler-comparison-driven and no hyperscaler sells this card, so the
     # RTX block carries its own market-spot context instead).
-    spot_comp = {}
+    spot_obs: Dict[str, list] = {}
     for r in rtx:
         if r.provider == "nebius" or r.consumption_type not in INTERRUPTIBLE_CTS:
             continue
-        if r.provider not in spot_comp or r.price_per_gpu_hour_usd < spot_comp[r.provider]:
-            spot_comp[r.provider] = r.price_per_gpu_hour_usd
+        spot_obs.setdefault(r.provider, []).append(r.price_per_gpu_hour_usd)
+    # Same method as the main spot section: per-provider MEDIAN across its
+    # regional observations (a single-region teaser must not pose as the
+    # floor), then cheapest provider.
+    spot_comp = {p: statistics.median(v) for p, v in spot_obs.items()}
 
     prices = sorted(comp.values())
     return {
