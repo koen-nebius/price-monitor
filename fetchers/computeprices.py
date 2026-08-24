@@ -61,6 +61,11 @@ SKIP_PROVIDERS = {
     # B200 $0.10), polluting the set and tripping the anomaly guard daily.
     "modal",
     "modal labs",
+    # Cloud-DESKTOP product (browser Linux workstation with a dedicated GPU),
+    # not GPU-compute rental — its per-seat $8.48 RTX PRO 6000 price polluted
+    # the RTX market set and its tier rows flapped as fake ±24-60% "moves"
+    # (Krenev's catch, 2026-08-24). Same category exclusion as Modal.
+    "hinode",
     # Distressed — prices unreliable, would pollute the benchmark:
     "genesis cloud",   # in liquidation ("GmbH i.L." since Aug 2025) yet still lists prices
     "genesis",

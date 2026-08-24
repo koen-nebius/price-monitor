@@ -923,6 +923,16 @@ def _rtx_market_stats(records: List[PriceRecord]):
                 and ("committed" in r.consumption_type or "reserved" in r.consumption_type)]
         return min(vals) if vals else None
 
+    # Market interruptible/spot floor (Krenev 2026-08-24: the spot section is
+    # hyperscaler-comparison-driven and no hyperscaler sells this card, so the
+    # RTX block carries its own market-spot context instead).
+    spot_comp = {}
+    for r in rtx:
+        if r.provider == "nebius" or r.consumption_type not in INTERRUPTIBLE_CTS:
+            continue
+        if r.provider not in spot_comp or r.price_per_gpu_hour_usd < spot_comp[r.provider]:
+            spot_comp[r.provider] = r.price_per_gpu_hour_usd
+
     prices = sorted(comp.values())
     return {
         "neb_od": neb_od, "neb_sp": neb_sp,
@@ -931,6 +941,9 @@ def _rtx_market_stats(records: List[PriceRecord]):
         "cheaper": sum(1 for p in prices if p < neb_od),
         "floor_prov": min(comp, key=comp.get), "floor": prices[0],
         "neb_comm": _comm_min(True), "comp_comm": _comm_min(False),
+        "spot_floor": min(spot_comp.values()) if spot_comp else None,
+        "spot_floor_prov": min(spot_comp, key=spot_comp.get) if spot_comp else None,
+        "n_spot": len(spot_comp),
     }
 
 
@@ -950,7 +963,14 @@ def _format_rtx_callout(records: List[PriceRecord]) -> str:
            f"`OD  ` Nebius ${s['neb_od']:.2f}  {sign}{vs:.0f}% vs market median ${s['median']:.2f}  "
            f"|  {s['cheaper']}/{s['n_comp']} cheaper  |  floor: {_provider_display(s['floor_prov'])} ${s['floor']:.2f}"]
     if s["neb_sp"] is not None:
-        out.append(f"`Spot` Nebius ${s['neb_sp']:.2f}")
+        sp = f"`Spot` Nebius ${s['neb_sp']:.2f}"
+        if s.get("spot_floor") is not None:
+            d_sp = (s["neb_sp"] - s["spot_floor"]) / s["spot_floor"] * 100
+            sp += (f"  vs market spot floor ${s['spot_floor']:.2f} "
+                   f"({_provider_display(s['spot_floor_prov'])}"
+                   + (f", {s['n_spot']} providers" if s["n_spot"] > 1 else "")
+                   + f")  →  Nebius {d_sp:+.0f}%")
+        out.append(sp)
     if s["neb_comm"] is not None:
         c = f"`Comm` Nebius committed from ${s['neb_comm']:.2f}"
         if s["comp_comm"] is not None:
@@ -2695,8 +2715,16 @@ def _build_rtx_section(records: List[PriceRecord]) -> str:
         f'<td>{vs:+.0f}% vs median · {s["cheaper"]}/{s["n_comp"]} providers cheaper</td></tr>',
     ]
     if s["neb_sp"] is not None:
+        if s.get("spot_floor") is not None:
+            d_sp = (s["neb_sp"] - s["spot_floor"]) / s["spot_floor"] * 100
+            mkt = (f'floor ${s["spot_floor"]:.2f} '
+                   f'({_provider_display(s["spot_floor_prov"])}, {s["n_spot"]} provider'
+                   f'{"s" if s["n_spot"] != 1 else ""})')
+            pos = f'{d_sp:+.0f}% vs market spot floor'
+        else:
+            mkt, pos = '—', '—'
         rows.append(f'<tr><td>Spot / preemptible</td><td>${s["neb_sp"]:.2f}</td>'
-                    f'<td>—</td><td>—</td></tr>')
+                    f'<td>{mkt}</td><td>{pos}</td></tr>')
     if s["neb_comm"] is not None:
         mkt = f'from ${s["comp_comm"]:.2f}' if s["comp_comm"] is not None else '—'
         rows.append(f'<tr><td>Committed</td><td>from ${s["neb_comm"]:.2f}</td>'
