@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-08-23",
-  "started_at": "2026-08-23T02:38:42.593091+00:00",
-  "completed_at": "2026-08-23T02:40:20.353603+00:00",
+  "run_date": "2026-08-24",
+  "started_at": "2026-08-24T02:39:03.094966+00:00",
+  "completed_at": "2026-08-24T02:40:26.820252+00:00",
   "status": "success",
-  "record_count": 1103,
-  "raw_record_count": 1103,
-  "anomaly_count": 2,
+  "record_count": 1101,
+  "raw_record_count": 1101,
+  "anomaly_count": 1,
   "quarantined_count": 0,
-  "diff_count": 37,
+  "diff_count": 39,
   "failed_providers": [],
   "stale_providers": [],
   "provider_status": {
@@ -29,7 +29,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 16
+      "record_count": 14
     },
     "crusoe": {
       "status": "live",
@@ -151,16 +151,15 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 61 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
-    "cp_hinode RTX6000 on_demand: $6.99 \u2192 $11.15 (+59.5%) \u26a0 price anomaly",
-    "cp_lyceum-technology L40S on_demand: $1.19 \u2192 $1.69 (+42.0%) \u26a0 price anomaly",
+    "Nebius committed prices last verified 62 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "cp_1legion-com RTX6000 on_demand: $0.19/GPU-hr \u26a0 implausibly low price",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
   "post_thread": true,
-  "is_weekly": false,
-  "significant_moves": 7,
+  "is_weekly": true,
+  "significant_moves": 3,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true

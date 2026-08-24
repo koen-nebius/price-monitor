@@ -1,4 +1,4 @@
-*GPU Competitor Pricing — August 23, 2026*
+*GPU Competitor Pricing — August 24, 2026*
 
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -4% vs median  |  0/4 peers cheaper  |  floor: Crusoe $3.90
@@ -18,7 +18,7 @@
 `H100 ` Nebius $2.15  vs  Azure $2.27 (median of 20 regional floors)  →  Nebius 5% below
 `H200 ` Nebius $2.45  vs  AWS $3.36 (median of 4 regional floors)  →  Nebius 27% below
 `B200 ` Nebius $3.95  vs  GCP $4.93 (median of 6 regional floors)  →  Nebius 20% below
-`B300 ` Nebius $4.30  vs  AWS $5.94 (median of 2 regional floors)  →  Nebius 28% below
+`B300 ` Nebius $4.30  vs  AWS $5.93 (median of 2 regional floors)  →  Nebius 28% below
 `L40S ` Nebius $0.90  |  no comparable hyperscaler spot (not offered, or newest-gen spot capacity not realistically available)
 _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across its regional floors (single-region dips excluded; region-grain proxy, not per-AZ)._
 
@@ -46,7 +46,7 @@ _Signed reserve deals closed in the window (CRM deal reviews; autorenewals exclu
 
 
 *RTX PRO 6000 (inference / PAYG card) — vs RTX market:*
-`OD  ` Nebius $1.80  -12% vs market median $2.05  |  3/16 cheaper  |  floor: Lium $1.01
+`OD  ` Nebius $1.80  -12% vs market median $2.04  |  4/17 cheaper  |  floor: 1Legion Com $0.19
 `Spot` Nebius $0.95
 `Comm` Nebius committed from $1.42  |  market committed from $0.76
 _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cluster peers; hyperscalers don't offer this card._
@@ -55,17 +55,13 @@ _RTX competitors are inference platforms (Vast, fal, Beam, …), not training-cl
 *Action flags (revenue-driver GPUs):*
 `H200 ` Headroom to hold or raise  |  mkt +0% / 30d
 `B200 ` Headroom to hold or raise  |  mkt +0% / 30d
-`B300 ` Headroom to hold or raise  |  mkt +0% / 11d
+`B300 ` Headroom to hold or raise  |  mkt +0% / 12d
 _Action = neutral pricing prompt (premium can be a deliberate hold); see Decision Triggers table in Confluence._
 
 *Price moves ≥3%:*
-🔺 *Hinode* RTX6000 on-demand: $6.99→$11.15/GPU-hr (+59.5% global)
-🔺 *Lyceum Technology* L40S on-demand: $1.19→$1.69/GPU-hr (+42.0% global)
-🔺 *Lyceum Technology* H100 on-demand: $2.79→$3.59/GPU-hr (+28.7% global)
-🔻 *Hinode* L40S on-demand: $4.99→$4.37/GPU-hr (-12.4% global)
-🔺 *Runcrate* RTX6000 on-demand: $2.15→$2.41/GPU-hr (+12.1% global)
-🔻 *Runcrate* H100 on-demand: $3.00→$2.75/GPU-hr (-8.3% global)
-🔻 *Lium* H200 on-demand: $4.23→$3.90/GPU-hr (-7.7% global)
-_Jitter note: 11 move(s) excluded as oscillation back to a recent level (AWS B200; Gpuoutlet H200; Ionet H100; Latitude H100) — source/FX artifact, not a repricing._
+🔻 *Hinode* RTX6000 on-demand: $11.15→$8.48/GPU-hr (-23.9% global)
+🔻 *Hinode* L40S on-demand: $4.37→$3.39/GPU-hr (-22.4% global)
+🔺 *Gpuoutlet* B200 on-demand: $4.20→$4.45/GPU-hr (+6.0% global)
+_Jitter note: 5 move(s) excluded as oscillation back to a recent level (AWS B200; AWS B300; Latitude H100; Sesterce H100) — source/FX artifact, not a repricing._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
