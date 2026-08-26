@@ -1,7 +1,7 @@
-*GPU Pricing Daily — August 25, 2026*
+*GPU Pricing Daily — August 26, 2026*
 
-*Changed in 24h:* GCP cut L4 spot -5% across 2 SKUs ($0.34→$0.33) · 4 more major-provider moves — detail in Confluence
+*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Sesterce H100 on-demand -20% · 2 small-provider moves — detail in Confluence
 
-*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 9w) and below cluster-peer median (H100, H200, B200); B300 -11% vs Scaleway (sole public cluster-peer list). RTX PRO 6000 -12% vs RTX market median (19 providers).
+*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 10w) and below cluster-peer median (H100, H200, B200); B300 -10% vs Scaleway (sole public cluster-peer list). RTX PRO 6000 -12% vs RTX market median (19 providers).
 
 Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>
