@@ -149,3 +149,20 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1786059237.078829,2026-08-07,B300,4.15,36,0,undisclosed,Undisclosed,3yr offer seen by Cursor; prepay unspecified
 1786059237.078829,2026-08-07,GB300,4.50,36,0,undisclosed,Undisclosed,3yr offer seen by Cursor; prepay unspecified
 1786061618.219829,2026-08-07,B300,4.90,36,30,broker,SFCompute,256-GPU B300 HGX US-West 3yr 30% prepay SFC quote Aug 2026
+1786542026.111519,2026-08-12,B200,4.00,12,0,neocloud,Nscale,B200 immediately avail UK 12mo
+1786579347.449529,2026-08-13,B300,5.00,36,25,neocloud,CoreWeave,B300 3yr 25% upfront low $5s
+1786582338.528989,2026-08-13,B300,4.00,0,0,undisclosed,Undisclosed,B300 $4 seen past 2mo term unconfirmed
+1786627944.371599,2026-08-13,VR,6.25,60,50,hyperscaler,GCP,2K VR Q3 2027 GCP draft 5yr 50% upfront
+1786627944.371599,2026-08-13,VR,5.50,36,0,hyperscaler,GCP,4K VR GCP prev signed deal 3yr
+1786737623.389179,2026-08-14,B300,5.60,0,0,undisclosed,Undisclosed,4K B300 bridge May start $5.60 undisclosed
+1786737623.389179,2026-08-14,VR,6.65,48,25,undisclosed,Undisclosed,3K VR Q4'27-Q1'28 4yr 25% prepay undisclosed
+1786999784.803339,2026-08-17,B300,8.50,3,0,undisclosed_neocloud,Undisclosed,128xB300 3mo Asia premium undisclosed provider
+1787177223.177889,2026-08-20,GB300,19.00,2,0,undisclosed,Undisclosed,GB300 2-month cluster outbid at $19/hr
+1787230678.978469,2026-08-20,B300,4.90,36,0,broker,SFCompute,288xB300 3yr w/ resell option
+1787230678.978469,2026-08-20,B300,4.90,36,0,broker,Ornn,288xB300 3yr w/ resell option
+1787255339.627099,2026-08-20,GB300,3.70,60,0,undisclosed_hyperscaler,Undisclosed,GB300 5yr Feb 2027 delivery hyperscaler offer
+1787599134.249799,2026-08-24,B300,4.90,36,0,hyperscaler,AWS,512xB300 3yr no prepay US Jan/Feb delivery
+1787754903.783139,2026-08-26,VR,6.00,60,20,neocloud,CoreWeave,VR deal $6s 5yr 20% upfront signed few months ago
+1787772030.233299,2026-08-26,VR,9.00,60,0,neocloud,CoreWeave,VR ~$9 range 5yr term current pricing
+1787772892.613209,2026-08-26,B300,5.00,36,20,neocloud,CoreWeave,B300 3yr 20-30% down (lower bound $5)
+1787772892.613209,2026-08-26,B300,4.20,36,20,neocloud,IREN,IREN B300 3yr 20% down
