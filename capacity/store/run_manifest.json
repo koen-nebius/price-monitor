@@ -1,22 +1,20 @@
 {
- "run_date": "2026-08-27",
- "started_at": "2026-08-27T12:54:53.707194+00:00",
- "completed_at": "2026-08-27T12:58:36.544358+00:00",
+ "run_date": "2026-08-28",
+ "started_at": "2026-08-28T14:25:39.646789+00:00",
+ "completed_at": "2026-08-28T14:29:10.915180+00:00",
  "status": "success",
- "record_count": 350,
- "diff_count": 49,
+ "record_count": 353,
+ "diff_count": 51,
  "provider_count": 18,
- "live_provider_count": 16,
+ "live_provider_count": 17,
  "failed_providers": [
   "aws_capacity_blocks"
  ],
- "stale_providers": [
-  "hyperstack"
- ],
+ "stale_providers": [],
  "provider_status": {
   "lambda": {
    "status": "live",
-   "record_count": 3
+   "record_count": 4
   },
   "coreweave": {
    "status": "live",
@@ -44,7 +42,7 @@
   },
   "runpod": {
    "status": "live",
-   "record_count": 73
+   "record_count": 72
   },
   "vast": {
    "status": "live",
@@ -75,9 +73,8 @@
    "record_count": 18
   },
   "hyperstack": {
-   "status": "cached",
-   "record_count": 15,
-   "cache_age_hours": 33.4
+   "status": "live",
+   "record_count": 15
   },
   "together": {
    "status": "live",
@@ -85,7 +82,7 @@
   },
   "verda": {
    "status": "live",
-   "record_count": 10
+   "record_count": 13
   }
  },
  "post_thread": true
