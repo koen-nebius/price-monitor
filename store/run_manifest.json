@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-08-28",
-  "started_at": "2026-08-28T12:58:19.754938+00:00",
-  "completed_at": "2026-08-28T12:59:57.379564+00:00",
+  "run_date": "2026-08-29",
+  "started_at": "2026-08-29T07:55:07.089299+00:00",
+  "completed_at": "2026-08-29T07:56:43.763021+00:00",
   "status": "partial",
-  "record_count": 1275,
-  "raw_record_count": 1275,
-  "anomaly_count": 2,
+  "record_count": 1285,
+  "raw_record_count": 1285,
+  "anomaly_count": 5,
   "quarantined_count": 0,
-  "diff_count": 36,
+  "diff_count": 51,
   "failed_providers": [],
   "stale_providers": [
     "sfcompute"
@@ -15,7 +15,7 @@
   "provider_status": {
     "aws": {
       "status": "live",
-      "record_count": 480
+      "record_count": 490
     },
     "gcp": {
       "status": "live",
@@ -31,7 +31,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 10
+      "record_count": 12
     },
     "crusoe": {
       "status": "live",
@@ -47,7 +47,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 152
+      "record_count": 150
     },
     "oracle": {
       "status": "live",
@@ -64,7 +64,7 @@
     "sfcompute": {
       "status": "cache",
       "record_count": 1,
-      "cache_age_hours": 58.3
+      "cache_age_hours": 77.2
     },
     "together": {
       "status": "live",
@@ -134,7 +134,7 @@
     },
     "sfcompute": {
       "status": "cached",
-      "age_hours": 58.3
+      "age_hours": 77.2
     },
     "together": {
       "status": "live",
@@ -154,15 +154,19 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 66 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "Nebius committed prices last verified 67 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "aws H100 reserved_1yr: $2.58 \u2192 $5.06 (+96.0%) \u26a0 price anomaly",
+    "aws H100 reserved_3yr: $1.38 \u2192 $2.59 (+88.0%) \u26a0 price anomaly",
+    "aws H100 reserved_3yr_partial_upfront_convertible: $2.34 \u2192 $4.68 (+100.0%) \u26a0 price anomaly",
     "cp_1legion-com RTX6000 on_demand: $0.19/GPU-hr \u26a0 implausibly low price",
-    "cp_ionet H100 on_demand: $2.60 \u2192 $3.99 (+53.1%) \u26a0 price anomaly",
+    "cp_latitude RTX6000 on_demand: $1.90 \u2192 $3.00 (+57.9%) \u26a0 price anomaly",
+    "cross-check: gcp B200 on-demand: ours $16.11 (api) vs ComputePrices $8.05 (50% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": false,
+  "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 1,
+  "significant_moves": 3,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
