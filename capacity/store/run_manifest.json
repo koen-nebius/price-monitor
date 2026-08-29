@@ -1,10 +1,10 @@
 {
- "run_date": "2026-08-28",
- "started_at": "2026-08-28T14:25:39.646789+00:00",
- "completed_at": "2026-08-28T14:29:10.915180+00:00",
+ "run_date": "2026-08-29",
+ "started_at": "2026-08-29T09:10:54.897172+00:00",
+ "completed_at": "2026-08-29T09:14:26.839228+00:00",
  "status": "success",
- "record_count": 353,
- "diff_count": 51,
+ "record_count": 360,
+ "diff_count": 55,
  "provider_count": 18,
  "live_provider_count": 17,
  "failed_providers": [
@@ -42,7 +42,7 @@
   },
   "runpod": {
    "status": "live",
-   "record_count": 72
+   "record_count": 73
   },
   "vast": {
    "status": "live",
@@ -82,7 +82,7 @@
   },
   "verda": {
    "status": "live",
-   "record_count": 13
+   "record_count": 19
   }
  },
  "post_thread": true
