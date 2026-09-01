@@ -1,11 +1,11 @@
-*GPU Competitor Pricing — August 31, 2026*
+*GPU Competitor Pricing — September 01, 2026*
 
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -4% vs median  |  0/4 peers cheaper  |  floor: Crusoe $3.90
 `H200 ` Nebius $4.50  -25% vs median  |  1/3 peers cheaper  |  floor: Crusoe $4.29
 `B200 ` Nebius $7.15  -13% vs median  |  1/3 peers cheaper  |  floor: Lambda $6.69
-`B300 ` Nebius $7.85  |  1 peer: Scaleway $8.73
-`L40S ` Nebius $1.82  +6% vs median  |  2/3 peers cheaper  |  floor: Crusoe $1.50
+`B300 ` Nebius $7.85  |  1 peer: Scaleway $8.70
+`L40S ` Nebius $1.82  +7% vs median  |  2/3 peers cheaper  |  floor: Crusoe $1.50
 
 *vs cheapest hyperscaler on-demand (8×SXM cluster, like-for-like):*
 `H100 ` Nebius $3.85  vs  AWS $6.88  →  Nebius 44% below
@@ -16,9 +16,9 @@
 
 *Spot / preemptible (vs cheapest hyperscaler spot, median of regional floors):*
 `H100 ` Nebius $2.15  vs  Azure $2.27 (median of 20 regional floors)  →  Nebius 5% below
-`H200 ` Nebius $2.45  vs  AWS $3.36 (median of 4 regional floors)  →  Nebius 27% below
-`B200 ` Nebius $3.95  vs  GCP $4.93 (median of 6 regional floors)  →  Nebius 20% below
-`B300 ` Nebius $4.30  vs  AWS $5.92 (median of 2 regional floors)  →  Nebius 27% below
+`H200 ` Nebius $2.45  vs  AWS $3.37 (median of 4 regional floors)  →  Nebius 27% below
+`B200 ` Nebius $3.95  vs  GCP $4.94 (median of 6 regional floors)  →  Nebius 20% below
+`B300 ` Nebius $4.30  vs  AWS $5.86 (median of 2 regional floors)  →  Nebius 27% below
 `L40S ` Nebius $0.90  |  no comparable hyperscaler spot (not offered, or newest-gen spot capacity not realistically available)
 _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across its regional floors (single-region dips excluded; region-grain proxy, not per-AZ)._
 
@@ -27,7 +27,7 @@ _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the chea
 `H100 ` lowest $1.95 (1yr, 0%) via GCP  |  -15% vs Nebius $2.30  [2 deals]
 `H200 ` lowest $2.10 (3mo, 0%) via Undisclosed Neocloud  |  no Nebius committed at this term · closest comparable: $3.10 (1yr, Inference.Ai) = +11% vs Nebius $2.80  [4 deals]
 `B200 ` lowest $3.50 (1yr, 100%) via Lai  |  -28% vs Nebius $4.89  [4 deals]
-`B300 ` lowest $3.08 (3yr, 20%) via Lightning AI  |  -32% vs Nebius $4.55  [20 deals]
+`B300 ` lowest $3.08 (3yr, 20%) via Lightning AI  |  -32% vs Nebius $4.55  [18 deals]
 `GB300` lowest $3.50 (3yr, 0%) via GCP  |  -33% vs Nebius $5.19  [7 deals]
 `VR   ` lowest $5.50 (3yr, 0%) via GCP  |  no Nebius committed at this term  [10 deals]
 _Deal-specific, anonymized; lower confidence than published list prices. Basis: Nebius = 512+ GPU tier at 100% upfront; most field deals are 0% prepay, so true like-for-like gaps are wider than shown. Evidence skews negative: AEs log competitor quotes and losses, wins are rarely posted._
@@ -46,8 +46,8 @@ _Signed reserve deals closed in the window (CRM deal reviews; autorenewals exclu
 
 
 *RTX PRO 6000 (inference / PAYG card) — vs RTX market:*
-`OD  ` Nebius $1.80  -17% vs market median $2.18  |  5/22 cheaper  |  floor: Aquanode $0.59
-`Spot` Nebius $0.95  vs market spot floor $0.33 (Azure, 3 providers)  →  Nebius +184%
+`OD  ` Nebius $1.80  -18% vs market median $2.19  |  5/22 cheaper  |  floor: Beam $0.13
+`Spot` Nebius $0.95  vs market spot floor $0.33 (Azure, 3 providers)  →  Nebius +186%
 `Comm` Nebius committed from $1.42  |  market committed from $0.55
 _RTX market = inference platforms and GPU clouds, plus AWS (g7e) and Azure (NC v6), which list the card since 2026 — not training-cluster peers._
 
@@ -55,11 +55,27 @@ _RTX market = inference platforms and GPU clouds, plus AWS (g7e) and Azure (NC v
 *Action flags (revenue-driver GPUs):*
 `H200 ` Headroom to hold or raise  |  mkt +0% / 30d
 `B200 ` Headroom to hold or raise  |  mkt +0% / 30d
-`B300 ` Headroom to hold or raise  |  mkt +0% / 19d
+`B300 ` Headroom to hold or raise  |  mkt +0% / 20d
 _Action = neutral pricing prompt (premium can be a deliberate hold); see Decision Triggers table in Confluence._
 
-_No significant price moves today (2 minor changes below 3% threshold)._
-_Jitter note: 2 move(s) excluded as oscillation back to a recent level (AWS B200; AWS B300) — source/FX artifact, not a repricing._
+*Price moves ≥3%:*
+🔺 *Atmoscompute Com* RTX6000 on-demand: $2.17→$3.16/GPU-hr (+45.6% global)
+🔺 *Atmoscompute Com* H100 on-demand: $6.01→$8.23/GPU-hr (+36.9% global)
+🔺 *Atmoscompute Com* B200 on-demand: $13.29→$16.98/GPU-hr (+27.8% global)
+🔻 *1Legion Com* H200 on-demand: $3.23→$2.49/GPU-hr (-22.9% global)
+🔻 *Azure* H100 spot: -16.0% avg across 3 SKUs (peak: $5.23→$4.18 westeurope, -20.0%)
+🔻 *Compute* H100 on-demand: $2.37→$1.93/GPU-hr (-18.5% global)
+🔺 *Compute* H200 spot: $1.57→$1.85/GPU-hr (+18.5% global)
+🔻 *Azure* RTX6000 spot: -12.0% avg across 4 SKUs (peak: $0.30→$0.26 westus2, -12.0%)
+🔺 *GCP* H100 spot: +7.9% avg across 12 SKUs (peak: $3.02→$3.32 us-east4, +10.0%)
+🔺 *GCP* B200 spot: +10.0% avg across 2 SKUs (peak: $4.47→$4.92 europe-west4, +10.0%)
+🔻 *1Legion Com* L40S on-demand: $0.77→$0.70/GPU-hr (-9.1% global)
+🔻 *Compute* H100 spot: $1.36→$1.25/GPU-hr (-8.5% global)
+🔺 *Compute* H200 on-demand: $2.72→$2.92/GPU-hr (+7.1% global)
+🔺 *GCP* H200 spot: +5.2% avg across 2 SKUs (peak: $5.84→$6.14 europe-west4, +5.3%)
+🔻 *GCP* H100 spot: $2.58→$2.45/GPU-hr (-5.0% asia-northeast1)
+_…and 2 more provider/GPU groups_
+_Jitter note: 18 move(s) excluded as oscillation back to a recent level (1Legion Com H100; AWS B200; AWS B300; Atmoscompute Com H200) — source/FX artifact, not a repricing._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
-_Data freshness: sfcompute cached (124h ago)_
+_Data freshness: sfcompute cached (148h ago)_
