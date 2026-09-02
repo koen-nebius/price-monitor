@@ -9,7 +9,35 @@ from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 
 from schema import PriceRecord, DiffEntry
-from config import provider_tier, ALERT_THRESHOLD_PCT, PROVIDER_TIERS
+from config import provider_tier, provider_tag, ALERT_THRESHOLD_PCT, PROVIDER_TIERS
+
+# Direct-fetcher serverless/managed platforms (Modal, Baseten). They sit in the
+# managed_inference tier — excluded from raw-compute peer math — but their
+# deliberate list-price moves ARE market signal, so the move surfaces admit them
+# explicitly (2026-09-02 Koen ask). Aggregator-sourced cp_* inference platforms
+# stay excluded from moves (stale relays, not primary sources).
+DIRECT_PLATFORM_PROVIDERS = ("modal", "baseten")
+
+# Tag → Confluence status-lozenge color for the market-sweep Tag column.
+_TAG_COLORS = {"peer": "blue", "hyperscaler": "purple",
+               "pricefighter": "grey", "platform": "yellow"}
+
+
+def _tag_cell(provider: str) -> str:
+    if provider == "nebius":
+        return "<td>—</td>"
+    tag = provider_tag(provider)
+    color = _TAG_COLORS.get(tag, "grey")
+    return f'<td><span data-type="status" data-color="{color}">{tag}</span></td>'
+
+
+def _prov_display(p: str) -> str:
+    """Module-level provider display name (same rules as the nested _pname
+    helpers used by the Slack renderers)."""
+    _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi", "ai"}
+    name = p.replace("cp_", "").replace("-", " ")
+    return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
+                    for w in name.split())
 from comparability import (enrich_comparability, is_cluster_class,
                            LOCAL_STORAGE_BUNDLED, LOCAL_STORAGE_VERIFIED,
                            local_storage_info)
@@ -1047,8 +1075,9 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
         d for d in diffs
         if d.change_type == "price_change"
         and d.provider != "nebius"
-        and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
-                                          "enterprise_gpu_cloud")
+        and (provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
+                                           "enterprise_gpu_cloud")
+             or d.provider in DIRECT_PLATFORM_PROVIDERS)
         and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
     ]
     if significant:
@@ -1271,8 +1300,9 @@ def _group_significant_moves(diffs: List[DiffEntry]) -> list:
         d for d in diffs
         if d.change_type == "price_change"
         and d.provider != "nebius"
-        and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
-                                          "enterprise_gpu_cloud")
+        and (provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
+                                           "enterprise_gpu_cloud")
+             or d.provider in DIRECT_PLATFORM_PROVIDERS)
         and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
     ]
     from collections import defaultdict as _dd
@@ -1294,6 +1324,8 @@ def _group_significant_moves(diffs: List[DiffEntry]) -> list:
             "tier_label": ("hyperscaler" if provider_tier(prov) == "hyperscaler"
                            else "major neocloud"
                            if prov.lower() in PROVIDER_TIERS.get("enterprise_gpu_cloud", [])
+                           else "platform"
+                           if prov.lower() in DIRECT_PLATFORM_PROVIDERS
                            else "small provider"),
         })
     out.sort(key=lambda g: -statistics.median([abs(d.delta_pct or 0)
@@ -2821,13 +2853,19 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
     # ── Section 3: Full peer price table by GPU ──────────────────────────────
     html.append('<h2>Complete Market Sweep — On-Demand by GPU</h2>')
     html.append(
-        '<p>All tracked raw GPU cloud providers sorted by price. Includes commodity spot rental '
-        'marketplaces (TensorDock, Vast.ai, RunPod, etc.) alongside enterprise GPU clouds — '
-        'use the Executive Benchmark table above for apples-to-apples enterprise comparisons. '
-        'Managed inference platforms (fal.ai, Deep Infra, Together AI) excluded — '
-        'per-token billing makes $/GPU-hr comparisons meaningless.</p>'
+        '<p>All tracked providers sorted by price, each tagged: '
+        '<span data-type="status" data-color="blue">peer</span> = enterprise GPU cloud '
+        '(the direct competitive set), '
+        '<span data-type="status" data-color="grey">pricefighter</span> = commodity '
+        'marketplaces / VPS generalists competing on price, '
+        '<span data-type="status" data-color="purple">hyperscaler</span> = AWS/GCP/Azure/Oracle '
+        'rack-rate list (enterprise customers pay 40–57% less at 3yr committed). '
+        'Use the Executive Benchmark table above for apples-to-apples enterprise comparisons. '
+        'Serverless/managed platforms (Modal, Baseten, fal.ai, Deep Infra) are in their own '
+        'section below — per-second platform billing is not IaaS-comparable.</p>'
     )
     html.append(_build_peer_tables(records))
+    html.append(_build_platform_section(records))
 
     # ── Section 3b: RTX PRO 6000 (2026-07-22: was thread-only, so the page had
     # no visible presence for a SKU Nebius actively sells — compute team asked
@@ -3354,16 +3392,19 @@ def _build_capacity_block_section(records: List[PriceRecord]) -> str:
 
 
 def _build_peer_tables(records: List[PriceRecord]) -> str:
-    """One table per GPU, rows = raw_gpu_cloud peers, sorted by price.
-    Deduplicated to cheapest per provider (multi-node-size providers like Lambda
-    list one row per node size; we show only the cheapest to avoid clutter).
+    """One table per GPU, rows = raw GPU clouds + hyperscalers, sorted by price,
+    each tagged (peer / pricefighter / hyperscaler). Hyperscalers included since
+    2026-09-02 (Koen: "for B300 I can't see any hyperscalers" — they were confined
+    to the exec table's single cheapest-hyperscaler cell). Deduplicated to
+    cheapest per provider (multi-node-size providers like Lambda list one row per
+    node size; we show only the cheapest to avoid clutter).
     """
     html = []
     for gpu in GPU_ORDER:
         raw_peers = [r for r in records
                      if r.gpu_model == gpu
                      and r.consumption_type == "on_demand"
-                     and provider_tier(r.provider) == "raw_gpu_cloud"]
+                     and provider_tier(r.provider) in ("raw_gpu_cloud", "hyperscaler")]
         # Deduplicate: keep cheapest record per provider
         best_by_prov: Dict[str, PriceRecord] = {}
         for r in raw_peers:
@@ -3374,10 +3415,10 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
         if not peers:
             continue
 
-        html.append(f'<h3>{gpu} — On-demand (raw GPU cloud, sorted by price)</h3>')
+        html.append(f'<h3>{gpu} — On-demand (all tracked providers, sorted by price)</h3>')
         html.append('<table data-layout="full-width"><tbody>')
         html.append(
-            '<tr><th>Provider</th><th>$/GPU-hr</th>'
+            '<tr><th>Provider</th><th>Tag</th><th>$/GPU-hr</th>'
             '<th>Node size</th><th>Region</th><th>vs Nebius</th></tr>'
         )
 
@@ -3385,7 +3426,7 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
             (r.price_per_gpu_hour_usd for r in peers if r.provider == "nebius"), None)
 
         for r in peers:
-            prov_display = r.provider.replace("cp_", "").replace("-", " ").title()
+            prov_display = _prov_display(r.provider)   # keeps AWS/GCP uppercase
             if r.provider == "nebius":
                 prov_display = f'<strong>Nebius ★</strong>'
 
@@ -3404,6 +3445,7 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
 
             html.append(
                 f'<tr><td>{prov_display}</td>'
+                f'{_tag_cell(r.provider)}'
                 f'<td><strong>${r.price_per_gpu_hour_usd:.2f}</strong></td>'
                 f'<td>{node_str}</td>'
                 f'<td>{r.region}</td>'
@@ -3411,6 +3453,102 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
             )
         html.append('</tbody></table>')
 
+        # Providers publishing this GPU ONLY as spot/interruptible would otherwise
+        # be invisible in this sweep (e.g. CoreWeave B300 spot $4.48 with no
+        # on-demand list — Koen's 2026-09-02 catch). Footnote them.
+        od_provs = set(best_by_prov)
+        spot_only: Dict[str, float] = {}
+        for r in records:
+            if (r.gpu_model == gpu
+                    and r.consumption_type in INTERRUPTIBLE_CTS
+                    and r.provider not in od_provs
+                    and r.provider != "nebius"
+                    and provider_tier(r.provider) in ("raw_gpu_cloud", "hyperscaler")):
+                if (r.provider not in spot_only
+                        or r.price_per_gpu_hour_usd < spot_only[r.provider]):
+                    spot_only[r.provider] = r.price_per_gpu_hour_usd
+        if spot_only:
+            shown = sorted(spot_only.items(), key=lambda kv: kv[1])[:6]
+            names = ", ".join(f"{_prov_display(p)} ${v:.2f}" for p, v in shown)
+            more = f" (+{len(spot_only) - 6} more)" if len(spot_only) > 6 else ""
+            html.append(
+                f'<p><em>Spot/interruptible-only public pricing for {gpu} '
+                f'(no on-demand list): {names}{more}. Not comparable to the '
+                f'on-demand rows above.</em></p>'
+            )
+
+    return "\n".join(html)
+
+
+# What each platform's $/GPU-hr equivalent actually buys — shown verbatim in the
+# platform table's Basis column (verified 2026-09-02 from provider pages).
+_PLATFORM_BASIS = {
+    "modal": "per-second serverless × 3600; CPU + RAM billed ON TOP",
+    "baseten": "per-minute dedicated deployment × 60; vCPU + RAM bundled",
+}
+
+
+def _build_platform_section(records: List[PriceRecord]) -> str:
+    """Serverless / managed platforms (Modal, Baseten direct fetchers + the
+    aggregator-sourced inference platforms): $/GPU-hr equivalents converted from
+    per-second / per-minute billing. Rendered as awareness data, tagged platform,
+    and NEVER folded into peer medians or exec positioning (2026-09-02 Koen ask:
+    "add Modal and Baseten to the tracked list")."""
+    plat = [r for r in records
+            if provider_tier(r.provider) == "managed_inference"
+            and r.consumption_type == "on_demand"
+            and r.gpu_model in GPU_ORDER]
+    if not plat:
+        return ""
+    best: Dict[tuple, PriceRecord] = {}
+    for r in plat:
+        k = (r.provider, r.gpu_model)
+        if k not in best or r.price_per_gpu_hour_usd < best[k].price_per_gpu_hour_usd:
+            best[k] = r
+
+    neb: Dict[str, float] = {}
+    for r in records:
+        if (r.provider == "nebius" and r.consumption_type == "on_demand"
+                and r.gpu_model not in neb):
+            neb[r.gpu_model] = r.price_per_gpu_hour_usd
+
+    html = [
+        '<h2>Serverless / Managed Platforms — $/GPU-hr Equivalents</h2>',
+        '<p>Platform rates converted to $/GPU-hr from per-second or per-minute '
+        'billing. These bundle orchestration/autoscaling — and some bill CPU/RAM '
+        'on top (see basis notes) — so they are <strong>not comparable</strong> to '
+        'raw IaaS cluster rates and are excluded from all peer medians and '
+        'position lines. Tracked because platform repricing is demand-side market '
+        'signal: platforms are among the largest GPU buyers, and their retail '
+        'rates set the ceiling on what raw compute can charge inference '
+        'workloads.</p>',
+        '<table data-layout="default"><tbody>',
+        '<tr><th>Provider</th><th>GPU</th><th>$/GPU-hr equiv.</th>'
+        '<th>vs Nebius on-demand</th><th>Basis</th></tr>',
+    ]
+    for (prov, gpu), r in sorted(
+            best.items(),
+            key=lambda kv: (GPU_ORDER.index(kv[0][1]),
+                            kv[1].price_per_gpu_hour_usd)):
+        prov_display = prov.replace("cp_", "").replace("-", " ").title()
+        nb = neb.get(gpu)
+        if nb:
+            diff = (r.price_per_gpu_hour_usd - nb) / nb * 100
+            sign = "+" if diff >= 0 else ""
+            loz = "green" if diff > 0 else "red"
+            vs_td = (f'<td><span data-type="status" data-color="{loz}">'
+                     f'{sign}{diff:.0f}%</span></td>')
+        else:
+            vs_td = '<td>—</td>'
+        basis = _PLATFORM_BASIS.get(prov, "aggregator-relayed platform rate")
+        html.append(
+            f'<tr><td>{prov_display}</td>'
+            f'<td><strong>{gpu}</strong></td>'
+            f'<td><strong>${r.price_per_gpu_hour_usd:.2f}</strong></td>'
+            f'{vs_td}'
+            f'<td><em>{basis}</em></td></tr>'
+        )
+    html.append('</tbody></table>')
     return "\n".join(html)
 
 

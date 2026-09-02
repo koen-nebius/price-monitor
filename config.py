@@ -110,7 +110,11 @@ AZURE_REGIONS = [
 PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices", "oracle", "hyperstack", "runpod", "sfcompute", "together",
              "vast_reserved",   # short-term reserved marketplace floor (see analysis/reserve_price_sources.md)
              "verda",           # ex-DataCrunch; only GB300 public API price besides Oracle (2026-08-11 research)
-             "aws_capacity_blocks"]  # published effective CB rates (reserved_short; B300 $14.04 etc.)
+             "aws_capacity_blocks",  # published effective CB rates (reserved_short; B300 $14.04 etc.)
+             "modal",           # serverless platform, direct fetcher (2026-09-02 Koen ask);
+                                # cp_modal stays SKIPPED in computeprices.py — the aggregator
+                                # misreads Modal's per-second rates as $/hr (H100 "$0.07")
+             "baseten"]         # managed inference platform, direct fetcher (2026-09-02 Koen ask)
 # SF Compute transacted fills need a free bearer token; only register the
 # provider when the token is present so quiet skips don't read as failures.
 import os as _os
@@ -199,6 +203,9 @@ PROVIDER_TIERS = {
     "managed_inference": [
         "cp_deep-infra", "cp_fal-ai", "cp_together-ai",
         "cp_hyperbolic", "cp_theta-edgecloud", "cp_salad",
+        "modal", "baseten",   # direct fetchers since 2026-09-02 (Koen ask); serverless/
+                              # managed platforms — excluded from raw-compute peer math,
+                              # rendered in their own platform section with caveats
     ],
 }
 
@@ -212,6 +219,44 @@ def provider_tier(provider: str) -> str:
     if p.startswith("cp_"):
         return "raw_gpu_cloud"
     return "unknown"
+
+
+# ---------------------------------------------------------------------------
+# Provider tags — the user-facing three-way market classification (Koen's ask,
+# 2026-09-02), rendered as a column in the Confluence market-sweep tables.
+# Coarser than PROVIDER_TIERS (which drives the comparison math):
+#   hyperscaler  — AWS / GCP / Azure / Oracle. Rack-rate list prices; real
+#                  enterprise price is 40-57% lower at 3yr committed.
+#   peer         — enterprise GPU clouds: the direct competitive set
+#                  (= the tier registry's enterprise_gpu_cloud list).
+#   pricefighter — commodity marketplaces, VPS generalists, and the aggregator
+#                  tail. Compete on price; not enterprise-SLA comparable.
+#   platform     — serverless / managed platforms (Modal, Baseten, fal.ai...):
+#                  per-second/per-minute billing with bundled orchestration.
+#                  Usually PRICIER than IaaS — the opposite of a pricefighter —
+#                  so they get their own tag rather than a wrong one.
+# Tags derive from PROVIDER_TIERS; PROVIDER_TAG_OVERRIDES wins for edge cases.
+# ---------------------------------------------------------------------------
+PROVIDER_TAG_OVERRIDES = {
+    "nebius": "peer",             # us — rendered with ★, excluded from tag medians
+    "nebius_committed": "peer",
+    "sfcompute": "pricefighter",  # spot-market exchange: price-discovery mechanism
+    "modal": "platform",          # direct fetcher (serverless, per-second billing)
+    "baseten": "platform",        # direct fetcher (dedicated deployments, per-minute)
+}
+
+
+def provider_tag(provider: str) -> str:
+    p = provider.lower()
+    if p in PROVIDER_TAG_OVERRIDES:
+        return PROVIDER_TAG_OVERRIDES[p]
+    if p in PROVIDER_TIERS["enterprise_gpu_cloud"]:
+        return "peer"
+    if p in PROVIDER_TIERS["hyperscaler"]:
+        return "hyperscaler"
+    if p in PROVIDER_TIERS["managed_inference"]:
+        return "platform"
+    return "pricefighter"
 
 # Alert threshold: only notify on Slack for price changes above this magnitude
 # Applied to raw_gpu_cloud + hyperscaler providers only.

@@ -634,6 +634,8 @@ PROVIDER_MODULES = {
     "sfcompute_fills": "sfcompute_fills",
     "verda": "verda",
     "aws_capacity_blocks": "aws_capacity_blocks",
+    "modal": "modal",
+    "baseten": "baseten",
 }
 
 

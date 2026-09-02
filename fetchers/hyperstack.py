@@ -154,15 +154,27 @@ def _parse_pricing(raw: str, now: str) -> List[PriceRecord]:
     ]
 
 
+# Largest public VM flavor per model (per-GPU rate is flat across sizes, so we
+# represent node scale like verda.py does). Verified 2026-09-02 from
+# hyperstack.cloud/gpu-pricing + docs flavors: B300's ONLY flavor is
+# n3-B300-SXM6x8 (8× SXM6) — the old hardcoded gpu_count=1 made these SXM cards
+# look like single-GPU VMs and silently dropped Hyperstack from the
+# cluster-class (8×SXM) peer set (why B300 showed "1 peer only").
+_MAX_NODE_GPUS = {"H100": 8, "H200": 8, "B200": 8, "B300": 8}
+
+
 def _make_record(gpu_model: str, ct: str, price: float, now: str) -> PriceRecord:
+    count = _MAX_NODE_GPUS.get(gpu_model, 1)
     return PriceRecord(
         provider="hyperstack",
         gpu_model=gpu_model,
-        gpu_count=1,
+        gpu_count=count,
+        # instance_type is part of record_key() — keep the historical string so
+        # the gpu_count fix doesn't fire fake removed/added diffs.
         instance_type=f"hyperstack-{gpu_model.lower()}",
         region="global",
         consumption_type=ct,
-        price_per_hour_usd=price,
+        price_per_hour_usd=round(price * count, 4),
         price_per_gpu_hour_usd=price,
         fetched_at=now,
         source_url=SOURCE_URL,
