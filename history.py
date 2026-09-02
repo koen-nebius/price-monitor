@@ -123,6 +123,19 @@ def rebuild() -> Path:
         all_rows.extend(rows)
         logger.info(f"  history: {day.isoformat()} → {len(rows)} rows")
 
+    # Preserve Wayback-backfilled rows (scripts/backfill_platform_history.py):
+    # they have NO date-stamped snapshot JSON behind them, so a naive rebuild
+    # would silently erase that history (Modal/Baseten 2024-2026).
+    if HISTORY_CSV.exists():
+        with open(HISTORY_CSV, newline="") as f:
+            backfill = [r for r in csv.DictReader(f)
+                        if r.get("data_source") == "web_scrape_backfill"]
+        if backfill:
+            all_rows.extend(backfill)
+            all_rows.sort(key=lambda r: (str(r.get("snapshot_date", "")),
+                                         str(r.get("provider", ""))))
+            logger.info(f"  history: preserved {len(backfill)} backfill rows")
+
     STORE_DIR.mkdir(parents=True, exist_ok=True)
     with open(HISTORY_CSV, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=COLUMNS)
