@@ -1,5 +1,5 @@
-<p><em>Last updated: September 01, 2026</em> — <strong>daily refreshed</strong> (point-in-time snapshot, not real-time). All prices in <strong>$/GPU-hr</strong>. Source: direct provider APIs/pages + <a href="https://computeprices.com">ComputePrices.com</a>.</p>
-<p><em>Data freshness: </em><span data-type="status" data-color="yellow">16/17 sources live</span><em> — stale: sfcompute cached 148h</em></p>
+<p><em>Last updated: September 02, 2026</em> — <strong>daily refreshed</strong> (point-in-time snapshot, not real-time). All prices in <strong>$/GPU-hr</strong>. Source: direct provider APIs/pages + <a href="https://computeprices.com">ComputePrices.com</a>.</p>
+<p><em>Data freshness: </em><span data-type="status" data-color="yellow">16/17 sources live</span><em> — stale: sfcompute cached 171h</em></p>
 <h2>TL;DR by Stakeholder</h2>
 <table data-layout="full-width"><tbody>
 <tr><th>For</th><th>Today's read</th><th>Detail in</th></tr>
@@ -15,7 +15,7 @@
 <tr><td><strong>H100</strong></td><td><strong>$3.85</strong></td><td>$3.90 <em>(Crusoe)</em></td><td><span data-type="status" data-color="green">-4% vs median</span></td><td>$6.88 <em>(AWS, SXM)</em></td><td>$3.99</td><td>4</td></tr>
 <tr><td><strong>H200</strong></td><td><strong>$4.50</strong></td><td>$4.29 <em>(Crusoe)</em></td><td><span data-type="status" data-color="green">-25% vs median</span></td><td>$7.91 <em>(AWS, SXM)</em></td><td>$5.99</td><td>3</td></tr>
 <tr><td><strong>B200</strong></td><td><strong>$7.15</strong></td><td>$6.69 <em>(Lambda)</em></td><td><span data-type="status" data-color="green">-13% vs median</span></td><td>$14.00 <em>(Oracle, SXM)</em></td><td>$8.19</td><td>3</td></tr>
-<tr><td><strong>B300</strong></td><td><strong>$7.85</strong></td><td>$8.70 <em>(Scaleway)</em></td><td><em>1 peer only — no median verdict</em></td><td>$15.00 <em>(Oracle, SXM)</em></td><td>$8.70</td><td>1</td></tr>
+<tr><td><strong>B300</strong></td><td><strong>$7.85</strong></td><td>$8.69 <em>(Scaleway)</em></td><td><em>1 peer only — no median verdict</em></td><td>$15.00 <em>(Oracle, SXM)</em></td><td>$8.69</td><td>1</td></tr>
 <tr><td><strong>GB200</strong></td><td>—</td><td>$8.00 <em>(GMI Cloud)</em></td><td>—</td><td>$16.00 <em>(Oracle, SXM)</em></td><td>$9.25</td><td>2</td></tr>
 <tr><td><strong>GB300</strong></td><td>—</td><td>—</td><td>—</td><td>$18.00 <em>(Oracle, SXM)</em></td><td>—</td><td>0</td></tr>
 <tr><td><strong>L40S</strong></td><td><strong>$1.82</strong></td><td>$1.50 <em>(Crusoe)</em></td><td><span data-type="status" data-color="yellow">+7% vs median</span></td><td>$1.86 <em>(AWS, PCIe)</em></td><td>$1.70</td><td>3</td></tr>
@@ -25,26 +25,15 @@
 <h2>Price Moves (since previous build)</h2>
 <table data-layout="default"><tbody>
 <tr><th>Provider</th><th>GPU</th><th>Type</th><th>Move</th><th>Peak SKU (old→new)</th><th>SKUs</th></tr>
-<tr><td><strong>Atmoscompute Com</strong></td><td>RTX6000</td><td>on-demand</td><td>▲ +45.6%</td><td>$2.17 → $3.16 <em>(global, +45.6%)</em></td><td>1</td></tr>
-<tr><td><strong>Atmoscompute Com</strong></td><td>H100</td><td>on-demand</td><td>▲ +36.9%</td><td>$6.01 → $8.23 <em>(global, +36.9%)</em></td><td>1</td></tr>
-<tr><td><strong>Atmoscompute Com</strong></td><td>B200</td><td>on-demand</td><td>▲ +27.8%</td><td>$13.29 → $16.98 <em>(global, +27.8%)</em></td><td>1</td></tr>
-<tr><td><strong>1Legion Com</strong></td><td>H200</td><td>on-demand</td><td>▼ -22.9%</td><td>$3.23 → $2.49 <em>(global, -22.9%)</em></td><td>1</td></tr>
-<tr><td><strong>Azure</strong></td><td>H100</td><td>spot</td><td>▼ -16.0% avg / 3 SKUs</td><td>$5.23 → $4.18 <em>(westeurope, -20.0%)</em></td><td>3</td></tr>
-<tr><td><strong>Compute</strong></td><td>H100</td><td>on-demand</td><td>▼ -18.5%</td><td>$2.37 → $1.93 <em>(global, -18.5%)</em></td><td>1</td></tr>
-<tr><td><strong>Compute</strong></td><td>H200</td><td>spot</td><td>▲ +18.5%</td><td>$1.57 → $1.85 <em>(global, +18.5%)</em></td><td>1</td></tr>
-<tr><td><strong>Azure</strong></td><td>RTX6000</td><td>spot</td><td>▼ -12.0% avg / 4 SKUs</td><td>$0.30 → $0.26 <em>(westus2, -12.0%)</em></td><td>4</td></tr>
-<tr><td><strong>GCP</strong></td><td>H100</td><td>spot</td><td>▲ +7.9% avg / 12 SKUs</td><td>$3.02 → $3.32 <em>(us-east4, +10.0%)</em></td><td>12</td></tr>
-<tr><td><strong>GCP</strong></td><td>B200</td><td>spot</td><td>▲ +10.0% avg / 2 SKUs</td><td>$4.47 → $4.92 <em>(europe-west4, +10.0%)</em></td><td>2</td></tr>
-<tr><td><strong>1Legion Com</strong></td><td>L40S</td><td>on-demand</td><td>▼ -9.1%</td><td>$0.77 → $0.70 <em>(global, -9.1%)</em></td><td>1</td></tr>
-<tr><td><strong>Compute</strong></td><td>H100</td><td>spot</td><td>▼ -8.5%</td><td>$1.36 → $1.25 <em>(global, -8.5%)</em></td><td>1</td></tr>
-<tr><td><strong>Compute</strong></td><td>H200</td><td>on-demand</td><td>▲ +7.1%</td><td>$2.72 → $2.92 <em>(global, +7.1%)</em></td><td>1</td></tr>
-<tr><td><strong>GCP</strong></td><td>H200</td><td>spot</td><td>▲ +5.2% avg / 2 SKUs</td><td>$5.84 → $6.14 <em>(europe-west4, +5.3%)</em></td><td>2</td></tr>
-<tr><td><strong>GCP</strong></td><td>H100</td><td>spot</td><td>▼ -5.0%</td><td>$2.58 → $2.45 <em>(asia-northeast1, -5.0%)</em></td><td>1</td></tr>
-<tr><td><strong>GCP</strong></td><td>B200</td><td>spot</td><td>▼ -5.0% avg / 2 SKUs</td><td>$1.81 → $1.72 <em>(us-west4, -5.0%)</em></td><td>2</td></tr>
-<tr><td><strong>GCP</strong></td><td>L4</td><td>spot</td><td>▲ +5.0% avg / 2 SKUs</td><td>$0.38 → $0.40 <em>(europe-west3, +5.0%)</em></td><td>2</td></tr>
+<tr><td><strong>Lium</strong></td><td>H200</td><td>on-demand</td><td>▲ +31.9%</td><td>$3.20 → $4.22 <em>(global, +31.9%)</em></td><td>1</td></tr>
+<tr><td><strong>1Legion Com</strong></td><td>L40S</td><td>committed/reserved 1yr</td><td>▼ -11.4%</td><td>$0.70 → $0.62 <em>(global, -11.4%)</em></td><td>1</td></tr>
+<tr><td><strong>1Legion Com</strong></td><td>RTX6000</td><td>committed/reserved 1yr</td><td>▼ -11.2%</td><td>$1.34 → $1.19 <em>(global, -11.2%)</em></td><td>1</td></tr>
+<tr><td><strong>1Legion Com</strong></td><td>H100</td><td>committed/reserved 1yr</td><td>▼ -8.3%</td><td>$2.40 → $2.20 <em>(global, -8.3%)</em></td><td>1</td></tr>
+<tr><td><strong>1Legion Com</strong></td><td>H200</td><td>committed/reserved 1yr</td><td>▼ -5.2%</td><td>$2.49 → $2.36 <em>(global, -5.2%)</em></td><td>1</td></tr>
+<tr><td><strong>Azure</strong></td><td>H100</td><td>spot</td><td>▲ +5.0%</td><td>$4.71 → $4.94 <em>(westus3, +5.0%)</em></td><td>1</td></tr>
 </tbody></table>
 <p><em>Moves are competitor list-price changes ≥3% vs the previous data build (normally ~24h apart), grouped by provider/GPU/type; direction is not scored as good or bad. Nebius repricing is announced separately, never mixed into this list.</em></p>
-<p><em>Jitter note: 18 move(s) excluded as oscillation back to a recent level (1Legion Com H100; AWS B200; AWS B300; Atmoscompute Com H200; Azure RTX6000; Gcore B300) — a source/currency-conversion artifact, not a repricing (e.g. EUR-priced providers relayed through an aggregator FX layer).</em></p>
+<p><em>Jitter note: 3 move(s) excluded as oscillation back to a recent level (AWS B200; Lium B300; Sesterce H100) — a source/currency-conversion artifact, not a repricing (e.g. EUR-priced providers relayed through an aggregator FX layer).</em></p>
 <h2>Decision Triggers — Pricing / Finance</h2>
 <p>Per-GPU competitive position with a recommended action. <strong>Neutral framing:</strong> a premium to the market can be a deliberate, defensible position; these triggers prompt a pricing decision, they do not assume lower is better. Owner / review-by / margin-risk are for the pricing team to fill (margin/cost data is out of this tool's scope and never auto-populated).</p>
 <table data-layout="full-width"><tbody>
@@ -52,7 +41,7 @@
 <tr><td><strong>H100</strong></td><td>$3.85</td><td><span data-type="status" data-color="green">-4%</span></td><td>$3.90 <em>(Crusoe)</em></td><td>$6.88 <em>(AWS)</em></td><td>$1.95 <em>(1yr, GCP)</em></td><td><span data-type="status" data-color="green">+0% / 30d</span></td><td>Hold; monitor</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 <tr><td><strong>H200</strong></td><td>$4.50</td><td><span data-type="status" data-color="green">-25%</span></td><td>$4.29 <em>(Crusoe)</em></td><td>$7.91 <em>(AWS)</em></td><td>$2.10 <em>(3mo, Undisclosed Neocloud)</em></td><td><span data-type="status" data-color="green">+0% / 30d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 <tr><td><strong>B200</strong></td><td>$7.15</td><td><span data-type="status" data-color="green">-13%</span></td><td>$6.69 <em>(Lambda)</em></td><td>$14.00 <em>(Oracle)</em></td><td>$3.50 <em>(1yr, Lai)</em></td><td><span data-type="status" data-color="green">+0% / 30d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
-<tr><td><strong>B300</strong></td><td>$7.85</td><td><span data-type="status" data-color="green">-10%</span></td><td>$8.70 <em>(Scaleway)</em></td><td>$15.00 <em>(Oracle)</em></td><td>$3.08 <em>(3yr, Lightning AI)</em> <span data-type="status" data-color="red">lost deal 2026-06-12</span></td><td><span data-type="status" data-color="green">+0% / 20d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
+<tr><td><strong>B300</strong></td><td>$7.85</td><td><span data-type="status" data-color="green">-10%</span></td><td>$8.69 <em>(Scaleway)</em></td><td>$15.00 <em>(Oracle)</em></td><td>$3.08 <em>(3yr, Lightning AI)</em> <span data-type="status" data-color="red">lost deal 2026-06-12</span></td><td><span data-type="status" data-color="green">+0% / 21d</span></td><td>Headroom to hold or raise</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 <tr><td><strong>L40S</strong></td><td>$1.82</td><td><span data-type="status" data-color="yellow">+7%</span></td><td>$1.50 <em>(Crusoe)</em></td><td>$1.86 <em>(AWS)</em></td><td>—</td><td><span data-type="status" data-color="green">+0% / 30d</span></td><td>Hold; monitor (watch hyperscaler parity)</td><td><em>Pricing PM</em></td><td>—</td><td>—</td></tr>
 </tbody></table>
 <p><em>Market 30d = change in the cheapest enterprise-peer on-demand price over the last 30 days (90d trend appears once ≥90 days of history accrues). "Cheapest hyperscaler" is the like-for-like 8×SXM cluster SKU. "Competitor field deal" is the lowest real negotiated quote from #price-intelligence (term shown; may be committed, not on-demand) — the primary signal for next-gen GPUs where public list prices are sparse.</em></p>
@@ -113,6 +102,7 @@
 <tr><td><strong>H100</strong></td><td>AWS Capacity Blocks (published)</td><td><strong>$4.72</strong></td><td>8× GPU</td><td>us</td><td>$2.54</td><td>$2.15</td></tr>
 <tr><td><strong>H100</strong></td><td>Lambda 1-Click Cluster (2wk-1yr)</td><td><strong>$5.54</strong></td><td>256× GPU</td><td>us</td><td>$2.54</td><td>$2.15</td></tr>
 <tr><td><strong>H200</strong></td><td>AWS Capacity Blocks (published)</td><td><strong>$5.97</strong></td><td>8× GPU</td><td>us</td><td>$3.09</td><td>$2.45</td></tr>
+<tr><td><strong>B200</strong></td><td>Vast.ai reserved offer</td><td><strong>$5.31</strong></td><td>1× GPU</td><td>Oregon, US</td><td>—</td><td>$3.95</td></tr>
 <tr><td><strong>B200</strong></td><td>Lambda 1-Click Cluster (2wk-1yr)</td><td><strong>$8.87</strong></td><td>256× GPU</td><td>us</td><td>—</td><td>$3.95</td></tr>
 <tr><td><strong>B200</strong></td><td>AWS Capacity Blocks (published)</td><td><strong>$12.36</strong></td><td>8× GPU</td><td>US East (Ohio)</td><td>—</td><td>$3.95</td></tr>
 <tr><td><strong>B300</strong></td><td>AWS Capacity Blocks (published)</td><td><strong>$14.04</strong></td><td>8× GPU</td><td>US East (Atlanta) Local Zone</td><td>—</td><td>$4.30</td></tr>
@@ -158,6 +148,7 @@
 <tr><td>Gmi Cloud</td><td><strong>$2.00</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-48%</span></td></tr>
 <tr><td>Upcloud</td><td><strong>$2.07</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-46%</span></td></tr>
 <tr><td>Gpuoutlet</td><td><strong>$2.15</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-44%</span></td></tr>
+<tr><td>Sesterce</td><td><strong>$2.19</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-43%</span></td></tr>
 <tr><td>Seeweb</td><td><strong>$2.19</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-43%</span></td></tr>
 <tr><td>Vultr</td><td><strong>$2.30</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-40%</span></td></tr>
 <tr><td>1Legion Com</td><td><strong>$2.40</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-38%</span></td></tr>
@@ -170,7 +161,6 @@
 <tr><td>Omegagradient</td><td><strong>$2.62</strong></td><td>2× GPU</td><td>global</td><td><span data-type="status" data-color="red">-32%</span></td></tr>
 <tr><td>Jarvis</td><td><strong>$2.69</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-30%</span></td></tr>
 <tr><td>Massedcompute</td><td><strong>$2.73</strong></td><td>2× GPU</td><td>global</td><td><span data-type="status" data-color="red">-29%</span></td></tr>
-<tr><td>Sesterce</td><td><strong>$2.75</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-29%</span></td></tr>
 <tr><td>Runcrate</td><td><strong>$2.75</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-29%</span></td></tr>
 <tr><td>Runpod</td><td><strong>$2.89</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-25%</span></td></tr>
 <tr><td>Atlas Cloud</td><td><strong>$2.95</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-23%</span></td></tr>
@@ -183,9 +173,9 @@
 <tr><td>Oblivus</td><td><strong>$3.50</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-9%</span></td></tr>
 <tr><td>Lyceum Technology</td><td><strong>$3.59</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-7%</span></td></tr>
 <tr><td>Acecloud</td><td><strong>$3.63</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-6%</span></td></tr>
-<tr><td>Ionet</td><td><strong>$3.79</strong></td><td>2× GPU</td><td>global</td><td><span data-type="status" data-color="red">-2%</span></td></tr>
 <tr><td><strong>Nebius ★</strong></td><td><strong>$3.85</strong></td><td>1× GPU</td><td>eu-north1</td><td>—</td></tr>
 <tr><td>Crusoe</td><td><strong>$3.90</strong></td><td>1× GPU</td><td>us-east</td><td><span data-type="status" data-color="green">+1%</span></td></tr>
+<tr><td>Ionet</td><td><strong>$3.99</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+4%</span></td></tr>
 <tr><td>Together</td><td><strong>$3.99</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="green">+4%</span></td></tr>
 <tr><td>Digitalocean</td><td><strong>$4.41</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+15%</span></td></tr>
 <tr><td>Paperspace</td><td><strong>$5.95</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+55%</span></td></tr>
@@ -199,9 +189,8 @@
 <tr><td>1Legion Com</td><td><strong>$2.49</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-45%</span></td></tr>
 <tr><td>Gmi Cloud</td><td><strong>$2.60</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-42%</span></td></tr>
 <tr><td>Compute</td><td><strong>$2.92</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-35%</span></td></tr>
-<tr><td>Seeweb</td><td><strong>$3.02</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-33%</span></td></tr>
-<tr><td>Gcore</td><td><strong>$3.17</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-30%</span></td></tr>
-<tr><td>Lium</td><td><strong>$3.20</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-29%</span></td></tr>
+<tr><td>Seeweb</td><td><strong>$3.01</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-33%</span></td></tr>
+<tr><td>Gcore</td><td><strong>$3.16</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-30%</span></td></tr>
 <tr><td>Omegagradient</td><td><strong>$3.36</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-25%</span></td></tr>
 <tr><td>Civo</td><td><strong>$3.49</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-22%</span></td></tr>
 <tr><td>Atlas Cloud</td><td><strong>$3.50</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-22%</span></td></tr>
@@ -215,6 +204,7 @@
 <tr><td>Hyperstack</td><td><strong>$3.99</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-11%</span></td></tr>
 <tr><td>Gpuoutlet</td><td><strong>$4.00</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-11%</span></td></tr>
 <tr><td>Verda</td><td><strong>$4.00</strong></td><td>8× GPU</td><td>fi-01</td><td><span data-type="status" data-color="red">-11%</span></td></tr>
+<tr><td>Lium</td><td><strong>$4.22</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-6%</span></td></tr>
 <tr><td>Crusoe</td><td><strong>$4.29</strong></td><td>1× GPU</td><td>us-east</td><td><span data-type="status" data-color="red">-5%</span></td></tr>
 <tr><td>Ionet</td><td><strong>$4.34</strong></td><td>4× GPU</td><td>global</td><td><span data-type="status" data-color="red">-3%</span></td></tr>
 <tr><td>Acecloud</td><td><strong>$4.34</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-3%</span></td></tr>
@@ -256,16 +246,16 @@
 <tr><td>Gpuoutlet</td><td><strong>$5.90</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-25%</span></td></tr>
 <tr><td>1Legion Com</td><td><strong>$6.00</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-24%</span></td></tr>
 <tr><td>Massedcompute</td><td><strong>$6.60</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-16%</span></td></tr>
-<tr><td>Gcore</td><td><strong>$6.96</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-11%</span></td></tr>
+<tr><td>Gcore</td><td><strong>$6.95</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="red">-11%</span></td></tr>
 <tr><td>Hyperstack</td><td><strong>$7.40</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-6%</span></td></tr>
+<tr><td>Lium</td><td><strong>$7.50</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="red">-4%</span></td></tr>
 <tr><td>Verda</td><td><strong>$7.50</strong></td><td>8× GPU</td><td>fi-01</td><td><span data-type="status" data-color="red">-4%</span></td></tr>
 <tr><td><strong>Nebius ★</strong></td><td><strong>$7.85</strong></td><td>1× GPU</td><td>eu-north1</td><td>—</td></tr>
 <tr><td>Aquanode</td><td><strong>$7.89</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+1%</span></td></tr>
 <tr><td>Runpod</td><td><strong>$7.89</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+1%</span></td></tr>
 <tr><td>Latitude</td><td><strong>$8.00</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="green">+2%</span></td></tr>
 <tr><td>Lyceum Technology</td><td><strong>$8.49</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+8%</span></td></tr>
-<tr><td>Lium</td><td><strong>$8.50</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+8%</span></td></tr>
-<tr><td>Scaleway</td><td><strong>$8.70</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="green">+11%</span></td></tr>
+<tr><td>Scaleway</td><td><strong>$8.69</strong></td><td>8× GPU</td><td>global</td><td><span data-type="status" data-color="green">+11%</span></td></tr>
 <tr><td>Runcrate</td><td><strong>$8.70</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+11%</span></td></tr>
 <tr><td>Digitalocean</td><td><strong>$11.19</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+43%</span></td></tr>
 <tr><td>Atmoscompute Com</td><td><strong>$37.51</strong></td><td>1× GPU</td><td>global</td><td><span data-type="status" data-color="green">+378%</span></td></tr>
@@ -367,7 +357,7 @@
 <tr><th>Geography</th><th>Nebius*</th><th>AWS</th><th>GCP</th><th>AZURE</th><th>COREWEAVE</th><th>LAMBDA</th><th>CRUSOE</th><th>Oracle†</th></tr>
 <tr><td><strong>US</strong></td><td><strong>$2.45</strong></td><td>$3.29</td><td>$5.38</td><td>$10.60</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 <tr><td><strong>Europe</strong></td><td><strong>$2.45</strong></td><td>—</td><td>$6.14</td><td>$12.72</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-<tr><td><strong>APAC</strong></td><td><strong>$2.45</strong></td><td>$3.73</td><td>—</td><td>$13.25</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><strong>APAC</strong></td><td><strong>$2.45</strong></td><td>$3.74</td><td>—</td><td>$13.25</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 </tbody></table>
 <h4>Reserved / Committed 1 yr</h4>
 <table data-layout="full-width"><tbody>
@@ -560,4 +550,4 @@
 <tr><td>2026-07-01</td><td>Undisclosed</td><td><strong>$7.00</strong></td><td>3yr</td><td>0% / monthly</td><td>—</td><td><em>3yr VR quote >$7; lost to GCP at $5.50</em></td></tr>
 <tr><td>2026-06-15</td><td>Undisclosed neocloud</td><td><strong>$5.60</strong></td><td>3yr</td><td>20% upfront</td><td>—</td><td><em>Vera Rubin Clustermax Gold-Tier+ quotes $5.60-$5.90 range</em></td></tr>
 </tbody></table>
-<p><em>Generated 2026-09-01 06:19 UTC · build #113 (<a href="https://github.com/koen-nebius/price-monitor/actions/runs/33477003663">run log</a>) · parser v2.1 · data date September 01, 2026. Numbers are point-in-time public list prices unless marked as field intel; confidence and freshness caveats appear inline per section.</em></p>
+<p><em>Generated 2026-09-02 05:58 UTC · build #114 (<a href="https://github.com/koen-nebius/price-monitor/actions/runs/33596760960">run log</a>) · parser v2.1 · data date September 02, 2026. Numbers are point-in-time public list prices unless marked as field intel; confidence and freshness caveats appear inline per section.</em></p>

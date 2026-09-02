@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-09-01",
-  "started_at": "2026-09-01T06:18:05.436541+00:00",
-  "completed_at": "2026-09-01T06:19:58.838943+00:00",
+  "run_date": "2026-09-02",
+  "started_at": "2026-09-02T05:57:16.814391+00:00",
+  "completed_at": "2026-09-02T05:58:45.852457+00:00",
   "status": "partial",
-  "record_count": 1318,
-  "raw_record_count": 1318,
-  "anomaly_count": 4,
+  "record_count": 1322,
+  "raw_record_count": 1322,
+  "anomaly_count": 2,
   "quarantined_count": 0,
-  "diff_count": 76,
+  "diff_count": 19,
   "failed_providers": [],
   "stale_providers": [
     "sfcompute"
@@ -47,7 +47,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 185
+      "record_count": 188
     },
     "oracle": {
       "status": "live",
@@ -64,7 +64,7 @@
     "sfcompute": {
       "status": "cache",
       "record_count": 1,
-      "cache_age_hours": 147.6
+      "cache_age_hours": 171.3
     },
     "together": {
       "status": "live",
@@ -72,7 +72,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 2
+      "record_count": 3
     },
     "verda": {
       "status": "live",
@@ -134,7 +134,7 @@
     },
     "sfcompute": {
       "status": "cached",
-      "age_hours": 147.6
+      "age_hours": 171.3
     },
     "together": {
       "status": "live",
@@ -154,18 +154,15 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 70 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
-    "cp_atmoscompute-com RTX6000 on_demand: $2.17 \u2192 $3.16 (+45.6%) \u26a0 price anomaly",
+    "Nebius committed prices last verified 71 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
     "cp_beam L40S on_demand: $0.09/GPU-hr \u26a0 implausibly low price",
     "cp_beam RTX6000 on_demand: $0.13/GPU-hr \u26a0 implausibly low price",
-    "cp_gpuoutlet L40S on_demand: $1.37 \u2192 $0.69 (-49.6%) \u26a0 price anomaly",
-    "cross-check: gcp B200 on-demand: ours $16.11 (api) vs ComputePrices $8.05 (50% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $0.99 (api) vs ComputePrices $0.79 (20% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
   "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 7,
+  "significant_moves": 5,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
