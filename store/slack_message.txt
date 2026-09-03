@@ -1,7 +1,7 @@
-*GPU Pricing Daily — September 02, 2026*
+*GPU Pricing Daily — September 03, 2026*
 
-*Changed in 24h:* Azure raised H100 spot +5% ($4.71→$4.94) · 5 small-provider moves in thread
+*Changed in 24h:* Together cut H100 on-demand -50% ($3.99→$1.99) · 5 more major-provider moves + 6 small-provider moves in thread
 
-*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 11w) and below cluster-peer median (H100, H200, B200); B300 -10% vs Scaleway (sole public cluster-peer list). RTX PRO 6000 -18% vs RTX market median (22 providers).
+*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 11w). RTX PRO 6000 -18% vs RTX market median (24 providers).
 
 Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>
