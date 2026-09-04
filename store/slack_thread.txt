@@ -1,10 +1,10 @@
-*GPU Competitor Pricing — September 03, 2026*
+*GPU Competitor Pricing — September 04, 2026*
 
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -1% vs median  |  2/5 peers cheaper  |  floor: Together $1.99
 `H200 ` Nebius $4.50  +9% vs median  |  3/4 peers cheaper  |  floor: Together $2.99
 `B200 ` Nebius $7.15  +13% vs median  |  3/4 peers cheaper  |  floor: Together $4.09
-`B300 ` Nebius $7.85  -2% vs median  |  1/2 peers cheaper  |  floor: Hyperstack $7.40
+`B300 ` Nebius $7.85  -3% vs median  |  1/2 peers cheaper  |  floor: Hyperstack $7.40
 `L40S ` Nebius $1.82  +7% vs median  |  2/3 peers cheaper  |  floor: Crusoe $1.50
 
 *vs cheapest hyperscaler on-demand (8×SXM cluster, like-for-like):*
@@ -46,25 +46,21 @@ _Signed reserve deals closed in the window (CRM deal reviews; autorenewals exclu
 
 
 *RTX PRO 6000 (inference / PAYG card) — vs RTX market:*
-`OD  ` Nebius $1.80  -18% vs market median $2.19  |  5/24 cheaper  |  floor: Beam $0.13
+`OD  ` Nebius $1.80  -18% vs market median $2.19  |  4/23 cheaper  |  floor: Beam $0.13
 `Spot` Nebius $0.95  vs market spot floor $0.33 (Azure, 3 providers)  →  Nebius +186%
 `Comm` Nebius committed from $1.42  |  market committed from $0.55
 _RTX market = inference platforms and GPU clouds, plus AWS (g7e) and Azure (NC v6), which list the card since 2026 — not training-cluster peers._
 
 *Price moves ≥3%:*
-🔺 *Atmoscompute Com* L40S on-demand: $1.25→$2.48/GPU-hr (+98.4% global)
-🔻 *Together AI* H100 on-demand: $3.99→$1.99/GPU-hr (-50.1% global)
-🔻 *Together AI* H200 on-demand: $5.99→$2.99/GPU-hr (-50.1% global)
-🔻 *Together AI* B200 on-demand: $8.19→$4.09/GPU-hr (-50.1% global)
-🔻 *Together AI* B200 committed/reserved: $7.79→$4.09/GPU-hr (-47.5% global)
-🔻 *Together AI* H100 committed/reserved: $3.45→$1.99/GPU-hr (-42.3% global)
-🔻 *Together AI* H200 committed/reserved: $4.15→$2.99/GPU-hr (-28.0% global)
-🔻 *Atmoscompute Com* H100 on-demand: $8.23→$7.23/GPU-hr (-12.2% global)
-🔻 *Atmoscompute Com* B200 on-demand: $16.98→$15.03/GPU-hr (-11.5% global)
-🔺 *Atmoscompute Com* H200 on-demand: $9.01→$9.94/GPU-hr (+10.3% global)
-🔻 *Lium* B300 on-demand: $7.50→$7.00/GPU-hr (-6.7% global)
-🔺 *Atmoscompute Com* RTX6000 on-demand: $3.16→$3.34/GPU-hr (+5.7% global)
-_Jitter note: 15 move(s) excluded as oscillation back to a recent level (AWS B200; AWS B300; AWS H200; Gcore B300) — source/FX artifact, not a repricing._
+🔻 *Lium* H200 on-demand: $4.21→$3.25/GPU-hr (-22.8% global)
+🔺 *Aquanode* B200 on-demand: $6.06→$6.79/GPU-hr (+12.0% global)
+🔺 *Runpod* L40S on-demand: $0.99→$1.09/GPU-hr (+10.1% global)
+🔺 *Runpod* L40S spot: $0.99→$1.09/GPU-hr (+10.1% global)
+🔺 *Atmoscompute Com* L40S on-demand: $2.48→$2.73/GPU-hr (+10.1% global)
+🔻 *Atmoscompute Com* B200 on-demand: $15.03→$14.09/GPU-hr (-6.3% global)
+🔺 *Runpod* H100 on-demand: $3.29→$3.49/GPU-hr (+6.1% global)
+🔺 *Runpod* H100 spot: $3.29→$3.49/GPU-hr (+6.1% global)
+_Jitter note: 21 move(s) excluded as oscillation back to a recent level (1Legion Com H100; 1Legion Com H200; 1Legion Com L40S; 1Legion Com RTX6000) — source/FX artifact, not a repricing._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
-_Data freshness: sfcompute cached (195h ago)_
+_Data freshness: sfcompute cached (219h ago)_

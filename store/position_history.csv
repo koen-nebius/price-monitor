@@ -168,3 +168,11 @@ date,gpu,basis,gap_pct
 2026-09-03,H100,peer_median,-1.28
 2026-09-03,H200,hyperscaler,-43.12
 2026-09-03,H200,peer_median,8.70
+2026-09-04,B200,hyperscaler,-48.93
+2026-09-04,B200,peer_median,12.69
+2026-09-04,B300,hyperscaler,-47.67
+2026-09-04,B300,peer_median,-2.55
+2026-09-04,H100,hyperscaler,-44.04
+2026-09-04,H100,peer_median,-1.28
+2026-09-04,H200,hyperscaler,-43.12
+2026-09-04,H200,peer_median,8.70
