@@ -1,6 +1,7 @@
-*GPU Capacity Daily — Thursday 03 Sep 2026*
-*Heads-up (pricing):* Lambda H100 sold out in all its regions (per Lambda's API)
+*GPU Capacity Daily — Friday 04 Sep 2026*
+*Heads-up (pricing):* Verda H100 sold out in all its regions (per Verda's API)
 
 • *Competitor 8x node stock:* H100 at 3/7 live sources · H200 1/4 · B200 1/4 · B300 0/4
-• *Market:* SF Compute H100 clearing price $2.26 (short-term reserve market) · Vast H100 73 GPUs listed, cheapest $1.34 (marketplace)
+• *Moved:* Lambda H100 restocked 1x only · Verda H200 restocked 1x only _(all own APIs)_
+• *Market:* SF Compute H100 clearing price $2.27 (short-term reserve market) · Vast H100 72 GPUs listed, cheapest $1.34 (marketplace)
 _Feeds: all 17 live · 1 awaiting access_ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/2164457614/GPU+Competitor+Capacity+%E2%80%94+Live+Overview|matrix · battlecard · method>
