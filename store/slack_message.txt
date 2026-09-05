@@ -1,7 +1,7 @@
-*GPU Pricing Daily — September 04, 2026*
+*GPU Pricing Daily — September 05, 2026*
 
-*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Lium H200 on-demand -23% · 7 small-provider moves in thread
+*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Runcrate H100 on-demand -20% · 1 small-provider move — detail in Confluence
 
 *Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 11w). RTX PRO 6000 -18% vs RTX market median (23 providers).
 
-Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>
+Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>
