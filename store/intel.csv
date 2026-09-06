@@ -169,3 +169,4 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1788414848.955649,2026-09-03,B300,6.50,3,0,neocloud,IREN,200xB300 3mo Oct start; IREN claims resold Nebius infra
 1788466826.629979,2026-09-03,B300,5.05,12,30,neocloud,CoreWeave,1024xB300 1yr w/ 1152xVR 5yr 30% prepay package
 1788466826.629979,2026-09-03,VR,7.35,60,30,neocloud,CoreWeave,1152xVR 5yr w/ 1024xB300 1yr 30% prepay package
+1788540957.926409,2026-09-04,B300,6.50,3,0,broker,Ornn,256xB300 3mo Paris DC; corr of 1788414848 (Ornn not IREN)
