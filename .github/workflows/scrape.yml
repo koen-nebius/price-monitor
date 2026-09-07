@@ -1,5 +1,7 @@
 name: Scrape peer pricing
 # 2026-07-10: posting routine is write-free; intel merges via the Confluence inbox (Plan-2).
+# 2026-09-07: this job also publishes both Confluence pages (see step below);
+#             the routine only posts Slack + extracts field intel.
 
 # Runs at 01:23 UTC — WELL BEFORE the CCR posting routine (07:00 UTC).
 # GitHub Actions runners use GitHub's own IPs, which are NOT blocked by the
@@ -96,6 +98,21 @@ jobs:
         # this also updates store/provider_baseline.json (committed below).
         run: python3 check_manifest.py
 
+      - name: Publish daily pages to Confluence (soft-fail)
+        # 2026-09-07: moved here from the 07:00 posting routine (its step 3e).
+        # confluence_body.html is ~96 KB (~38K tokens); the routine had to emit
+        # it as one MCP tool-call argument, which exceeds Claude Code's 32K
+        # output-token cap -> the routine failed daily from 2026-08-25. Same
+        # Basic-auth REST path the capacity build uses. Runs only after the
+        # publish gate above passed; HTML+ lozenges/panels are converted to
+        # storage-format macros (confluence_storage.py). Writes
+        # store/confluence_publish.json, which the routine reads and reports.
+        continue-on-error: true
+        env:
+          CONFLUENCE_EMAIL: ${{ secrets.CONFLUENCE_EMAIL }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+        run: python3 scripts/publish_confluence_pages.py
+
       - name: Publish storage page to Confluence
         # Sibling page published straight from the data build (storage moves
         # ~quarterly; no reason to route through the posting routine). Upsert
@@ -122,7 +139,7 @@ jobs:
                   store/spot_auction_body.html store/intel.csv \
                   store/provider_baseline.json store/position_history.csv \
                   store/aiven_prices.csv store/storage_body.html \
-                  store/storage_prices_prev.json
+                  store/storage_prices_prev.json store/confluence_publish.json
           if git diff --cached --quiet; then
             echo "No changes — no commit needed"
           else

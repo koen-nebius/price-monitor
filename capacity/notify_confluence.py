@@ -21,6 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from capacity.config import CONFLUENCE_BASE_URL, CONFLUENCE_PAGE_TITLE
+from confluence_storage import to_storage  # HTML+ lozenges -> storage macros (2026-09-07)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("capacity.notify_confluence")
@@ -56,7 +57,7 @@ def main() -> None:
         "version": {"number": current["version"]["number"] + 1},
         "title": CONFLUENCE_PAGE_TITLE,
         "type": "page",
-        "body": {"storage": {"value": BODY_FILE.read_text(), "representation": "storage"}},
+        "body": {"storage": {"value": to_storage(BODY_FILE.read_text()), "representation": "storage"}},
     }).encode()
     req = urllib.request.Request(api, data=payload, method="PUT", headers={
         "Authorization": auth, "Content-Type": "application/json", "Accept": "application/json",

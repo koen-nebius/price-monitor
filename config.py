@@ -389,6 +389,11 @@ CONFLUENCE_SPACE_KEY = "PR"
 CONFLUENCE_PAGE_ID = "1831469419"
 CONFLUENCE_PAGE_TITLE = "GPU Competitor Pricing — Live Overview"
 CONFLUENCE_PAGE_URL = "https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview"
+# Sibling page rendered by format_spot_auction_page() (space Billing). Both
+# pages are published by scripts/publish_confluence_pages.py from the GHA
+# build since 2026-09-07 (the posting routine no longer updates Confluence).
+CONFLUENCE_SPOT_PAGE_ID = "1970110707"
+CONFLUENCE_SPOT_PAGE_TITLE = "Competitor Spot & Auction Pricing"
 
 SLACK_CHANNEL = "#competitor-pricing"
 
