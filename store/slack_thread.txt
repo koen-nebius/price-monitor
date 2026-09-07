@@ -1,4 +1,4 @@
-*GPU Competitor Pricing — September 06, 2026*
+*GPU Competitor Pricing — September 07, 2026*
 
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -1% vs median  |  2/5 peers cheaper  |  floor: Together $1.99
@@ -16,9 +16,9 @@
 
 *Spot / preemptible (vs cheapest hyperscaler spot, median of regional floors):*
 `H100 ` Nebius $2.15  vs  Azure $2.27 (median of 20 regional floors)  →  Nebius 5% below
-`H200 ` Nebius $2.45  vs  AWS $3.37 (median of 4 regional floors)  →  Nebius 27% below
+`H200 ` Nebius $2.45  vs  AWS $3.36 (median of 4 regional floors)  →  Nebius 27% below
 `B200 ` Nebius $3.95  vs  GCP $4.94 (median of 6 regional floors)  →  Nebius 20% below
-`B300 ` Nebius $4.30  vs  AWS $5.92 (median of 2 regional floors)  →  Nebius 27% below
+`B300 ` Nebius $4.30  vs  AWS $5.93 (median of 2 regional floors)  →  Nebius 28% below
 `L40S ` Nebius $0.90  |  no comparable hyperscaler spot (not offered, or newest-gen spot capacity not realistically available)
 _Hyperscaler spot is interruptible, capacity not guaranteed; floors are the cheapest provider's median across its regional floors (single-region dips excluded; region-grain proxy, not per-AZ)._
 
@@ -52,13 +52,8 @@ _Signed reserve deals closed in the window (CRM deal reviews; autorenewals exclu
 _RTX market = inference platforms and GPU clouds, plus AWS (g7e) and Azure (NC v6), which list the card since 2026 — not training-cluster peers._
 
 *Price moves ≥3%:*
-🔺 *Spheron* B200 spot: $3.90→$5.37/GPU-hr (+37.7% global)
-🔺 *Upcloud* B200 on-demand: $3.94→$5.23/GPU-hr (+32.9% global)
-🔻 *Compute* H200 spot: $1.85→$1.39/GPU-hr (-25.1% global)
-🔻 *Compute* H100 spot: $1.25→$1.15/GPU-hr (-7.7% global)
-🔻 *Spheron* RTX6000 spot: $1.25→$1.19/GPU-hr (-4.8% global)
-🔻 *Spheron* RTX6000 on-demand: $2.39→$2.31/GPU-hr (-3.3% global)
-_Jitter note: 9 move(s) excluded as oscillation back to a recent level (1Legion Com H100; 1Legion Com H200; 1Legion Com L40S; 1Legion Com RTX6000) — source/FX artifact, not a repricing._
+🔻 *Lium* H200 on-demand: $3.60→$3.00/GPU-hr (-16.7% global)
+_Jitter note: 11 move(s) excluded as oscillation back to a recent level (1Legion Com H100; 1Legion Com H200; 1Legion Com L40S; 1Legion Com RTX6000) — source/FX artifact, not a repricing._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
-_Data freshness: sfcompute cached (267h ago)_
+_Data freshness: sfcompute cached (292h ago)_

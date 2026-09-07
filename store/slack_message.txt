@@ -1,7 +1,9 @@
-*GPU Pricing Daily — September 06, 2026*
+*GPU Pricing Daily — September 07, 2026*
 
-*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Upcloud B200 on-demand +33% · 5 small-provider moves — detail in Confluence
+*Bottom line:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 11w). RTX PRO 6000 -20% vs RTX market median (22 providers); the contested ground is committed deals — competitors quoting GB300 from $4.50 vs our $5.19 (-13%).
+Vs GPU clouds: premium to peer median on H200 +9% (+34pp WoW), B200 +13% (+25pp WoW); at median on H100 (+2pp WoW), B300
+Reference: H100 interruptible: our $2.15 vs Azure spot $2.27 (median) (-5%)
 
-*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 11w). RTX PRO 6000 -20% vs RTX market median (22 providers).
+*Price moves today:* no moves from hyperscalers or major neoclouds — largest small-provider move: Lium H200 on-demand -17%
 
-Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>
+Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>
