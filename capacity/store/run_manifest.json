@@ -1,10 +1,10 @@
 {
- "run_date": "2026-09-07",
- "started_at": "2026-09-07T07:24:20.923551+00:00",
- "completed_at": "2026-09-07T07:28:02.298332+00:00",
+ "run_date": "2026-09-08",
+ "started_at": "2026-09-08T07:18:48.092473+00:00",
+ "completed_at": "2026-09-08T07:22:24.689997+00:00",
  "status": "success",
- "record_count": 365,
- "diff_count": 44,
+ "record_count": 360,
+ "diff_count": 50,
  "provider_count": 18,
  "live_provider_count": 17,
  "failed_providers": [
@@ -14,7 +14,7 @@
  "provider_status": {
   "lambda": {
    "status": "live",
-   "record_count": 6
+   "record_count": 5
   },
   "coreweave": {
    "status": "live",
@@ -82,7 +82,7 @@
   },
   "verda": {
    "status": "live",
-   "record_count": 23
+   "record_count": 19
   }
  },
  "post_thread": true
