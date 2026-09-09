@@ -1,10 +1,10 @@
 {
- "run_date": "2026-09-08",
- "started_at": "2026-09-08T07:18:48.092473+00:00",
- "completed_at": "2026-09-08T07:22:24.689997+00:00",
+ "run_date": "2026-09-09",
+ "started_at": "2026-09-09T07:27:20.942403+00:00",
+ "completed_at": "2026-09-09T07:31:01.287730+00:00",
  "status": "success",
- "record_count": 360,
- "diff_count": 50,
+ "record_count": 365,
+ "diff_count": 64,
  "provider_count": 18,
  "live_provider_count": 17,
  "failed_providers": [
@@ -14,7 +14,7 @@
  "provider_status": {
   "lambda": {
    "status": "live",
-   "record_count": 5
+   "record_count": 6
   },
   "coreweave": {
    "status": "live",
@@ -22,7 +22,7 @@
   },
   "gcp_zones": {
    "status": "live",
-   "record_count": 66
+   "record_count": 71
   },
   "azure_regions": {
    "status": "live",
@@ -42,7 +42,7 @@
   },
   "runpod": {
    "status": "live",
-   "record_count": 73
+   "record_count": 72
   },
   "vast": {
    "status": "live",
@@ -70,11 +70,11 @@
   },
   "nebius": {
    "status": "live",
-   "record_count": 18
+   "record_count": 19
   },
   "hyperstack": {
    "status": "live",
-   "record_count": 13
+   "record_count": 15
   },
   "together": {
    "status": "live",
@@ -82,7 +82,7 @@
   },
   "verda": {
    "status": "live",
-   "record_count": 19
+   "record_count": 16
   }
  },
  "post_thread": true
