@@ -1,7 +1,7 @@
-*GPU Pricing Daily — September 08, 2026*
+*GPU Pricing Daily — September 09, 2026*
 
-*Changed in 24h:* GCP raised H100 spot +10% ($6.32→$6.94) · 4 more major-provider moves + 1 small-provider move — detail in Confluence
+*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Lyceum Technology L40S on-demand -30% · 6 small-provider moves in thread
 
-*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 11w). RTX PRO 6000 -20% vs RTX market median (22 providers).
+*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 12w). RTX PRO 6000 -20% vs RTX market median (22 providers).
 
-Full benchmark (live, updated daily): <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence>
+Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>

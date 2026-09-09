@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-09-08",
-  "started_at": "2026-09-08T06:02:15.713649+00:00",
-  "completed_at": "2026-09-08T06:03:57.474135+00:00",
+  "run_date": "2026-09-09",
+  "started_at": "2026-09-09T06:06:44.731817+00:00",
+  "completed_at": "2026-09-09T06:08:22.838221+00:00",
   "status": "partial",
-  "record_count": 1325,
-  "raw_record_count": 1325,
+  "record_count": 1317,
+  "raw_record_count": 1317,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 50,
+  "diff_count": 33,
   "failed_providers": [],
   "stale_providers": [
     "sfcompute"
@@ -31,7 +31,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 12
+      "record_count": 10
     },
     "crusoe": {
       "status": "live",
@@ -47,7 +47,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 179
+      "record_count": 174
     },
     "oracle": {
       "status": "live",
@@ -64,7 +64,7 @@
     "sfcompute": {
       "status": "cache",
       "record_count": 1,
-      "cache_age_hours": 315.4
+      "cache_age_hours": 339.4
     },
     "together": {
       "status": "live",
@@ -72,7 +72,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 3
+      "record_count": 2
     },
     "verda": {
       "status": "live",
@@ -142,7 +142,7 @@
     },
     "sfcompute": {
       "status": "cached",
-      "age_hours": 315.4
+      "age_hours": 339.4
     },
     "together": {
       "status": "live",
@@ -170,13 +170,14 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 77 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "Nebius committed prices last verified 78 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
+    "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $1.09 (api) vs ComputePrices $0.79 (28% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": false,
+  "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 1,
+  "significant_moves": 7,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
