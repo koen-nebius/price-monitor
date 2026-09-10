@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-09-09",
-  "started_at": "2026-09-09T06:06:44.731817+00:00",
-  "completed_at": "2026-09-09T06:08:22.838221+00:00",
+  "run_date": "2026-09-10",
+  "started_at": "2026-09-10T06:06:07.828197+00:00",
+  "completed_at": "2026-09-10T06:08:23.090001+00:00",
   "status": "partial",
-  "record_count": 1317,
-  "raw_record_count": 1317,
-  "anomaly_count": 0,
+  "record_count": 1322,
+  "raw_record_count": 1322,
+  "anomaly_count": 2,
   "quarantined_count": 0,
-  "diff_count": 33,
+  "diff_count": 57,
   "failed_providers": [],
   "stale_providers": [
     "sfcompute"
@@ -47,7 +47,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 174
+      "record_count": 179
     },
     "oracle": {
       "status": "live",
@@ -64,7 +64,7 @@
     "sfcompute": {
       "status": "cache",
       "record_count": 1,
-      "cache_age_hours": 339.4
+      "cache_age_hours": 363.4
     },
     "together": {
       "status": "live",
@@ -142,7 +142,7 @@
     },
     "sfcompute": {
       "status": "cached",
-      "age_hours": 339.4
+      "age_hours": 363.4
     },
     "together": {
       "status": "live",
@@ -170,14 +170,16 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 78 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "Nebius committed prices last verified 79 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "cp_gpuoutlet L40S on_demand: $1.37 \u2192 $0.69 (-49.6%) \u26a0 price anomaly",
+    "cp_lium H100 on_demand: $1.10 \u2192 $1.55 (+40.9%) \u26a0 price anomaly",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $1.09 (api) vs ComputePrices $0.79 (28% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
-  "post_thread": true,
+  "post_thread": false,
   "is_weekly": false,
-  "significant_moves": 7,
+  "significant_moves": 2,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true
