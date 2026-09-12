@@ -1,6 +1,6 @@
-*GPU Pricing Daily — September 11, 2026*
+*GPU Pricing Daily — September 12, 2026*
 
-*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Atmoscompute Com L40S on-demand -14% · 2 small-provider moves in thread
+*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Atmoscompute Com RTX6000 on-demand +38% · 2 small-provider moves in thread
 
 *Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 12w). RTX PRO 6000 -18% vs RTX market median (24 providers).
 

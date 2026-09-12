@@ -1,24 +1,24 @@
 {
- "run_date": "2026-09-11",
- "published_at": "2026-09-11T06:09:36+00:00",
+ "run_date": "2026-09-12",
+ "published_at": "2026-09-12T05:57:54+00:00",
  "publisher": "scripts/publish_confluence_pages.py (GitHub Actions)",
  "pages": {
   "1831469419": {
    "file": "confluence_body.html",
-   "bytes": 145822,
-   "lozenges": 376,
+   "bytes": 147116,
+   "lozenges": 382,
    "xml_warning": null,
    "ok": true,
-   "version": 113,
+   "version": 114,
    "title": "GPU Competitor Pricing - Daily Overview"
   },
   "1970110707": {
    "file": "spot_auction_body.html",
-   "bytes": 5192,
+   "bytes": 5025,
    "lozenges": 0,
    "xml_warning": null,
    "ok": true,
-   "version": 71,
+   "version": 72,
    "title": "Competitor Spot & Auction Pricing"
   }
  }

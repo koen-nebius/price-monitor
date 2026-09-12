@@ -1,15 +1,16 @@
 {
-  "run_date": "2026-09-11",
-  "started_at": "2026-09-11T06:08:05.352640+00:00",
-  "completed_at": "2026-09-11T06:09:32.260689+00:00",
+  "run_date": "2026-09-12",
+  "started_at": "2026-09-12T05:56:22.818126+00:00",
+  "completed_at": "2026-09-12T05:57:51.194061+00:00",
   "status": "partial",
-  "record_count": 1333,
-  "raw_record_count": 1333,
+  "record_count": 1336,
+  "raw_record_count": 1336,
   "anomaly_count": 0,
   "quarantined_count": 0,
-  "diff_count": 47,
+  "diff_count": 44,
   "failed_providers": [],
   "stale_providers": [
+    "oracle",
     "sfcompute"
   ],
   "provider_status": {
@@ -31,7 +32,7 @@
     },
     "lambda": {
       "status": "live",
-      "record_count": 12
+      "record_count": 13
     },
     "crusoe": {
       "status": "live",
@@ -47,11 +48,12 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 187
+      "record_count": 190
     },
     "oracle": {
-      "status": "live",
-      "record_count": 8
+      "status": "cache",
+      "record_count": 8,
+      "cache_age_hours": 23.8
     },
     "hyperstack": {
       "status": "live",
@@ -64,7 +66,7 @@
     "sfcompute": {
       "status": "cache",
       "record_count": 1,
-      "cache_age_hours": 387.4
+      "cache_age_hours": 411.3
     },
     "together": {
       "status": "live",
@@ -72,7 +74,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 3
+      "record_count": 2
     },
     "verda": {
       "status": "live",
@@ -129,8 +131,8 @@
       "age_hours": null
     },
     "oracle": {
-      "status": "live",
-      "age_hours": null
+      "status": "cached",
+      "age_hours": 23.8
     },
     "hyperstack": {
       "status": "live",
@@ -142,7 +144,7 @@
     },
     "sfcompute": {
       "status": "cached",
-      "age_hours": 387.4
+      "age_hours": 411.3
     },
     "together": {
       "status": "live",
@@ -170,7 +172,7 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 80 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "Nebius committed prices last verified 81 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $1.09 (api) vs ComputePrices $0.79 (28% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
