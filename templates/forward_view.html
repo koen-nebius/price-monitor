@@ -153,7 +153,7 @@ tr[data-ts]{cursor:pointer}
     <div><div class="chart-wrap"><svg class="chart" id="ps-chart" viewBox="0 0 900 230" role="img" aria-label="Comparable offers and your price"></svg></div>
       <div class="legend" id="ps-prov"></div>
       <div class="legend"><span><i class="med"></i>median of comparables</span><span><i class="acc"></i>your price</span><span id="lg-ach" hidden><i class="ach"></i>Nebius achieved</span><span id="ps-hint">click a dot to see that quote</span></div>
-      <div class="hint" id="ps-guide" style="margin-top:8px;line-height:1.5"></div></div>
+      <details class="disc" id="ps-lines" style="margin-top:4px"><summary>What the dashed lines mean</summary><div class="body" id="ps-guide"></div></details></div>
     <aside class="side" id="ps-side" hidden></aside>
   </div>
   <div class="fin" id="ps-fin"></div>
@@ -439,9 +439,9 @@ const DATA = /*__DATA__*/null;
         else g.push(`<path d="M${MX(r.t)},${(Y(r.v) - 7).toFixed(1)} l6,10 h-12 z" fill="none" stroke="#b4b4bd" stroke-width="1.2"><title>${esc(r.label)}</title></path>`); });
       // SemiAnalysis path average per term (model reference), dotted with diamonds
       if (saPts.length) { const late = SA[S.tier].path_starts && SA[S.tier].path_starts > DATA.as_of.slice(0, 7);
-        if (saPts.length > 1) g.push(`<path d="${saPts.map((p, i) => (i ? "L" : "M") + MX(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="#9aa7ff" stroke-width="1.5" stroke-dasharray="2 5"/>`);
-        saPts.forEach(p => g.push(`<path d="M${MX(p[0]).toFixed(1)},${(Y(p[1]) - 6).toFixed(1)} l6,6 l-6,6 l-6,-6 z" fill="#0b0b0d" stroke="#9aa7ff" stroke-width="1.5"><title>SemiAnalysis path average over ${p[0]} months${late ? " from " + SA[S.tier].path_starts : ""}: ${fmt(p[1])}</title></path>`));
-        const lp = saPts[saPts.length - 1]; g.push(`<text x="${MX(lp[0]).toFixed(1)}" y="${(Y(lp[1]) + 20).toFixed(1)}" fill="#9aa7ff" font-size="11.5" text-anchor="middle">SemiAnalysis path average${late ? " from " + SA[S.tier].path_starts : ""}</text>`); }
+        if (saPts.length > 1) g.push(`<path d="${saPts.map((p, i) => (i ? "L" : "M") + MX(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="#d6d6dc" stroke-width="1.5" stroke-dasharray="2 5"/>`);
+        saPts.forEach(p => g.push(`<path d="M${MX(p[0]).toFixed(1)},${(Y(p[1]) - 6).toFixed(1)} l6,6 l-6,6 l-6,-6 z" fill="#0b0b0d" stroke="#d6d6dc" stroke-width="1.5"><title>SemiAnalysis path average over ${p[0]} months${late ? " from " + SA[S.tier].path_starts : ""}: ${fmt(p[1])}</title></path>`));
+        const lp = saPts[saPts.length - 1]; g.push(`<text x="${MX(lp[0]).toFixed(1)}" y="${(Y(lp[1]) + 20).toFixed(1)}" fill="#d6d6dc" font-size="11.5" text-anchor="middle">SemiAnalysis path average${late ? " from " + SA[S.tier].path_starts : ""}</text>`); }
       // other tiers, faint
       if (S.others) showT.filter(t => t !== S.tier).forEach(t => { const p2 = TENORS.map(x => [MX(x), mk(CELLS[t][x])]).filter(p => p[1] != null); if (p2.length > 1) g.push(`<path d="${p2.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + Y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="#3a3a44" stroke-width="1.5"/>`); p2.forEach(p => g.push(`<circle cx="${p[0].toFixed(1)}" cy="${Y(p[1]).toFixed(1)}" r="3" fill="#3a3a44"/>`)); if (p2.length) g.push(`<text x="${(p2[p2.length - 1][0] + 8).toFixed(1)}" y="${(Y(p2[p2.length - 1][1]) + 4).toFixed(1)}" fill="#55555f" font-size="11">${t}</text>`); });
       // selected tier
@@ -484,18 +484,24 @@ const DATA = /*__DATA__*/null;
     const finSeg = S.segForFin === "enterprise_above_512" ? "tier2_gm_floor_enterprise" : "tier2_gm_floor_ai_native";
     const fg = gridCell(finSeg, tier, tenor, pp);
     if (fg) { const k = fg.exact != null ? fg.exact : fg.cols.reduce((a, c) => Math.abs(c[0] - pp) < Math.abs(a[0] - pp) ? c : a)[0]; const pr = fg.cols.find(c => c[0] === k)[1];
-      out.floors.push({ key: "finance", price: pr, short: "Finance Tier-2 floor " + fmt(pr), label: `Finance Tier-2 GM-approval floor ${fmt(pr)} (rate card ${GRIDV}, ${SEGS[S.segForFin]}, ${fg.months} months, ${k}% prepay column${k !== pp ? ", nearest published" : ""})` }); }
+      out.floors.push({ key: "finance", price: pr, short: "Finance floor " + fmt(pr), label: `Finance Tier-2 GM-approval floor ${fmt(pr)} (rate card ${GRIDV}, ${SEGS[S.segForFin]}, ${fg.months} months, ${k}% prepay column${k !== pp ? ", nearest published" : ""})`,
+        plain: `<b>Finance floor ${fmt(pr)}.</b> The lowest price in Finance's rate card (${GRIDV}) for ${tier} at ${fg.months} months that sales may quote without GM approval, the "Tier 2" line. ${SEGS[S.segForFin]} segment, ${k}% prepayment column${k !== pp ? `; Finance publishes no ${pp}% column, so the nearest one is shown` : ""}.` }); }
     const sa = SA[tier];
-    if (tenor !== 0 && sa && sa.floor_irr_15_6 != null) out.floors.push({ key: "sa_irr", price: sa.floor_irr_15_6, short: "SA 15.6% IRR floor " + fmt(sa.floor_irr_15_6), label: `SemiAnalysis cost-based floor ${fmt(sa.floor_irr_15_6)}: price for ~15.6% project IRR on a 5-year contract with 15% prepaid, Neocloud Giant profile (${SAV._version || "SA model"})` });
+    if (tenor !== 0 && sa && sa.floor_irr_15_6 != null) out.floors.push({ key: "sa_irr", price: sa.floor_irr_15_6, short: "SA cost floor " + fmt(sa.floor_irr_15_6), label: `SemiAnalysis cost-based floor ${fmt(sa.floor_irr_15_6)}: price for ~15.6% project IRR on a 5-year contract with 15% prepaid, Neocloud Giant profile (${SAV._version || "SA model"})`,
+      plain: `<b>SemiAnalysis cost floor ${fmt(sa.floor_irr_15_6)}.</b> The price at which a 5-year contract with 15% prepaid earns SemiAnalysis' 15.6% project-IRR hurdle on their cost inputs for a large neocloud (${SAV._version || "TCO model"}). Below it the asset misses their return threshold; it is a return-based floor, not Nebius' cost${sa.cost_per_hour != null ? `. Their cash cost with no return at all is ${fmt(sa.cost_per_hour)}` : ""}.` });
     const pair = perfPair(tier);
     if (pair.prev) { const pr = refTier[pair.prev] && refTier[pair.prev][tenor]; const cs = pr && pr.has_mark ? null : cellStats(pair.prev, tenor);
       const prevPrice = pr && pr.has_mark ? pr.mark * (1 - disc(tenor, pp)) : (cs && cs.med != null ? cs.med : null), prevSrc = pr && pr.has_mark ? "mark" : (cs && cs.med != null ? "comparable median" : null);
       const mult = S.multOverride != null ? S.multOverride : pair.base;
       if (prevPrice != null && mult) out.ceiling = { price: prevPrice * mult, mult, prev: pair.prev, prevPrice, prevSrc, overridden: S.multOverride != null, pair,
-        short: `parity with ${pair.prev} ×${mult} = ${fmt(prevPrice * mult)}`, label: `Parity ceiling ${fmt(prevPrice * mult)}: ${pair.prev} ${prevSrc} ${fmt(prevPrice)} at ${monthsLabel(tenor)}, ${pp}% prepay × ${mult} delivered-performance multiple${S.multOverride != null ? " (your override)" : pair.low != null ? ` (MLPerf-based, customer-realisable; range ${pair.low}–${pair.high}; sources on the multiple's tooltip)` : ""}` };
-      else out.ceiling = { price: null, prev: pair.prev, mult, prevPrice, reason: prevPrice == null ? `no ${pair.prev} price at ${monthsLabel(tenor)}` : "no performance multiple on file; type one in Comparison settings" }; }
-    if (tenor === 0 && sa && sa.now != null) out.sa = { price: sa.now, now: sa.now, short: "SemiAnalysis modelled rental now " + fmt(sa.now), label: `SemiAnalysis modelled market rental for ${tier} this month ${fmt(sa.now)} (base case, TCO model ${SAV._version || ""}; a modelled path value, not an offer)` };
-    if (sa && sa.term_avg && sa.term_avg[tenor] != null) { const late = sa.path_starts && sa.path_starts > DATA.as_of.slice(0, 7); out.sa = { price: sa.term_avg[tenor], now: sa.now, short: "SemiAnalysis path avg " + fmt(sa.term_avg[tenor]), label: `SemiAnalysis base-case path averaged over ${monthsLabel(tenor)}${late ? " from " + sa.path_starts : " from today"}: ${fmt(sa.term_avg[tenor])} (modelled market rental, not offers; ${SAV._version || ""})` }; }
+        short: `Parity ceiling ${fmt(prevPrice * mult)}`, label: `Parity ceiling ${fmt(prevPrice * mult)}: ${pair.prev} ${prevSrc} ${fmt(prevPrice)} at ${monthsLabel(tenor)}, ${pp}% prepay × ${mult} delivered-performance multiple${S.multOverride != null ? " (your override)" : pair.low != null ? ` (MLPerf-based, customer-realisable; range ${pair.low}–${pair.high}; sources on the multiple's tooltip)` : ""}`,
+        plain: `<b>Parity ceiling ${fmt(prevPrice * mult)}.</b> The price above which a customer is better off renting the previous generation. ${pair.prev} at ${monthsLabel(tenor)} costs ${fmt(prevPrice)} today (its ${prevSrc}); ${tier} delivers about ${mult}× the work per GPU${S.multOverride != null ? " (your override)" : pair.low != null ? ` (MLPerf-based, customer-realisable; measured range ${pair.low} to ${pair.high}; editable in Comparison settings)` : ""}, so ${fmt(prevPrice)} × ${mult} = ${fmt(prevPrice * mult)}.` };
+      else out.ceiling = { price: null, prev: pair.prev, mult, prevPrice, reason: prevPrice == null ? `no ${pair.prev} price at ${monthsLabel(tenor)}` : "no performance multiple on file; type one in Comparison settings",
+        plain: `<b>Parity ceiling</b> not shown: ${prevPrice == null ? `no ${pair.prev} price at ${monthsLabel(tenor)} to compare with` : "no performance multiple on file; type one in Comparison settings"}.` }; }
+    if (tenor === 0 && sa && sa.now != null) out.sa = { price: sa.now, now: sa.now, short: "SemiAnalysis " + fmt(sa.now), label: `SemiAnalysis modelled market rental for ${tier} this month ${fmt(sa.now)} (base case, TCO model ${SAV._version || ""}; a modelled path value, not an offer)`,
+      plain: `<b>SemiAnalysis ${fmt(sa.now)}.</b> SemiAnalysis' modelled market rental price for ${tier} this month (base case of their ${SAV._version || ""} TCO model). A model value, not an offer.` };
+    if (sa && sa.term_avg && sa.term_avg[tenor] != null) { const late = sa.path_starts && sa.path_starts > DATA.as_of.slice(0, 7); out.sa = { price: sa.term_avg[tenor], now: sa.now, short: "SemiAnalysis " + fmt(sa.term_avg[tenor]), label: `SemiAnalysis base-case path averaged over ${monthsLabel(tenor)}${late ? " from " + sa.path_starts : " from today"}: ${fmt(sa.term_avg[tenor])} (modelled market rental, not offers; ${SAV._version || ""})`,
+      plain: `<b>SemiAnalysis ${fmt(sa.term_avg[tenor])}.</b> The average of SemiAnalysis' modelled market rental price for ${tier} over the next ${tenor} months${late ? ` (their path starts ${sa.path_starts})` : ""}, base case of their ${SAV._version || ""} TCO model. What a customer would pay on average if that path came true; a model, not observed offers.` }; }
     return out;
   }
   function refsFor(tier){
@@ -596,12 +602,10 @@ const DATA = /*__DATA__*/null;
     $("lg-ach").hidden = !(S.achieved && cs.askAt != null);
     // guidance text under the graph: definitions and sources beside the values
     const gparts = [];
-    if (S.guide) { gd.floors.forEach(f => gparts.push(esc(f.label)));
-      if (gd.ceiling && gd.ceiling.price != null) gparts.push(esc(gd.ceiling.label));
-      else if (gd.ceiling) gparts.push(`Parity ceiling not shown: ${esc(gd.ceiling.reason)}`);
-    }
-    if (S.saPos && gd.sa) gparts.push(esc(gd.sa.label));
-    $("ps-guide").innerHTML = gparts.length ? `<b style="color:var(--text);font-weight:500">Hypothetical guidance</b> · ${gparts.join(" · ")}` : "";
+    if (S.guide) { gd.floors.forEach(f => gparts.push(f.plain)); if (gd.ceiling) gparts.push(gd.ceiling.plain); }
+    if (S.saPos && gd.sa) gparts.push(gd.sa.plain);
+    $("ps-lines").hidden = !gparts.length;
+    $("ps-guide").innerHTML = gparts.map(p => `<p>${p}</p>`).join("") + (gparts.length ? `<p>All three are hypothetical guidance for a price discussion, not observed prices; switch them off in Comparison settings.</p>` : "");
     const pair = perfPair(S.tier);
     $("c-mult-label").textContent = pair.prev ? `Parity multiple vs ${pair.prev}` : "Parity multiple";
     if (document.activeElement !== $("c-mult")) $("c-mult").value = S.multOverride != null ? S.multOverride : (pair.base != null ? pair.base : "");
