@@ -1,6 +1,6 @@
 {
  "as_of": "2026-09-15",
- "method_version": "1.2 (2026-09-15)",
+ "method_version": "1.3 (2026-09-15)",
  "params": {
   "prepay_a": 0.0345,
   "prepay_m": 2.0,
@@ -39,16 +39,19 @@
   ]
  },
  "quarter_effects_log": {
-  "2025Q3": -0.379,
-  "2025Q4": -0.452,
-  "2026Q1": -0.406,
-  "2026Q2": -0.196,
+  "2025Q3": -0.38,
+  "2025Q4": -0.453,
+  "2026Q1": -0.407,
+  "2026Q2": -0.198,
   "2026Q3": 0.0
  },
  "n_observations": {
-  "bid": 119,
-  "bid_known_prepay": 77,
-  "bid_duplicates_removed": 37,
+  "bid": 123,
+  "bid_known_prepay": 80,
+  "bid_unstated_prepay": 43,
+  "bid_duplicates_removed": 32,
+  "bid_review": 5,
+  "bid_in_window_review": 4,
   "ask": 191,
   "public": 9,
   "ask_deals": 287
@@ -334,17 +337,22 @@
    "n_ask": 12,
    "n_public": 0,
    "n_known": 12,
+   "n_bid_unstated": 0,
+   "n_all": 12,
    "n_providers": 1,
    "ask_deals": 15,
    "recent_raw_median": 2.3,
    "n_recent90": 1,
    "mark_recent": null,
    "mark_known": 2.6,
+   "mark_all": 2.6,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": 2.6,
    "list_nebius": null,
    "list_hyperscaler_min": 3.933,
@@ -370,17 +378,22 @@
    "n_ask": 11,
    "n_public": 0,
    "n_known": 11,
+   "n_bid_unstated": 0,
+   "n_all": 11,
    "n_providers": 1,
    "ask_deals": 19,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": 2.63,
+   "mark_all": 2.63,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": 2.63,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -390,8 +403,8 @@
    "cost_floor": 1.55,
    "mark": 2.63,
    "has_mark": true,
-   "range_lo": 3.6,
-   "range_hi": 3.6,
+   "range_lo": 3.61,
+   "range_hi": 3.61,
    "confidence": "thin",
    "spread_pct": null,
    "reason": null
@@ -400,18 +413,21 @@
    "tier": "H100",
    "tenor_months": 12,
    "label": "12m",
-   "n_obs": 22,
-   "n_recent": 5,
-   "n_bid": 8,
+   "n_obs": 18,
+   "n_recent": 3,
+   "n_bid": 4,
    "n_ask": 14,
    "n_public": 0,
    "n_known": 18,
-   "n_providers": 6,
+   "n_bid_unstated": 4,
+   "n_all": 22,
+   "n_providers": 3,
    "ask_deals": 25,
    "recent_raw_median": 2.5,
-   "n_recent90": 3,
+   "n_recent90": 1,
    "mark_recent": 2.51,
    "mark_known": 2.57,
+   "mark_all": 2.57,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -425,7 +441,9 @@
    },
    "grid_100": 3.05,
    "grid_50": 3.21,
-   "bid_median": 2.86,
+   "bid_median": 3.16,
+   "bid_median_all": 2.86,
+   "bid_median_unstated": 2.44,
    "ask_median": 2.57,
    "list_nebius": 2.3,
    "list_hyperscaler_min": 5.0568,
@@ -436,9 +454,9 @@
    "mark": 2.57,
    "has_mark": true,
    "range_lo": 2.19,
-   "range_hi": 3.26,
+   "range_hi": 3.16,
    "confidence": "good",
-   "spread_pct": -0.101,
+   "spread_pct": -0.187,
    "reason": null
   },
   {
@@ -451,12 +469,15 @@
    "n_ask": 1,
    "n_public": 0,
    "n_known": 1,
+   "n_bid_unstated": 0,
+   "n_all": 1,
    "n_providers": 1,
    "ask_deals": 1,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -471,6 +492,8 @@
    "grid_100": 2.47,
    "grid_50": 2.67,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": 2.4,
    "list_nebius": 2.11,
    "list_hyperscaler_min": null,
@@ -484,7 +507,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (1 obs in 365d, need 3)"
+   "reason": "insufficient_data (1 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "H100",
@@ -496,12 +519,15 @@
    "n_ask": 3,
    "n_public": 0,
    "n_known": 3,
+   "n_bid_unstated": 0,
+   "n_all": 3,
    "n_providers": 1,
    "ask_deals": 4,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": 2.58,
+   "mark_all": 2.58,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -516,6 +542,8 @@
    "grid_100": 2.2,
    "grid_50": 2.47,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": 2.58,
    "list_nebius": 2.05,
    "list_hyperscaler_min": null,
@@ -541,17 +569,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": 2.5869,
@@ -565,7 +598,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "H100",
@@ -577,17 +610,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -601,29 +639,34 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "H200",
    "tenor_months": 3,
    "label": "3m",
-   "n_obs": 15,
-   "n_recent": 3,
-   "n_bid": 2,
+   "n_obs": 13,
+   "n_recent": 1,
+   "n_bid": 0,
    "n_ask": 13,
    "n_public": 0,
    "n_known": 13,
-   "n_providers": 3,
+   "n_bid_unstated": 2,
+   "n_all": 15,
+   "n_providers": 1,
    "ask_deals": 23,
-   "recent_raw_median": 2.4,
-   "n_recent90": 3,
-   "mark_recent": 2.4,
+   "recent_raw_median": 3.3,
+   "n_recent90": 1,
+   "mark_recent": null,
    "mark_known": 3.11,
+   "mark_all": 3.07,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 2.1,
+   "bid_median": null,
+   "bid_median_all": 2.1,
+   "bid_median_unstated": 2.1,
    "ask_median": 3.11,
    "list_nebius": null,
    "list_hyperscaler_min": 4.975,
@@ -631,35 +674,40 @@
    "list_peer_min": 2.99,
    "list_peer_provider": "together",
    "cost_floor": 1.59,
-   "mark": 3.06,
+   "mark": 3.11,
    "has_mark": true,
-   "range_lo": 2.1,
+   "range_lo": 3.3,
    "range_hi": 3.3,
-   "confidence": "good",
-   "spread_pct": 0.481,
+   "confidence": "thin",
+   "spread_pct": null,
    "reason": null
   },
   {
    "tier": "H200",
    "tenor_months": 6,
    "label": "6m",
-   "n_obs": 16,
+   "n_obs": 15,
    "n_recent": 1,
-   "n_bid": 1,
+   "n_bid": 0,
    "n_ask": 15,
    "n_public": 0,
    "n_known": 15,
-   "n_providers": 2,
+   "n_bid_unstated": 1,
+   "n_all": 16,
+   "n_providers": 1,
    "ask_deals": 30,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": 3.0,
+   "mark_all": 3.0,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 2.04,
+   "bid_median": null,
+   "bid_median_all": 2.04,
+   "bid_median_unstated": 2.04,
    "ask_median": 3.0,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -669,28 +717,31 @@
    "cost_floor": 1.59,
    "mark": 3.0,
    "has_mark": true,
-   "range_lo": 3.29,
-   "range_hi": 3.29,
+   "range_lo": 3.3,
+   "range_hi": 3.3,
    "confidence": "thin",
-   "spread_pct": 0.471,
+   "spread_pct": null,
    "reason": null
   },
   {
    "tier": "H200",
    "tenor_months": 12,
    "label": "12m",
-   "n_obs": 23,
-   "n_recent": 7,
-   "n_bid": 4,
+   "n_obs": 21,
+   "n_recent": 5,
+   "n_bid": 2,
    "n_ask": 19,
    "n_public": 0,
    "n_known": 21,
-   "n_providers": 5,
+   "n_bid_unstated": 2,
+   "n_all": 23,
+   "n_providers": 3,
    "ask_deals": 34,
    "recent_raw_median": 3.1,
-   "n_recent90": 5,
+   "n_recent90": 3,
    "mark_recent": 2.66,
-   "mark_known": 2.95,
+   "mark_known": 2.96,
+   "mark_all": 2.96,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -705,19 +756,21 @@
    "grid_100": 3.57,
    "grid_50": 3.72,
    "bid_median": 3.13,
-   "ask_median": 2.95,
+   "bid_median_all": 3.13,
+   "bid_median_unstated": 2.5,
+   "ask_median": 2.96,
    "list_nebius": 2.8,
    "list_hyperscaler_min": 5.8152,
    "list_hyperscaler_provider": "azure",
    "list_peer_min": 2.49,
    "list_peer_provider": "cp_1legion-com",
    "cost_floor": 1.59,
-   "mark": 2.95,
+   "mark": 2.96,
    "has_mark": true,
-   "range_lo": 2.5,
-   "range_hi": 3.4,
+   "range_lo": 2.51,
+   "range_hi": 3.25,
    "confidence": "good",
-   "spread_pct": -0.058,
+   "spread_pct": -0.054,
    "reason": null
   },
   {
@@ -730,12 +783,15 @@
    "n_ask": 3,
    "n_public": 0,
    "n_known": 3,
+   "n_bid_unstated": 0,
+   "n_all": 3,
    "n_providers": 1,
    "ask_deals": 4,
    "recent_raw_median": 2.65,
    "n_recent90": 1,
    "mark_recent": null,
    "mark_known": 2.69,
+   "mark_all": 2.69,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -750,6 +806,8 @@
    "grid_100": 2.98,
    "grid_50": 3.18,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": 2.69,
    "list_nebius": 2.51,
    "list_hyperscaler_min": null,
@@ -775,12 +833,15 @@
    "n_ask": 2,
    "n_public": 0,
    "n_known": 2,
+   "n_bid_unstated": 0,
+   "n_all": 2,
    "n_providers": 1,
    "ask_deals": 2,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -795,7 +856,9 @@
    "grid_100": 2.71,
    "grid_50": 2.98,
    "bid_median": null,
-   "ask_median": 2.52,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
+   "ask_median": 2.53,
    "list_nebius": 2.4,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
@@ -808,7 +871,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (2 obs in 365d, need 3)"
+   "reason": "insufficient_data (2 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "H200",
@@ -820,17 +883,22 @@
    "n_ask": 2,
    "n_public": 0,
    "n_known": 2,
+   "n_bid_unstated": 0,
+   "n_all": 2,
    "n_providers": 1,
    "ask_deals": 2,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": 2.09,
    "list_nebius": null,
    "list_hyperscaler_min": 4.083,
@@ -844,7 +912,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (2 obs in 365d, need 3)"
+   "reason": "insufficient_data (2 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "H200",
@@ -856,17 +924,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -880,7 +953,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "B200",
@@ -892,27 +965,32 @@
    "n_ask": 20,
    "n_public": 0,
    "n_known": 20,
+   "n_bid_unstated": 0,
+   "n_all": 20,
    "n_providers": 1,
    "ask_deals": 35,
    "recent_raw_median": 5.04,
    "n_recent90": 1,
    "mark_recent": null,
-   "mark_known": 4.96,
+   "mark_known": 4.97,
+   "mark_all": 4.97,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
-   "ask_median": 4.96,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
+   "ask_median": 4.97,
    "list_nebius": null,
    "list_hyperscaler_min": 10.296,
    "list_hyperscaler_provider": "aws",
    "list_peer_min": 4.09,
    "list_peer_provider": "together",
    "cost_floor": 2.07,
-   "mark": 4.96,
+   "mark": 4.97,
    "has_mark": true,
-   "range_lo": 2.98,
+   "range_lo": 2.99,
    "range_hi": 5.05,
    "confidence": "thin",
    "spread_pct": null,
@@ -922,23 +1000,28 @@
    "tier": "B200",
    "tenor_months": 6,
    "label": "6m",
-   "n_obs": 12,
+   "n_obs": 11,
    "n_recent": 3,
-   "n_bid": 1,
+   "n_bid": 0,
    "n_ask": 11,
    "n_public": 0,
    "n_known": 11,
-   "n_providers": 2,
+   "n_bid_unstated": 1,
+   "n_all": 12,
+   "n_providers": 1,
    "ask_deals": 15,
    "recent_raw_median": 5.26,
    "n_recent90": 3,
    "mark_recent": 5.19,
    "mark_known": 5.19,
+   "mark_all": 5.19,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 4.13,
+   "bid_median": null,
+   "bid_median_all": 4.13,
+   "bid_median_unstated": 4.13,
    "ask_median": 5.19,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -950,31 +1033,36 @@
    "has_mark": true,
    "range_lo": 5.19,
    "range_hi": 5.82,
-   "confidence": "good",
-   "spread_pct": 0.257,
+   "confidence": "thin",
+   "spread_pct": null,
    "reason": null
   },
   {
    "tier": "B200",
    "tenor_months": 12,
    "label": "12m",
-   "n_obs": 35,
-   "n_recent": 8,
-   "n_bid": 19,
+   "n_obs": 30,
+   "n_recent": 7,
+   "n_bid": 14,
    "n_ask": 16,
    "n_public": 0,
    "n_known": 30,
-   "n_providers": 12,
+   "n_bid_unstated": 5,
+   "n_all": 35,
+   "n_providers": 9,
    "ask_deals": 19,
-   "recent_raw_median": 5.45,
-   "n_recent90": 7,
-   "mark_recent": 5.18,
+   "recent_raw_median": 5.48,
+   "n_recent90": 6,
+   "mark_recent": 5.45,
    "mark_known": 5.18,
+   "mark_all": 5.18,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 4.5,
+   "bid_median": 4.69,
+   "bid_median_all": 4.51,
+   "bid_median_unstated": 4.21,
    "ask_median": 5.45,
    "list_nebius": 4.89,
    "list_hyperscaler_min": 11.1159,
@@ -984,10 +1072,10 @@
    "cost_floor": 2.07,
    "mark": 5.18,
    "has_mark": true,
-   "range_lo": 4.0,
+   "range_lo": 4.14,
    "range_hi": 5.9,
    "confidence": "good",
-   "spread_pct": 0.211,
+   "spread_pct": 0.162,
    "reason": null
   },
   {
@@ -1000,17 +1088,22 @@
    "n_ask": 1,
    "n_public": 0,
    "n_known": 1,
+   "n_bid_unstated": 0,
+   "n_all": 1,
    "n_providers": 1,
    "ask_deals": 1,
    "recent_raw_median": 4.75,
    "n_recent90": 1,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": 4.79,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1024,24 +1117,27 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (1 obs in 365d, need 3)"
+   "reason": "insufficient_data (1 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "B200",
    "tenor_months": 24,
    "label": "24m",
-   "n_obs": 8,
+   "n_obs": 6,
    "n_recent": 1,
-   "n_bid": 6,
+   "n_bid": 4,
    "n_ask": 2,
    "n_public": 0,
    "n_known": 6,
-   "n_providers": 6,
+   "n_bid_unstated": 2,
+   "n_all": 8,
+   "n_providers": 5,
    "ask_deals": 2,
    "recent_raw_median": 3.69,
    "n_recent90": 1,
    "mark_recent": null,
-   "mark_known": 4.72,
+   "mark_known": 4.73,
+   "mark_all": 4.58,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -1055,7 +1151,9 @@
    },
    "grid_100": 6.44,
    "grid_50": 6.9,
-   "bid_median": 4.28,
+   "bid_median": 4.74,
+   "bid_median_all": 4.28,
+   "bid_median_unstated": 4.21,
    "ask_median": 4.58,
    "list_nebius": 4.55,
    "list_hyperscaler_min": null,
@@ -1063,30 +1161,33 @@
    "list_peer_min": 3.99,
    "list_peer_provider": "cp_civo",
    "cost_floor": 2.07,
-   "mark": 4.58,
+   "mark": 4.73,
    "has_mark": true,
-   "range_lo": 4.73,
-   "range_hi": 4.73,
+   "range_lo": 4.74,
+   "range_hi": 4.74,
    "confidence": "thin",
-   "spread_pct": 0.07,
+   "spread_pct": -0.034,
    "reason": null
   },
   {
    "tier": "B200",
    "tenor_months": 36,
    "label": "36m",
-   "n_obs": 7,
-   "n_recent": 5,
-   "n_bid": 5,
+   "n_obs": 5,
+   "n_recent": 4,
+   "n_bid": 3,
    "n_ask": 2,
    "n_public": 0,
    "n_known": 5,
-   "n_providers": 5,
+   "n_bid_unstated": 2,
+   "n_all": 7,
+   "n_providers": 4,
    "ask_deals": 2,
-   "recent_raw_median": 4.3,
-   "n_recent90": 3,
-   "mark_recent": 4.0,
-   "mark_known": 4.48,
+   "recent_raw_median": 4.65,
+   "n_recent90": 2,
+   "mark_recent": 3.68,
+   "mark_known": 4.49,
+   "mark_all": 4.49,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -1100,7 +1201,9 @@
    },
    "grid_100": 5.15,
    "grid_50": 5.93,
-   "bid_median": 4.48,
+   "bid_median": 4.49,
+   "bid_median_all": 4.49,
+   "bid_median_unstated": 4.88,
    "ask_median": 4.37,
    "list_nebius": 4.15,
    "list_hyperscaler_min": 7.0884,
@@ -1108,35 +1211,40 @@
    "list_peer_min": 3.79,
    "list_peer_provider": "cp_civo",
    "cost_floor": 2.07,
-   "mark": 4.48,
+   "mark": 4.49,
    "has_mark": true,
    "range_lo": 4.37,
    "range_hi": 5.08,
-   "confidence": "good",
-   "spread_pct": -0.025,
+   "confidence": "thin",
+   "spread_pct": -0.027,
    "reason": null
   },
   {
    "tier": "B200",
    "tenor_months": 60,
    "label": "60m",
-   "n_obs": 1,
+   "n_obs": 0,
    "n_recent": 0,
-   "n_bid": 1,
+   "n_bid": 0,
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
-   "n_providers": 1,
+   "n_bid_unstated": 1,
+   "n_all": 1,
+   "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 4.8,
+   "bid_median": null,
+   "bid_median_all": 4.81,
+   "bid_median_unstated": 4.81,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1150,29 +1258,34 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (1 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3; 1 more with unstated terms)"
   },
   {
    "tier": "B300",
    "tenor_months": 3,
    "label": "3m",
-   "n_obs": 13,
-   "n_recent": 4,
-   "n_bid": 3,
+   "n_obs": 10,
+   "n_recent": 1,
+   "n_bid": 0,
    "n_ask": 10,
    "n_public": 0,
    "n_known": 10,
-   "n_providers": 4,
+   "n_bid_unstated": 3,
+   "n_all": 13,
+   "n_providers": 1,
    "ask_deals": 10,
-   "recent_raw_median": 6.5,
-   "n_recent90": 4,
-   "mark_recent": 6.5,
+   "recent_raw_median": 5.6,
+   "n_recent90": 1,
+   "mark_recent": null,
    "mark_known": 5.6,
+   "mark_all": 6.5,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 6.5,
+   "bid_median": null,
+   "bid_median_all": 6.5,
+   "bid_median_unstated": 6.5,
    "ask_median": 5.6,
    "list_nebius": null,
    "list_hyperscaler_min": 11.7,
@@ -1180,12 +1293,12 @@
    "list_peer_min": 6.75,
    "list_peer_provider": "cp_cloud-theai",
    "cost_floor": 2.43,
-   "mark": 6.5,
+   "mark": 5.6,
    "has_mark": true,
    "range_lo": 5.6,
-   "range_hi": 8.5,
-   "confidence": "good",
-   "spread_pct": -0.138,
+   "range_hi": 5.6,
+   "confidence": "thin",
+   "spread_pct": null,
    "reason": null
   },
   {
@@ -1198,17 +1311,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1222,42 +1340,47 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "B300",
    "tenor_months": 12,
    "label": "12m",
-   "n_obs": 21,
-   "n_recent": 11,
-   "n_bid": 8,
+   "n_obs": 19,
+   "n_recent": 10,
+   "n_bid": 6,
    "n_ask": 13,
    "n_public": 0,
    "n_known": 19,
-   "n_providers": 8,
+   "n_bid_unstated": 2,
+   "n_all": 21,
+   "n_providers": 6,
    "ask_deals": 19,
-   "recent_raw_median": 5.08,
-   "n_recent90": 7,
-   "mark_recent": 5.48,
+   "recent_raw_median": 5.06,
+   "n_recent90": 6,
+   "mark_recent": 5.14,
    "mark_known": 5.56,
+   "mark_all": 5.93,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 5.14,
-   "ask_median": 6.03,
+   "bid_median": 4.75,
+   "bid_median_all": 5.14,
+   "bid_median_unstated": 7.94,
+   "ask_median": 6.05,
    "list_nebius": 5.29,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_peer_min": 5.0,
    "list_peer_provider": "cp_1legion-com",
    "cost_floor": 2.43,
-   "mark": 5.92,
+   "mark": 5.56,
    "has_mark": true,
    "range_lo": 4.3,
-   "range_hi": 7.94,
+   "range_hi": 6.78,
    "confidence": "good",
-   "spread_pct": 0.173,
+   "spread_pct": 0.274,
    "reason": null
   },
   {
@@ -1270,18 +1393,23 @@
    "n_ask": 1,
    "n_public": 0,
    "n_known": 2,
+   "n_bid_unstated": 0,
+   "n_all": 2,
    "n_providers": 2,
    "ask_deals": 1,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 5.44,
-   "ask_median": 5.15,
+   "bid_median": 5.45,
+   "bid_median_all": 5.45,
+   "bid_median_unstated": null,
+   "ask_median": 5.16,
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
@@ -1294,24 +1422,27 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (2 obs in 365d, need 3)"
+   "reason": "insufficient_data (2 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "B300",
    "tenor_months": 24,
    "label": "24m",
    "n_obs": 14,
-   "n_recent": 5,
+   "n_recent": 6,
    "n_bid": 8,
    "n_ask": 6,
    "n_public": 0,
-   "n_known": 13,
-   "n_providers": 7,
+   "n_known": 14,
+   "n_bid_unstated": 1,
+   "n_all": 15,
+   "n_providers": 8,
    "ask_deals": 7,
    "recent_raw_median": 4.98,
    "n_recent90": 2,
    "mark_recent": 4.67,
-   "mark_known": 5.68,
+   "mark_known": 5.56,
+   "mark_all": 5.56,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -1325,39 +1456,44 @@
    },
    "grid_100": 6.69,
    "grid_50": 7.15,
-   "bid_median": 5.25,
-   "ask_median": 5.68,
+   "bid_median": 5.56,
+   "bid_median_all": 5.56,
+   "bid_median_unstated": 4.58,
+   "ask_median": 5.69,
    "list_nebius": 4.95,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_peer_min": 4.9,
    "list_peer_provider": "cp_cloud-theai",
    "cost_floor": 2.43,
-   "mark": 5.68,
+   "mark": 5.56,
    "has_mark": true,
-   "range_lo": 4.99,
-   "range_hi": 6.45,
+   "range_lo": 5.0,
+   "range_hi": 6.46,
    "confidence": "good",
-   "spread_pct": 0.082,
+   "spread_pct": 0.023,
    "reason": null
   },
   {
    "tier": "B300",
    "tenor_months": 36,
    "label": "36m",
-   "n_obs": 19,
-   "n_recent": 13,
-   "n_bid": 16,
+   "n_obs": 15,
+   "n_recent": 10,
+   "n_bid": 12,
    "n_ask": 3,
    "n_public": 1,
-   "n_known": 14,
-   "n_providers": 9,
+   "n_known": 15,
+   "n_bid_unstated": 5,
+   "n_all": 20,
+   "n_providers": 7,
    "ask_deals": 3,
    "recent_raw_median": 4.9,
-   "n_recent90": 11,
+   "n_recent90": 9,
    "mark_recent": 4.88,
-   "mark_known": 4.88,
-   "public_median": 4.45,
+   "mark_known": 4.9,
+   "mark_all": 4.88,
+   "public_median": 4.46,
    "grid": {
     "version": "2026-09-07",
     "segment": "ai_native_above_512",
@@ -1370,7 +1506,9 @@
    },
    "grid_100": 5.4,
    "grid_50": 6.18,
-   "bid_median": 4.8,
+   "bid_median": 4.9,
+   "bid_median_all": 4.9,
+   "bid_median_unstated": 4.64,
    "ask_median": 4.88,
    "list_nebius": 4.55,
    "list_hyperscaler_min": null,
@@ -1378,12 +1516,12 @@
    "list_peer_min": 5.49,
    "list_peer_provider": "cp_civo",
    "cost_floor": 2.43,
-   "mark": 4.88,
+   "mark": 4.9,
    "has_mark": true,
    "range_lo": 3.2,
-   "range_hi": 6.53,
+   "range_hi": 6.54,
    "confidence": "good",
-   "spread_pct": 0.017,
+   "spread_pct": -0.004,
    "reason": null
   },
   {
@@ -1396,17 +1534,22 @@
    "n_ask": 0,
    "n_public": 2,
    "n_known": 1,
+   "n_bid_unstated": 0,
+   "n_all": 1,
    "n_providers": 1,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
-   "public_median": 3.68,
+   "mark_all": null,
+   "public_median": 3.69,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 4.74,
+   "bid_median": 4.75,
+   "bid_median_all": 4.75,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1420,7 +1563,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (1 obs in 365d, need 3)"
+   "reason": "insufficient_data (1 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "GB200",
@@ -1432,17 +1575,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": 10.582,
@@ -1456,7 +1604,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "GB200",
@@ -1468,17 +1616,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1492,7 +1645,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "GB200",
@@ -1504,17 +1657,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": 17.3056,
@@ -1528,7 +1686,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "GB200",
@@ -1540,17 +1698,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1564,7 +1727,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "GB200",
@@ -1576,17 +1739,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1600,7 +1768,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "GB200",
@@ -1612,17 +1780,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": 11.8976,
@@ -1636,7 +1809,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "GB200",
@@ -1648,17 +1821,22 @@
    "n_ask": 2,
    "n_public": 0,
    "n_known": 2,
+   "n_bid_unstated": 0,
+   "n_all": 2,
    "n_providers": 1,
    "ask_deals": 2,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": 3.57,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1672,7 +1850,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (2 obs in 365d, need 3)"
+   "reason": "insufficient_data (2 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "GB300",
@@ -1684,17 +1862,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 1,
+   "n_bid_unstated": 0,
+   "n_all": 1,
    "n_providers": 1,
    "ask_deals": 0,
    "recent_raw_median": 6.0,
    "n_recent90": 1,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 7.36,
+   "bid_median": 7.38,
+   "bid_median_all": 7.38,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1708,7 +1891,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (1 obs in 365d, need 3)"
+   "reason": "insufficient_data (1 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "GB300",
@@ -1720,17 +1903,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1744,41 +1932,46 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "GB300",
    "tenor_months": 12,
    "label": "12m",
-   "n_obs": 5,
+   "n_obs": 6,
    "n_recent": 2,
-   "n_bid": 3,
+   "n_bid": 4,
    "n_ask": 2,
    "n_public": 0,
-   "n_known": 5,
-   "n_providers": 3,
+   "n_known": 6,
+   "n_bid_unstated": 0,
+   "n_all": 6,
+   "n_providers": 4,
    "ask_deals": 3,
    "recent_raw_median": 5.5,
    "n_recent90": 1,
    "mark_recent": null,
-   "mark_known": 7.22,
+   "mark_known": 7.23,
+   "mark_all": 7.23,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 6.81,
-   "ask_median": 7.22,
+   "bid_median": 6.82,
+   "bid_median_all": 6.82,
+   "bid_median_unstated": null,
+   "ask_median": 7.23,
    "list_nebius": 5.88,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
-   "mark": 7.22,
+   "mark": 7.23,
    "has_mark": true,
-   "range_lo": 6.81,
-   "range_hi": 7.22,
-   "confidence": "thin",
+   "range_lo": 6.82,
+   "range_hi": 7.23,
+   "confidence": "good",
    "spread_pct": 0.06,
    "reason": null
   },
@@ -1792,17 +1985,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1816,24 +2014,27 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "GB300",
    "tenor_months": 24,
    "label": "24m",
-   "n_obs": 3,
+   "n_obs": 2,
    "n_recent": 0,
-   "n_bid": 2,
+   "n_bid": 1,
    "n_ask": 1,
    "n_public": 0,
    "n_known": 2,
-   "n_providers": 3,
+   "n_bid_unstated": 1,
+   "n_all": 3,
+   "n_providers": 2,
    "ask_deals": 1,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": 6.38,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -1847,38 +2048,43 @@
    },
    "grid_100": 8.91,
    "grid_50": 9.52,
-   "bid_median": 5.47,
-   "ask_median": 7.25,
+   "bid_median": 6.38,
+   "bid_median_all": 5.48,
+   "bid_median_unstated": 5.48,
+   "ask_median": 7.27,
    "list_nebius": 5.62,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
-   "mark": 6.36,
-   "has_mark": true,
-   "range_lo": 5.47,
-   "range_hi": 7.25,
-   "confidence": "thin",
-   "spread_pct": 0.325,
-   "reason": null
+   "mark": null,
+   "has_mark": false,
+   "range_lo": null,
+   "range_hi": null,
+   "confidence": "suppressed",
+   "spread_pct": null,
+   "reason": "insufficient_data (2 stated-prepay obs in 365d, need 3; 1 more with unstated terms)"
   },
   {
    "tier": "GB300",
    "tenor_months": 36,
    "label": "36m",
-   "n_obs": 13,
-   "n_recent": 8,
-   "n_bid": 10,
+   "n_obs": 10,
+   "n_recent": 6,
+   "n_bid": 7,
    "n_ask": 3,
    "n_public": 0,
    "n_known": 10,
-   "n_providers": 8,
+   "n_bid_unstated": 4,
+   "n_all": 14,
+   "n_providers": 6,
    "ask_deals": 5,
-   "recent_raw_median": 5.14,
-   "n_recent90": 4,
-   "mark_recent": 5.28,
+   "recent_raw_median": 5.29,
+   "n_recent90": 3,
+   "mark_recent": 5.38,
    "mark_known": 5.38,
+   "mark_all": 5.29,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -1892,43 +2098,50 @@
    },
    "grid_100": 7.21,
    "grid_50": 8.24,
-   "bid_median": 4.87,
-   "ask_median": 6.39,
+   "bid_median": 5.28,
+   "bid_median_all": 4.76,
+   "bid_median_unstated": 4.63,
+   "ask_median": 6.4,
    "list_nebius": 5.19,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
-   "mark": 5.35,
+   "mark": 5.38,
    "has_mark": true,
-   "range_lo": 4.26,
-   "range_hi": 6.84,
+   "range_lo": 4.27,
+   "range_hi": 6.85,
    "confidence": "good",
-   "spread_pct": 0.312,
+   "spread_pct": 0.212,
    "reason": null
   },
   {
    "tier": "GB300",
    "tenor_months": 60,
    "label": "60m",
-   "n_obs": 7,
-   "n_recent": 3,
-   "n_bid": 4,
+   "n_obs": 6,
+   "n_recent": 2,
+   "n_bid": 3,
    "n_ask": 3,
    "n_public": 6,
    "n_known": 6,
-   "n_providers": 4,
+   "n_bid_unstated": 1,
+   "n_all": 7,
+   "n_providers": 3,
    "ask_deals": 3,
-   "recent_raw_median": 5.4,
-   "n_recent90": 3,
-   "mark_recent": 5.84,
+   "recent_raw_median": 5.45,
+   "n_recent90": 2,
+   "mark_recent": null,
    "mark_known": 5.5,
+   "mark_all": 4.55,
    "public_median": 4.36,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": 5.84,
+   "bid_median_all": 5.84,
+   "bid_median_unstated": 3.7,
    "ask_median": 4.55,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1936,9 +2149,9 @@
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
-   "mark": 4.55,
+   "mark": 5.5,
    "has_mark": true,
-   "range_lo": 3.7,
+   "range_lo": 5.84,
    "range_hi": 5.85,
    "confidence": "good",
    "spread_pct": -0.221,
@@ -1954,17 +2167,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -1978,7 +2196,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "VR",
@@ -1990,17 +2208,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -2014,7 +2237,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "VR",
@@ -2026,17 +2249,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -2050,7 +2278,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "VR",
@@ -2062,17 +2290,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -2086,7 +2319,7 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "VR",
@@ -2098,17 +2331,22 @@
    "n_ask": 0,
    "n_public": 0,
    "n_known": 0,
+   "n_bid_unstated": 0,
+   "n_all": 0,
    "n_providers": 0,
    "ask_deals": 0,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": null,
+   "mark_all": null,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
    "bid_median": null,
+   "bid_median_all": null,
+   "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -2122,29 +2360,34 @@
    "range_hi": null,
    "confidence": "suppressed",
    "spread_pct": null,
-   "reason": "insufficient_data (0 obs in 365d, need 3)"
+   "reason": "insufficient_data (0 stated-prepay obs in 365d, need 3)"
   },
   {
    "tier": "VR",
    "tenor_months": 36,
    "label": "36m",
-   "n_obs": 8,
-   "n_recent": 5,
-   "n_bid": 8,
+   "n_obs": 4,
+   "n_recent": 1,
+   "n_bid": 4,
    "n_ask": 0,
    "n_public": 0,
    "n_known": 4,
-   "n_providers": 5,
+   "n_bid_unstated": 4,
+   "n_all": 8,
+   "n_providers": 4,
    "ask_deals": 0,
-   "recent_raw_median": 5.75,
-   "n_recent90": 4,
-   "mark_recent": 5.82,
-   "mark_known": 7.08,
+   "recent_raw_median": null,
+   "n_recent90": 0,
+   "mark_recent": null,
+   "mark_known": 7.09,
+   "mark_all": 6.06,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 6.05,
+   "bid_median": 7.09,
+   "bid_median_all": 6.06,
+   "bid_median_unstated": 5.5,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -2152,11 +2395,11 @@
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 4.02,
-   "mark": 6.05,
+   "mark": 7.09,
    "has_mark": true,
-   "range_lo": 5.5,
-   "range_hi": 7.08,
-   "confidence": "good",
+   "range_lo": 7.09,
+   "range_hi": 7.09,
+   "confidence": "thin",
    "spread_pct": null,
    "reason": null
   },
@@ -2164,18 +2407,21 @@
    "tier": "VR",
    "tenor_months": 60,
    "label": "60m",
-   "n_obs": 7,
-   "n_recent": 6,
-   "n_bid": 7,
+   "n_obs": 5,
+   "n_recent": 5,
+   "n_bid": 5,
    "n_ask": 0,
    "n_public": 0,
    "n_known": 5,
+   "n_bid_unstated": 2,
+   "n_all": 7,
    "n_providers": 4,
    "ask_deals": 0,
-   "recent_raw_median": 7.0,
-   "n_recent90": 6,
+   "recent_raw_median": 6.65,
+   "n_recent90": 5,
    "mark_recent": 7.18,
    "mark_known": 7.18,
+   "mark_all": 7.18,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -2190,6 +2436,8 @@
    "grid_100": 7.2,
    "grid_50": 8.25,
    "bid_median": 7.18,
+   "bid_median_all": 7.18,
+   "bid_median_unstated": 9.0,
    "ask_median": null,
    "list_nebius": null,
    "list_hyperscaler_min": null,
@@ -2200,8 +2448,8 @@
    "mark": 7.18,
    "has_mark": true,
    "range_lo": 6.4,
-   "range_hi": 9.0,
-   "confidence": "good",
+   "range_hi": 8.06,
+   "confidence": "thin",
    "spread_pct": null,
    "reason": null
   }
@@ -2220,34 +2468,34 @@
   },
   {
    "tier": "H200",
-   "mark_3m": 3.06,
-   "mark_12m": 2.95,
+   "mark_3m": 3.11,
+   "mark_12m": 2.96,
    "mark_36m": null,
    "mark_60m": null,
    "slope_12_36_pct": null,
-   "short_end_premium_pct": 0.037,
+   "short_end_premium_pct": 0.051,
    "structure": null,
    "cost_floor": 1.59
   },
   {
    "tier": "B200",
-   "mark_3m": 4.96,
+   "mark_3m": 4.97,
    "mark_12m": 5.18,
-   "mark_36m": 4.48,
+   "mark_36m": 4.49,
    "mark_60m": null,
-   "slope_12_36_pct": -0.135,
-   "short_end_premium_pct": -0.042,
+   "slope_12_36_pct": -0.133,
+   "short_end_premium_pct": -0.041,
    "structure": "backwardation",
    "cost_floor": 2.07
   },
   {
    "tier": "B300",
-   "mark_3m": 6.5,
-   "mark_12m": 5.92,
-   "mark_36m": 4.88,
+   "mark_3m": 5.6,
+   "mark_12m": 5.56,
+   "mark_36m": 4.9,
    "mark_60m": null,
-   "slope_12_36_pct": -0.176,
-   "short_end_premium_pct": 0.098,
+   "slope_12_36_pct": -0.119,
+   "short_end_premium_pct": 0.007,
    "structure": "backwardation",
    "cost_floor": 2.43
   },
@@ -2265,10 +2513,10 @@
   {
    "tier": "GB300",
    "mark_3m": null,
-   "mark_12m": 7.22,
-   "mark_36m": 5.35,
-   "mark_60m": 4.55,
-   "slope_12_36_pct": -0.259,
+   "mark_12m": 7.23,
+   "mark_36m": 5.38,
+   "mark_60m": 5.5,
+   "slope_12_36_pct": -0.256,
    "short_end_premium_pct": null,
    "structure": "backwardation",
    "cost_floor": 2.79
@@ -2277,7 +2525,7 @@
    "tier": "VR",
    "mark_3m": null,
    "mark_12m": null,
-   "mark_36m": 6.05,
+   "mark_36m": 7.09,
    "mark_60m": 7.18,
    "slope_12_36_pct": null,
    "short_end_premium_pct": null,
@@ -2300,7 +2548,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1759508630.785489"
+   "ts": "1759508630.785489",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2316,7 +2566,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1759508630.785489"
+   "ts": "1759508630.785489",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2332,7 +2584,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Massed Compute",
-   "ts": "1759993734.116339"
+   "ts": "1759993734.116339",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2348,7 +2602,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Massed Compute",
-   "ts": "1759993734.116339"
+   "ts": "1759993734.116339",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2364,7 +2620,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Hydrahost",
-   "ts": "1759993734.116339"
+   "ts": "1759993734.116339",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2380,7 +2638,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Hydrahost",
-   "ts": "1759993734.116339"
+   "ts": "1759993734.116339",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2396,7 +2656,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1760604957.327919"
+   "ts": "1760604957.327919",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2412,7 +2674,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1760604957.327919"
+   "ts": "1760604957.327919",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2428,7 +2692,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1760604957.327919"
+   "ts": "1760604957.327919",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2444,7 +2710,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1760604957.327919"
+   "ts": "1760604957.327919",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2460,7 +2728,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1760604957.327919"
+   "ts": "1760604957.327919",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2476,7 +2746,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1760604957.327919"
+   "ts": "1760604957.327919",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2492,7 +2764,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1760624920.211029"
+   "ts": "1760624920.211029",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2508,7 +2782,9 @@
    "w": 0.5,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1765267345.620039"
+   "ts": "1765267345.620039",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2524,7 +2800,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Hydrahost",
-   "ts": "1768438488.843219"
+   "ts": "1768438488.843219",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2540,7 +2818,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Together",
-   "ts": "1769448492.806549"
+   "ts": "1769448492.806549",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2556,7 +2836,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1769448492.806549"
+   "ts": "1769448492.806549",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2572,7 +2854,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Together",
-   "ts": "1769453225.167629"
+   "ts": "1769453225.167629",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2588,7 +2872,9 @@
    "w": 0.5,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1770687750.323659"
+   "ts": "1770687750.323659",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2604,7 +2890,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Lambda",
-   "ts": "1771847940.814249"
+   "ts": "1771847940.814249",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2620,7 +2908,9 @@
    "w": 0.5,
    "ptype": "broker",
    "provider": "Undisclosed",
-   "ts": "1772228908.750069"
+   "ts": "1772228908.750069",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2636,7 +2926,9 @@
    "w": 0.5,
    "ptype": "hyperscaler",
    "provider": "Oracle",
-   "ts": "1772731887.282889"
+   "ts": "1772731887.282889",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2652,7 +2944,9 @@
    "w": 0.5,
    "ptype": "hyperscaler",
    "provider": "Oracle",
-   "ts": "1772731887.282889"
+   "ts": "1772731887.282889",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2668,7 +2962,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Hydrahost",
-   "ts": "1773244814.588709"
+   "ts": "1773244814.588709",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2684,7 +2980,9 @@
    "w": 0.5,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1773433467.443049"
+   "ts": "1773433467.443049",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2700,7 +2998,9 @@
    "w": 0.5,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1773607726.691229"
+   "ts": "1773607726.691229",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2716,7 +3016,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave (unconfirmed)",
-   "ts": "1773755977.501569"
+   "ts": "1773755977.501569",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2732,7 +3034,9 @@
    "w": 0.5,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1775104471.134239"
+   "ts": "1775104471.134239",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2748,7 +3052,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave (unconfirmed)",
-   "ts": "1775158906.616219"
+   "ts": "1775158906.616219",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2764,7 +3070,9 @@
    "w": 0.5,
    "ptype": "hyperscaler",
    "provider": "GCP",
-   "ts": "1775749768.070139"
+   "ts": "1775749768.070139",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2780,7 +3088,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1775749768.070139"
+   "ts": "1775749768.070139",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2796,7 +3106,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1775752732.729229"
+   "ts": "1775752732.729229",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2812,7 +3124,9 @@
    "w": 0.5,
    "ptype": "undisclosed_hyperscaler",
    "provider": "Undisclosed hyperscaler",
-   "ts": "1776103400.900209"
+   "ts": "1776103400.900209",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2828,7 +3142,9 @@
    "w": 0.5,
    "ptype": "undisclosed_hyperscaler",
    "provider": "Undisclosed hyperscaler",
-   "ts": "1776113165.196659"
+   "ts": "1776113165.196659",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2844,7 +3160,27 @@
    "w": 0.5,
    "ptype": "undisclosed_hyperscaler",
    "provider": "Undisclosed hyperscaler",
-   "ts": "1777387064.743909"
+   "ts": "1777387064.743909",
+   "review": false,
+   "similar": ""
+  },
+  {
+   "side": "bid",
+   "tier": "GB300",
+   "tenor": 12,
+   "months": 12.0,
+   "date": "2026-04-28",
+   "price": 5.0,
+   "p0": 5.09,
+   "q": "2026Q2",
+   "prepay": 30.0,
+   "known": true,
+   "w": 0.5,
+   "ptype": "undisclosed_neocloud",
+   "provider": "Undisclosed neocloud",
+   "ts": "1777387064.743909",
+   "review": true,
+   "similar": "Undisclosed hyperscaler"
   },
   {
    "side": "bid",
@@ -2860,7 +3196,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Mistral",
-   "ts": "1777599795.012079"
+   "ts": "1777599795.012079",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2876,7 +3214,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Mistral",
-   "ts": "1777599795.012079"
+   "ts": "1777599795.012079",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2892,7 +3232,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Mistral",
-   "ts": "1777599795.012079"
+   "ts": "1777599795.012079",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2908,7 +3250,9 @@
    "w": 0.5,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1778001475.012579"
+   "ts": "1778001475.012579",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2924,23 +3268,27 @@
    "w": 0.5,
    "ptype": "broker",
    "provider": "Blue Sky Compute",
-   "ts": "1778005793.502519"
+   "ts": "1778005793.502519",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
    "tier": "B300",
    "tenor": 36,
    "months": 36.0,
-   "date": "2026-05-08",
+   "date": "2026-05-14",
    "price": 4.0,
-   "p0": 4.0,
+   "p0": 4.155,
    "q": "2026Q2",
-   "prepay": 0.0,
-   "known": false,
+   "prepay": 20.0,
+   "known": true,
    "w": 0.5,
    "ptype": "hyperscaler",
    "provider": "AWS",
-   "ts": "1778220816.521299"
+   "ts": "1778793265.826279",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2956,7 +3304,9 @@
    "w": 0.5,
    "ptype": "hyperscaler",
    "provider": "Azure",
-   "ts": "1778230171.438679"
+   "ts": "1778230171.438679",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2972,7 +3322,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1778230171.438679"
+   "ts": "1778230171.438679",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -2988,7 +3340,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1778230171.438679"
+   "ts": "1778230171.438679",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3004,7 +3358,9 @@
    "w": 0.5,
    "ptype": "hyperscaler",
    "provider": "GCP",
-   "ts": "1778251159.227129"
+   "ts": "1778251159.227129",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3020,7 +3376,9 @@
    "w": 0.5,
    "ptype": "hyperscaler",
    "provider": "GCP",
-   "ts": "1778251159.227129"
+   "ts": "1778251159.227129",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3036,7 +3394,9 @@
    "w": 0.5,
    "ptype": "hyperscaler",
    "provider": "AWS",
-   "ts": "1778251159.227129"
+   "ts": "1778251159.227129",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3052,7 +3412,9 @@
    "w": 0.5,
    "ptype": "hyperscaler",
    "provider": "AWS",
-   "ts": "1778498257.915789"
+   "ts": "1778498257.915789",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3068,7 +3430,9 @@
    "w": 0.5,
    "ptype": "neocloud",
    "provider": "Lambda",
-   "ts": "1778498257.915789"
+   "ts": "1778498257.915789",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3084,7 +3448,9 @@
    "w": 0.5,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1778659992.974979"
+   "ts": "1778659992.974979",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3100,7 +3466,9 @@
    "w": 0.5,
    "ptype": "undisclosed_neocloud",
    "provider": "Undisclosed EU neocloud",
-   "ts": "1778779567.610869"
+   "ts": "1778779567.610869",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3116,7 +3484,9 @@
    "w": 0.5,
    "ptype": "undisclosed_neocloud",
    "provider": "Undisclosed EU neocloud",
-   "ts": "1778779567.610869"
+   "ts": "1778779567.610869",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3132,7 +3502,9 @@
    "w": 0.5,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1778792937.752849"
+   "ts": "1778792937.752849",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3148,7 +3520,9 @@
    "w": 0.5,
    "ptype": "broker",
    "provider": "Axe Compute",
-   "ts": "1778870469.336729"
+   "ts": "1778870469.336729",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3164,7 +3538,9 @@
    "w": 0.5,
    "ptype": "broker",
    "provider": "Axe Compute",
-   "ts": "1778870469.336729"
+   "ts": "1778870469.336729",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3180,7 +3556,9 @@
    "w": 0.5,
    "ptype": "broker",
    "provider": "Axe Compute",
-   "ts": "1778870469.336729"
+   "ts": "1778870469.336729",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3196,7 +3574,9 @@
    "w": 1.0,
    "ptype": "undisclosed_hyperscaler",
    "provider": "Undisclosed hyperscaler",
-   "ts": "1779107728.747939"
+   "ts": "1779107728.747939",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3212,7 +3592,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "Lambda",
-   "ts": "1779198885.778519"
+   "ts": "1779198885.778519",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3228,7 +3610,9 @@
    "w": 1.0,
    "ptype": "hyperscaler",
    "provider": "AWS",
-   "ts": "1779206116.969039"
+   "ts": "1779206116.969039",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3244,7 +3628,9 @@
    "w": 1.0,
    "ptype": "undisclosed_neocloud",
    "provider": "HUMAIN",
-   "ts": "1779453952.318479"
+   "ts": "1779453952.318479",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3260,7 +3646,9 @@
    "w": 1.0,
    "ptype": "hyperscaler",
    "provider": "Oracle",
-   "ts": "1779927609.062969"
+   "ts": "1779927609.062969",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3276,7 +3664,27 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "Verda",
-   "ts": "1780422932.324229"
+   "ts": "1780422932.324229",
+   "review": false,
+   "similar": ""
+  },
+  {
+   "side": "bid",
+   "tier": "B300",
+   "tenor": 24,
+   "months": 24.0,
+   "date": "2026-06-02",
+   "price": 4.25,
+   "p0": 4.565,
+   "q": "2026Q2",
+   "prepay": 100.0,
+   "known": true,
+   "w": 1.0,
+   "ptype": "neocloud",
+   "provider": "CIVO",
+   "ts": "1780422932.324229",
+   "review": true,
+   "similar": "Verda"
   },
   {
    "side": "bid",
@@ -3292,7 +3700,27 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "BoostRun",
-   "ts": "1780592471.289529"
+   "ts": "1780592471.289529",
+   "review": false,
+   "similar": ""
+  },
+  {
+   "side": "bid",
+   "tier": "GB300",
+   "tenor": 36,
+   "months": 36.0,
+   "date": "2026-06-04",
+   "price": 3.8,
+   "p0": 3.8,
+   "q": "2026Q2",
+   "prepay": 0.0,
+   "known": false,
+   "w": 1.0,
+   "ptype": "neocloud",
+   "provider": "Nscale",
+   "ts": "1780592471.289529",
+   "review": true,
+   "similar": "BoostRun"
   },
   {
    "side": "bid",
@@ -3308,7 +3736,9 @@
    "w": 1.0,
    "ptype": "hyperscaler",
    "provider": "GCP",
-   "ts": "1780592471.289529"
+   "ts": "1780592471.289529",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3324,7 +3754,9 @@
    "w": 1.0,
    "ptype": "undisclosed_neocloud",
    "provider": "Undisclosed neocloud",
-   "ts": "1780684940.660119"
+   "ts": "1780684940.660119",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3340,7 +3772,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1780998131.414069"
+   "ts": "1780998131.414069",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3356,7 +3790,9 @@
    "w": 1.0,
    "ptype": "undisclosed_hyperscaler",
    "provider": "Undisclosed hyperscaler",
-   "ts": "1781225095.772999"
+   "ts": "1781225095.772999",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3372,7 +3808,9 @@
    "w": 1.0,
    "ptype": "undisclosed_neocloud",
    "provider": "Undisclosed neocloud",
-   "ts": "1781559030.314519"
+   "ts": "1781559030.314519",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3388,7 +3826,9 @@
    "w": 1.0,
    "ptype": "hyperscaler",
    "provider": "GCP",
-   "ts": "1781806697.133429"
+   "ts": "1781806697.133429",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3404,7 +3844,9 @@
    "w": 1.0,
    "ptype": "undisclosed_neocloud",
    "provider": "Undisclosed neocloud",
-   "ts": "1782016770.454949"
+   "ts": "1782016770.454949",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3420,7 +3862,9 @@
    "w": 1.0,
    "ptype": "undisclosed_neocloud",
    "provider": "Undisclosed neocloud",
-   "ts": "1782016770.454949"
+   "ts": "1782016770.454949",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3436,7 +3880,9 @@
    "w": 1.0,
    "ptype": "undisclosed_hyperscaler",
    "provider": "Undisclosed hyperscaler",
-   "ts": "1782016770.454949"
+   "ts": "1782016770.454949",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3452,7 +3898,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "LAI",
-   "ts": "1782153062.086669"
+   "ts": "1782153062.086669",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3468,7 +3916,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "Pale Blue Dot",
-   "ts": "1782153062.086669"
+   "ts": "1782153062.086669",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3484,7 +3934,9 @@
    "w": 1.0,
    "ptype": "broker",
    "provider": "Anyscale",
-   "ts": "1782351420.240329"
+   "ts": "1782351420.240329",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3500,7 +3952,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "Andromeda",
-   "ts": "1782681849.070519"
+   "ts": "1782681849.070519",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3516,7 +3970,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "Andromeda",
-   "ts": "1782681849.070519"
+   "ts": "1782681849.070519",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3532,7 +3988,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1782899873.480579"
+   "ts": "1782899873.480579",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3548,7 +4006,9 @@
    "w": 1.0,
    "ptype": "hyperscaler",
    "provider": "GCP",
-   "ts": "1782917000.238339"
+   "ts": "1782917000.238339",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3564,7 +4024,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1782917000.238339"
+   "ts": "1782917000.238339",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3580,7 +4042,9 @@
    "w": 1.0,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1782917000.238339"
+   "ts": "1782917000.238339",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3596,7 +4060,9 @@
    "w": 1.0,
    "ptype": "undisclosed_neocloud",
    "provider": "Undisclosed neocloud",
-   "ts": "1783273869.455719"
+   "ts": "1783273869.455719",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3612,7 +4078,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "Crusoe",
-   "ts": "1783273869.455719"
+   "ts": "1783273869.455719",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3628,7 +4096,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "DigitalOcean",
-   "ts": "1784643844.899699"
+   "ts": "1784643844.899699",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3644,7 +4114,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "DigitalOcean",
-   "ts": "1784643844.899699"
+   "ts": "1784643844.899699",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3660,7 +4132,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "DigitalOcean",
-   "ts": "1784643844.899699"
+   "ts": "1784643844.899699",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3676,7 +4150,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "PaleBlueDot",
-   "ts": "1785773165.072339"
+   "ts": "1785773165.072339",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3692,7 +4168,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "Lightning AI",
-   "ts": "1785773165.072339"
+   "ts": "1785773165.072339",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3708,7 +4186,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "Yotta",
-   "ts": "1786044803.953839"
+   "ts": "1786044803.953839",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3724,7 +4204,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "Inference.ai",
-   "ts": "1786044803.953839"
+   "ts": "1786044803.953839",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3740,7 +4222,9 @@
    "w": 1.0,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1786059237.078829"
+   "ts": "1786059237.078829",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3756,7 +4240,9 @@
    "w": 1.0,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1786059237.078829"
+   "ts": "1786059237.078829",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3772,7 +4258,9 @@
    "w": 1.0,
    "ptype": "broker",
    "provider": "SFCompute",
-   "ts": "1786061618.219829"
+   "ts": "1786061618.219829",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3788,7 +4276,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "Nscale",
-   "ts": "1786542026.111519"
+   "ts": "1786542026.111519",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3804,7 +4294,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1786579347.449529"
+   "ts": "1786579347.449529",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3820,7 +4312,9 @@
    "w": 1.0,
    "ptype": "hyperscaler",
    "provider": "GCP",
-   "ts": "1786627944.371599"
+   "ts": "1786627944.371599",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3836,7 +4330,9 @@
    "w": 1.0,
    "ptype": "hyperscaler",
    "provider": "GCP",
-   "ts": "1786627944.371599"
+   "ts": "1786627944.371599",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3852,7 +4348,9 @@
    "w": 1.0,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1786737623.389179"
+   "ts": "1786737623.389179",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3868,7 +4366,9 @@
    "w": 1.0,
    "ptype": "undisclosed_neocloud",
    "provider": "Undisclosed",
-   "ts": "1786999784.803339"
+   "ts": "1786999784.803339",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3884,7 +4384,27 @@
    "w": 1.0,
    "ptype": "broker",
    "provider": "SFCompute",
-   "ts": "1787230678.978469"
+   "ts": "1787230678.978469",
+   "review": false,
+   "similar": ""
+  },
+  {
+   "side": "bid",
+   "tier": "B300",
+   "tenor": 36,
+   "months": 36.0,
+   "date": "2026-08-20",
+   "price": 4.9,
+   "p0": 4.9,
+   "q": "2026Q3",
+   "prepay": 0.0,
+   "known": false,
+   "w": 1.0,
+   "ptype": "broker",
+   "provider": "Ornn",
+   "ts": "1787230678.978469",
+   "review": true,
+   "similar": "SFCompute"
   },
   {
    "side": "bid",
@@ -3900,7 +4420,9 @@
    "w": 1.0,
    "ptype": "undisclosed_hyperscaler",
    "provider": "Undisclosed",
-   "ts": "1787255339.627099"
+   "ts": "1787255339.627099",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3916,7 +4438,9 @@
    "w": 1.0,
    "ptype": "hyperscaler",
    "provider": "AWS",
-   "ts": "1787599134.249799"
+   "ts": "1787599134.249799",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3932,7 +4456,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1787754903.783139"
+   "ts": "1787754903.783139",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3948,7 +4474,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1787772030.233299"
+   "ts": "1787772030.233299",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3964,7 +4492,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1787772892.613209"
+   "ts": "1787772892.613209",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3980,7 +4510,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "IREN",
-   "ts": "1787772892.613209"
+   "ts": "1787772892.613209",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -3996,7 +4528,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "IREN",
-   "ts": "1788414848.955649"
+   "ts": "1788414848.955649",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4012,7 +4546,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1788466826.629979"
+   "ts": "1788466826.629979",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4028,7 +4564,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "CoreWeave",
-   "ts": "1788466826.629979"
+   "ts": "1788466826.629979",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4044,7 +4582,9 @@
    "w": 1.0,
    "ptype": "broker",
    "provider": "Ornn",
-   "ts": "1788540957.926409"
+   "ts": "1788540957.926409",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4060,7 +4600,9 @@
    "w": 1.0,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1789129113.191989"
+   "ts": "1789129113.191989",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4076,7 +4618,9 @@
    "w": 1.0,
    "ptype": "undisclosed",
    "provider": "SemiAnalysis GB300 index (draft)",
-   "ts": "1789132624.685869"
+   "ts": "1789132624.685869",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4092,7 +4636,9 @@
    "w": 1.0,
    "ptype": "undisclosed",
    "provider": "SemiAnalysis GB300 index (draft)",
-   "ts": "1789132624.685869"
+   "ts": "1789132624.685869",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4108,7 +4654,9 @@
    "w": 1.0,
    "ptype": "undisclosed",
    "provider": "SemiAnalysis GB300 index (draft)",
-   "ts": "1789132624.685869"
+   "ts": "1789132624.685869",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4124,7 +4672,9 @@
    "w": 1.0,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "1789135521.902249"
+   "ts": "1789135521.902249",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4140,7 +4690,9 @@
    "w": 1.0,
    "ptype": "neocloud",
    "provider": "Nscale",
-   "ts": "1789135614.370919"
+   "ts": "1789135614.370919",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4156,7 +4708,9 @@
    "w": 0.5,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "seed_20260313_01"
+   "ts": "seed_20260313_01",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4172,7 +4726,9 @@
    "w": 0.5,
    "ptype": "undisclosed",
    "provider": "Undisclosed",
-   "ts": "seed_20260402_02"
+   "ts": "seed_20260402_02",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "bid",
@@ -4188,7 +4744,9 @@
    "w": 0.5,
    "ptype": "nebius",
    "provider": "Nebius",
-   "ts": "seed_20260428_01"
+   "ts": "seed_20260428_01",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "ask",
@@ -4205,6 +4763,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4223,6 +4783,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4241,6 +4803,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -4259,6 +4823,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4277,6 +4843,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4295,6 +4863,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4313,6 +4883,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -4331,6 +4903,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4349,6 +4923,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -4367,6 +4943,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -4385,6 +4963,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4403,6 +4983,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -4421,6 +5003,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 4,
    "bucket": "postpaid"
   },
@@ -4439,6 +5023,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "upfront"
   },
@@ -4457,6 +5043,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -4475,6 +5063,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "upfront"
   },
@@ -4493,6 +5083,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -4511,6 +5103,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "upfront"
   },
@@ -4529,6 +5123,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 5,
    "bucket": "postpaid"
   },
@@ -4547,6 +5143,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -4565,6 +5163,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4583,6 +5183,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4601,6 +5203,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 3,
    "bucket": "prepaid_monthly"
   },
@@ -4619,6 +5223,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4637,6 +5243,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4655,6 +5263,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -4673,6 +5283,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4691,6 +5303,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4709,6 +5323,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -4727,6 +5343,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4745,6 +5363,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4763,6 +5383,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -4781,6 +5403,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4799,6 +5423,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4817,6 +5443,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -4835,6 +5463,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4853,6 +5483,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4871,6 +5503,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4889,6 +5523,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4907,6 +5543,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4925,6 +5563,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -4943,6 +5583,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -4961,6 +5603,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -4979,6 +5623,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -4997,6 +5643,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5015,6 +5663,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -5033,6 +5683,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5051,6 +5703,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5069,6 +5723,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5087,6 +5743,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5105,6 +5763,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5123,6 +5783,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5141,6 +5803,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5159,6 +5823,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5177,6 +5843,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5195,6 +5863,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5213,6 +5883,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5231,6 +5903,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5249,6 +5923,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5267,6 +5943,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5285,6 +5963,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5303,6 +5983,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5321,6 +6003,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5339,6 +6023,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5357,6 +6043,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -5375,6 +6063,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5393,6 +6083,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5411,6 +6103,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5429,6 +6123,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5447,6 +6143,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -5465,6 +6163,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 4,
    "bucket": "prepaid_monthly"
   },
@@ -5483,6 +6183,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "upfront"
   },
@@ -5501,6 +6203,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5519,6 +6223,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5537,6 +6243,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5555,6 +6263,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5573,6 +6283,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5591,6 +6303,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5609,6 +6323,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5627,6 +6343,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5645,6 +6363,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5663,6 +6383,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -5681,6 +6403,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5699,6 +6423,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5717,6 +6443,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5735,6 +6463,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5753,6 +6483,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5771,6 +6503,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5789,6 +6523,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -5807,6 +6543,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5825,6 +6563,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5843,6 +6583,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -5861,6 +6603,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -5879,6 +6623,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5897,6 +6643,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5915,6 +6663,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -5933,6 +6683,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -5951,6 +6703,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -5969,6 +6723,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -5987,6 +6743,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -6005,6 +6763,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -6023,6 +6783,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6041,6 +6803,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -6059,6 +6823,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -6077,6 +6843,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -6095,6 +6863,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6113,6 +6883,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -6131,6 +6903,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6149,6 +6923,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 3,
    "bucket": "prepaid_monthly"
   },
@@ -6167,6 +6943,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -6185,6 +6963,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6203,6 +6983,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -6221,6 +7003,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6239,6 +7023,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 3,
    "bucket": "postpaid"
   },
@@ -6257,6 +7043,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6275,6 +7063,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -6293,6 +7083,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6311,6 +7103,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 3,
    "bucket": "prepaid_monthly"
   },
@@ -6329,6 +7123,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6347,6 +7143,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6365,6 +7163,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -6383,6 +7183,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -6401,6 +7203,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -6419,6 +7223,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -6437,6 +7243,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6455,6 +7263,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 4,
    "bucket": "postpaid"
   },
@@ -6473,6 +7283,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -6491,6 +7303,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -6509,6 +7323,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -6527,6 +7343,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 3,
    "bucket": "postpaid"
   },
@@ -6545,6 +7363,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -6563,6 +7383,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -6581,6 +7403,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -6599,6 +7423,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -6617,6 +7443,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6635,6 +7463,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -6653,6 +7483,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6671,6 +7503,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -6689,6 +7523,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 4,
    "bucket": "prepaid_monthly"
   },
@@ -6707,6 +7543,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -6725,6 +7563,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 3,
    "bucket": "postpaid"
   },
@@ -6743,6 +7583,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -6761,6 +7603,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -6779,6 +7623,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -6797,6 +7643,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -6815,6 +7663,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -6833,6 +7683,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 4,
    "bucket": "postpaid"
   },
@@ -6851,6 +7703,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6869,6 +7723,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -6887,6 +7743,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -6905,6 +7763,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -6923,6 +7783,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 5,
    "bucket": "prepaid_monthly"
   },
@@ -6941,6 +7803,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -6959,6 +7823,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -6977,6 +7843,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 5,
    "bucket": "prepaid_monthly"
   },
@@ -6995,6 +7863,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7013,6 +7883,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -7031,6 +7903,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -7049,6 +7923,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 3,
    "bucket": "postpaid"
   },
@@ -7067,6 +7943,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7085,6 +7963,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7103,6 +7983,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7121,6 +8003,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -7139,6 +8023,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -7157,6 +8043,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7175,6 +8063,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -7193,6 +8083,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -7211,6 +8103,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "postpaid"
   },
@@ -7229,6 +8123,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -7247,6 +8143,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -7265,6 +8163,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7283,6 +8183,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 3,
    "bucket": "postpaid"
   },
@@ -7301,6 +8203,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -7319,6 +8223,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -7337,6 +8243,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 5,
    "bucket": "postpaid"
   },
@@ -7355,6 +8263,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -7373,6 +8283,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 4,
    "bucket": "postpaid"
   },
@@ -7391,6 +8303,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -7409,6 +8323,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -7427,6 +8343,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -7445,6 +8363,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -7463,6 +8383,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "upfront"
   },
@@ -7481,6 +8403,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -7499,6 +8423,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7517,6 +8443,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7535,6 +8463,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 2,
    "bucket": "prepaid_monthly"
   },
@@ -7553,6 +8483,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7571,6 +8503,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7589,6 +8523,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7607,6 +8543,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "postpaid"
   },
@@ -7625,6 +8563,8 @@
    "ptype": "nebius",
    "provider": "Nebius",
    "ts": "",
+   "review": false,
+   "similar": "",
    "deals": 1,
    "bucket": "prepaid_monthly"
   },
@@ -7642,7 +8582,9 @@
    "w": 0.0,
    "ptype": "public_contract",
    "provider": "IREN",
-   "ts": ""
+   "ts": "",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "public",
@@ -7658,7 +8600,9 @@
    "w": 0.0,
    "ptype": "public_contract",
    "provider": "CoreWeave",
-   "ts": ""
+   "ts": "",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "public",
@@ -7674,7 +8618,9 @@
    "w": 0.0,
    "ptype": "public_contract",
    "provider": "CoreWeave",
-   "ts": ""
+   "ts": "",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "public",
@@ -7690,7 +8636,9 @@
    "w": 0.0,
    "ptype": "public_contract",
    "provider": "Nscale",
-   "ts": ""
+   "ts": "",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "public",
@@ -7706,7 +8654,9 @@
    "w": 0.0,
    "ptype": "public_contract",
    "provider": "Nscale",
-   "ts": ""
+   "ts": "",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "public",
@@ -7722,7 +8672,9 @@
    "w": 0.0,
    "ptype": "public_contract",
    "provider": "IREN",
-   "ts": ""
+   "ts": "",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "public",
@@ -7738,7 +8690,9 @@
    "w": 0.0,
    "ptype": "public_contract",
    "provider": "Boostrun",
-   "ts": ""
+   "ts": "",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "public",
@@ -7754,7 +8708,9 @@
    "w": 0.0,
    "ptype": "public_contract",
    "provider": "Sharon AI",
-   "ts": ""
+   "ts": "",
+   "review": false,
+   "similar": ""
   },
   {
    "side": "public",
@@ -7770,7 +8726,9 @@
    "w": 0.0,
    "ptype": "public_contract",
    "provider": "Sharon AI",
-   "ts": ""
+   "ts": "",
+   "review": false,
+   "similar": ""
   }
  ],
  "economics": {
