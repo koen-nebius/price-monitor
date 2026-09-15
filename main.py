@@ -556,6 +556,21 @@ def run(providers=None, test=False):
             else:
                 slack_summary += f"\n\n{line}"
             logger.info(f"Storage benchmark changes: {storage_moves}")
+        # ── Supply tightness (2026-09-15): sold-out ratio per GPU from the capacity
+        # monitor's last committed run, as a price-move leading indicator. Same
+        # placement as the storage line; silent when the snapshot is stale/missing.
+        try:
+            from supply import supply_line
+            _sl = supply_line(today)
+            if _sl:
+                _anchor = "\nFull benchmark (live, updated daily):"
+                if _anchor in slack_summary:
+                    slack_summary = slack_summary.replace(_anchor, f"\n{_sl}" + _anchor, 1)
+                else:
+                    slack_summary += f"\n\n{_sl}"
+                logger.info(f"Supply line: {_sl}")
+        except Exception as _e:
+            logger.debug(f"supply line skipped: {_e}")
         from storage_page import format_storage_page
         with open(STORE_DIR / "storage_body.html", "w") as f:
             f.write(format_storage_page(run_date))

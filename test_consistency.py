@@ -95,10 +95,22 @@ def check_field_only_gpus(records: List[PriceRecord]) -> List[str]:
                 ("field-intel section", _diff._build_field_intel_callout(records)),
                 ("field committed section", _diff._build_field_committed_section(records)),
         ):
-            if g not in out:
-                problems.append(f"{g}: has intel rows but is missing from the {name}")
-                continue
-            zone = out[out.find(g):out.find(g) + 800]
+            # Anchor on the GPU's own block heading ("<h3>VR — ...") and stop at the
+            # next heading. Anchoring on the first literal "VR" false-positived on
+            # 2026-09-15: a B300 row's note ("1024xB300 1yr w/ 1152xVR ...") matched
+            # first and the fixed 800-char window then read neighbouring B300 rows'
+            # legitimate "vs Nebius $" as a VR comparison.
+            hm = _re.search(rf"<h\d[^>]*>\s*{_re.escape(g)}\b[^<]*</h\d>", out)
+            if hm:
+                nxt = _re.search(r"<h\d[^>]*>", out[hm.end():])
+                zone = out[hm.start():hm.end() + (nxt.start() if nxt else len(out))]
+            else:
+                # committed section: one <tr> per GPU, label in the first cell
+                rm = _re.search(rf"<tr><td><strong>{_re.escape(g)}</strong></td>.*?</tr>", out, _re.S)
+                if not rm:
+                    problems.append(f"{g}: has intel rows but is missing from the {name}")
+                    continue
+                zone = rm.group(0)
             if _re.search(r"vs Nebius \$|Nebius \$[\d.]", zone):
                 problems.append(f"{g}: {name} price-compares a field-only GPU "
                                 f"against a Nebius price")
