@@ -34,6 +34,7 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface) url("da
 .btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);font-weight:500;padding:8px 12px;border-radius:8px;cursor:pointer}
 .btn:hover{border-color:var(--dim)}
 .btn.quiet{color:var(--muted)}
+.btn.act{border-color:var(--accent);color:var(--white)}
 .btn[disabled]{color:var(--dim);cursor:default;border-color:var(--line-soft)}
 .chk{display:inline-flex;align-items:center;gap:8px;color:var(--muted);cursor:pointer}
 .chk input{width:15px;height:15px;accent-color:var(--accent);margin:0}
@@ -119,8 +120,7 @@ tr[data-ts]{cursor:pointer}
   <label><span class="k">Prepayment</span><select id="c-pp" aria-label="Prepayment share">
     <option value="0">0%</option><option value="25">25%</option><option value="50">50%</option><option value="75">75%</option><option value="100">100%</option></select></label>
   <label class="ev"><span class="k">Your price</span><span class="in">$<input id="c-price" type="number" step="0.05" min="0.05" inputmode="decimal" aria-label="Your price per GPU-hour"><span>/GPU-hr</span></span></label>
-  <button class="btn quiet ev" id="c-usebench" type="button">Use benchmark price</button>
-  <span class="hint ev" id="c-pricesrc"></span>
+  <button class="btn ev" id="c-usebench" type="button" aria-live="polite"></button>
   <label class="mk"><span class="k">Offers</span><select id="c-pf" aria-label="Which offers enter the marks">
     <option value="known">Stated prepayment</option><option value="all">All (unstated as 0%)</option><option value="low">Stated, ≤10% down</option><option value="mid">Stated, 20–60% down</option><option value="high">Stated, ≥75% down</option></select></label>
   <label class="chk mk" title="Last 120 days as reported, without the date adjustment"><input type="checkbox" id="c-recent">Recent only (120 days)</label>
@@ -345,8 +345,11 @@ const DATA = /*__DATA__*/null;
     const bench = benchPrice(S.tier, S.tenor, S.pp);
     if (!S.priceEntered || S.price == null) S.price = Math.round(bench.price * 20) / 20;
     if (updateInput) inPrice.value = S.price.toFixed(2);
-    $("c-pricesrc").textContent = S.priceEntered ? "Entered" : bench.src; $("c-pricesrc").title = S.priceEntered ? "the price you typed; it stays until you press Use benchmark price" : bench.why;
-    $("c-usebench").disabled = !S.priceEntered;
+    // one control states the benchmark, its source and whether the current price is it; clicking always sets the price to the benchmark
+    const benchRounded = Math.round(bench.price * 20) / 20, atBench = Math.abs(S.price - benchRounded) < 0.005, ub = $("c-usebench");
+    ub.textContent = (atBench ? "At benchmark " : "Use benchmark ") + fmt(benchRounded) + " · " + bench.src;
+    ub.title = bench.why + (S.priceEntered && !atBench ? ". The price you typed stays until you use the benchmark." : "");
+    ub.classList.toggle("quiet", atBench); ub.classList.toggle("act", !atBench);
     $("m-asof").textContent = "as of " + DATA.as_of;
 
     if (S.view === "market") renderMarket();
