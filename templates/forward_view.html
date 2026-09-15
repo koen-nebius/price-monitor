@@ -11,6 +11,7 @@
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{background:var(--bg)}
 body{margin:0;color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.45;padding-block:0 48px;padding-inline:clamp(16px,3vw,40px)}
 a{color:inherit}
@@ -136,7 +137,7 @@ tr[data-tier]:hover td{background:var(--surface-2)}
     <h2>How to read it</h2>
     <p><b>Marks</b> are weighted medians of two evidence classes kept visible separately: <b>competitor offers</b> reported by sales (deduplicated; skews to losses) and <b>Nebius achieved</b> prices from CRM (aggregates only). They are not a bid and an ask; no spread is implied. Public multi-year contracts are shown as a reference and never pooled. Observations are shifted to today's price level by quarter of quote (factors in the footer; the <b>recent only</b> switch removes that adjustment) and re-expressed at the chosen <b>prepay basis</b> with Finance's money-cost convention (about 3.45% per year of tenor at full prepay, concave in the share). Offers that do not state prepayment are counted at 0% unless the <b>stated prepay only</b> filter is on.</p>
     <p><b>Filled points</b> have six or more observations with recent support. <b>Hollow points</b> are thin (three to five). Cells under three observations are suppressed, never interpolated.</p>
-    <p><b>Backwardation</b> means the 36-month mark sits under the 12-month mark: the market pays less per hour for a longer lock. Commitment length alone is not a delivery-date curve; these are committed-price benchmarks at quote date. Internal only. Never quote marks to customers.</p>
+    <p><b>On-demand column</b> is the 0-month anchor, kept apart from the committed curve because it is a different product: Nebius list and realised PAYG price (paid dollars ÷ paid GPU-hours, external tenants, last 30 days), the enterprise-peer on-demand median for cluster-class SKUs, recent on-demand quotes, and Nebius preemptible. <b>Backwardation</b> means the 36-month mark sits under the 12-month mark. Commitment length alone is not a delivery-date curve; these are committed-price benchmarks at quote date. Internal only.</p>
   </div>
 </section>
 
@@ -217,9 +218,11 @@ const DATA = /*__DATA__*/null;
   document.getElementById("t-all").addEventListener("click", e => { state.all = !state.all; render(); });
 
   // scales
-  const W = 1100, H = 460, L = 58, R = 120, T = 26, B = 46;
+  const W = 1100, H = 460, L = 58, R = 120, T = 26, B = 46, ODW = 110;   // ODW = width of the on-demand column left of 3m
   const lx = TENORS.map(Math.log), x0 = Math.min(...lx), x1 = Math.max(...lx);
-  const X = t => L + (Math.log(t) - x0) / (x1 - x0) * (W - L - R);
+  const X = t => L + ODW + (Math.log(t) - x0) / (x1 - x0) * (W - L - R - ODW);
+  const XOD = L + ODW * 0.45;
+  const OD = DATA.on_demand || {};
   let ymax = 1; const Y = p => T + (H - T - B) - p / ymax * (H - T - B);
 
   function monotonePath(pts){ // pts: [[x,y],...] sorted by x; Fritsch–Carlson
@@ -253,6 +256,7 @@ const DATA = /*__DATA__*/null;
     const allVals = [];
     visibleTiers.forEach(t => seriesPts(t, state.series).forEach(p => allVals.push(p[1])));
     if (state.refs) TENORS.forEach(t => { const m = byTier[state.tier] && byTier[state.tier][t]; if (m) [(gridAt(m) || {}).price, m.list_hyperscaler_min, m.cost_floor].forEach(v => v != null && allVals.push(v)); });
+    const od = OD[state.tier] || {}; [od.nebius_list, od.realised_payg, od.peer_od_median, od.quotes_od_median, od.nebius_preemptible].forEach(v => v != null && allVals.push(v));
     ymax = Math.max(1, ...allVals) * 1.15;
 
     const g = [];
@@ -261,6 +265,16 @@ const DATA = /*__DATA__*/null;
     for (let y = 0; y <= ymax; y += step) g.push(`<line x1="${L}" x2="${W-R}" y1="${Y(y).toFixed(1)}" y2="${Y(y).toFixed(1)}" stroke="#1f1f25"/><text x="${L-10}" y="${(Y(y)+4).toFixed(1)}" text-anchor="end" fill="#5b5b66" font-family="IBM Plex Mono,monospace" font-size="11">$${y}</text>`);
     TENORS.forEach(t => g.push(`<line x1="${X(t).toFixed(1)}" x2="${X(t).toFixed(1)}" y1="${T}" y2="${H-B}" stroke="${state.hoverTenor===t?"#3a3a44":"#17171c"}"/><text x="${X(t).toFixed(1)}" y="${H-B+20}" text-anchor="middle" fill="${state.hoverTenor===t?"#f2f2ef":"#8b8b95"}" font-family="Schibsted Grotesk,sans-serif" font-size="12">${LABEL[t]}</text>`));
     g.push(`<text x="${W-R}" y="${H-6}" text-anchor="end" fill="#5b5b66" font-family="Schibsted Grotesk,sans-serif" font-size="11">commitment length · log scale</text>`);
+    // on-demand column (0m): separate product, separate classes, never joined to the committed curve
+    g.push(`<line x1="${(L + ODW - 8).toFixed(1)}" x2="${(L + ODW - 8).toFixed(1)}" y1="${T}" y2="${H-B}" stroke="#2a2a31" stroke-dasharray="3 3"/>`);
+    g.push(`<text x="${XOD.toFixed(1)}" y="${H-B+18}" text-anchor="middle" fill="#8b8b95" font-family="Schibsted Grotesk,sans-serif" font-size="12">on-demand</text>`);
+    g.push(`<text x="${XOD.toFixed(1)}" y="${H-B+32}" text-anchor="middle" fill="#5b5b66" font-family="Schibsted Grotesk,sans-serif" font-size="10">no commitment</text>`);
+    const odMarks = [["nebius_list", "Nebius list", "#ffffff", "none"], ["realised_payg", "Nebius realised PAYG", "#ffffff", "#ffffff"], ["peer_od_median", "enterprise-peer median", "#a8a8b3", "#a8a8b3"], ["quotes_od_median", "on-demand quotes", "#a8a8b3", "none"], ["nebius_preemptible", "Nebius preemptible", "#5b5b66", "#5b5b66"]];
+    odMarks.forEach(([k, lab, stroke, fill], i) => { const v = od[k]; if (v == null) return; const x = XOD + (i % 2 ? 14 : -14) * (i > 0 ? 1 : 0) + (i === 0 ? 0 : 0); const y = Y(v);
+      const extra = k === "realised_payg" ? ` (${(od.realised_payg_hours || 0).toLocaleString("en-US")} paid GPU-hours, ${od.realised_window_days || 30}d)` : k === "peer_od_median" ? ` (${od.peer_od_n || 0} providers)` : k === "quotes_od_median" ? ` (${od.quotes_od_n || 0} quotes, 90d)` : "";
+      g.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${fill}" stroke="${stroke}" stroke-width="2"><title>${lab} ${fmt(v)}${extra}</title></circle>`);
+      if (k === "nebius_list" || k === "realised_payg") g.push(`<text x="${(XOD + 22).toFixed(1)}" y="${(y + 4).toFixed(1)}" fill="#c9c9cf" font-family="IBM Plex Mono,monospace" font-size="10.5">${k === "nebius_list" ? "list" : "realised"} ${fmt(v)}</text>`); });
+    if (od.hyperscaler_od_min != null && od.hyperscaler_od_min > ymax) g.push(`<text x="${XOD.toFixed(1)}" y="${T + 10}" text-anchor="middle" fill="#5b5b66" font-family="IBM Plex Mono,monospace" font-size="10">↑ ${od.hyperscaler_od_provider} ${fmt(od.hyperscaler_od_min)}</text>`);
 
     // ghost tiers
     visibleTiers.filter(t => t !== state.tier).forEach(t => {

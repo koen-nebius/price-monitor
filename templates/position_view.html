@@ -9,7 +9,19 @@
 .badge.warn{border-color:var(--thin);color:var(--thin)}
 .badge.mode{border-color:var(--ghost-strong);color:var(--text)}
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:12px 0 18px}
-@media (max-width:1000px){.cards{grid-template-columns:1fr}}
+.cards.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1100px){.cards,.cards.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.cards,.cards.four{grid-template-columns:1fr}}
+.card .lead{font-size:18px}
+.sens{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;margin-top:2px}
+.sens td,.sens th{padding:3px 6px;text-align:right;border-bottom:1px solid var(--line-soft);white-space:nowrap}
+.sens th{font-family:var(--sans);font-weight:500;color:var(--muted);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+.sens td:first-child,.sens th:first-child{text-align:left}
+.sens tr.now td{color:var(--white);background:var(--surface-2)}
+.fold{margin-top:14px;border-top:1px solid var(--line)}
+.fold summary{cursor:pointer;color:var(--muted);font:500 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;padding:12px 0}
+.fold summary:hover{color:var(--text)}
+#pos-tenors .pill{padding:9px 11px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
 .card h3{font:500 11px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
 .card .lead{font:500 20px/1.15 var(--mono);color:var(--white);font-variant-numeric:tabular-nums;margin-bottom:6px}
@@ -42,44 +54,51 @@ svg.ladder{width:100%;height:auto;display:block;touch-action:none;user-select:no
 .details td.dim{color:var(--dim)}
 .pos-notes{color:var(--muted);font-size:13px;max-width:78ch;margin-top:20px}
 .pos-notes b{color:var(--text);font-weight:500}
+.fold .details{margin-top:0;border-top:0;padding-top:4px}
+.fold .pos-notes{margin-top:6px}
 </style>
 
 <section id="pos" aria-label="Price positioning">
   <div class="pos-controls">
     <div class="row"><span class="label">GPU</span><div class="pills" id="pos-tier" role="group" aria-label="GPU tier"></div>
-      <span class="label">Prepay</span><div class="pills" id="pos-prepay" role="group" aria-label="Prepayment of the candidate offer">
+      <span class="label">Terms</span><div class="pills" id="pos-tenors" role="group" aria-label="Commitment lengths to show"></div></div>
+    <div class="row"><span class="label">Prepay</span><div class="pills" id="pos-prepay" role="group" aria-label="Prepayment of the candidate offer">
         <button class="pill" data-pp="0" aria-pressed="true">0%</button><button class="pill" data-pp="25" aria-pressed="false">25%</button>
         <button class="pill" data-pp="50" aria-pressed="false">50%</button><button class="pill" data-pp="75" aria-pressed="false">75%</button>
         <button class="pill" data-pp="100" aria-pressed="false">100%</button></div>
-      <span class="label">Candidate price</span>
-      <label class="price-in"><span>$</span><input id="pos-price" type="number" step="0.05" min="0" inputmode="decimal" aria-label="Candidate price per GPU-hour"><span>/GPU-hr</span></label></div>
-    <div class="row"><span class="label">Compare on</span><div class="pills" id="pos-basis" role="group" aria-label="Comparison basis">
+      <span class="label">Price</span>
+      <label class="price-in"><span>$</span><input id="pos-price" type="number" step="0.05" min="0" inputmode="decimal" aria-label="Candidate price per GPU-hour"><span>/GPU-hr</span></label>
+      <span class="label">GPUs</span>
+      <label class="price-in"><input id="pos-gpus" type="number" step="8" min="8" value="1000" inputmode="numeric" aria-label="Number of GPUs" style="width:72px"><span>GPUs</span></label>
+      <div class="pills" id="pos-mode" role="group" aria-label="Economics mode">
+        <button class="pill" data-mode="reserve" aria-pressed="true">Reserve contract</button>
+        <button class="pill" data-mode="payg" aria-pressed="false">PAYG scenario</button></div>
+      <button class="tog" id="t-more" aria-pressed="false"><i></i>Options</button>
+      <button class="copy" id="pos-copy">Copy deal-review line</button></div>
+    <div class="row" id="pos-options" hidden><span class="label">Compare on</span><div class="pills" id="pos-basis" role="group" aria-label="Comparison basis">
         <button class="pill" data-cb="adjusted" aria-pressed="true">Adjusted to today and this prepay</button>
         <button class="pill" data-cb="raw" aria-pressed="false">Raw · last 90 days · matching prepay</button></div>
       <button class="tog" id="t-unknown" aria-pressed="false"><i></i>Include offers with unknown prepay (as 0%)</button>
       <span class="label">Segment</span><div class="pills" id="pos-seg" role="group" aria-label="Nebius grid segment">
         <button class="pill" data-seg="ai_native_above_512" aria-pressed="true">AI Native</button>
-        <button class="pill" data-seg="enterprise_above_512" aria-pressed="false">Enterprise</button></div></div>
-    <div class="row"><span class="label">Economics</span><div class="pills" id="pos-mode" role="group" aria-label="Economics mode">
-        <button class="pill" data-mode="reserve" aria-pressed="true">Reserve contract</button>
-        <button class="pill" data-mode="payg" aria-pressed="false">PAYG cash-recovery scenario</button></div>
+        <button class="pill" data-seg="enterprise_above_512" aria-pressed="false">Enterprise</button></div>
       <span class="label" id="util-label">Occupancy</span>
-      <div class="step" role="group" aria-label="Billable occupancy" id="util-step"><button id="util-dn" aria-label="lower occupancy">−</button><output id="util-out">75%</output><button id="util-up" aria-label="raise occupancy">+</button></div>
-      <button class="copy" id="pos-copy">Copy deal-review line</button></div>
+      <div class="step" role="group" aria-label="Billable occupancy" id="util-step"><button id="util-dn" aria-label="lower occupancy">−</button><output id="util-out">75%</output><button id="util-up" aria-label="raise occupancy">+</button></div></div>
   </div>
 
   <div class="pos-title"><h2 id="pos-title">–</h2><span class="badge mode" id="pos-mode-badge"></span><span id="pos-flags"></span></div>
-  <div class="cards">
+  <div class="cards four">
     <div class="card" id="card-market"></div>
-    <div class="card" id="card-finance"></div>
     <div class="card" id="card-econ"></div>
+    <div class="card" id="card-finance"></div>
+    <div class="card" id="card-sens"></div>
   </div>
   <div class="pos-body">
     <div><svg class="ladder" id="pos-ladder" viewBox="0 0 1100 560" role="img" aria-label="Competitor offers by commitment length with the candidate price as a vertical rule"></svg></div>
   </div>
   <div class="pos-legend" id="pos-legend"></div>
-  <div class="details" id="pos-details"></div>
-  <div class="pos-notes" id="pos-notes"></div>
+  <details class="fold"><summary id="pos-details-summary">Observations</summary><div class="details" id="pos-details"></div></details>
+  <details class="fold"><summary>About the data and the economics</summary><div class="pos-notes" id="pos-notes"></div></details>
 </section>
 
 <script>
@@ -102,7 +121,7 @@ svg.ladder{width:100%;height:auto;display:block;touch-action:none;user-select:no
   const asksFor = t => OBS.filter(o => o.tier === t && o.side === "ask");
   const pubsFor = t => OBS.filter(o => o.tier === t && o.side === "public");
   const hasData = t => offersFor(t).length >= 3 || asksFor(t).length >= 3;
-  const S = { tier: null, tenor: 36, pp: 0, seg: "ai_native_above_512", price: null, mode: "reserve", util: (EM.occupancy_default || 0.75), cb: "adjusted", unknown: false, dragging: false, pick: null };
+  const S = { tier: null, tenor: 36, tenors: new Set([12, 24, 36]), pp: 0, seg: "ai_native_above_512", price: null, mode: "reserve", util: (EM.occupancy_default || 0.75), cb: "adjusted", unknown: false, dragging: false, pick: null, gpus: 1000 };
   S.tier = ["B300","GB300","B200","H200","H100","VR","GB200"].find(hasData) || TIERS[0];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   function wmed(vals, wts){ const pr = vals.map((v, i) => [v, wts ? wts[i] : 1]).sort((a, b) => a[0] - b[0]); const tot = pr.reduce((s, p) => s + p[1], 0); let acc = 0; for (const [v, w] of pr) { acc += w; if (acc >= tot / 2) return v; } return pr.length ? pr[pr.length-1][0] : null; }
@@ -175,8 +194,14 @@ svg.ladder{width:100%;height:auto;display:block;touch-action:none;user-select:no
   document.getElementById("util-dn").addEventListener("click", () => { S.util = Math.max(0.5, Math.round((S.util - 0.05) * 100) / 100); render(); });
   document.getElementById("util-up").addEventListener("click", () => { S.util = Math.min(0.95, Math.round((S.util + 0.05) * 100) / 100); render(); });
   document.getElementById("pos-copy").addEventListener("click", () => { const line = document.getElementById("pos-title").dataset.line || ""; (navigator.clipboard ? navigator.clipboard.writeText(line) : Promise.reject()).then(() => { const b = document.getElementById("pos-copy"); b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy deal-review line", 1400); }, () => {}); });
-  function pickTenor(){ const ok = TENORS.filter(t => cellStats(S.tier, t).comp.length >= 3); S.tenor = ok.includes(36) ? 36 : ok.includes(12) ? 12 : (ok[0] || 36); }
+  function pickTenor(){ const ok = TENORS.filter(t => cellStats(S.tier, t).comp.length >= 3 || asksFor(S.tier).some(o => o.tenor === t));
+    S.tenors = new Set([12, 24, 36].filter(t => ok.includes(t))); if (!S.tenors.size) ok.slice(0, 3).forEach(t => S.tenors.add(t)); if (!S.tenors.size) S.tenors.add(36);
+    S.tenor = S.tenors.has(36) ? 36 : S.tenors.has(12) ? 12 : [...S.tenors][0]; }
   pickTenor();
+  const tn = document.getElementById("pos-tenors");
+  TENORS.forEach(t => { const b = document.createElement("button"); b.className = "pill"; b.textContent = LABEL[t]; b.dataset.t = t; b.addEventListener("click", () => { if (S.tenors.has(t)) { if (S.tenors.size > 1) { S.tenors.delete(t); if (S.tenor === t) S.tenor = [...S.tenors].sort((a, b) => a - b)[0]; } } else { S.tenors.add(t); S.tenor = t; } render(); }); tn.appendChild(b); });
+  document.getElementById("t-more").addEventListener("click", () => { const o = document.getElementById("pos-options"); o.hidden = !o.hidden; document.getElementById("t-more").setAttribute("aria-pressed", !o.hidden); });
+  const gpusIn = document.getElementById("pos-gpus"); gpusIn.addEventListener("input", () => { const v = parseInt(gpusIn.value, 10); if (isFinite(v) && v > 0) { S.gpus = v; render(false); } });
   // cross-tab sync (tier + prepay basis) with the curve tab
   let syncing = false;
   function sync(){ if (syncing || !window.__curveSet) return; syncing = true; try { window.__curveSet({ tier: S.tier, basis: S.pp }); } finally { syncing = false; } }
@@ -187,7 +212,7 @@ svg.ladder{width:100%;height:auto;display:block;touch-action:none;user-select:no
   let xmin = 0, xmax = 10; const X = v => L + Math.max(-0.02, Math.min(1.02, (v - xmin) / (xmax - xmin))) * (W - L - R);
   function domain(tier){
     const vals = [];
-    TENORS.forEach(t => { const c = cellStats(tier, t); c.all.forEach(o => vals.push(S.cb === "raw" ? o.price : adjTo(o, S.pp))); if (c.askAt != null) vals.push(c.askAt); if (c.mark != null) vals.push(c.mark); [c.gridAN, c.gridENT].forEach(gc => { if (gc && gc.price != null) vals.push(gc.price); }); });
+    TENORS.filter(t => S.tenors.has(t)).forEach(t => { const c = cellStats(tier, t); c.all.forEach(o => vals.push(S.cb === "raw" ? o.price : adjTo(o, S.pp))); if (c.askAt != null) vals.push(c.askAt); if (c.mark != null) vals.push(c.mark); [c.gridAN, c.gridENT].forEach(gc => { if (gc && gc.price != null) vals.push(gc.price); }); });
     if (S.price) vals.push(S.price);
     const ec = econ(tier, S.price || 1, S.tenor, S.pp, S.mode, S.util); if (ec) vals.push(ec.cashSold, ec.floor22);
     vals.sort((a, b) => a - b);
@@ -202,6 +227,7 @@ svg.ladder{width:100%;height:auto;display:block;touch-action:none;user-select:no
 
   function render(updateInput = true){
     document.querySelectorAll("#pos-tier .pill").forEach(b => b.setAttribute("aria-pressed", b.dataset.tier === S.tier));
+    document.querySelectorAll("#pos-tenors .pill").forEach(b => { const tt = Number(b.dataset.t); b.setAttribute("aria-pressed", S.tenors.has(tt)); b.style.fontWeight = tt === S.tenor ? "700" : "500"; b.title = cellStats(S.tier, tt).all.length + " offers on file"; });
     document.querySelectorAll("#pos-prepay .pill").forEach(b => b.setAttribute("aria-pressed", Number(b.dataset.pp) === S.pp));
     document.querySelectorAll("#pos-basis .pill").forEach(b => b.setAttribute("aria-pressed", b.dataset.cb === S.cb));
     document.querySelectorAll("#pos-seg .pill").forEach(b => b.setAttribute("aria-pressed", b.dataset.seg === S.seg));
@@ -223,7 +249,7 @@ svg.ladder{width:100%;height:auto;display:block;touch-action:none;user-select:no
     const rankTxt = rk.n >= 6 ? `cheaper than ${rk.above} of ${rk.n} competitor offers (${ord(Math.round(rk.pct * 100))} percentile)` : rk.n >= 3 ? `${ord(rk.ordinal)} lowest of ${rk.n} competitor offers (too few for a percentile)` : `not ranked: ${rk.n} comparable offer${rk.n === 1 ? "" : "s"}`;
     const pbTxt = e => e.payback == null ? "not within term" : e.payback === 0 ? "at signing" : Math.round(e.payback) + " months";
     const ecTxt = ec ? (S.mode === "reserve" ? `Reserve contract: contribution ${fmt0(ec.contribution)} per GPU over ${LABEL[S.tenor]}, payback ${pbTxt(ec)}` : `PAYG scenario at ${Math.round(S.util*100)}% occupancy: ${ec.margin >= 0 ? "+" : "−"}${fmt(Math.abs(ec.margin))}/h over cash cost, payback ${pbTxt(ec)}`) : "no Nebius cost model for this SKU";
-    ttl.dataset.line = `${S.tier} ${LABEL[S.tenor]} ${S.pp}% prepay at ${fmt(S.price)}: ${rankTxt}; ${cs.basisLabel}; ${ecTxt}. Data as of ${DATA.as_of}; internal benchmark, not for customers.`;
+    ttl.dataset.line = `${S.tier} ${LABEL[S.tenor]} ${S.pp}% prepay at ${fmt(S.price)}: ${rankTxt}; ${cs.basisLabel}; ${ecTxt}${ec ? ` (${(S.gpus || 1).toLocaleString("en-US")} GPUs: contract value ${fmt0(ec.tcv * (S.gpus || 1))}, contribution ${fmt0(ec.contribution * (S.gpus || 1))})` : ""}. Data as of ${DATA.as_of}; internal benchmark, not for customers.`;
     document.getElementById("pos-mode-badge").textContent = S.mode === "reserve" ? "Reserve contract economics · 100% of contracted hours billed" : `PAYG cash-recovery scenario · ${Math.round(S.util*100)}% occupancy`;
     const flags = [];
     if (rk.n < 6) flags.push(`<span class="badge warn">thin evidence</span>`);
@@ -233,46 +259,47 @@ svg.ladder{width:100%;height:auto;display:block;touch-action:none;user-select:no
     if (S.unknown) flags.push(`<span class="badge warn">unknown prepay counted as 0%</span>`);
     document.getElementById("pos-flags").innerHTML = flags.join(" ");
 
-    // cards
+    // cards (four decision tiles)
     const compMed = rk.n ? wmed(rk.vals) : null;
-    document.getElementById("card-market").innerHTML = `<h3>Market comparison</h3><div class="lead">${rankTxt}</div><div class="lines">
-      <span>basis</span><span>${cs.basisLabel}</span>
+    const G = Math.max(1, S.gpus || 1);
+    document.getElementById("card-market").innerHTML = `<h3>Where we land</h3><div class="lead">${rk.n >= 6 ? `cheaper than ${rk.above} of ${rk.n}` : rk.n >= 3 ? `${ord(rk.ordinal)} lowest of ${rk.n}` : "not ranked"}</div><div class="lines">
+      <span>percentile</span><span>${rk.n >= 6 ? ord(Math.round(rk.pct * 100)) : "–"}</span>
       <span>comparable median</span><span>${fmt(compMed)}</span>
-      <span>market mark</span><span>${fmt(cs.mark)}${cs.conf ? " · " + cs.conf : ""}${cs.nProviders ? " · " + cs.nProviders + " providers" : ""}</span>
-      <span>recent raw median</span><span>${fmt(cs.recentRaw)} <span style="color:var(--dim)">(last 90 days, ${cs.nRecent90 || 0} obs, as reported)</span></span>
-      <span>Nebius achieved</span><span>${fmt(cs.askAt)} <span style="color:var(--dim)">adjusted · ${cs.askDeals} deals in 12 months${cs.askRaw != null ? " · raw last 90 days " + fmt(cs.askRaw) : ""}</span></span>
-      <span>on file</span><span>${cs.all.length} offers in 12 months · ${cs.known.length} state prepay · ${cs.excluded.length} excluded from ranking</span></div>`;
-    const other = S.seg === "enterprise_above_512" ? cs.gridAN : cs.gridENT;
-    document.getElementById("card-finance").innerHTML = `<h3>Finance reference · grid ${DATA.grid && DATA.grid.version || ""}</h3>
-      <div class="lead">${grid ? (grid.price != null ? fmt(grid.price) + " @" + S.pp + "%" : "no " + S.pp + "% column") : "no grid cell"}</div><div class="lines">
-      <span>${S.seg === "enterprise_above_512" ? "Enterprise" : "AI Native"} ${grid ? grid.months + "m" : ""}</span><span>${grid ? grid.columns : "–"}</span>
-      <span>${S.seg === "enterprise_above_512" ? "AI Native" : "Enterprise"}</span><span>${other ? other.columns : "–"}</span>
-      <span>hyperscaler list</span><span>${fmt(cs.hyper)}${cs.hyperProv ? " " + cs.hyperProv : ""}</span>
-      <span>vs grid</span><span>${grid && grid.price != null ? pctf(S.price / grid.price - 1) + " vs the " + S.pp + "% column" : "grid has no " + S.pp + "% column; not compared"}</span></div>
-      <div class="note">Grid cells are shown only in the prepay column Finance publishes; they are policy prices, not market observations, and are never re-based.</div>`;
+      <span>market mark</span><span>${fmt(cs.mark)}${cs.conf ? " · " + cs.conf : ""}</span>
+      <span>Nebius achieved</span><span>${fmt(cs.askAt)}${cs.askDeals ? " · " + cs.askDeals + " deals" : ""}</span></div>
+      <div class="note">${cs.basisLabel} · ${cs.all.length} offers on file, ${cs.excluded.length} excluded</div>`;
     if (ec) {
-      document.getElementById("card-econ").innerHTML = `<h3>${S.mode === "reserve" ? "Reserve contract economics" : "PAYG cash-recovery scenario"}</h3>
-        <div class="lead ${ec.contribution < 0 ? "neg" : ""}">${S.mode === "reserve" ? "payback " + pbTxt(ec) : (ec.margin >= 0 ? "+" : "−") + fmt(Math.abs(ec.margin)) + "/h over cash cost"}</div><div class="lines">
-        ${S.mode === "reserve" ? `<span>contract value</span><span>${fmt0(ec.tcv)} per GPU · ${fmt0(ec.upfront)} upfront</span>` : `<span>billed hours</span><span>${Math.round(S.util*100)}% of ${EM.hours_per_model_month || 730} per month</span>`}
-        <span>cash opex</span><span>${fmt0(ec.opexM)} per GPU-month · ${fmt(ec.cashSold)} per billed hour</span>
-        <span>contribution</span><span>${fmt0(ec.contribution)} over ${LABEL[S.tenor]} · PV ${fmt0(ec.pv)} at ${Math.round(MONEY_RATE*1000)/10}%</span>
-        <span>capex per GPU</span><span>${fmt0(ec.e.capex_per_gpu_usd)} · ${ec.residual > 0 ? fmt0(ec.residual) + " unrecovered at expiry" : "recovered, " + fmt0(-ec.residual) + " surplus"}</span>
-        ${ec.residual > 0 && ec.resaleMonths ? `<span>resale scenario</span><span>≈ ${Math.round(ec.resaleMonths)} more months at the 12m market mark, 75% occupancy</span>` : ""}
-        <span>22-month floor</span><span>${fmt(ec.floor22)} per billed hour</span></div>
-        <div class="note">${S.mode === "reserve" ? "Cash schedule: prepayment at signing, remainder billed monthly on 100% of contracted hours; payback is the month cumulative cash covers capex. Costs from the PAYG portfolio model (Finance GPU Calculator inputs, cash-recovery basis, " + esc((ec.e.reference_site || "").replace("DC : ", "")) + ")." : "Hours billed = occupancy × 730; this is the portfolio model's PAYG assumption, not a committed contract."}</div>`;
+      document.getElementById("card-econ").innerHTML = `<h3>${S.mode === "reserve" ? "Reserve contract" : "PAYG scenario"} · ${G.toLocaleString("en-US")} GPUs</h3>
+        <div class="lead ${ec.contribution < 0 ? "neg" : ""}">${S.mode === "reserve" ? "payback " + pbTxt(ec) : (ec.margin >= 0 ? "+" : "−") + fmt(Math.abs(ec.margin)) + "/h over cash"}</div><div class="lines">
+        <span>contract value</span><span>${fmt0(ec.tcv * G)}${ec.upfront ? " · " + fmt0(ec.upfront * G) + " upfront" : ""}</span>
+        <span>contribution</span><span>${fmt0(ec.contribution * G)} · ${pctf(ec.contribution / ec.tcv)}</span>
+        <span>capex</span><span>${fmt0(ec.e.capex_per_gpu_usd * G)}${ec.residual > 0 ? " · " + fmt0(ec.residual * G) + " unrecovered" : " · recovered"}</span>
+        <span>cash cost</span><span>${fmt(ec.cashSold)}/h · floor ${fmt(ec.floor22)}</span></div>
+        <div class="note">${S.mode === "reserve" ? "100% of contracted hours billed; prepay at signing, rest monthly; PAYG portfolio costs" : Math.round(S.util*100) + "% occupancy · portfolio model's PAYG floor logic"}</div>`;
     } else {
-      document.getElementById("card-econ").innerHTML = `<h3>Economics</h3><div class="lead" style="font-size:15px">no Nebius cost model for ${S.tier}</div><div class="lines"><span>modeled floor</span><span>${fmt(cs.saFloor)} (SemiAnalysis, third party)</span><span>vs floor</span><span>${cs.saFloor ? pctf(S.price / cs.saFloor - 1) : "–"}</span></div><div class="note">The portfolio workbook has no capital or cash-cost rows for this SKU.</div>`;
+      document.getElementById("card-econ").innerHTML = `<h3>Economics</h3><div class="lead" style="font-size:15px">no Nebius cost model for ${S.tier}</div><div class="lines"><span>modeled floor</span><span>${fmt(cs.saFloor)}</span><span>vs floor</span><span>${cs.saFloor ? pctf(S.price / cs.saFloor - 1) : "–"}</span></div><div class="note">SemiAnalysis third-party floor only</div>`;
     }
+    const other = S.seg === "enterprise_above_512" ? cs.gridAN : cs.gridENT;
+    document.getElementById("card-finance").innerHTML = `<h3>Finance grid ${DATA.grid && DATA.grid.version || ""}</h3>
+      <div class="lead">${grid ? (grid.price != null ? pctf(S.price / grid.price - 1) + " vs grid" : "no " + S.pp + "% column") : "no grid cell"}</div><div class="lines">
+      <span>${S.seg === "enterprise_above_512" ? "Enterprise" : "AI Native"}</span><span>${grid ? grid.columns : "–"}</span>
+      <span>${S.seg === "enterprise_above_512" ? "AI Native" : "Enterprise"}</span><span>${other ? other.columns : "–"}</span>
+      <span>hyperscaler list</span><span>${fmt(cs.hyper)}${cs.hyperProv ? " " + cs.hyperProv : ""}</span></div>
+      <div class="note">policy prices in the columns Finance publishes; never re-based</div>`;
+    const steps = [-0.5, -0.25, 0, 0.25, 0.5].map(d => { const p = Math.max(0.05, Math.round((S.price + d) * 20) / 20); const r2 = rank(cs, p); const e2 = econ(S.tier, p, S.tenor, S.pp, S.mode, S.util);
+      return `<tr class="${d === 0 ? "now" : ""}"><td>${fmt(p)}</td><td>${r2.n >= 6 ? r2.above + "/" + r2.n : r2.n >= 3 ? ord(r2.ordinal) : "–"}</td><td>${e2 ? (e2.payback == null ? "never" : e2.payback === 0 ? "signing" : Math.round(e2.payback) + "m") : "–"}</td><td>${e2 ? fmt0(e2.contribution * G) : "–"}</td></tr>`; }).join("");
+    document.getElementById("card-sens").innerHTML = `<h3>Price sensitivity · ${LABEL[S.tenor]} · ${G.toLocaleString("en-US")} GPUs</h3><table class="sens"><thead><tr><th>price</th><th>cheaper than</th><th>payback</th><th>contribution</th></tr></thead><tbody>${steps}</tbody></table>`;
 
     // ladder
-    const rowsH = TENORS.map(t => t === S.tenor ? H_EXP : H_CMP);
+    const ROWS = TENORS.filter(t => S.tenors.has(t)); if (!ROWS.includes(S.tenor)) S.tenor = ROWS[0];
+    const rowsH = ROWS.map(t => t === S.tenor ? H_EXP : H_CMP);
     const H = TOP + rowsH.reduce((a, b) => a + b + GAP, 0) + AXIS_H;
     const g = [`<rect width="${W}" height="${H}" fill="#0b0b0d"/>`, `<defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#2a2a33"/><line x1="0" y1="0" x2="0" y2="6" stroke="#5b5b66" stroke-width="2"/></pattern></defs>`];
     const span = xmax - xmin, step = span <= 3 ? 0.5 : span <= 8 ? 1 : 2;
     for (let v = Math.ceil(xmin / step) * step; v <= xmax + 1e-9; v += step) { g.push(`<line x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${TOP}" y2="${H-AXIS_H}" stroke="#1d1d24"/>`); g.push(T(X(v), H - AXIS_H + 22, "$" + (step < 1 ? v.toFixed(1) : v.toFixed(0)), "#8b8b95", 13, 'text-anchor="middle"')); }
     g.push(TS(L, H - 6, `$/GPU-hr · ${S.cb === "raw" ? "offers as reported" : "offers adjusted to today's level and " + S.pp + "% prepay"} · axis zoomed to the market`, "#5b5b66", 12));
     let y = TOP;
-    TENORS.forEach((t, i) => {
+    ROWS.forEach((t, i) => {
       const h = rowsH[i], exp = t === S.tenor, c = cellStats(S.tier, t), r = rank(c, S.price);
       g.push(`<rect x="0" y="${y}" width="${W}" height="${h}" fill="${exp ? "#111116" : "transparent"}" data-row="${t}" style="cursor:pointer"/>`);
       if (exp) g.push(`<rect x="0" y="${y}" width="3" height="${h}" fill="#ffffff"/>`);
@@ -328,7 +355,7 @@ svg.ladder{width:100%;height:auto;display:block;touch-action:none;user-select:no
     });
     const rx = X(S.price);
     g.push(`<line x1="${rx.toFixed(1)}" x2="${rx.toFixed(1)}" y1="${TOP-6}" y2="${H-AXIS_H}" stroke="#ffffff" stroke-width="1.5"/>`);
-    const selIdx = TENORS.indexOf(S.tenor); const selY = TOP + rowsH.slice(0, selIdx).reduce((a, b) => a + b + GAP, 0);
+    const selIdx = ROWS.indexOf(S.tenor); const selY = TOP + rowsH.slice(0, selIdx).reduce((a, b) => a + b + GAP, 0);
     g.push(`<circle cx="${rx.toFixed(1)}" cy="${(selY + 128).toFixed(1)}" r="8" fill="#0b0b0d" stroke="#ffffff" stroke-width="2.5" style="cursor:ew-resize" id="pos-handle"><title>drag to change the candidate price</title></circle>`);
     g.push(`<rect x="${(rx-40).toFixed(1)}" y="${TOP-32}" width="80" height="22" rx="4" fill="#ffffff"/>`);
     g.push(T(rx, TOP - 17, fmt(S.price), "#0b0b0d", 13, 'text-anchor="middle" font-weight="600"'));
@@ -349,7 +376,8 @@ svg.ladder{width:100%;height:auto;display:block;touch-action:none;user-select:no
     cs.all.slice().sort((a, b) => b.date.localeCompare(a.date)).forEach(o => { const inComp = cs.comp.includes(o); rows.push(`<tr data-ts="${esc(o.ts)}" class="${S.pick === o.ts ? "sel" : ""}"><td>offer</td><td>${esc(o.provider)}</td><td>${o.date}</td><td>${Math.round(o.months || o.tenor)}m</td><td>${o.known ? o.prepay + "%" : '<span class="dim">not stated</span>'}</td><td>${fmt(o.price)}</td><td>${fmt(adjTo(o, S.pp))}</td><td class="${inComp ? "" : "dim"}">${inComp ? "ranked" : "not ranked"}</td><td>${link(o)}</td></tr>`); });
     cs.asks.slice().sort((a, b) => b.date.localeCompare(a.date)).forEach(o => rows.push(`<tr><td>Nebius achieved</td><td>${o.deals} deal${o.deals > 1 ? "s" : ""} · ${o.bucket}</td><td>${o.date.slice(0,7)}</td><td>${Math.round(o.months || o.tenor)}m</td><td>${o.prepay}% proxy</td><td>${fmt(o.price)}</td><td>${fmt(adjTo(o, S.pp))}</td><td class="dim">reference</td><td>CRM aggregate</td></tr>`));
     cs.pubs.forEach(o => rows.push(`<tr><td>public contract</td><td>${esc(o.provider)}</td><td>${o.date}</td><td>${Math.round(o.months)}m</td><td>${o.prepay}%</td><td>${fmt(o.price)}</td><td>${fmt(adjTo(o, S.pp))}</td><td class="dim">lower bound</td><td>SemiAnalysis deal table</td></tr>`));
-    document.getElementById("pos-details").innerHTML = `<h3><span>Observations behind ${S.tier} · ${LABEL[S.tenor]}</span><span>adjusted = today's level, ${S.pp}% prepay</span></h3>
+    document.getElementById("pos-details-summary").textContent = `Observations behind ${S.tier} · ${LABEL[S.tenor]} (${cs.all.length} offers, ${cs.asks.length} Nebius cells, ${cs.pubs.length} public)`;
+    document.getElementById("pos-details").innerHTML = `<h3><span>reported vs adjusted (today's level, ${S.pp}% prepay)</span></h3>
       <div class="table-wrap" style="margin-top:0"><table><thead><tr><th>Class</th><th>Provider</th><th>Date</th><th>Term</th><th>Prepay</th><th>Reported</th><th>Adjusted</th><th>Status</th><th>Source</th></tr></thead><tbody>${rows.join("") || '<tr><td colspan="9" class="dim">no observations</td></tr>'}</tbody></table></div>`;
   }
 

@@ -56,11 +56,37 @@ SKU (`store/economics.json`).
    longer → 60m. On-demand (term 0) is excluded.
 6. **Sanity band** $0.5–15/GPU-hr after prepay normalisation.
 
+## The 0-month anchor (on-demand)
+Shown as a separate column on the curve, never joined to the committed marks, because
+on-demand is a different product (no commitment, cancellable): Nebius list and
+preemptible list (latest scraper snapshot), Nebius **realised PAYG** price (paid PAYG
+dollars ÷ paid PAYG GPU-hours, external unsuspended tenants, last 30 days,
+`store/payg_realised.csv`, weekly local refresh `scripts/refresh_payg_realised.py`),
+the enterprise-peer on-demand median for cluster-class SKUs, the cheapest hyperscaler
+on-demand SKU (pinned above the axis when far off), and on-demand competitor quotes
+from the last 90 days. On 2026-09-15: H100 list $3.85 / realised $3.55 / peer median
+$2.50; H200 $4.50 / $4.22 / $3.99; B300 $7.85 / $7.62 / $8.03.
+
+## Model estimates and extrapolation (policy)
+Koen's own pricing workbooks (GB300 and Vera Rubin weighted models, the VR forward-term
+model, the Anthropic reconciliation) and the SemiAnalysis rental-price paths are
+**model estimates**, not observations: the weighted models consumed the same field
+intel, so feeding them back would be circular, and the SA paths are value-based
+calibrations that sit 2–3× above transacted GB300/VR prices. They may be shown as a
+labelled "model" series or used as priors for empty cells, never pooled into a mark.
+A true forward curve (delivery-date axis) would combine an expected spot path (SA or
+in-house) with the observed term premia here; that is the v2 route, not extrapolation
+across tenors from a single workbook.
+
 ## The interactive page
 - **Curve tab.** Marks vs tenor per tier; prepay basis 0/25/50/75/100%; filters: all /
   stated prepay only / prepay bands; recent only; grid and cost references. Tier and
   prepay basis are synchronised with the other tab.
-- **Where we land tab.** One shared $/GPU-hr axis, seven tenor rows, every competitor
+- **Where we land tab.** Built for a price decision: title line (GPU · term · prepay ·
+  candidate), four tiles (where we land, contract economics for a chosen GPU count,
+  Finance grid, price sensitivity ±$0.50), then the ladder for the selected terms only
+  (multi-select chips, default 12/24/36 months); observations and notes fold away.
+  One shared $/GPU-hr axis, one row per selected tenor, every competitor
   offer as a dot (hollow when prepayment is not stated), Nebius achieved (◇, adjusted),
   the mark with its recent range, Finance grid and hyperscaler marks (▽; grid only in
   the published prepay column, dashed when that column does not exist), public contracts

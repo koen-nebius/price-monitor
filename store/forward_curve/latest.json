@@ -7853,5 +7853,92 @@
     "reference_site_gpus": 960
    }
   }
+ },
+ "on_demand": {
+  "H100": {
+   "nebius_list": 3.85,
+   "nebius_preemptible": 2.15,
+   "peer_od_median": 2.5,
+   "peer_od_n": 3,
+   "peer_od_min": 1.99,
+   "hyperscaler_od_min": 6.88,
+   "hyperscaler_od_provider": "aws",
+   "list_snapshot": "2026-09-15",
+   "quotes_od_median": 3.2,
+   "quotes_od_n": 5,
+   "realised_payg": 3.55,
+   "realised_payg_hours": 620148,
+   "realised_window_days": 30,
+   "realised_generated": "2026-09-15",
+   "realised_preemptible": 2.15,
+   "realised_preemptible_hours": 108288
+  },
+  "H200": {
+   "nebius_list": 4.5,
+   "nebius_preemptible": 2.45,
+   "peer_od_median": 3.99,
+   "peer_od_n": 3,
+   "peer_od_min": 2.99,
+   "hyperscaler_od_min": 7.91,
+   "hyperscaler_od_provider": "aws",
+   "list_snapshot": "2026-09-15",
+   "quotes_od_median": 4.23,
+   "quotes_od_n": 2,
+   "realised_payg": 4.22,
+   "realised_payg_hours": 1080098,
+   "realised_window_days": 30,
+   "realised_generated": "2026-09-15",
+   "realised_preemptible": 2.45,
+   "realised_preemptible_hours": 110227
+  },
+  "B200": {
+   "nebius_list": 7.15,
+   "nebius_preemptible": 3.95,
+   "peer_od_median": 6.35,
+   "peer_od_n": 4,
+   "peer_od_min": 4.09,
+   "hyperscaler_od_min": 14.0,
+   "hyperscaler_od_provider": "oracle",
+   "list_snapshot": "2026-09-15",
+   "quotes_od_median": 6.0,
+   "quotes_od_n": 1,
+   "realised_payg": 6.74,
+   "realised_payg_hours": 194903,
+   "realised_window_days": 30,
+   "realised_generated": "2026-09-15",
+   "realised_preemptible": 3.94,
+   "realised_preemptible_hours": 187989
+  },
+  "B300": {
+   "nebius_list": 7.85,
+   "nebius_preemptible": 4.3,
+   "peer_od_median": 8.03,
+   "peer_od_n": 2,
+   "peer_od_min": 7.4,
+   "hyperscaler_od_min": 15.0,
+   "hyperscaler_od_provider": "oracle",
+   "list_snapshot": "2026-09-15",
+   "quotes_od_median": 5.39,
+   "quotes_od_n": 3,
+   "realised_payg": 7.62,
+   "realised_payg_hours": 129538,
+   "realised_window_days": 30,
+   "realised_generated": "2026-09-15",
+   "realised_preemptible": 4.3,
+   "realised_preemptible_hours": 117120
+  },
+  "GB200": {
+   "list_snapshot": "2026-09-15"
+  },
+  "GB300": {
+   "list_snapshot": "2026-09-15",
+   "quotes_od_median": 4.75,
+   "quotes_od_n": 1
+  },
+  "VR": {
+   "list_snapshot": "2026-09-15",
+   "quotes_od_median": 7.0,
+   "quotes_od_n": 3
+  }
  }
 }

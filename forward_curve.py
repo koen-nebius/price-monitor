@@ -97,6 +97,7 @@ PREPAY_BUCKET_PCT = {"upfront": 100, "prepaid_monthly": 8, "postpaid": 0}   # CR
 GRID_JSON = STORE / "nebius_reserve_grid.json"
 CONTRACTS_CSV = STORE / "public_contracts.csv"
 ECONOMICS_JSON = STORE / "economics.json"
+PAYG_REALISED_CSV = STORE / "payg_realised.csv"
 DEFAULT_SEGMENT = "ai_native_above_512"
 RECENT_DAYS = 120
 MAX_AGE_DAYS = 365
@@ -292,6 +293,82 @@ def load_contracts(path: Path = CONTRACTS_CSV) -> list[dict]:
     return obs
 
 
+def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, realised: Path = PAYG_REALISED_CSV,
+                   as_of: date | None = None) -> dict:
+    """The 0-month anchor per tier, kept as separate classes (never pooled into the curve):
+    Nebius on-demand list and preemptible list (latest scraper snapshot), enterprise-peer
+    on-demand median and cheapest hyperscaler on-demand for cluster-class SKUs (>= 8 GPUs
+    when the node size is known), on-demand competitor quotes from #price-intelligence
+    (term 0, last 90 days) and Nebius realised PAYG $/GPU-hour (last 30 days, external,
+    non-preemptible, from the Analytics consumption dataset)."""
+    out = {t: {} for t in TIERS}
+    try:
+        from config import provider_tag
+    except Exception:  # pragma: no cover
+        provider_tag = lambda p: "peer"  # noqa: E731
+    if history.exists():
+        rows = [r for r in csv.DictReader(open(history, newline="")) if r.get("consumption_type") in ("on_demand", "spot", "preemptible")]
+        if rows:
+            latest = max(r["snapshot_date"] for r in rows)
+            per = defaultdict(lambda: {"peer": [], "hyper": []})
+            for r in rows:
+                if r["snapshot_date"] != latest:
+                    continue
+                tier = r["gpu_model"].upper()
+                if tier not in TIERS:
+                    continue
+                try:
+                    p = float(r["price_per_gpu_hour_usd"]); gc = int(float(r.get("gpu_count") or 0))
+                except (TypeError, ValueError):
+                    continue
+                prov, ct = r["provider"], r["consumption_type"]
+                if prov == "nebius":
+                    out[tier]["nebius_list" if ct == "on_demand" else "nebius_preemptible"] = min(p, out[tier].get("nebius_list" if ct == "on_demand" else "nebius_preemptible", 99))
+                    continue
+                if ct != "on_demand" or (gc and gc < 8):
+                    continue
+                tag = provider_tag(prov)
+                if tag == "peer":
+                    per[tier]["peer"].append((p, prov))
+                elif tag == "hyperscaler":
+                    per[tier]["hyper"].append((p, prov))
+            for tier, d in per.items():
+                if d["peer"]:
+                    best = {}
+                    for p, prov in d["peer"]:
+                        best[prov] = min(p, best.get(prov, 99))
+                    vals = sorted(best.values())
+                    out[tier]["peer_od_median"] = round(statistics.median(vals), 2)
+                    out[tier]["peer_od_n"] = len(vals)
+                    out[tier]["peer_od_min"] = round(vals[0], 2)
+                if d["hyper"]:
+                    p, prov = min(d["hyper"])
+                    out[tier]["hyperscaler_od_min"] = round(p, 2); out[tier]["hyperscaler_od_provider"] = prov
+            for tier in out:
+                out[tier]["list_snapshot"] = latest
+    if intel_obs:
+        as_of = as_of or date.today()
+        for tier in TIERS:
+            q = [o for o in intel_obs if o["tier"] == tier and (o.get("months") or 0) == 0 and (as_of - o["date"]).days <= 90]
+            if q:
+                out[tier]["quotes_od_median"] = round(statistics.median([o["price_raw"] for o in q]), 2)
+                out[tier]["quotes_od_n"] = len(q)
+    if realised.exists():
+        for r in csv.DictReader(open(realised, newline="")):
+            tier = (r.get("tier") or "").upper()
+            if tier not in TIERS:
+                continue
+            key = "realised_preemptible" if str(r.get("preemptible")).lower() in ("true", "1") else "realised_payg"
+            try:
+                out[tier][key] = round(float(r["realised_usd_per_gpu_hour"]), 2)
+                out[tier][key + "_hours"] = int(float(r.get("paid_gpu_hours") or 0))
+                out[tier]["realised_window_days"] = int(float(r.get("window_days") or 30))
+                out[tier]["realised_generated"] = r.get("generated_date")
+            except (TypeError, ValueError):
+                continue
+    return out
+
+
 def load_grid(path: Path = GRID_JSON) -> dict:
     """Nebius Finance reserve grid(s): {version: {segments: {seg: {tier: {months: {prepay: price}}}}}}."""
     if not path.exists():
@@ -385,6 +462,19 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
     as_of = as_of or date.today()
     raw = load_bid(intel) + load_ask(reserve) + load_contracts(contracts)
     grids = load_grid(grid)
+    # on-demand competitor quotes (term 0) for the 0-month anchor, deduplicated like the rest
+    od_quotes = []
+    if intel.exists():
+        kept, _ = intel_dedupe(list(csv.DictReader(open(intel, newline=""))))
+        for r in kept:
+            try:
+                if float(r.get("term_months") or 0) != 0:
+                    continue
+                d = _parse_date(r.get("message_date", "")); tier = (r.get("gpu_model") or "").upper()
+                if d and tier in TIERS:
+                    od_quotes.append({"tier": tier, "months": 0, "date": d, "price_raw": float(r["price_per_gpu_hour_usd"])})
+            except (TypeError, ValueError):
+                continue
     obs = []
     for o in raw:
         age = (as_of - o["date"]).days
@@ -531,6 +621,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         "shape": shape,
         "observations": export,
         "economics": (json.loads(ECONOMICS_JSON.read_text()) if ECONOMICS_JSON.exists() else {}),
+        "on_demand": load_on_demand(history, od_quotes, as_of=as_of),
     }
 
 
@@ -789,7 +880,7 @@ def view_payload(result: dict) -> dict:
                  "bid_median", "ask_median", "public_median", "grid", "grid_100", "grid_50", "list_nebius",
                  "list_hyperscaler_min", "list_hyperscaler_provider", "cost_floor", "mark", "has_mark",
                  "range_lo", "range_hi", "confidence", "spread_pct", "reason")
-    out = {k: result[k] for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics")}
+    out = {k: result[k] for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics", "on_demand")}
     out["marks"] = [{k: m.get(k) for k in keep_mark} for m in result["marks"]]
     out["observations"] = [{"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),
                             "date": o["date"], "price": o["price"], "p0": round(o["p0"], 3), "q": o["q"], "prepay": o["prepay"], "known": o.get("known", False), "w": o["w"],
