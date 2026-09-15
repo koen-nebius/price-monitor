@@ -16,6 +16,7 @@ store/*.html
 !store/confluence_body.html
 !store/spot_auction_body.html
 !store/storage_body.html
+!store/forward_curve_body.html
 # Capacity monitor store — same policy: no daily snapshots, DO commit the
 # cache/last-snapshot/manifest/history + ready-to-post artifacts
 capacity/store/????-??-??.json

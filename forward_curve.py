@@ -462,6 +462,53 @@ def quarter_effects(obs: list[dict], as_of: date) -> dict:
     return {k: v - ref for k, v in sorted(q_eff.items())}
 
 
+ASK_MIN_DEALS = 3   # Nebius achieved prices are pooled and shown only as aggregates of at least this many deals
+
+
+def aggregate_asks(asks: list[dict], min_deals: int = ASK_MIN_DEALS) -> list[dict]:
+    """Merge per-month Nebius achieved rows into aggregates of >= min_deals deals so that
+    no single deal's price is published: first per (tier, tenor, payment bucket, quarter),
+    then per (tier, tenor, quarter) across buckets, then per (tier, tenor) over the whole
+    window. Whatever is still under min_deals is kept for counting only (withheld=True: no
+    price, weight 0, never pooled). Weights are preserved (sum of the member weights);
+    prices are deal-weighted medians of the members' raw, 0%-basis and date-adjusted prices."""
+    def merge(group):
+        group = sorted(group, key=lambda o: o["date"])
+        dw = [float(o.get("deals", 1)) for o in group]
+        base = dict(group[-1])
+        base.update({
+            "price_raw": weighted_median([o["price_raw"] for o in group], dw),
+            "p0": weighted_median([o["p0"] for o in group], dw),
+            "p_adj": weighted_median([o["p_adj"] for o in group], dw),
+            "months": sum(o["months"] * d for o, d in zip(group, dw)) / sum(dw),
+            "prepay_pct": group[0]["prepay_pct"] if len({o["prepay_pct"] for o in group}) == 1 else None,
+            "prepay_bucket": group[0].get("prepay_bucket") if len({o.get("prepay_bucket") for o in group}) == 1 else "mixed",
+            "deals": int(sum(dw)), "weight": sum(o["weight"] for o in group), "lines": sum(o.get("lines", 1) for o in group),
+            "date_from": min(o.get("date_from", o["date"]) for o in group), "age_days": min(o["age_days"] for o in group),
+        })
+        base["logp0"] = math.log(base["p0"])
+        return base
+
+    def level(rows, keyf):
+        groups = defaultdict(list)
+        for o in rows:
+            groups[keyf(o)].append(o)
+        return [merge(g) for g in groups.values()]
+
+    out, rest = [], list(asks)
+    for keyf in (lambda o: (o["tier"], o["tenor"], o.get("prepay_bucket"), o["quarter"]),
+                 lambda o: (o["tier"], o["tenor"], o["quarter"]),
+                 lambda o: (o["tier"], o["tenor"])):
+        if not rest:
+            break
+        merged = level(rest, keyf)
+        out += [m for m in merged if m["deals"] >= min_deals]
+        rest = [m for m in merged if m["deals"] < min_deals]
+    for m in rest:
+        m.update({"withheld": True, "weight": 0.0})
+    return sorted(out + rest, key=lambda o: (o["tier"], o["tenor"], o["date"]))
+
+
 def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
           history=HISTORY_CSV, contracts=CONTRACTS_CSV, grid=GRID_JSON, segment=DEFAULT_SEGMENT) -> dict:
     as_of = as_of or date.today()
@@ -491,9 +538,14 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         o = dict(o, age_days=age, p0=p0, logp0=math.log(p0), quarter=quarter_of(o["date"]),
                  weight=o["weight"] * (1.0 if age <= RECENT_DAYS else 0.5))
         obs.append(o)
-    q_eff = quarter_effects(obs, as_of)
+    # date normalisation is fitted on the same evidence that enters the marks: offers that state
+    # their prepayment plus Nebius achieved; unstated offers are only re-expressed with the result
+    fit_obs = [o for o in obs if o["weight"] > 0 and (o["side"] != "bid" or o.get("known"))]
+    q_eff = quarter_effects(fit_obs, as_of)
     for o in obs:
         o["p_adj"] = math.exp(o["logp0"] - q_eff.get(o["quarter"], 0.0))
+    # Nebius achieved only as aggregates of >= ASK_MIN_DEALS deals (no single deal's price is published)
+    obs = [o for o in obs if o["side"] != "ask"] + aggregate_asks([o for o in obs if o["side"] == "ask"])
 
     lists = load_list(history)
     by_cell = defaultdict(list)
@@ -507,22 +559,31 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
             bids_all = [o for o in allc if o["side"] == "bid"]
             bids = [o for o in bids_all if o.get("known")]          # offers that state their prepayment
             bids_unstated = [o for o in bids_all if not o.get("known")]
-            asks = [o for o in allc if o["side"] == "ask"]           # payment type known (proxy)
+            asks_all = [o for o in allc if o["side"] == "ask"]       # Nebius achieved aggregates (payment type known)
+            asks = [o for o in asks_all if not o.get("withheld")]
+            asks_withheld = [o for o in asks_all if o.get("withheld")]
             pubs = [o for o in allc if o["side"] == "public"]
             cell = bids + asks                                       # the mark's evidence: one payment basis
             cell_all = bids_all + asks                               # reference only: unstated terms counted at 0%
-            n, n_recent = len(cell), sum(1 for o in cell if o["age_days"] <= RECENT_DAYS)
+            ask_deals = sum(o.get("deals", 0) for o in asks)
+            ask_deals_withheld = sum(o.get("deals", 0) for o in asks_withheld)
+            # n counts distinct observations: one per competitor offer, one per signed Nebius deal
+            # (deals are pooled as aggregates only for confidentiality, not because they are one observation)
+            obs_count = lambda rows: sum(o.get("deals", 1) if o["side"] == "ask" else 1 for o in rows)  # noqa: E731
+            n, n_recent = obs_count(cell), obs_count([o for o in cell if o["age_days"] <= RECENT_DAYS])
             providers = {(o.get("provider") or "").strip().lower() for o in bids if o.get("provider")} | ({"nebius"} if asks else set())
             recent_raw = [o["price_raw"] for o in cell if o["age_days"] <= 90]
             recent_adj = [o for o in cell if o["age_days"] <= RECENT_DAYS]
-            ask_deals = sum(o.get("deals", 0) for o in asks)
             ref = lists.get((tier, tenor), {})
             gref = grid_reference(grids, tier, tenor, segment)
             entry = {
                 "tier": tier, "tenor_months": tenor, "label": TENOR_LABEL[tenor],
                 "n_obs": n, "n_recent": n_recent, "n_bid": len(bids), "n_ask": len(asks), "n_public": len(pubs),
-                "n_known": n, "n_bid_unstated": len(bids_unstated), "n_all": len(cell_all),
+                "n_known": n, "n_bid_unstated": len(bids_unstated), "n_all": obs_count(cell_all),
                 "n_providers": len(providers), "ask_deals": ask_deals,
+                "n_ask_withheld": len(asks_withheld), "ask_deals_withheld": ask_deals_withheld,
+                "achieved_only": bool(asks) and not bids,
+                "n_old": n - n_recent,
                 "recent_raw_median": round(statistics.median(recent_raw), 2) if recent_raw else None,
                 "n_recent90": len(recent_raw),
                 "mark_recent": (round(weighted_median([o["p0"] for o in recent_adj], [o["weight"] for o in recent_adj]), 2)
@@ -553,17 +614,23 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
                 vals, wts = [o["p_adj"] for o in cell], [o["weight"] for o in cell]
                 mark = weighted_median(vals, wts)
                 recent_vals = [o["p_adj"] for o in cell if o["age_days"] <= RECENT_DAYS] or vals
+                good = n >= GOOD_OBS and n_recent >= 2 and len(providers) >= 2
                 entry.update({
                     "mark": round(mark, 2), "mark_known": round(mark, 2), "has_mark": True,
                     "range_lo": round(min(recent_vals), 2), "range_hi": round(max(recent_vals), 2),
-                    "confidence": "good" if (n >= GOOD_OBS and n_recent >= 2 and len(providers) >= 2) else "thin",
+                    "range_recent": bool([o for o in cell if o["age_days"] <= RECENT_DAYS]),
+                    "confidence": "good" if good else "thin",
+                    "confidence_reason": (None if good else
+                                          f"fewer than {GOOD_OBS} observations" if n < GOOD_OBS else
+                                          "one provider only" if len(providers) < 2 else
+                                          "fewer than 2 observations in the last 120 days"),
                     "spread_pct": (round(entry["ask_median"] / entry["bid_median"] - 1, 3)
                                    if entry["bid_median"] and entry["ask_median"] else None),
                     "reason": None,
                 })
             else:
-                entry.update({"mark": None, "has_mark": False, "range_lo": None, "range_hi": None,
-                              "confidence": "suppressed", "spread_pct": None,
+                entry.update({"mark": None, "has_mark": False, "range_lo": None, "range_hi": None, "range_recent": None,
+                              "confidence": "suppressed", "confidence_reason": None, "spread_pct": None,
                               "reason": (f"insufficient_data ({n} stated-prepay obs in {MAX_AGE_DAYS}d, need {MIN_OBS}"
                                          + (f"; {len(bids_unstated)} more with unstated terms" if bids_unstated else "") + ")")})
             marks.append(entry)
@@ -588,13 +655,16 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
     # anonymised per-observation export for the interactive view (client-side filters)
     export = []
     for o in obs:
-        row = {"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),
-               "date": o["date"].isoformat(), "price": round(o["price_raw"], 3),
-               "p0": round(o["p0"], 3), "q": o["quarter"], "prepay": o["prepay_pct"], "known": bool(o.get("known")),
+        withheld = bool(o.get("withheld"))
+        row = {"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": round(o.get("months") or 0, 2),
+               "date": o["date"].isoformat(), "price": None if withheld else round(o["price_raw"], 3),
+               "p0": None if withheld else round(o["p0"], 5), "pa": None if withheld else round(o["p_adj"], 5),
+               "q": o["quarter"], "prepay": o["prepay_pct"], "known": bool(o.get("known")),
                "w": o["weight"], "ptype": o.get("provider_type", ""), "provider": o.get("provider", ""),
                "ts": o.get("ts", ""), "review": bool(o.get("review")), "similar": o.get("similar_provider", "")}
         if o["side"] == "ask":
-            row.update({"deals": o.get("deals"), "bucket": o.get("prepay_bucket")})
+            row.update({"deals": o.get("deals"), "bucket": o.get("prepay_bucket"), "withheld": withheld,
+                        "lines": o.get("lines", 1), "date_from": o.get("date_from", o["date"]).isoformat()})
             row["provider"] = "Nebius"
         export.append(row)
 
@@ -615,16 +685,19 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
                    "recent_days": RECENT_DAYS, "max_age_days": MAX_AGE_DAYS,
                    "min_obs": MIN_OBS, "good_obs": GOOD_OBS, "price_band": [PRICE_MIN, PRICE_MAX],
                    "tenors_months": TENORS, "tiers": TIERS},
-        "quarter_effects_log": {k: round(v, 3) for k, v in q_eff.items()},
+        "quarter_effects_log": {k: round(v, 4) for k, v in q_eff.items()},
         "n_observations": {"bid": sum(1 for o in obs if o["side"] == "bid"),
+                           "ask_withheld": sum(1 for o in obs if o["side"] == "ask" and o.get("withheld")),
+                           "ask_deals_withheld": sum(o.get("deals", 0) for o in obs if o["side"] == "ask" and o.get("withheld")),
+                           "ask_min_deals": ASK_MIN_DEALS,
                            "bid_known_prepay": sum(1 for o in obs if o["side"] == "bid" and o.get("known")),
                            "bid_unstated_prepay": sum(1 for o in obs if o["side"] == "bid" and not o.get("known")),
                            "bid_duplicates_removed": getattr(load_bid, "duplicates", 0),
                            "bid_review": getattr(load_bid, "review", 0),
                            "bid_in_window_review": sum(1 for o in obs if o["side"] == "bid" and o.get("review")),
-                           "ask": sum(1 for o in obs if o["side"] == "ask"),
+                           "ask": sum(1 for o in obs if o["side"] == "ask" and not o.get("withheld")),
                            "public": sum(1 for o in obs if o["side"] == "public"),
-                           "ask_deals": sum(o.get("deals", 0) for o in obs if o["side"] == "ask")},
+                           "ask_deals": sum(o.get("deals", 0) for o in obs if o["side"] == "ask" and not o.get("withheld"))},
         "sources": {"intel_latest_quote": src_dates["intel_latest"].isoformat() if src_dates["intel_latest"] else None,
                     "reserve_tenor_generated": src_dates["reserve_tenor_generated"],
                     "public_contracts": src_dates["contracts"], "grid_version": src_dates["grid_version"],
@@ -757,12 +830,18 @@ def _lozenge(text, colour):
 
 
 def _mark_cell(e: dict) -> str:
-    if not e["has_mark"]:
-        return _lozenge("n/a", "grey") + f'<br/><small>{e["n_obs"]} obs</small>'
-    colour = "green" if e["confidence"] == "good" else "yellow"
     unst = f' · +{e["n_bid_unstated"]} unstated excluded' if e.get("n_bid_unstated") else ""
-    return (f'<strong>{_fmt(e["mark"])}</strong> {_lozenge(e["confidence"], colour)}'
-            f'<br/><small>n={e["n_obs"]} ({e["n_bid"]} offers · {e["n_ask"]} achieved){unst} · recent {_range(e["range_lo"], e["range_hi"])}</small>')
+    if not e["has_mark"]:
+        return _lozenge("n/a", "grey") + f'<br/><em>{e["n_obs"]} obs{unst}</em>'
+    if e.get("achieved_only"):
+        loz, why = _lozenge("achieved only", "blue"), " · Nebius deals, no competitor offer"
+    else:
+        loz = _lozenge(e["confidence"], "green" if e["confidence"] == "good" else "yellow")
+        why = f' · thin: {e["confidence_reason"]}' if e["confidence"] == "thin" else ""
+    rng = ("recent " if e.get("range_recent") else "all-obs range ") + _range(e["range_lo"], e["range_hi"])
+    ach = f'{e["ask_deals"]} deals in {e["n_ask"]} aggregate{"s" if e["n_ask"] != 1 else ""}' if e["n_ask"] else "0 achieved"
+    return (f'<strong>{_fmt(e["mark"])}</strong> {loz}'
+            f'<br/><em>n={e["n_obs"]} ({e["n_bid"]} offers · {ach}){unst}{why} · {rng}</em>')
 
 
 def render_confluence_body(result: dict, with_images: bool = False) -> str:
@@ -771,17 +850,19 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
     s = result["sources"]
     h = []
     h.append(f'<p><em>As of {as_of} — refreshed daily by the price-monitor build (method v{result["method_version"]}). '
-             f'All prices <strong>$/GPU-hr, normalised to 0% prepay</strong>. Sibling pages: '
+             f'<strong>Marks are $/GPU-hr at 0% prepayment and today\'s price level</strong>; rate-card, list, raw and cost columns are shown as published. Sibling pages: '
              f'<a href="https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419">GPU Competitor Pricing — Daily Overview</a> · '
              f'<a href="https://nebius.atlassian.net/wiki/spaces/Billing/pages/1970110707">Competitor Spot &amp; Auction Pricing</a>. '
-             f'<strong>Interactive version</strong> (curve with prepay filters and the "where we land" price ladder): child page '
-             f'<em>GPU Committed-Price Benchmarks — Interactive</em> under this one, embedded via the HTML macro; also attached here as forward_view.html.</em></p>')
+             f'<strong>Interactive version</strong> (three views: market benchmarks by term, where a price sits among comparable offers, '
+             f'what a contract returns after costs): child page <em>GPU Committed-Price Benchmarks — Interactive</em> under this one, '
+             f'embedded via the HTML macro; also attached here as forward_view.html.</em></p>')
     h.append('<div data-type="panel-warning"><p><strong>Read me first.</strong> These are <strong>committed-price benchmarks</strong>, not a traded curve: '
              'each cell is the weighted median of dated observations we hold — <em>competitor offers</em> reported in #price-intelligence '
              '(confirmed repeats removed; skews to losses) and <em>Nebius achieved</em> prices from CRM deal reviews '
              '(aggregates only) — shifted to today\'s price level and to a 0%-prepay basis. <strong>Only offers that state their prepayment enter a mark</strong>; '
-             'offers with unstated terms are counted per cell and never pooled. The two classes are shown separately and imply no bid/ask spread; '
-             'public multi-year contracts are a reference and never pooled. Commitment length alone is not a delivery-date curve. Cells with fewer than '
+             'offers with unstated terms are counted per cell and never pooled. The two classes are shown separately; the gap between them is descriptive only. '
+             f'Nebius achieved prices appear only as aggregates of at least {ASK_MIN_DEALS} deals; thinner achieved evidence is counted but withheld. '
+             'Public multi-year contracts are a reference and never pooled. Commitment length alone is not a delivery-date curve. Cells with fewer than '
              f'{MIN_OBS} observations in the last {MAX_AGE_DAYS} days are <strong>suppressed</strong>, never interpolated. '
              '<strong>Internal only</strong>: Nebius achieved prices are derived from confidential contracts; never quote marks to customers '
              'or paste this page externally.</p></div>')
@@ -801,20 +882,22 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
         sh = shape_by[tier]
         struct = sh["structure"]
         struct_txt = ("—" if not struct else
-                      _lozenge(f'{struct} {_pct(sh["slope_12_36_pct"])} 12→36m',
+                      _lozenge((f'36m {abs(round(sh["slope_12_36_pct"] * 100))}% below 12m' if struct == "backwardation" else
+                                f'36m {abs(round(sh["slope_12_36_pct"] * 100))}% above 12m' if struct == "contango" else "36m level with 12m"),
                                "red" if struct == "backwardation" else "green" if struct == "contango" else "grey"))
         h.append(f'<tr><td><strong>{tier}</strong></td>' +
                  "".join(f'<td>{_mark_cell(e)}</td>' for e in cells) +
                  f'<td>{struct_txt}</td></tr>')
     h.append('</tbody></table>')
-    h.append(f'<p><em>Cell = mark on a stated-prepay basis, confidence lozenge (good = n ≥ {GOOD_OBS} distinct stated-prepay observations from ≥ 2 providers with ≥ 2 in the last {RECENT_DAYS} days; '
-             f'thin = {MIN_OBS}–{GOOD_OBS - 1}), then n (competitor offers / Nebius achieved), the number of offers excluded for unstated terms, and the min–max of recent adjusted observations. '
-             f'n/a = suppressed. Shape compares the 36m mark to the 12m mark; the 3m column is the short-end (immediacy) premium.</em></p>')
+    h.append(f'<p><em>Cell = mark on a stated-prepay basis, then a lozenge: good = n ≥ {GOOD_OBS} distinct stated-prepay observations from ≥ 2 providers with ≥ 2 in the last {RECENT_DAYS} days; '
+             f'thin = one of those three tests fails (the failing test is named); achieved only = Nebius signed deals with no competitor offer in the cell (always one provider, so never "good"). '
+             f'Then n (competitor offers / Nebius achieved aggregates), the number of offers excluded for unstated terms, and the min–max of recent adjusted observations (of all observations when none is recent). '
+             f'n/a = suppressed. Shape compares the 36m mark to the 12m mark.</em></p>')
 
     # shape + references
     h.append('<h2>Curve shape and references</h2>')
     h.append('<table><thead><tr><th>GPU</th><th>3m</th><th>12m</th><th>36m</th><th>60m</th>'
-             '<th>Short-end premium (3m vs 12m)</th><th>12→36m slope</th>'
+             '<th>3m vs 12m</th><th>36m vs 12m</th>'
              '<th>Nebius grid 24m / 36m (100% · 50% prepay)</th><th>Cheapest hyperscaler list 12m / 36m</th>'
              '<th>SA cost floor</th></tr></thead><tbody>')
     for tier in TIERS:
@@ -823,8 +906,8 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
             continue
         m = {e["tenor_months"]: e for e in result["marks"] if e["tier"] == tier}
         neb = (f'{_fmt(m[24]["grid_100"])} · {_fmt(m[24]["grid_50"])} / {_fmt(m[36]["grid_100"])} · {_fmt(m[36]["grid_50"])}')
-        hyp = (f'{_fmt(m[12]["list_hyperscaler_min"])} <small>{m[12]["list_hyperscaler_provider"]}</small> / '
-               f'{_fmt(m[36]["list_hyperscaler_min"])} <small>{m[36]["list_hyperscaler_provider"]}</small>')
+        hyp = (f'{_fmt(m[12]["list_hyperscaler_min"])} <em>{m[12]["list_hyperscaler_provider"]}</em> / '
+               f'{_fmt(m[36]["list_hyperscaler_min"])} <em>{m[36]["list_hyperscaler_provider"]}</em>')
         h.append(f'<tr><td><strong>{tier}</strong></td><td>{_fmt(sh["mark_3m"])}</td><td>{_fmt(sh["mark_12m"])}</td>'
                  f'<td>{_fmt(sh["mark_36m"])}</td><td>{_fmt(sh["mark_60m"])}</td>'
                  f'<td>{_pct(sh["short_end_premium_pct"])}</td><td>{_pct(sh["slope_12_36_pct"])}</td>'
@@ -846,12 +929,17 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
         if e["n_all"] == 0 and e["n_public"] == 0:
             continue
         status = (_lozenge("suppressed", "grey") if not e["has_mark"] else
+                  _lozenge("achieved only", "blue") if e.get("achieved_only") else
                   _lozenge(e["confidence"], "green" if e["confidence"] == "good" else "yellow"))
+        ask_txt = f'{_fmt(e["ask_median"])} ({e["n_ask"]} · {e["ask_deals"]})' if e["n_ask"] else "—"
+        wd = e.get("ask_deals_withheld") or 0
+        if wd:
+            ask_txt += f' · {wd} deal{"s" if wd != 1 else ""} withheld (under {ASK_MIN_DEALS})'
         h.append(f'<tr><td><strong>{e["tier"]}</strong></td><td>{e["label"]}</td><td><strong>{_fmt(e["mark"])}</strong></td>'
                  f'<td>{_fmt(e.get("recent_raw_median"))} ({e.get("n_recent90", 0)})</td>'
                  f'<td>{_fmt(e["bid_median"])} ({e["n_bid"]} · {e.get("n_providers", "–")})</td>'
                  f'<td>{e["n_bid_unstated"]}{" · " + _fmt(e["bid_median_unstated"]) if e["n_bid_unstated"] else ""}</td>'
-                 f'<td>{_fmt(e["ask_median"])} ({e["n_ask"]} · {e["ask_deals"]})</td>'
+                 f'<td>{ask_txt}</td>'
                  f'<td>{_fmt(e["public_median"])} ({e["n_public"]})</td>'
                  f'<td>{_pct(e["spread_pct"])}</td>'
                  f'<td>{_range(e["range_lo"], e["range_hi"])}</td><td>{status}</td></tr>')
@@ -863,7 +951,8 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
     h.append(f'<p><strong>Observations in window:</strong> {n["bid"]} distinct competitor offers ({n.get("bid_duplicates_removed", 0)} confirmed repeats removed, '
              f'{n.get("bid_review", 0)} similar offers kept and listed for review in store/intel_duplicates.csv; {n.get("bid_known_prepay", 0)} state their prepayment and enter marks, '
              f'{n.get("bid_unstated_prepay", 0)} do not and are counted only; latest {s.get("intel_latest_quote")}), '
-             f'{n["ask"]} Nebius achieved cells covering {n["ask_deals"]} signed deals (reserve_tenor.csv generated {s.get("reserve_tenor_generated")}), '
+             f'{n["ask"]} Nebius achieved aggregates covering {n["ask_deals"]} signed deals, each aggregate at least {ASK_MIN_DEALS} deals (quarter × payment type, then quarter, then the whole window); '
+             f'{n.get("ask_deals_withheld", 0)} further deals in {n.get("ask_withheld", 0)} thinner groups are counted but their prices withheld (reserve_tenor.csv generated {s.get("reserve_tenor_generated")}), '
              f'{n.get("public", 0)} public announced contracts shown as reference (never pooled). Nebius grid version {s.get("grid_version")}, segment {result["params"].get("segment")}.</p>')
     h.append('<ol>'
              f'<li><strong>Prepay normalisation:</strong> discount = {PREPAY_A:.4f} × years of tenor × (1 − (1 − prepay share)²), capped {PREPAY_CAP:.0%}; '
@@ -875,7 +964,8 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              f'each observation is shifted to the as-of quarter. Estimated quarter effects (log, vs as-of): {qe}. '
              'Pooling across tiers is a v1 simplification; Hopper and Blackwell repriced by similar ratios in 2026H1.</li>'
              f'<li><strong>Weights:</strong> observations ≤ {RECENT_DAYS} days old count 1, ≤ {MAX_AGE_DAYS} days count ½, older are dropped; '
-             'Nebius achieved cells weigh min(deals, 3) so a single mega-deal cannot dominate; public announced contracts are not pooled (implied rates assume 8,760 billed hours and are lower bounds).</li>'
+             'each Nebius achieved month weighs min(deals, 3) so a single mega-deal cannot dominate, and an aggregate carries the summed weight of its months; '
+             'n counts one observation per competitor offer and one per signed Nebius deal. Public announced contracts are not pooled (implied rates assume 8,760 billed hours and are lower bounds).</li>'
              f'<li><strong>Mark:</strong> weighted median of adjusted prices per cell on one payment basis: competitor offers that state their prepayment plus Nebius achieved cells (payment type known). '
              f'Suppressed below {MIN_OBS} such observations, never interpolated or carried forward. "Good" needs six observations from at least two providers with two in the last 120 days. '
              'Offers without a stated prepayment never enter a mark; they are counted per cell, their median at a 0% assumption is shown for reference, and the interactive page can add them to a comparison only through an explicitly labelled switch.</li>'
@@ -900,18 +990,20 @@ def view_payload(result: dict) -> dict:
     """Compact copy of the build result for the interactive page: drops fields the view
     never reads and rounds numbers, so the embedded JSON stays small enough for
     Confluence macro bodies and connector calls."""
-    keep_mark = ("tier", "tenor_months", "label", "n_obs", "n_recent", "n_bid", "n_ask", "n_public", "ask_deals",
+    keep_mark = ("tier", "tenor_months", "label", "n_obs", "n_recent", "n_old", "n_bid", "n_ask", "n_public", "ask_deals",
+                 "n_ask_withheld", "ask_deals_withheld", "achieved_only",
                  "n_known", "n_bid_unstated", "n_all", "n_providers", "recent_raw_median", "n_recent90", "mark_recent", "mark_known", "mark_all",
                  "bid_median", "bid_median_all", "bid_median_unstated", "ask_median", "public_median", "grid", "grid_100", "grid_50", "list_nebius",
                  "list_hyperscaler_min", "list_hyperscaler_provider", "cost_floor", "mark", "has_mark",
-                 "range_lo", "range_hi", "confidence", "spread_pct", "reason")
+                 "range_lo", "range_hi", "range_recent", "confidence", "confidence_reason", "spread_pct", "reason")
     out = {k: result[k] for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics", "on_demand")}
     out["marks"] = [{k: m.get(k) for k in keep_mark} for m in result["marks"]]
     out["observations"] = [{"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),
-                            "date": o["date"], "price": o["price"], "p0": round(o["p0"], 3), "q": o["q"], "prepay": o["prepay"], "known": o.get("known", False), "w": o["w"],
+                            "date": o["date"], "price": o["price"], "p0": o["p0"], "pa": o.get("pa"), "q": o["q"], "prepay": o["prepay"], "known": o.get("known", False), "w": o["w"],
                             "ptype": o.get("ptype", ""), "provider": o.get("provider", ""), "ts": o.get("ts", ""),
                             **({"review": True, "similar": o.get("similar", "")} if o.get("review") else {}),
-                            **({"deals": o.get("deals"), "bucket": o.get("bucket")} if o["side"] == "ask" else {})}
+                            **({"deals": o.get("deals"), "bucket": o.get("bucket"), "withheld": o.get("withheld", False),
+                                "lines": o.get("lines", 1), "date_from": o.get("date_from", o["date"])} if o["side"] == "ask" else {})}
                            for o in result.get("observations", [])]
     return out
 
@@ -922,8 +1014,6 @@ def render_view_fragment(result: dict) -> str:
     artifact, embedded in the Confluence HTML macro and, wrapped by render_view_html(),
     attached to the Confluence page."""
     tpl = TEMPLATE.read_text()
-    pos = ROOT / "templates" / "position_view.html"
-    tpl = tpl.replace("<!--__POSITION__-->", pos.read_text() if pos.exists() else "")
     data = json.dumps(view_payload(result), separators=(",", ":"), default=str).replace("</", "<\\/")
     return tpl.replace("/*__DATA__*/null", data)
 

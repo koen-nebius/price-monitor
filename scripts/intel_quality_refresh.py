@@ -59,9 +59,6 @@ def main(argv) -> int:
         w = csv.DictWriter(f, fieldnames=cols)
         w.writeheader()
         w.writerows(rows)
-    by_ts = {}
-    for r in rows:
-        by_ts.setdefault(str(r.get("message_ts")), r)
     with open(REPORT, "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(REPORT_COLS)
@@ -69,7 +66,7 @@ def main(argv) -> int:
             for d in items:
                 r = d["row"]
                 other_ts = d.get("duplicate_of") or d.get("similar_to")
-                other_prov = d.get("similar_provider") or (by_ts.get(str(other_ts), {}).get("provider_name", ""))
+                other_prov = d.get("duplicate_provider") or d.get("similar_provider") or ""
                 w.writerow([action, r["message_ts"], r["message_date"], r["gpu_model"], r["price_per_gpu_hour_usd"], r["term_months"],
                             r["provider_name"], other_ts, other_prov, d["reason"]])
     print(f"wrote {INTEL.name} (+prepay_known) and {REPORT.name} ({len(removed)} removed, {len(review)} review)")

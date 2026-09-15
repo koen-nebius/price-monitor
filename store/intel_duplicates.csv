@@ -14,17 +14,17 @@ removed,seed_20260505_01,2026-05-05,B200,4.25,12,Blue Sky Compute,1778005793.502
 removed,seed_20260505_02,2026-05-05,B300,4.75,24,Undisclosed,1778001475.012579,Undisclosed,seed row repeats a retrieved row (same provider)
 removed,seed_20260508_01,2026-05-08,B200,3.20,24,GCP,1778251159.227129,GCP,seed row repeats a retrieved row (same provider)
 removed,seed_20260508_02,2026-05-08,B200,3.70,12,GCP,1778251159.227129,GCP,seed row repeats a retrieved row (same provider)
-removed,seed_20260508_03,2026-05-08,H200,2.00,12,AWS,1778251159.227129,GCP,seed row repeats a retrieved row (same provider)
+removed,seed_20260508_03,2026-05-08,H200,2.00,12,AWS,1778251159.227129,AWS,seed row repeats a retrieved row (same provider)
 removed,seed_20260508_04,2026-05-08,B300,3.50,36,Azure,1778230171.438679,Azure,seed row repeats a retrieved row (same provider)
-removed,seed_20260508_05,2026-05-08,B300,3.70,24,CoreWeave,1778230171.438679,Azure,seed row repeats a retrieved row (same provider)
-removed,seed_20260508_06,2026-05-08,B300,3.80,12,CoreWeave,1778230171.438679,Azure,seed row repeats a retrieved row (same provider)
+removed,seed_20260508_05,2026-05-08,B300,3.70,24,CoreWeave,1778230171.438679,CoreWeave,seed row repeats a retrieved row (same provider)
+removed,seed_20260508_06,2026-05-08,B300,3.80,12,CoreWeave,1778230171.438679,CoreWeave,seed row repeats a retrieved row (same provider)
 removed,seed_20260508_07,2026-05-08,B300,4.00,0,AWS,1778220816.521299,AWS,seed row repeats a retrieved row (same provider)
 removed,seed_20260511_01,2026-05-11,B200,4.00,12,AWS,1778498257.915789,AWS,seed row repeats a retrieved row (same provider)
-removed,seed_20260511_02,2026-05-11,B300,4.20,12,Lambda,1778498257.915789,AWS,seed row repeats a retrieved row (same provider)
+removed,seed_20260511_02,2026-05-11,B300,4.20,12,Lambda,1778498257.915789,Lambda,seed row repeats a retrieved row (same provider)
 removed,seed_20260513_01,2026-05-13,B300,4.30,18,Undisclosed,1778659992.974979,Undisclosed,seed row repeats a retrieved row (same provider)
 removed,seed_20260514_01,2026-05-14,B300,4.00,36,AWS,1778793265.826279,AWS,seed row repeats a retrieved row (same provider)
 removed,seed_20260514_02,2026-05-14,GB300,5.00,24,Undisclosed,1778792937.752849,Undisclosed,seed row repeats a retrieved row (same provider)
-removed,seed_20260514_03,2026-05-14,GB300,4.30,36,Undisclosed EU neocloud,1778779567.610869,Undisclosed EU neocloud,seed row repeats a retrieved row (same provider)
+removed,seed_20260514_03,2026-05-14,GB300,4.30,36,Undisclosed EU neocloud,1778779567.610869,Undisclosed EU neocloud,"seed row repeats a retrieved row (same provider); removed row stated prepay 35%, kept row unknown (backfill?)"
 removed,seed_20260515_01,2026-05-15,B200,4.36,12,Axe Compute,1778870469.336729,Axe Compute,seed row repeats a retrieved row (same provider)
 removed,seed_20260515_02,2026-05-15,B200,4.46,24,Axe Compute,1778870469.336729,Axe Compute,seed row repeats a retrieved row (same provider)
 removed,seed_20260518_01,2026-05-18,B200,3.68,36,Undisclosed hyperscaler,1779107728.747939,Undisclosed hyperscaler,seed row repeats a retrieved row (same provider)
@@ -35,4 +35,6 @@ review,1777387064.743909,2026-04-28,GB300,5.0,12,Undisclosed neocloud,1777387064
 review,1780422932.324229,2026-06-02,B300,4.25,24,CIVO,1780422932.324229,Verda,"same Slack message, different provider: kept, review"
 review,1780592471.289529,2026-06-04,GB300,3.80,36,Nscale,1780592471.289529,BoostRun,"same Slack message, different provider: kept, review"
 review,1787230678.978469,2026-08-20,B300,4.90,36,Ornn,1787230678.978469,SFCompute,"same Slack message, different provider: kept, review"
+review,seed_20260313_01,2026-03-13,B200,2.85,24,Undisclosed,1773433467.443049,Undisclosed,"seed row repeats a same-day retrieved row at another price (range midpoint vs bound?): kept, review"
+review,seed_20260402_02,2026-04-02,H100,2.35,12,Undisclosed,1775104471.134239,Undisclosed,"seed row repeats a same-day retrieved row at another price (range midpoint vs bound?): kept, review"
 review,seed_20260414_02,2026-04-14,B200,4.25,0,AWS,1776195386.853129,Lyceum,"seed row matches a retrieved row of another provider: kept, review"

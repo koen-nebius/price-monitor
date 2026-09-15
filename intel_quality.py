@@ -45,6 +45,7 @@ REASON_SEED_SAME_NOTES = "seed row repeats a retrieved row (same notes)"
 REVIEW_SAME_MESSAGE = "same Slack message, different provider: kept, review"
 REVIEW_SEED_OTHER_PROVIDER = "seed row matches a retrieved row of another provider: kept, review"
 REVIEW_SAME_PROVIDER_OTHER_TERMS = "same provider, price and term but different stated prepayment: kept, review"
+REVIEW_SEED_OTHER_PRICE = "seed row repeats a same-day retrieved row at another price (range midpoint vs bound?): kept, review"
 
 
 def _pct(row: dict) -> float:
@@ -115,10 +116,13 @@ def is_seed(row: dict) -> bool:
     return str(row.get("message_ts", "")).startswith(("seed_", "audit_"))
 
 
+def _same_cell(k: dict, r: dict) -> bool:
+    return (k["gpu_model"].upper() == (r.get("gpu_model") or "").upper()
+            and _term_bucket(k.get("term_months")) == _term_bucket(r.get("term_months")))
+
+
 def _same_offer_shape(k: dict, r: dict, price: float, window_days: int) -> bool:
-    if k["gpu_model"].upper() != (r.get("gpu_model") or "").upper():
-        return False
-    if _term_bucket(k.get("term_months")) != _term_bucket(r.get("term_months")):
+    if not _same_cell(k, r):
         return False
     if abs(float(k["price_per_gpu_hour_usd"]) - price) > 0.011:
         return False
@@ -151,45 +155,54 @@ def classify(rows: list[dict], window_days: int = 7):
         confirmed = None
         similar = None
         for k in kept:
-            if not _same_offer_shape(k, r, price, window_days):
-                continue
-            same_prov = _norm_provider(k.get("provider_name")) == _norm_provider(r.get("provider_name")) and not _generic_provider(r.get("provider_name"))
+            same_name = _norm_provider(k.get("provider_name")) == _norm_provider(r.get("provider_name"))
+            r_generic, k_generic = _generic_provider(r.get("provider_name")), _generic_provider(k.get("provider_name"))
+            same_prov = same_name and not r_generic
             seed_pair = is_seed(r) != is_seed(k)
             same_day = (r.get("message_date") or "")[:10] == (k.get("message_date") or "")[:10]
             same_msg = str(k.get("message_ts")) == str(r.get("message_ts")) and not is_seed(r)
+            sim = notes_similarity(r.get("notes"), k.get("notes"))
+            if not _same_offer_shape(k, r, price, window_days):
+                # a seed row keyed from the same day's message at another price (range midpoint vs bound): review, never remove
+                if seed_pair and same_day and _same_cell(k, r) and (same_name or r_generic or k_generic) and sim >= 0.5 and similar is None:
+                    similar = (k, REVIEW_SEED_OTHER_PRICE)
+                continue
             # two quotes that both state their prepayment, and state different ones, are two quotes
             prepay_conflict = prepay_known(r) and prepay_known(k) and _pct(r) != _pct(k)
-            if same_prov and prepay_conflict:
-                if similar is None:
-                    similar = (k, REVIEW_SAME_PROVIDER_OTHER_TERMS)
-                continue
+            match = None
             if same_prov:
-                confirmed = (k, REASON_SEED_SAME_PROVIDER if seed_pair else REASON_SAME_PROVIDER)
-                break
-            if _norm_provider(k.get("provider_name")) == _norm_provider(r.get("provider_name")) and _generic_provider(r.get("provider_name")) and seed_pair and same_day:
-                confirmed = (k, REASON_SEED_SAME_PROVIDER)   # both "Undisclosed", seed repeats the retrieved row
-                break
-            if seed_pair and same_day and (_generic_provider(r.get("provider_name")) or _generic_provider(k.get("provider_name"))):
-                confirmed = (k, REASON_SEED_ANONYMISED)
-                break
-            if seed_pair and same_day and notes_similarity(r.get("notes"), k.get("notes")) >= NOTES_SIMILARITY_CONFIRMED:
-                confirmed = (k, REASON_SEED_SAME_NOTES)
+                match = REASON_SEED_SAME_PROVIDER if seed_pair else REASON_SAME_PROVIDER
+            elif same_name and r_generic and seed_pair and same_day:
+                match = REASON_SEED_SAME_PROVIDER          # both "Undisclosed", seed repeats the retrieved row
+            elif seed_pair and same_day and (r_generic or k_generic):
+                match = REASON_SEED_ANONYMISED
+            elif seed_pair and same_day and sim >= NOTES_SIMILARITY_CONFIRMED:
+                match = REASON_SEED_SAME_NOTES
+            if match:
+                if prepay_conflict:
+                    if similar is None:
+                        similar = (k, REVIEW_SAME_PROVIDER_OTHER_TERMS)
+                    continue
+                confirmed = (k, match)
                 break
             if same_msg and similar is None:
                 similar = (k, REVIEW_SAME_MESSAGE)
             elif seed_pair and similar is None:
                 similar = (k, REVIEW_SEED_OTHER_PROVIDER)
         if confirmed:
-            k = confirmed[0]
+            k, reason = confirmed
             if prepay_known(r) and not prepay_known(k) and not is_seed(r):
                 # same offer, but this row states the payment terms the earlier one lacked: keep the informative row
                 kept[kept.index(k)] = r
-                removed.append({"row": k, "duplicate_of": r.get("message_ts"), "reason": confirmed[1] + "; later row states prepayment, kept instead"})
+                removed.append({"row": k, "duplicate_of": r.get("message_ts"), "duplicate_provider": r.get("provider_name", ""),
+                                "reason": reason + "; later row states prepayment, kept instead"})
                 for x in review:
                     if x.get("similar_to") == k.get("message_ts") and x.get("similar_provider") == k.get("provider_name"):
                         x["similar_to"] = r.get("message_ts")
             else:
-                removed.append({"row": r, "duplicate_of": k.get("message_ts"), "reason": confirmed[1]})
+                if prepay_known(r) and not prepay_known(k):
+                    reason += f"; removed row stated prepay {_pct(r):g}%, kept row unknown (backfill?)"
+                removed.append({"row": r, "duplicate_of": k.get("message_ts"), "duplicate_provider": k.get("provider_name", ""), "reason": reason})
             continue
         kept.append(r)
         if similar:
