@@ -5,6 +5,7 @@ https://prices.azure.com/api/retail/prices
 """
 import json
 import logging
+import math
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone
@@ -21,11 +22,50 @@ SOURCE_URL_OD = "https://azure.microsoft.com/en-us/pricing/details/virtual-machi
 SOURCE_URL_SPOT = "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/"
 API_VERSION = "2023-01-01-preview"
 
+# Microsoft Learn, accelerator quantity tables (verified 2026-09-06):
+# https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nc-rtxpro6000-bse-v6-series
+# NC36 is a 24-GB quarter GPU, not a whole card. The 36-vCPU/GPU
+# assumption in the legacy config understates normalized RTX prices fourfold.
+# Match exact documented SKUs; vCPU counts and partial names do not establish
+# accelerator quantities. Fractions stay numeric in the existing PriceRecord.
+_RTX_GPU_COUNTS = {
+    "Standard_NC36ds_xl_RTXPRO6000BSE_v6".casefold(): 0.25,
+    "Standard_NC72ds_xl_RTXPRO6000BSE_v6".casefold(): 0.5,
+    "Standard_NC144ds_xl_RTXPRO6000BSE_v6".casefold(): 1,
+    "Standard_NC288ds_xl_RTXPRO6000BSE_v6".casefold(): 2,
+    "Standard_NC24lds_xl_RTXPRO6000BSE_v6".casefold(): 0.25,
+    "Standard_NC36lds_xl_RTXPRO6000BSE_v6".casefold(): 0.25,
+    "Standard_NC72lds_xl_RTXPRO6000BSE_v6".casefold(): 0.5,
+    "Standard_NC144lds_xl_RTXPRO6000BSE_v6".casefold(): 1,
+    "Standard_NC288lds_xl_RTXPRO6000BSE_v6".casefold(): 2,
+}
+
+
+def _gpu_quantity(instance_type: str, gpu_model: str, spec: dict) -> Optional[float]:
+    is_rtx = gpu_model.upper().replace(" ", "") in {"RTX6000", "RTXPRO6000"}
+    if is_rtx or "RTXPRO6000" in instance_type.upper():
+        count = _RTX_GPU_COUNTS.get(instance_type.casefold())
+        if not is_rtx or count is None:
+            logger.warning("Azure %s: ambiguous RTX model/SKU; skipping GPU normalization", instance_type)
+            return None
+        return count
+
+    count = spec.get("gpu_count")
+    if isinstance(count, bool) or not isinstance(count, (int, float)) or not math.isfinite(count) or count <= 0:
+        logger.warning("Azure %s: invalid configured GPU quantity; skipping", instance_type)
+        return None
+    return count
+
+
 # All Azure instance types we care about
 _ALL_AZURE_TYPES = {}
 for gpu_model, specs in GPU_MAP.get("azure", {}).items():
     for spec in specs:
-        _ALL_AZURE_TYPES[spec["instance_type"]] = (gpu_model, spec)
+        count = _gpu_quantity(spec["instance_type"], gpu_model, spec)
+        if count is not None:
+            # Copy rather than mutate the shared config. Registry users and the
+            # fetch path see the same corrected quantity; other providers do not.
+            _ALL_AZURE_TYPES[spec["instance_type"]] = (gpu_model, {**spec, "gpu_count": count})
 
 # Also include known H100/H200/L40S variants not in config but discoverable
 _KNOWN_PREFIXES = [
@@ -57,6 +97,9 @@ def _fetch_instance(
     fetched_at: str,
 ) -> List[PriceRecord]:
     records = []
+    gpu_count = _gpu_quantity(instance_type, gpu_model, spec)
+    if gpu_count is None:
+        return records
 
     # Query all price types for this instance
     filter_expr = f"armSkuName eq '{instance_type}' and serviceName eq 'Virtual Machines'"
@@ -70,6 +113,10 @@ def _fetch_instance(
         data = json.loads(http_get(url, timeout=30))
 
         for item in data.get("Items", []):
+            # Normalization belongs to this exact VM, not a similar meter label.
+            if item.get("armSkuName", "").casefold() != instance_type.casefold():
+                logger.warning("Azure %s: missing or mismatched armSkuName; skipping price", instance_type)
+                continue
             arm_region = item.get("armRegionName", "")
             if arm_region not in regions:
                 continue
@@ -107,12 +154,12 @@ def _fetch_instance(
             records.append(PriceRecord(
                 provider="azure",
                 gpu_model=gpu_model,
-                gpu_count=spec["gpu_count"],
+                gpu_count=gpu_count,
                 instance_type=instance_type,
                 region=arm_region,
                 consumption_type=ct,
                 price_per_hour_usd=hourly_price,
-                price_per_gpu_hour_usd=hourly_price / spec["gpu_count"],
+                price_per_gpu_hour_usd=hourly_price / gpu_count,
                 vcpu=spec.get("vcpu"),
                 ram_gb=spec.get("ram_gb"),
                 fetched_at=fetched_at,
