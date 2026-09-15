@@ -56,7 +56,7 @@
   "reserve_tenor_generated": "2026-09-15",
   "public_contracts": 12,
   "grid_version": "2026-09-07",
-  "list_snapshot": "2026-09-14",
+  "list_snapshot": "2026-09-15",
   "cost_floor": "SemiAnalysis AI-Cloud TCO model (Aug-10-2026), Full TCO row 147, Neocloud Giant profile; VR = NVL72 2300W variant"
  },
  "grid": {
