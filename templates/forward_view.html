@@ -152,7 +152,7 @@ tr[data-ts]{cursor:pointer}
   <div class="split single" id="ps-split">
     <div><div class="chart-wrap"><svg class="chart" id="ps-chart" viewBox="0 0 900 230" role="img" aria-label="Comparable offers and your price"></svg></div>
       <div class="legend" id="ps-prov"></div>
-      <div class="legend"><span><i class="med"></i>median of comparables</span><span><i class="acc"></i>your price</span><span id="lg-ach" hidden><i class="ach"></i>Nebius achieved</span><span id="ps-hint">click a dot to see that quote</span></div>
+      <div class="legend"><span><i class="med"></i>median of comparables</span><span><i class="acc"></i>your price</span><span id="lg-ach" hidden><i class="ach"></i>Nebius achieved</span><span id="lg-list" hidden><i style="border-radius:1px;background:var(--dim)"></i>published list price, shown but not counted</span><span id="ps-hint">click a dot to see that quote</span></div>
       <details class="disc" id="ps-lines" style="margin-top:4px"><summary>What the dashed lines mean</summary><div class="body" id="ps-guide"></div></details></div>
     <aside class="side" id="ps-side" hidden></aside>
   </div>
@@ -266,9 +266,9 @@ const DATA = /*__DATA__*/null;
 
   // ---------- comparable set for the position view
   // ---------- PAYG term (0): today's on-demand list prices and term-0 quotes; a separate class, never pooled into marks
+  const nice = k => ({ hyperstack: "Hyperstack", coreweave: "CoreWeave", lambda: "Lambda", crusoe: "Crusoe", verda: "Verda", together: "Together", runpod: "RunPod", aws: "AWS", gcp: "GCP", azure: "Azure", oracle: "Oracle", nebius: "Nebius" }[k] || String(k).replace(/^(cp|sf|gh)_/, "").replace(/-com$/, "").replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase()));   // provider display names
   function odObs(tier){
     const od = OD[tier] || {}, snap = od.list_snapshot || DATA.as_of;
-    const nice = k => ({ hyperstack: "Hyperstack", coreweave: "CoreWeave", lambda: "Lambda", crusoe: "Crusoe", verda: "Verda", together: "Together", runpod: "RunPod", aws: "AWS", gcp: "GCP", azure: "Azure", oracle: "Oracle", nebius: "Nebius" }[k] || k.replace(/^(cp|sf|gh)_/, "").replace(/-com$/, "").replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
     const mk = (l, tag) => (l || []).map(x => ({ tier, tenor: 0, months: 0, provider: nice(x.provider), tag, side: "list", price: x.price, p0: x.price, pa: x.price, q: "", prepay: 0, known: true, date: snap, ts: "list:" + x.provider, notes: "on-demand list price, 8-GPU node, snapshot " + snap }));
     const quotes = (od.quotes || []).map(x => ({ tier, tenor: 0, months: 0, provider: x.provider || "undisclosed", tag: "quote", side: "bid", price: x.price, p0: x.price, pa: x.price, q: "", prepay: 0, known: true, date: x.date, ts: x.ts || ("quote:" + x.date), notes: "on-demand quote, #price-intelligence" }));
     return { peers: mk(od.peer_list, "peer"), hypers: mk(od.hyper_list, "hyperscaler"), others: mk(od.other_list, "pricefighter"), quotes };
@@ -278,10 +278,10 @@ const DATA = /*__DATA__*/null;
     const all = s.peers.concat(s.quotes, s.hypers, s.others);
     const comp = s.peers.concat(s.quotes);   // hyperscalers and price fighters are listed below, not compared
     const compVal = o => o.p0, vals = comp.map(compVal), med = vals.length ? wmed(vals) : null;
-    const basisLabel = "today's 8-GPU on-demand list prices of peer clouds and on-demand quotes from the last 90 days; no prepayment, no date adjustment; hyperscalers and price fighters listed below, not compared";
+    const basisLabel = "today's 8-GPU on-demand list prices of peer clouds and on-demand quotes from the last 90 days; no prepayment, no date adjustment; hyperscaler and price-fighter list prices shown as squares, not counted";
     const latest = all.length ? all.map(o => o.date).sort().slice(-1)[0] : null;
     return { all, known: all, unknown: [], comp, compVal, vals, med, basisLabel, excluded: all.filter(o => !comp.includes(o)), unstatedIn: 0, asks: [],
-             askAt: od.realised_payg != null ? od.realised_payg : null, askDeals: 0, withheld: [], pubs: [], latest, n90: all.length };
+             askAt: od.realised_payg != null ? od.realised_payg : null, askDeals: 0, withheld: [], pubs: [], latest, n90: all.length, lists: s.hypers.concat(s.others) };
   }
   function cellStats(tier, tenor){
     if (tenor === 0) return cellStatsOD(tier);
@@ -299,7 +299,9 @@ const DATA = /*__DATA__*/null;
     const vals = comp.map(compVal), med = vals.length ? wmed(vals) : null;
     const latest = all.length ? all.map(o => o.date).sort().slice(-1)[0] : null;
     const withheld = WITHHELD.filter(o => o.tier === tier && o.tenor === tenor);
-    return { all, known, unknown, comp, compVal, vals, med, basisLabel, excluded, unstatedIn, asks, askAt, askDeals: asks.reduce((s, o) => s + (o.deals || 0), 0), withheld, pubs, latest, n90: all.filter(o => age(o) <= 90).length };
+    const refCell = refTier[tier] && refTier[tier][tenor] || {}, snap = DATA.sources.list_snapshot || DATA.as_of;
+    const lists = (refCell.list_hyperscalers || []).map(h => ({ tier, tenor, months: tenor, provider: nice(h.provider), tag: "hyperscaler", side: "list", price: h.price, p0: h.price, pa: h.price, q: "", prepay: 0, known: true, date: snap, ts: "list:" + h.provider, notes: `hyperscaler reserved list price, ${tenor}-month tier, snapshot ${snap}; a rack rate, enterprise customers pay less` }));
+    return { all, known, unknown, comp, compVal, vals, med, basisLabel, excluded, unstatedIn, asks, askAt, askDeals: asks.reduce((s, o) => s + (o.deals || 0), 0), withheld, pubs, latest, n90: all.filter(o => age(o) <= 90).length, lists };
   }
   function rank(cs, price){ const n = cs.vals.length, above = cs.vals.filter(v => v > price).length; return { n, above, below: n - above, equal: cs.vals.filter(v => Math.abs(v - price) < 0.005).length }; }
   function benchPrice(tier, tenor, pp){
@@ -376,7 +378,7 @@ const DATA = /*__DATA__*/null;
     document.querySelectorAll("#bar .ev").forEach(el => { el.hidden = S.view === "market"; });
     document.querySelectorAll("#bar .mk").forEach(el => { el.hidden = S.view !== "market"; });
     if (S.tenor === 0) { S.pp = 0; S.mode = "payg"; }   // on-demand: no prepayment, occupancy-based economics
-    selPP.disabled = S.tenor === 0; selMode.disabled = S.tenor === 0;
+    selPP.closest("label").hidden = S.tenor === 0; selMode.disabled = S.tenor === 0;
     selTier.value = S.tier; selTenor.value = String(S.tenor); selPP.value = String(S.pp); selPF.value = S.pf; selCB.value = S.cb; selMode.value = S.mode;
     $("c-recent").checked = S.recent; $("c-others").checked = S.others; $("c-unstated").checked = S.unstated; $("c-achieved").checked = S.achieved;
     $("c-guide").checked = S.guide; $("c-sapos").checked = S.saPos;
@@ -486,6 +488,11 @@ const DATA = /*__DATA__*/null;
     if (fg) { const k = fg.exact != null ? fg.exact : fg.cols.reduce((a, c) => Math.abs(c[0] - pp) < Math.abs(a[0] - pp) ? c : a)[0]; const pr = fg.cols.find(c => c[0] === k)[1];
       out.floors.push({ key: "finance", price: pr, short: "Finance floor " + fmt(pr), label: `Finance Tier-2 GM-approval floor ${fmt(pr)} (rate card ${GRIDV}, ${SEGS[S.segForFin]}, ${fg.months} months, ${k}% prepay column${k !== pp ? ", nearest published" : ""})`,
         plain: `<b>Finance floor ${fmt(pr)}.</b> The lowest price in Finance's rate card (${GRIDV}) for ${tier} at ${fg.months} months that sales may quote without GM approval, the "Tier 2" line. ${SEGS[S.segForFin]} segment, ${k}% prepayment column${k !== pp ? `; Finance publishes no ${pp}% column, so the nearest one is shown` : ""}.` }); }
+    else if (tenor !== 0) {
+      // no Tier-2 floor for this GPU and term: say so, and list what Finance does publish (same segment, then the other)
+      const pubFor = seg => Object.entries((GRID[seg] || {})[tier] || {}).map(([m, pr]) => `${m} months ${Object.entries(pr).sort((a, b) => Number(b[0]) - Number(a[0])).map(([k, v]) => `${k}%: ${fmt(v)}`).join(", ")}`);
+      const here = pubFor(finSeg), otherSeg = finSeg.endsWith("enterprise") ? "tier2_gm_floor_ai_native" : "tier2_gm_floor_enterprise", otherHere = gridCell(otherSeg, tier, tenor, pp);
+      out.floorMissing = { plain: `<b>Finance floor: none published</b> for ${tier} at ${monthsLabel(tenor)} in the ${SEGS[S.segForFin]} rate card (${GRIDV}).${here.length ? ` Finance publishes Tier-2 floors for ${tier} only at ${here.join("; ")}.` : ` The rate card has no ${tier} line at all.`}${otherHere ? ` The ${SEGS[otherSeg.endsWith("enterprise") ? "enterprise_above_512" : "ai_native_above_512"]} card does publish this term (${otherHere.columns}); switch the segment below the graph to see it.` : ""}` }; }
     const sa = SA[tier];
     if (tenor !== 0 && sa && sa.floor_irr_15_6 != null) out.floors.push({ key: "sa_irr", price: sa.floor_irr_15_6, short: "SA cost floor " + fmt(sa.floor_irr_15_6), label: `SemiAnalysis cost-based floor ${fmt(sa.floor_irr_15_6)}: price for ~15.6% project IRR on a 5-year contract with 15% prepaid, Neocloud Giant profile (${SAV._version || "SA model"})`,
       plain: `<b>SemiAnalysis cost floor ${fmt(sa.floor_irr_15_6)}.</b> The price at which a 5-year contract with 15% prepaid earns SemiAnalysis' 15.6% project-IRR hurdle on their cost inputs for a large neocloud (${SAV._version || "TCO model"}). Below it the asset misses their return threshold; it is a return-based floor, not Nebius' cost${sa.cost_per_hour != null ? `. Their cash cost with no return at all is ${fmt(sa.cost_per_hour)}` : ""}.` });
@@ -572,13 +579,19 @@ const DATA = /*__DATA__*/null;
     const guideLines = [];
     if (S.guide) { gd.floors.forEach(f => guideLines.push({ ...f, kind: "floor" })); if (gd.ceiling && gd.ceiling.price != null) guideLines.push({ ...gd.ceiling, kind: "ceiling", short: "parity ceiling " + fmt(gd.ceiling.price) }); }
     if (S.saPos && gd.sa) guideLines.push({ ...gd.sa, kind: "sa" });
+    // published list prices (hyperscalers, price fighters): drawn as squares, never counted; far-off rack rates are pinned at the right edge
+    const lists = (cs.lists || []).slice().sort((a, b) => a.price - b.price);
     const vals = shown.map(val).concat([S.price]); if (S.achieved && cs.askAt != null) vals.push(cs.askAt); if (cs.med != null) vals.push(cs.med); guideLines.forEach(l => vals.push(l.price));
+    const anchorV = cs.med != null ? cs.med : S.price;
+    lists.forEach(o => { if (o.price <= anchorV * 2) vals.push(o.price); });
     let xmin = Math.min(...vals), xmax = Math.max(...vals); const pad = Math.max(0.3, (xmax - xmin) * 0.12); xmin = Math.max(0, xmin - pad); xmax += pad;
-    // provider colours: most frequent providers in this comparable set first; beyond the palette, grey "other"
+    // provider colours: most frequent providers in this comparable set first, then list-price providers; beyond the palette, grey "other"
     const provCount = {}; shown.forEach(o => { provCount[o.provider] = (provCount[o.provider] || 0) + 1; });
     const provOrder = Object.keys(provCount).sort((a, b) => provCount[b] - provCount[a] || a.localeCompare(b));
+    lists.forEach(o => { if (!provOrder.includes(o.provider)) provOrder.push(o.provider); });
     const provColor = {}; provOrder.forEach((p, i) => { provColor[p] = i < PALETTE.length ? PALETTE[i] : "#8b8b98"; });
-    $("ps-prov").innerHTML = provOrder.map((p, i) => `<span><i style="background:${provColor[p]}"></i>${esc(p)}${provCount[p] > 1 ? " ×" + provCount[p] : ""}${i >= PALETTE.length ? " (other)" : ""}</span>`).join("") || `<span>no comparable offers</span>`;
+    const isListOnly = p => !provCount[p];
+    $("ps-prov").innerHTML = provOrder.map((p, i) => `<span><i style="background:${provColor[p]}${isListOnly(p) ? ";border-radius:1px" : ""}"></i>${esc(p)}${provCount[p] > 1 ? " ×" + provCount[p] : ""}${isListOnly(p) ? " (list price)" : ""}${i >= PALETTE.length ? " (other)" : ""}</span>`).join("") || `<span>no comparable offers</span>`;
     const X = v => PS.L + (v - xmin) / (xmax - xmin) * (PS.W - PS.L - PS.R);
     const g = [`<rect width="${PS.W}" height="${PS.H}" fill="#0b0b0d"/>`];
     const span = xmax - xmin, step = span <= 1.5 ? 0.25 : span <= 3 ? 0.5 : span <= 8 ? 1 : 2;
@@ -592,6 +605,9 @@ const DATA = /*__DATA__*/null;
     guideLines.forEach((l, i) => { const x = X(l.price), col = "#d6d6dc", dash = l.kind === "ceiling" ? "2 3" : l.kind === "sa" ? "8 4" : "4 4", ly = 40 + i * 13, right = x > PS.W - 190;
       g.push(`<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${ly + 4}" y2="${PS.base}" stroke="${col}" stroke-width="1.2" stroke-dasharray="${dash}"><title>${esc(l.label)}</title></line>`);
       g.push(`<text x="${(x + (right ? -6 : 6)).toFixed(1)}" y="${ly}" fill="${col}" font-size="11" text-anchor="${right ? "end" : "start"}">${esc(l.short)}</text>`); });
+    lists.forEach((o, k) => { const pinned = o.price > xmax, cx = pinned ? PS.W - PS.R - 8 : X(o.price), cy = PS.base - DOT - 2 - (k % 3) * (DOT * 2 + 2) - 38;
+      g.push(`<rect data-l="${k}" x="${(cx - DOT).toFixed(1)}" y="${(cy - DOT).toFixed(1)}" width="${2 * DOT}" height="${2 * DOT}" fill="${provColor[o.provider] || "#8b8b98"}" stroke="#0b0b0d" stroke-width="1" style="cursor:pointer"><title>${esc(o.provider)} list price ${fmt(o.price)}${pinned ? " (beyond the axis)" : ""} · ${esc(o.notes || "")} · shown, not counted</title></rect>`);
+      if (pinned) g.push(`<text x="${(cx - DOT - 4).toFixed(1)}" y="${(cy + 4).toFixed(1)}" fill="#b4b4bd" font-size="11" text-anchor="end">${esc(o.provider)} ${fmt(o.price)} →</text>`); });
     shown.forEach((o, k) => { const cx = X(val(o)), cy = PS.base - DOT - 2 - slots[k] * (DOT * 2 + 2), sel = S.pick === o.ts + "|" + o.provider;
       g.push(`<circle data-k="${k}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${DOT}" fill="${provColor[o.provider] || "#a3a3ae"}" stroke="${sel ? "#ffffff" : "#0b0b0d"}" stroke-width="${sel ? 2.5 : 1}" style="cursor:pointer"><title>${esc(o.provider)} · ${o.date} · ${Math.round(o.months || o.tenor)}m · ${o.known ? o.prepay + "% prepay" : "prepay not stated"} · reported ${fmt(o.price)} · here ${fmt(val(o))}</title></circle>`); });
     const xp = X(S.price);
@@ -599,10 +615,10 @@ const DATA = /*__DATA__*/null;
     g.push(`<text x="${(xp + (xp > PS.W - 120 ? -8 : 8)).toFixed(1)}" y="18" fill="#d6d6dc" font-size="13" font-weight="600" text-anchor="${xp > PS.W - 120 ? "end" : "start"}">your price ${fmt(S.price)}</text>`);
     const svg = $("ps-chart"); svg.innerHTML = g.join("");
     svg.querySelectorAll("circle[data-k]").forEach(el => el.addEventListener("click", () => { const o = shown[Number(el.dataset.k)]; const key = o.ts + "|" + o.provider; S.pick = S.pick === key ? null : key; render(false); }));
-    $("lg-ach").hidden = !(S.achieved && cs.askAt != null);
+    $("lg-ach").hidden = !(S.achieved && cs.askAt != null); $("lg-list").hidden = !lists.length;
     // guidance text under the graph: definitions and sources beside the values
     const gparts = [];
-    if (S.guide) { gd.floors.forEach(f => gparts.push(f.plain)); if (gd.ceiling) gparts.push(gd.ceiling.plain); }
+    if (S.guide) { gd.floors.forEach(f => gparts.push(f.plain)); if (gd.floorMissing) gparts.push(gd.floorMissing.plain); if (gd.ceiling) gparts.push(gd.ceiling.plain); }
     if (S.saPos && gd.sa) gparts.push(gd.sa.plain);
     $("ps-lines").hidden = !gparts.length;
     $("ps-guide").innerHTML = gparts.map(p => `<p>${p}</p>`).join("") + (gparts.length ? `<p>All three are hypothetical guidance for a price discussion, not observed prices; switch them off in Comparison settings.</p>` : "");
@@ -619,17 +635,21 @@ const DATA = /*__DATA__*/null;
     if (picked) $("ps-side").innerHTML = `<h3>Selected quote</h3><div class="kv"><span>provider</span><span>${esc(picked.provider)}</span><span>type</span><span>${esc(picked.ptype || "–")}</span><span>date</span><span>${picked.date}</span><span>term</span><span>${Math.round(picked.months || picked.tenor)} months</span><span>prepayment</span><span>${picked.known ? picked.prepay + "%" : "not stated"}</span><span>reported</span><span>${fmt(picked.price)}</span><span>on this basis</span><span>${fmt(val(picked))}</span><span>vs your price</span><span>${pct(S.price / val(picked) - 1)}</span>${picked.review ? `<span>note</span><span>looks like ${esc(picked.similar || "another row")}, kept for review</span>` : ""}<span>source</span><span>${link(picked)}</span></div><p style="margin:10px 0 0;color:var(--dim)">Click the dot again to close.</p>`;
     else $("ps-side").innerHTML = "";
 
-    // Finance check
-    const seg = S.segForFin || "ai_native_above_512";
-    const gc = gridCell(seg, S.tier, S.tenor, S.pp);
+    // Finance check: PAYG has no rate card, so Nebius' own PAYG prices; committed terms show the selected segment's rate with the other segment alongside
+    const seg = S.segForFin || "ai_native_above_512", otherSegKey = seg === "ai_native_above_512" ? "enterprise_above_512" : "ai_native_above_512";
     let fin;
-    if (!gc) fin = `<span class="lead">No published rate for ${S.tier} at ${monthsLabel(S.tenor)}</span><span>Finance rate card ${GRIDV}, ${SEGS[seg]}</span>`;
-    else if (gc.price != null) { const d = S.price / gc.price - 1; fin = `<span class="lead">${fmt(gc.price)} published rate, your price ${pctAbs(d)} ${d < 0 ? "below" : d > 0 ? "above" : "at it"}</span><span>Finance rate card ${GRIDV}, ${SEGS[seg]}, ${gc.months} months, ${S.pp}% prepayment</span>`; }
-    else fin = `<span class="lead">No matching published rate for ${S.pp}% prepayment</span><span>Finance rate card ${GRIDV}, ${SEGS[seg]}, ${gc.months} months publishes other prepayment columns; see the rate card below</span>`;
-    $("ps-fin").innerHTML = fin + `<label style="margin-left:auto;color:var(--dim)">Segment <select id="c-seg" aria-label="Finance segment">${Object.keys(SEGS).map(k => `<option value="${k}" ${k === seg ? "selected" : ""}>${SEGS[k]}</option>`).join("")}</select></label>`;
-    $("c-seg").addEventListener("change", ev => { S.segForFin = ev.target.value; render(false); });
+    if (S.tenor === 0) { const od = OD[S.tier] || {}; const ref = od.nebius_list;
+      fin = ref != null ? `<span class="lead">Nebius PAYG list ${fmt(ref)}, your price ${pctAbs(S.price / ref - 1)} ${S.price < ref ? "below" : S.price > ref ? "above" : "at it"}</span><span>${od.realised_payg != null ? `realised PAYG ${fmt(od.realised_payg)} over the last ${od.realised_window_days || 30} days` : ""}${od.nebius_preemptible != null ? ` · preemptible ${fmt(od.nebius_preemptible)}` : ""} · list snapshot ${od.list_snapshot || DATA.as_of}</span>`
+                       : `<span class="lead">No Nebius PAYG list price for ${S.tier}</span><span>on-demand is not offered for this GPU</span>`; }
+    else { const gc = gridCell(seg, S.tier, S.tenor, S.pp), go = gridCell(otherSegKey, S.tier, S.tenor, S.pp);
+      const other = go && go.price != null ? ` · ${SEGS[otherSegKey]} ${fmt(go.price)}` : "";
+      if (!gc && !go) fin = `<span class="lead">No published rate for ${S.tier} at ${monthsLabel(S.tenor)}</span><span>Finance rate card ${GRIDV}</span>`;
+      else if (gc && gc.price != null) { const d = S.price / gc.price - 1; fin = `<span class="lead">${fmt(gc.price)} published rate, your price ${pctAbs(d)} ${d < 0 ? "below" : d > 0 ? "above" : "at it"}</span><span>Finance rate card ${GRIDV}, ${SEGS[seg]}, ${gc.months} months, ${S.pp}% prepayment${other}</span>`; }
+      else fin = `<span class="lead">No matching published rate for ${S.pp}% prepayment</span><span>Finance rate card ${GRIDV}, ${SEGS[seg]} publishes other prepayment columns at ${(gc || go).months} months; see the rate card below${other}</span>`; }
+    $("ps-fin").innerHTML = fin;
     const rc = Object.keys(SEGS).map(k => { const cells = (GRID[k] || {})[S.tier] || {}; const ms = Object.keys(cells).map(Number).sort((a, b) => a - b); if (!ms.length) return `<p><b>${SEGS[k]}</b>: no published rates for ${S.tier}.</p>`; const cols = [...new Set(ms.flatMap(m => Object.keys(cells[m]).map(Number)))].sort((a, b) => b - a); return `<p><b>${SEGS[k]}</b></p><div class="table-wrap"><table><thead><tr><th>term</th>${cols.map(c => `<th>${c}% prepay</th>`).join("")}</tr></thead><tbody>${ms.map(m => `<tr><td>${m} months</td>${cols.map(c => `<td>${cells[m][c] != null ? fmt(cells[m][c]) : "–"}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`; }).join("");
-    $("ps-rc").innerHTML = `<p>Finance rate card version ${GRIDV} (Pricing model.xlsx). Policy prices in the prepayment columns Finance publishes, never re-based to another prepayment.</p>` + rc;
+    $("ps-rc").innerHTML = `<p>Finance rate card version ${GRIDV} (Pricing model.xlsx). Policy prices in the prepayment columns Finance publishes, never re-based to another prepayment. <label style="color:var(--dim)">Segment used above and in the floor line: <select id="c-seg" aria-label="Finance segment">${Object.keys(SEGS).map(k => `<option value="${k}" ${k === seg ? "selected" : ""}>${SEGS[k]}</option>`).join("")}</select></label></p>` + rc;
+    $("c-seg").addEventListener("change", ev => { S.segForFin = ev.target.value; render(false); });
 
     // all observations for the term
     const rows = [];

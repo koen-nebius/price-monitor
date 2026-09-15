@@ -473,7 +473,8 @@ def load_list(path: Path = HISTORY_CSV) -> dict:
         return {}
     latest = max(r["snapshot_date"] for r in rows)
     out = defaultdict(lambda: {"nebius": None, "hyperscaler_min": None, "hyperscaler_min_provider": "",
-                               "peer_min": None, "peer_min_provider": "", "snapshot_date": latest})
+                               "peer_min": None, "peer_min_provider": "", "snapshot_date": latest,
+                               "hyper_list": {}, "peer_list": {}})
     for r in rows:
         if r["snapshot_date"] != latest:
             continue
@@ -492,9 +493,14 @@ def load_list(path: Path = HISTORY_CSV) -> dict:
         elif prov in HYPERSCALERS:
             if cell["hyperscaler_min"] is None or p < cell["hyperscaler_min"]:
                 cell["hyperscaler_min"], cell["hyperscaler_min_provider"] = p, prov
+            cell["hyper_list"][prov] = min(p, cell["hyper_list"].get(prov, 99.0))
         else:
             if cell["peer_min"] is None or p < cell["peer_min"]:
                 cell["peer_min"], cell["peer_min_provider"] = p, prov
+            cell["peer_list"][prov] = min(p, cell["peer_list"].get(prov, 99.0))
+    for cell in out.values():   # every published reserved/committed list price per provider, cheapest tier per provider
+        cell["hyper_list"] = [{"provider": k, "price": round(v, 4)} for k, v in sorted(cell["hyper_list"].items(), key=lambda kv: kv[1])]
+        cell["peer_list"] = [{"provider": k, "price": round(v, 4)} for k, v in sorted(cell["peer_list"].items(), key=lambda kv: kv[1])]
     return dict(out)
 
 
@@ -672,6 +678,8 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
                 "list_nebius": ref.get("nebius"),
                 "list_hyperscaler_min": ref.get("hyperscaler_min"),
                 "list_hyperscaler_provider": ref.get("hyperscaler_min_provider", ""),
+                "list_hyperscalers": ref.get("hyper_list", []),
+                "list_peers": ref.get("peer_list", []),
                 "list_peer_min": ref.get("peer_min"),
                 "list_peer_provider": ref.get("peer_min_provider", ""),
                 "cost_floor": SA_COST_FLOOR.get(tier),
@@ -1062,7 +1070,7 @@ def view_payload(result: dict) -> dict:
                  "n_ask_withheld", "ask_deals_withheld", "achieved_only",
                  "n_known", "n_bid_unstated", "n_all", "n_providers", "recent_raw_median", "n_recent90", "mark_recent", "mark_known", "mark_all",
                  "bid_median", "bid_median_all", "bid_median_unstated", "ask_median", "public_median", "grid", "grid_100", "grid_50", "list_nebius",
-                 "list_hyperscaler_min", "list_hyperscaler_provider", "cost_floor", "mark", "has_mark",
+                 "list_hyperscaler_min", "list_hyperscaler_provider", "list_hyperscalers", "list_peers", "cost_floor", "mark", "has_mark",
                  "range_lo", "range_hi", "range_recent", "confidence", "confidence_reason", "spread_pct", "reason")
     out = {k: result.get(k) for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics", "on_demand", "sa")}
     perf = result.get("perf") or {}

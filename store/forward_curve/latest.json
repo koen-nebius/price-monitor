@@ -364,6 +364,22 @@
    "list_nebius": null,
    "list_hyperscaler_min": 3.933,
    "list_hyperscaler_provider": "aws",
+   "list_hyperscalers": [
+    {
+     "provider": "aws",
+     "price": 3.933
+    }
+   ],
+   "list_peers": [
+    {
+     "provider": "together",
+     "price": 1.99
+    },
+    {
+     "provider": "cp_civo",
+     "price": 2.79
+    }
+   ],
    "list_peer_min": 1.99,
    "list_peer_provider": "together",
    "cost_floor": 1.55,
@@ -411,6 +427,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 1.55,
@@ -467,6 +485,34 @@
    "list_nebius": 2.3,
    "list_hyperscaler_min": 5.0568,
    "list_hyperscaler_provider": "aws",
+   "list_hyperscalers": [
+    {
+     "provider": "aws",
+     "price": 5.0568
+    },
+    {
+     "provider": "azure",
+     "price": 5.235
+    },
+    {
+     "provider": "gcp",
+     "price": 6.7988
+    }
+   ],
+   "list_peers": [
+    {
+     "provider": "hyperstack",
+     "price": 1.75
+    },
+    {
+     "provider": "cp_1legion-com",
+     "price": 2.4
+    },
+    {
+     "provider": "cp_civo",
+     "price": 2.69
+    }
+   ],
    "list_peer_min": 1.75,
    "list_peer_provider": "hyperstack",
    "cost_floor": 1.55,
@@ -523,6 +569,8 @@
    "list_nebius": 2.11,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 1.55,
@@ -579,6 +627,17 @@
    "list_nebius": 2.05,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [
+    {
+     "provider": "cp_1legion-com",
+     "price": 2.2
+    },
+    {
+     "provider": "cp_civo",
+     "price": 2.59
+    }
+   ],
    "list_peer_min": 2.2,
    "list_peer_provider": "cp_1legion-com",
    "cost_floor": 1.55,
@@ -626,6 +685,26 @@
    "list_nebius": null,
    "list_hyperscaler_min": 2.5869,
    "list_hyperscaler_provider": "aws",
+   "list_hyperscalers": [
+    {
+     "provider": "aws",
+     "price": 2.5869
+    },
+    {
+     "provider": "azure",
+     "price": 3.839
+    },
+    {
+     "provider": "gcp",
+     "price": 4.2999
+    }
+   ],
+   "list_peers": [
+    {
+     "provider": "cp_civo",
+     "price": 2.49
+    }
+   ],
    "list_peer_min": 2.49,
    "list_peer_provider": "cp_civo",
    "cost_floor": 1.55,
@@ -673,6 +752,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 1.55,
@@ -720,6 +801,26 @@
    "list_nebius": null,
    "list_hyperscaler_min": 4.975,
    "list_hyperscaler_provider": "aws",
+   "list_hyperscalers": [
+    {
+     "provider": "aws",
+     "price": 4.975
+    }
+   ],
+   "list_peers": [
+    {
+     "provider": "together",
+     "price": 2.99
+    },
+    {
+     "provider": "cp_civo",
+     "price": 3.29
+    },
+    {
+     "provider": "cp_cloud-theai",
+     "price": 3.7
+    }
+   ],
    "list_peer_min": 2.99,
    "list_peer_provider": "together",
    "cost_floor": 1.59,
@@ -767,6 +868,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 1.59,
@@ -823,6 +926,34 @@
    "list_nebius": 2.8,
    "list_hyperscaler_min": 5.8152,
    "list_hyperscaler_provider": "azure",
+   "list_hyperscalers": [
+    {
+     "provider": "azure",
+     "price": 5.8152
+    },
+    {
+     "provider": "gcp",
+     "price": 6.4314
+    }
+   ],
+   "list_peers": [
+    {
+     "provider": "cp_1legion-com",
+     "price": 2.49
+    },
+    {
+     "provider": "hyperstack",
+     "price": 2.79
+    },
+    {
+     "provider": "cp_civo",
+     "price": 3.19
+    },
+    {
+     "provider": "cp_cloud-theai",
+     "price": 3.2
+    }
+   ],
    "list_peer_min": 2.49,
    "list_peer_provider": "cp_1legion-com",
    "cost_floor": 1.59,
@@ -879,6 +1010,8 @@
    "list_nebius": 2.51,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 1.59,
@@ -935,6 +1068,17 @@
    "list_nebius": 2.4,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [
+    {
+     "provider": "cp_1legion-com",
+     "price": 2.36
+    },
+    {
+     "provider": "cp_civo",
+     "price": 3.09
+    }
+   ],
    "list_peer_min": 2.36,
    "list_peer_provider": "cp_1legion-com",
    "cost_floor": 1.59,
@@ -982,6 +1126,22 @@
    "list_nebius": null,
    "list_hyperscaler_min": 4.083,
    "list_hyperscaler_provider": "gcp",
+   "list_hyperscalers": [
+    {
+     "provider": "gcp",
+     "price": 4.083
+    },
+    {
+     "provider": "azure",
+     "price": 5.2777
+    }
+   ],
+   "list_peers": [
+    {
+     "provider": "cp_civo",
+     "price": 2.99
+    }
+   ],
    "list_peer_min": 2.99,
    "list_peer_provider": "cp_civo",
    "cost_floor": 1.59,
@@ -1029,6 +1189,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 1.59,
@@ -1076,6 +1238,18 @@
    "list_nebius": null,
    "list_hyperscaler_min": 10.296,
    "list_hyperscaler_provider": "aws",
+   "list_hyperscalers": [
+    {
+     "provider": "aws",
+     "price": 10.296
+    }
+   ],
+   "list_peers": [
+    {
+     "provider": "together",
+     "price": 4.09
+    }
+   ],
    "list_peer_min": 4.09,
    "list_peer_provider": "together",
    "cost_floor": 2.07,
@@ -1123,6 +1297,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.07,
@@ -1170,6 +1346,26 @@
    "list_nebius": 4.89,
    "list_hyperscaler_min": 11.1159,
    "list_hyperscaler_provider": "gcp",
+   "list_hyperscalers": [
+    {
+     "provider": "gcp",
+     "price": 11.1159
+    }
+   ],
+   "list_peers": [
+    {
+     "provider": "cp_civo",
+     "price": 4.49
+    },
+    {
+     "provider": "cp_1legion-com",
+     "price": 4.74
+    },
+    {
+     "provider": "hyperstack",
+     "price": 5.1
+    }
+   ],
    "list_peer_min": 4.49,
    "list_peer_provider": "cp_civo",
    "cost_floor": 2.07,
@@ -1217,6 +1413,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.07,
@@ -1273,6 +1471,17 @@
    "list_nebius": 4.55,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [
+    {
+     "provider": "cp_civo",
+     "price": 3.99
+    },
+    {
+     "provider": "cp_1legion-com",
+     "price": 4.74
+    }
+   ],
    "list_peer_min": 3.99,
    "list_peer_provider": "cp_civo",
    "cost_floor": 2.07,
@@ -1329,6 +1538,18 @@
    "list_nebius": 4.15,
    "list_hyperscaler_min": 7.0884,
    "list_hyperscaler_provider": "gcp",
+   "list_hyperscalers": [
+    {
+     "provider": "gcp",
+     "price": 7.0884
+    }
+   ],
+   "list_peers": [
+    {
+     "provider": "cp_civo",
+     "price": 3.79
+    }
+   ],
    "list_peer_min": 3.79,
    "list_peer_provider": "cp_civo",
    "cost_floor": 2.07,
@@ -1376,6 +1597,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.07,
@@ -1423,6 +1646,18 @@
    "list_nebius": null,
    "list_hyperscaler_min": 11.7,
    "list_hyperscaler_provider": "aws",
+   "list_hyperscalers": [
+    {
+     "provider": "aws",
+     "price": 11.7
+    }
+   ],
+   "list_peers": [
+    {
+     "provider": "cp_cloud-theai",
+     "price": 6.75
+    }
+   ],
    "list_peer_min": 6.75,
    "list_peer_provider": "cp_cloud-theai",
    "cost_floor": 2.43,
@@ -1470,6 +1705,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.43,
@@ -1517,6 +1754,21 @@
    "list_nebius": 5.29,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [
+    {
+     "provider": "cp_1legion-com",
+     "price": 5.0
+    },
+    {
+     "provider": "cp_cloud-theai",
+     "price": 5.3
+    },
+    {
+     "provider": "cp_civo",
+     "price": 6.49
+    }
+   ],
    "list_peer_min": 5.0,
    "list_peer_provider": "cp_1legion-com",
    "cost_floor": 2.43,
@@ -1564,6 +1816,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.43,
@@ -1620,6 +1874,21 @@
    "list_nebius": 4.95,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [
+    {
+     "provider": "cp_cloud-theai",
+     "price": 4.9
+    },
+    {
+     "provider": "cp_1legion-com",
+     "price": 5.0
+    },
+    {
+     "provider": "cp_civo",
+     "price": 5.99
+    }
+   ],
    "list_peer_min": 4.9,
    "list_peer_provider": "cp_cloud-theai",
    "cost_floor": 2.43,
@@ -1676,6 +1945,13 @@
    "list_nebius": 4.55,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [
+    {
+     "provider": "cp_civo",
+     "price": 5.49
+    }
+   ],
    "list_peer_min": 5.49,
    "list_peer_provider": "cp_civo",
    "cost_floor": 2.43,
@@ -1723,6 +1999,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.43,
@@ -1770,6 +2048,13 @@
    "list_nebius": null,
    "list_hyperscaler_min": 10.582,
    "list_hyperscaler_provider": "aws",
+   "list_hyperscalers": [
+    {
+     "provider": "aws",
+     "price": 10.582
+    }
+   ],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.27,
@@ -1817,6 +2102,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.27,
@@ -1864,6 +2151,13 @@
    "list_nebius": null,
    "list_hyperscaler_min": 17.3056,
    "list_hyperscaler_provider": "azure",
+   "list_hyperscalers": [
+    {
+     "provider": "azure",
+     "price": 17.3056
+    }
+   ],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.27,
@@ -1911,6 +2205,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.27,
@@ -1958,6 +2254,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.27,
@@ -2005,6 +2303,13 @@
    "list_nebius": null,
    "list_hyperscaler_min": 11.8976,
    "list_hyperscaler_provider": "azure",
+   "list_hyperscalers": [
+    {
+     "provider": "azure",
+     "price": 11.8976
+    }
+   ],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.27,
@@ -2052,6 +2357,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.27,
@@ -2099,6 +2406,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
@@ -2146,6 +2455,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
@@ -2193,6 +2504,8 @@
    "list_nebius": 5.88,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
@@ -2240,6 +2553,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
@@ -2296,6 +2611,8 @@
    "list_nebius": 5.62,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
@@ -2352,6 +2669,8 @@
    "list_nebius": 5.19,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
@@ -2399,6 +2718,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
@@ -2446,6 +2767,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 4.02,
@@ -2493,6 +2816,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 4.02,
@@ -2540,6 +2865,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 4.02,
@@ -2587,6 +2914,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 4.02,
@@ -2634,6 +2963,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 4.02,
@@ -2681,6 +3012,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 4.02,
@@ -2737,6 +3070,8 @@
    "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
+   "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 4.02,
