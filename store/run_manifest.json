@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-09-14",
-  "started_at": "2026-09-14T06:28:29.012903+00:00",
-  "completed_at": "2026-09-14T06:31:52.955460+00:00",
+  "run_date": "2026-09-15",
+  "started_at": "2026-09-15T06:13:20.691854+00:00",
+  "completed_at": "2026-09-15T06:15:21.923128+00:00",
   "status": "partial",
-  "record_count": 1347,
-  "raw_record_count": 1347,
-  "anomaly_count": 2,
+  "record_count": 1340,
+  "raw_record_count": 1340,
+  "anomaly_count": 1,
   "quarantined_count": 0,
-  "diff_count": 67,
+  "diff_count": 105,
   "failed_providers": [],
   "stale_providers": [
     "sfcompute"
@@ -47,7 +47,7 @@
     },
     "computeprices": {
       "status": "live",
-      "record_count": 203
+      "record_count": 197
     },
     "oracle": {
       "status": "live",
@@ -64,7 +64,7 @@
     "sfcompute": {
       "status": "cache",
       "record_count": 1,
-      "cache_age_hours": 459.8
+      "cache_age_hours": 483.5
     },
     "together": {
       "status": "live",
@@ -72,7 +72,7 @@
     },
     "vast_reserved": {
       "status": "live",
-      "record_count": 3
+      "record_count": 2
     },
     "verda": {
       "status": "live",
@@ -142,7 +142,7 @@
     },
     "sfcompute": {
       "status": "cached",
-      "age_hours": 459.8
+      "age_hours": 483.5
     },
     "together": {
       "status": "live",
@@ -170,16 +170,15 @@
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 83 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
-    "cp_gpuoutlet L40S on_demand: $0.69 \u2192 $1.40 (+102.9%) \u26a0 price anomaly",
-    "cp_vast L40S on_demand: $0.53 \u2192 $0.80 (+49.7%) \u26a0 price anomaly",
+    "Nebius committed prices last verified 84 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "cp_sesterce L40S on_demand: $0.97 \u2192 $1.59 (+64.8%) \u26a0 price anomaly",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: runpod L40S on-demand: ours $1.09 (api) vs ComputePrices $0.79 (28% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
   ],
   "post_thread": true,
-  "is_weekly": true,
-  "significant_moves": 7,
+  "is_weekly": false,
+  "significant_moves": 4,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true

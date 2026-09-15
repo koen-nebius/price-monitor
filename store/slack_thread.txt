@@ -1,4 +1,4 @@
-*GPU Competitor Pricing — September 14, 2026*
+*GPU Competitor Pricing — September 15, 2026*
 
 *vs GPU cloud peers (on-demand, cluster-class like-for-like):*
 `H100 ` Nebius $3.85  -1% vs median  |  2/5 peers cheaper  |  floor: Together $1.99
@@ -16,7 +16,7 @@
 
 *Spot / preemptible (vs cheapest hyperscaler spot, median of regional floors):*
 `H100 ` Nebius $2.15  vs  Azure $2.27 (median of 20 regional floors)  →  Nebius 5% below
-`H200 ` Nebius $2.45  vs  AWS $3.38 (median of 4 regional floors)  →  Nebius 27% below
+`H200 ` Nebius $2.45  vs  AWS $3.38 (median of 4 regional floors)  →  Nebius 28% below
 `B200 ` Nebius $3.95  vs  GCP $4.95 (median of 6 regional floors)  →  Nebius 20% below
 `B300 ` Nebius $4.30  vs  AWS $6.04 (median of 2 regional floors)  →  Nebius 29% below
 `L40S ` Nebius $0.90  |  no comparable hyperscaler spot (not offered, or newest-gen spot capacity not realistically available)
@@ -52,16 +52,18 @@ _Signed reserve deals closed in the window (CRM deal reviews; autorenewals exclu
 _RTX market = inference platforms and GPU clouds, plus AWS (g7e) and Azure (NC v6), which list the card since 2026 — not training-cluster peers._
 
 *Price moves ≥3%:*
-🔺 *Gpuoutlet* L40S on-demand: $0.69→$1.40/GPU-hr (+102.9% global)
-🔺 *Atmoscompute Com* L40S on-demand: $1.34→$1.50/GPU-hr (+11.9% global)
-🔺 *Vast* B300 on-demand: $8.75→$9.38/GPU-hr (+7.1% global)
-🔺 *Gpuoutlet* H200 on-demand: $4.00→$4.20/GPU-hr (+5.0% global)
-🔺 *Verda* H200 on-demand: $4.00→$4.20/GPU-hr (+5.0% fi-01)
-🔺 *Verda* H200 spot: $2.00→$2.10/GPU-hr (+5.0% fi-01)
-🔻 *Gpuoutlet* RTX6000 on-demand: $1.89→$1.83/GPU-hr (-3.2% global)
-🔻 *Verda* RTX6000 on-demand: $1.89→$1.83/GPU-hr (-3.0% fi-01)
-🔻 *Verda* RTX6000 spot: $0.94→$0.92/GPU-hr (-3.0% fi-01)
-_Jitter note: 7 move(s) excluded as oscillation back to a recent level (AWS B200; AWS H200; Verda B300; Verda GB300) — source/FX artifact, not a repricing._
+🔺 *Atmoscompute Com* L40S on-demand: $1.50→$2.00/GPU-hr (+33.3% global)
+🔺 *GPU* B200 on-demand: $5.40→$6.79/GPU-hr (+25.7% global)
+🔻 *Lyceum Technology* H100 on-demand: $2.79→$2.49/GPU-hr (-10.8% global)
+🔺 *Spheron* H200 spot: $2.57→$2.72/GPU-hr (+5.8% global)
+🔺 *GCP* L4 spot: +5.8% avg across 8 SKUs (peak: $0.27→$0.30 us-east4, +10.0%)
+🔻 *GCP* B200 spot: -5.0% avg across 2 SKUs (peak: $1.64→$1.55 us-west4, -5.0%)
+🔺 *GCP* B200 spot: $2.41→$2.53/GPU-hr (+5.0% europe-west1)
+🔺 *GCP* H100 spot: +5.2% avg across 14 SKUs (peak: $7.58→$8.07 asia-southeast1, +6.4%)
+🔻 *Spheron* RTX6000 on-demand: $2.35→$2.25/GPU-hr (-4.3% global)
+🔻 *Spheron* RTX6000 spot: $1.22→$1.17/GPU-hr (-4.1% global)
+🔺 *GCP* H200 spot: +4.3% avg across 3 SKUs (peak: $5.31→$5.57 us-east4, +5.0%)
+_Jitter note: 38 move(s) excluded as oscillation back to a recent level (AWS B200; AWS H200; Atmoscompute Com H200; Gcore B300) — source/FX artifact, not a repricing._
 
 Full benchmark table: https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview
-_Data freshness: sfcompute cached (460h ago)_
+_Data freshness: sfcompute cached (484h ago)_
