@@ -620,51 +620,27 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
     return "\n".join(h)
 
 
-def render_view_html(result: dict, svg: str) -> str:
-    """Self-contained internal view (no CDN, no JS dependencies)."""
-    rows = []
-    for tier in TIERS:
-        cells = [e for e in result["marks"] if e["tier"] == tier]
-        if not any(e["has_mark"] for e in cells):
-            continue
-        tds = []
-        for e in cells:
-            if e["has_mark"]:
-                cls = "good" if e["confidence"] == "good" else "thin"
-                tds.append(f'<td class="{cls}" title="bid {_fmt(e["bid_median"])} / ask {_fmt(e["ask_median"])}">'
-                           f'<b>{_fmt(e["mark"])}</b><br><small>n={e["n_obs"]}</small></td>')
-            else:
-                tds.append(f'<td class="na"><small>n/a<br>{e["n_obs"]} obs</small></td>')
-        rows.append(f'<tr><th>{tier}</th>{"".join(tds)}</tr>')
-    shape_rows = "".join(
-        f'<tr><th>{x["tier"]}</th><td>{_fmt(x["mark_12m"])}</td><td>{_fmt(x["mark_36m"])}</td>'
-        f'<td>{_pct(x["slope_12_36_pct"])}</td><td>{_pct(x["short_end_premium_pct"])}</td>'
-        f'<td>{x["structure"] or "—"}</td><td>{_fmt(x["cost_floor"])}</td></tr>'
-        for x in result["shape"] if x["mark_12m"] or x["mark_36m"])
-    data_json = json.dumps(result, default=str)
-    return f"""<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GPU Forward Curve — internal marks {result['as_of']}</title>
-<style>
-body{{font-family:-apple-system,Segoe UI,Roboto,sans-serif;font-size:14px;color:#1b1e2d;margin:0;padding:20px 24px;background:#f7f8fb}}
-h1{{font-size:20px;margin:0 0 4px}} .sub{{color:#666;margin-bottom:14px}}
-.warn{{background:#fff6d6;border:1px solid #f0d36b;border-radius:6px;padding:10px 14px;margin:12px 0;max-width:1000px}}
-table{{border-collapse:collapse;margin:10px 0 18px;background:#fff}} th,td{{border:1px solid #e1e4ec;padding:6px 10px;text-align:center}}
-th{{background:#eef0f6}} td.good{{background:#e6f7ef}} td.thin{{background:#fff8e1}} td.na{{color:#999;background:#f3f4f7}}
-svg{{max-width:100%;height:auto;background:#fff;border:1px solid #e1e4ec;border-radius:6px}}
-.foot{{color:#666;font-size:12px;max-width:1000px}}
-</style></head><body>
-<h1>Internal GPU forward curve — marks</h1>
-<div class="sub">As of {result['as_of']} · $/GPU-hr, 0% prepay · method v{result['method_version']} · price-monitor repo</div>
-<div class="warn"><b>Internal only.</b> Marked from field intel (bid) and Nebius signed reserve deals (ask, aggregates). Cells under {MIN_OBS} observations are suppressed, never interpolated. Do not quote to customers.</div>
-{svg}
-<h2>Marks by tenor</h2>
-<table><thead><tr><th>GPU</th>{''.join(f'<th>{TENOR_LABEL[t]}</th>' for t in TENORS)}</tr></thead><tbody>{''.join(rows)}</tbody></table>
-<h2>Curve shape</h2>
-<table><thead><tr><th>GPU</th><th>12m</th><th>36m</th><th>12→36m</th><th>3m vs 12m</th><th>Structure</th><th>SA cost floor</th></tr></thead><tbody>{shape_rows}</tbody></table>
-<p class="foot">Green = good confidence (n ≥ {GOOD_OBS}), yellow = thin ({MIN_OBS}–{GOOD_OBS - 1}), grey = suppressed. Hover a cell for bid/ask medians. Full method on the Confluence page and in analysis/forward_curve_method.md.</p>
-<script type="application/json" id="forward-curve-data">{data_json}</script>
-</body></html>"""
+TEMPLATE = ROOT / "templates" / "forward_view.html"
+
+
+def render_view_fragment(result: dict) -> str:
+    """Interactive view body (title/style/markup/script) with the curve data inlined.
+    Reads templates/forward_view.html; the same fragment is published as a Claude
+    artifact and, wrapped by render_view_html(), attached to the Confluence page."""
+    tpl = TEMPLATE.read_text()
+    data = json.dumps(result, default=str).replace("</", "<\\/")
+    return tpl.replace("/*__DATA__*/null", data)
+
+
+def render_view_html(result: dict, svg: str = "") -> str:
+    """Self-contained standalone page around the interactive fragment (offline-safe:
+    Google Fonts are optional, every face has a system fallback)."""
+    frag = render_view_fragment(result)
+    cut = frag.index("</style>") + len("</style>")
+    head, body = frag[:cut], frag[cut:]
+    return ('<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            + head + '\n</head><body>\n' + body + '\n</body></html>')
 
 
 # ----------------------------------------------------------------------------- main
