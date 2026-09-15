@@ -103,7 +103,9 @@ benchmark is the comparable-offer median, then the mark, then the Finance rate).
 view answers one question with one result line, one graph and details on demand.
 
 - **Market benchmarks.** *How do prices vary with contract term?* One GPU (others off
-  by default), one payment basis, marks by term with the selected term highlighted;
+  by default), one payment basis, marks by term on evenly spaced term categories with
+  the selected term highlighted (the table view keeps the same GPU scope and its cells
+  select GPU and term);
   offers filter (stated prepayment by default), recent-only switch, table alternative.
   On-demand, Finance rate card, hyperscaler list and modeled cost sit in an optional
   section and can be drawn on the chart. A summary line gives the selected term's

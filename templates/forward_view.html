@@ -63,7 +63,11 @@ svg.chart{width:100%;height:auto;display:block}
 .selsum{display:flex;gap:12px 18px;align-items:center;flex-wrap:wrap;margin-top:6px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;color:var(--muted);font-size:13px}
 .selsum b{color:var(--text);font-weight:500}
 .split{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,300px);gap:18px;align-items:start;margin-top:8px}
+.split.single{grid-template-columns:1fr}
 @media (max-width:860px){.split{grid-template-columns:1fr}}
+td.selcell{background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--accent)}
+th.selcol{color:var(--text)}
+tr.selrow td:first-child{color:var(--accent)}
 .side{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--muted);min-height:120px}
 .side h3{margin:0 0 8px;font:500 12px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
 .side .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
@@ -104,7 +108,6 @@ tr[data-ts]{cursor:pointer}
   <div class="brand"><h1>GPU committed-price benchmarks</h1><span id="m-asof"></span><span>internal</span></div>
   <nav class="views" role="tablist" aria-label="Views">
     <button role="tab" data-view="market" aria-selected="true">Market benchmarks</button>
-    <span class="grp">Evaluate a price</span>
     <button role="tab" data-view="position" aria-selected="false">Market position</button>
     <button role="tab" data-view="return" aria-selected="false">Contract return</button>
   </nav>
@@ -126,7 +129,7 @@ tr[data-ts]{cursor:pointer}
 
 <!-- ===================== Market benchmarks ===================== -->
 <section id="v-market" class="view" aria-label="Market benchmarks">
-  <div class="result"><h2 id="mk-q"></h2><p class="answer" id="mk-a"></p><p class="basis" id="mk-b"></p></div>
+  <div class="result"><p class="answer" id="mk-a"></p><p class="basis" id="mk-b"></p></div>
   <div class="chart-wrap" id="mk-chartwrap"><svg class="chart" id="mk-chart" viewBox="0 0 1100 340" role="img" aria-label="Committed-price marks by term"></svg><div class="tip" id="tip"></div></div>
   <div class="selsum" id="mk-sel"></div>
   <div class="table-wrap" id="mk-table" hidden><table id="mk-grid"><thead></thead><tbody></tbody></table></div>
@@ -142,11 +145,11 @@ tr[data-ts]{cursor:pointer}
       <label class="chk"><input type="checkbox" id="c-achieved">Show Nebius achieved</label>
     </div></details>
   </div>
-  <div class="result"><h2 id="ps-q"></h2><p class="answer" id="ps-a"></p><p class="basis" id="ps-b"></p><div class="flags" id="ps-flags"></div></div>
-  <div class="split">
+  <div class="result"><p class="answer" id="ps-a"></p><p class="basis" id="ps-b"></p><div class="flags" id="ps-flags"></div></div>
+  <div class="split single" id="ps-split">
     <div><div class="chart-wrap"><svg class="chart" id="ps-chart" viewBox="0 0 900 230" role="img" aria-label="Comparable offers and your price"></svg></div>
-      <div class="legend"><span><i></i>comparable offer</span><span><i class="med"></i>median of comparables</span><span><i class="acc"></i>your price</span><span id="lg-ach" hidden><i class="ach"></i>Nebius achieved</span></div></div>
-    <aside class="side" id="ps-side"></aside>
+      <div class="legend"><span><i></i>comparable offer</span><span><i class="med"></i>median of comparables</span><span><i class="acc"></i>your price</span><span id="lg-ach" hidden><i class="ach"></i>Nebius achieved</span><span id="ps-hint">click a dot to see that quote</span></div></div>
+    <aside class="side" id="ps-side" hidden></aside>
   </div>
   <div class="fin" id="ps-fin"></div>
   <details class="disc" id="ps-ratecard"><summary>View rate card</summary><div class="body" id="ps-rc"></div></details>
@@ -160,7 +163,7 @@ tr[data-ts]{cursor:pointer}
     <label><span class="k" style="color:var(--dim);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-right:8px">Scenario</span><select id="c-mode" aria-label="Economics scenario"><option value="reserve">Reserve contract, 100% of hours billed</option><option value="payg">PAYG cash-recovery scenario</option></select></label>
     <span id="util-wrap" hidden><span class="k" style="color:var(--dim);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-right:8px">Occupancy</span><span class="step" role="group" aria-label="Billable occupancy"><button id="util-dn" type="button" aria-label="lower occupancy">−</button><output id="util-out">75%</output><button id="util-up" type="button" aria-label="raise occupancy">+</button></span></span>
   </div>
-  <div class="result"><h2 id="rt-q"></h2><p class="answer" id="rt-a"></p><p class="basis" id="rt-b"></p><div class="flags" id="rt-flags"></div></div>
+  <div class="result"><p class="answer" id="rt-a"></p><p class="basis" id="rt-b"></p><div class="flags" id="rt-flags"></div></div>
   <div class="chart-wrap" id="rt-chartwrap"><svg class="chart" id="rt-chart" viewBox="0 0 1100 340" role="img" aria-label="Cumulative cash after capital by month"></svg></div>
   <details class="disc"><summary>Cost components</summary><div class="body" id="rt-costs"></div></details>
   <details class="disc"><summary>Assumptions</summary><div class="body" id="rt-assume"></div></details>
@@ -273,13 +276,13 @@ const DATA = /*__DATA__*/null;
   function rank(cs, price){ const n = cs.vals.length, above = cs.vals.filter(v => v > price).length; return { n, above, below: n - above, equal: cs.vals.filter(v => Math.abs(v - price) < 0.005).length }; }
   function benchPrice(tier, tenor, pp){
     const cs = cellStats(tier, tenor);
-    if (cs.med != null && cs.comp.length >= 3) return { price: cs.med, src: "comparable-offer median" };
+    if (cs.med != null && cs.comp.length >= 3) return { price: cs.med, src: "Comparable median", why: `median of the ${cs.comp.length} comparable offers` };
     const ref = refTier[tier] && refTier[tier][tenor];
-    if (ref && ref.has_mark) return { price: ref.mark * (1 - disc(tenor, pp)), src: "market mark" };
-    const g = gridCell("ai_native_above_512", tier, tenor, pp); if (g && g.price != null) return { price: g.price, src: "Finance rate card" };
-    if (cs.med != null) return { price: cs.med, src: "median of the few offers on file" };
-    if (cs.askAt != null) return { price: cs.askAt, src: "Nebius achieved" };
-    return { price: 5, src: "placeholder, no benchmark for this cell" };
+    if (ref && ref.has_mark) return { price: ref.mark * (1 - disc(tenor, pp)), src: "Market mark", why: "the published mark, re-based to this prepayment; fewer than 3 comparable offers" };
+    const g = gridCell("ai_native_above_512", tier, tenor, pp); if (g && g.price != null) return { price: g.price, src: "Finance rate", why: "Finance rate card, AI Native; no mark and fewer than 3 comparable offers" };
+    if (cs.med != null) return { price: cs.med, src: `Median of ${cs.comp.length} offer${cs.comp.length > 1 ? "s" : ""}`, why: "too few offers for a benchmark; shown for orientation" };
+    if (cs.askAt != null) return { price: cs.askAt, src: "Nebius achieved", why: "no offers on file; Nebius achieved aggregate" };
+    return { price: 5, src: "No benchmark", why: "no evidence for this cell; $5.00 placeholder" };
   }
 
   // ---------- contract economics
@@ -342,7 +345,7 @@ const DATA = /*__DATA__*/null;
     const bench = benchPrice(S.tier, S.tenor, S.pp);
     if (!S.priceEntered || S.price == null) S.price = Math.round(bench.price * 20) / 20;
     if (updateInput) inPrice.value = S.price.toFixed(2);
-    $("c-pricesrc").textContent = S.priceEntered ? "entered" : "benchmark"; $("c-pricesrc").title = S.priceEntered ? "the price you typed; it stays until you press Use benchmark price" : "benchmark price: " + bench.src;
+    $("c-pricesrc").textContent = S.priceEntered ? "Entered" : bench.src; $("c-pricesrc").title = S.priceEntered ? "the price you typed; it stays until you press Use benchmark price" : bench.why;
     $("c-usebench").disabled = !S.priceEntered;
     $("m-asof").textContent = "as of " + DATA.as_of;
 
@@ -354,22 +357,19 @@ const DATA = /*__DATA__*/null;
 
   // ===================== Market benchmarks =====================
   const MK = { W: 1100, H: 340, L: 64, R: 40, T: 30, B: 44 };
-  const lx = TENORS.map(Math.log), lx0 = Math.min(...lx), lx1 = Math.max(...lx);
-  const MX = t => MK.L + (Math.log(t) - lx0) / (lx1 - lx0) * (MK.W - MK.L - MK.R);
+  const MX = t => MK.L + (TENORS.indexOf(t) + 0.5) / TENORS.length * (MK.W - MK.L - MK.R);   // evenly spaced term categories
   function renderMarket(){
     const tierCells = CELLS[S.tier] || {};
     const c12 = tierCells[12], c36 = tierCells[36], c3 = tierCells[3];
     const mk = c => c && c.has_mark ? c.mark : null;
     const pts = TENORS.map(t => [t, mk(tierCells[t]), tierCells[t]]).filter(p => p[1] != null);
-    $("mk-q").textContent = "How do " + S.tier + " committed prices vary with contract term?";
     let ans;
     if (!pts.length) ans = "No published marks for " + S.tier + " under this filter.";
     else if (mk(c12) != null && mk(c36) != null) { const d = mk(c36) / mk(c12) - 1; ans = `12 months <em>${fmt(mk(c12))}</em>, 36 months <em>${fmt(mk(c36))}</em>: the 36-month mark sits ${pctAbs(d)} ${d < 0 ? "below" : "above"} the 12-month mark.`; }
     else ans = pts.map(p => monthsLabel(p[0]) + " <em>" + fmt(p[1]) + "</em>").join(", ") + ".";
     $("mk-a").innerHTML = ans;
-    const nOff = pts.reduce((s, p) => s + p[2].n_bid, 0), nAch = pts.reduce((s, p) => s + p[2].ask_deals, 0), nUn = TENORS.reduce((s, t) => s + ((tierCells[t] || {}).n_unstated || 0), 0), nAchOnly = pts.filter(p => p[2].achieved_only).length;
-    const selC = tierCells[S.tenor];
-    $("mk-b").innerHTML = `Selected term <b>${monthsLabel(S.tenor)}</b>${selC && selC.has_mark ? `, mark <b>${fmt(selC.mark)}</b>` : ", no mark"} · $/GPU-hr at <b>${S.pp}% prepayment</b>, ${S.recent ? "last 120 days as reported" : "adjusted to today's price level"} · ${PF_LABEL[S.pf]}${S.pf === "all" ? ' <span class="flag">unstated prepayment counted as 0%</span>' : ""} · ${nOff} offers and ${nAch} Nebius signed deals behind these marks${nUn && S.pf !== "all" ? `, ${nUn} offers with unstated terms excluded` : ""}${nAchOnly ? ` · ${nAchOnly} square point${nAchOnly > 1 ? "s are" : " is"} Nebius achieved only, no competitor offer` : ""} · latest offer ${DATA.sources.intel_latest_quote || "–"}`;
+    const nAchOnly = pts.filter(p => p[2].achieved_only).length;
+    $("mk-b").innerHTML = `$/GPU-hr at <b>${S.pp}% prepayment</b>, ${S.recent ? "last 120 days as reported" : "adjusted to today's price level"} · ${PF_LABEL[S.pf]}${nAchOnly ? ` · square point${nAchOnly > 1 ? "s" : ""}: Nebius achieved only, no competitor offer` : ""}${S.pf === "all" ? ' <span class="flag">unstated prepayment counted as 0%</span>' : ""}${S.recent ? ' <span class="flag">recent only, no date adjustment</span>' : ""}`;
 
     // chart or table
     $("mk-chartwrap").hidden = S.table; $("mk-table").hidden = !S.table;
@@ -415,7 +415,7 @@ const DATA = /*__DATA__*/null;
       const quality = c.achieved_only ? "Nebius achieved only, no competitor offer" : c.confidence === "good" ? "good: 6 or more observations from 2 or more providers, 2 recent" : "thin: " + c.confidence_reason;
       const who = [c.n_bid ? `${c.n_bid} offer${c.n_bid > 1 ? "s" : ""} from ${c.n_providers - (c.n_ask ? 1 : 0)} provider${c.n_providers - (c.n_ask ? 1 : 0) > 1 ? "s" : ""}` : "", c.n_ask ? `Nebius achieved ${c.ask_deals} deal${c.ask_deals > 1 ? "s" : ""} in ${c.n_ask} aggregate${c.n_ask > 1 ? "s" : ""}` : "", c.ask_deals_withheld ? `${c.ask_deals_withheld} further Nebius deal${c.ask_deals_withheld > 1 ? "s" : ""} withheld (under ${NOBS.ask_min_deals || 3})` : "", c.n_unstated && S.pf !== "all" ? `${c.n_unstated} unstated excluded` : ""].filter(Boolean).join(", ");
       const oldTxt = c.n_old && !S.recent ? `${c.n_old} of ${c.n_obs} older than 120 days, lifted to today's level` : "";
-      $("mk-sel").innerHTML = `<span><b>${monthsLabel(S.tenor)}</b> · mark <b>${fmt(c.mark)}</b> · ${quality}</span><span>${who}</span>${oldTxt ? `<span>${oldTxt}</span>` : ""}<span>${c.range_recent ? "recent range" : "range of all observations (none in the last 120 days)"} ${fmt(c.range_lo)} to ${fmt(c.range_hi)}${c.recent_raw_median != null ? ` · last 90 days as reported ${fmt(c.recent_raw_median)} (${c.n_recent90})` : ""}</span>${btns}`;
+      $("mk-sel").innerHTML = `<span><b>${monthsLabel(S.tenor)}</b> · ${quality}</span><span>${who}</span>${oldTxt ? `<span>${oldTxt}</span>` : ""}<span>${c.range_recent ? "recent range" : "range of all observations (none in the last 120 days)"} ${fmt(c.range_lo)} to ${fmt(c.range_hi)}${c.recent_raw_median != null ? ` · last 90 days as reported ${fmt(c.recent_raw_median)} (${c.n_recent90})` : ""} · latest offer ${DATA.sources.intel_latest_quote || "–"}</span>${btns}`;
     } else if (c) {
       $("mk-sel").innerHTML = `<span><b>${monthsLabel(S.tenor)}</b> · no mark: ${c.n_obs} observation${c.n_obs === 1 ? "" : "s"} under this filter, 3 needed${c.n_unstated ? ` (${c.n_unstated} more with unstated terms)` : ""}${c.ask_deals_withheld ? ` (${c.ask_deals_withheld} Nebius deal${c.ask_deals_withheld > 1 ? "s" : ""} withheld, under ${NOBS.ask_min_deals || 3})` : ""}</span>${btns}`;
     } else $("mk-sel").innerHTML = btns;
@@ -442,9 +442,14 @@ const DATA = /*__DATA__*/null;
     $("c-refs").addEventListener("change", ev => { S.refsOnChart = ev.target.checked; render(); });
   }
   function renderMarketTable(){
-    const th = "<tr><th>GPU</th>" + TENORS.map(t => `<th>${t}m</th>`).join("") + "</tr>";
-    const tb = TIERS.filter(tierHasMarks).map(t => `<tr><td>${t}</td>` + TENORS.map(x => { const c = CELLS[t][x]; return c && c.has_mark ? `<td>${fmt(c.mark)} <span class="dim" style="color:var(--dim)">(${c.n_obs}${c.n_unstated && S.pf !== "all" ? " +" + c.n_unstated + " unstated" : ""})</span></td>` : `<td class="dim">–${c && c.n_obs ? " (" + c.n_obs + ")" : ""}</td>`; }).join("") + "</tr>").join("");
+    // same scope as the chart: the selected GPU, plus the others only when "Other GPUs" is on; a cell click selects that GPU and term
+    const tiers = S.others ? [S.tier].concat(TIERS.filter(t => t !== S.tier && tierHasMarks(t))) : [S.tier];
+    const th = "<tr><th>GPU</th>" + TENORS.map(t => `<th class="${t === S.tenor ? "selcol" : ""}">${t}m</th>`).join("") + "</tr>";
+    const tb = tiers.map(t => `<tr class="${t === S.tier ? "selrow" : ""}"><td>${t}</td>` + TENORS.map(x => { const c = CELLS[t][x], sel = t === S.tier && x === S.tenor;
+      const body = c && c.has_mark ? `${fmt(c.mark)} <span style="color:var(--dim)">(${c.n_obs}${c.achieved_only ? ", Nebius only" : ""}${c.n_unstated && S.pf !== "all" ? ", +" + c.n_unstated + " unstated" : ""})</span>` : `<span style="color:var(--dim)">–${c && c.n_obs ? " (" + c.n_obs + ")" : ""}</span>`;
+      return `<td data-tier="${t}" data-t="${x}" class="${sel ? "selcell" : ""}" style="cursor:pointer" title="select ${t} at ${x} months">${body}</td>`; }).join("") + "</tr>").join("");
     $("mk-grid").querySelector("thead").innerHTML = th; $("mk-grid").querySelector("tbody").innerHTML = tb || '<tr><td class="dim">no marks under this filter</td></tr>';
+    $("mk-grid").querySelectorAll("td[data-t]").forEach(td => td.addEventListener("click", () => { S.tier = td.dataset.tier; S.tenor = Number(td.dataset.t); S.pick = null; render(); }));
   }
   const tip = $("tip");
   function showTip(ev, t){ const c = CELLS[S.tier][t]; if (!c) return; tip.innerHTML = `<div class="h">${S.tier} · ${monthsLabel(t)}</div><div class="k"><span>mark</span><span>${fmt(c.mark)}${c.achieved_only ? " (Nebius only)" : ""}</span><span>offers</span><span>${c.n_bid} (${fmt(c.bid_median)})</span><span>Nebius achieved</span><span>${c.ask_deals} deals (${fmt(c.ask_median)})${c.ask_deals_withheld ? " +" + c.ask_deals_withheld + " withheld" : ""}</span><span>unstated excluded</span><span>${c.n_unstated}</span><span>older than 120 days</span><span>${c.n_old}</span><span>${c.range_recent ? "recent range" : "range, none recent"}</span><span>${fmt(c.range_lo)}–${fmt(c.range_hi)}</span></div>`;
@@ -456,17 +461,18 @@ const DATA = /*__DATA__*/null;
   function swarm(items, xOf, d){ const placed = [], slots = []; items.forEach(o => { const x = xOf(o); let s = 0; while (placed.some(p => p.s === s && Math.abs(p.x - x) < d)) s++; placed.push({ x, s }); slots.push(s); }); return slots; }
   function renderPosition(){
     const cs = cellStats(S.tier, S.tenor), rk = rank(cs, S.price);
-    $("ps-q").textContent = `Where does ${fmt(S.price)} sit among comparable ${S.tier} ${S.tenor}-month offers?`;
     let ans;
     if (rk.n >= 3) ans = `Lower than <em>${rk.above} of ${rk.n}</em> comparable offers${rk.equal ? ` (${rk.equal} at the same price)` : ""}.`;
     else if (rk.n > 0) ans = `Only <em>${rk.n}</em> comparable offer${rk.n === 1 ? "" : "s"} on file: not enough to position. ${rk.n === 1 ? "It is" : "They are"} shown for reference.`;
     else ans = `No comparable offers on file for ${S.tier} at ${S.tenor} months.`;
     $("ps-a").innerHTML = ans;
-    $("ps-b").innerHTML = `$/GPU-hr · <b>${S.tier}</b>, <b>${monthsLabel(S.tenor)}</b>, <b>${S.pp}% prepayment</b> · ${cs.basisLabel} · ${rk.n} comparable of ${cs.all.length} offers on file${cs.excluded.length ? ` (${cs.excluded.length} excluded: ${cs.unknown.filter(o => cs.excluded.includes(o)).length} unstated terms${S.cb === "raw" ? ", others outside the 90-day or prepayment window" : ""})` : ""} · median of comparables ${fmt(cs.med)} · latest offer ${cs.latest || "–"}, ${cs.n90} in the last 90 days · offers are sales-reported and skew to lost deals`;
+    const exclUnst = cs.unknown.filter(o => cs.excluded.includes(o)).length;
+    $("ps-b").innerHTML = `$/GPU-hr · <b>${S.tier}</b>, <b>${monthsLabel(S.tenor)}</b> · ${S.cb === "raw" ? "reported prices, last 90 days, matching prepayment" : `adjusted to today's level and ${S.pp}% prepayment`} · ${rk.n} of ${cs.all.length} offers comparable${exclUnst ? ` (${exclUnst} unstated excluded)` : ""} · latest ${cs.latest || "–"} · sales-reported, skews to lost deals`;
     const flags = [];
     if (rk.n && rk.n < 6) flags.push(`<span class="flag">thin evidence: ${rk.n} comparable offers</span>`);
-    if (S.unstated && cs.unstatedIn) flags.push(`<span class="flag">${cs.unstatedIn} offer${cs.unstatedIn > 1 ? "s" : ""} with unstated prepayment counted as 0%</span>`);
-    if (S.cb === "adjusted" && cs.comp.some(o => age(o) > 90)) flags.push(`<span class="flag">${cs.comp.filter(o => age(o) > 90).length} comparables older than 90 days, lifted to today's level</span>`);
+    if (S.unstated && cs.unstatedIn) flags.push(`<span class="flag">${cs.unstatedIn} of ${rk.n} comparable offers have unstated prepayment, counted as 0%</span>`);
+    const nOld = S.cb === "adjusted" ? cs.comp.filter(o => age(o) > 90).length : 0;
+    if (nOld) flags.push(`<span class="flag">${nOld} of ${rk.n} comparable offers are older than 90 days, lifted to today's level</span>`);
     $("ps-flags").innerHTML = flags.join("");
 
     // chart: one axis, neutral dots, one accent for your price
@@ -495,8 +501,9 @@ const DATA = /*__DATA__*/null;
     // side panel: the clicked quote, else the comparable set
     const picked = shown.find(o => o.ts + "|" + o.provider === S.pick);
     const link = o => /^\d+\.\d+$/.test(o.ts || "") ? `<a href="https://nebius.slack.com/archives/C06PM90GV0U/p${o.ts.replace(".", "")}" target="_blank" rel="noopener">open in Slack</a>` : (o.ts || "").startsWith("seed") ? "seed row (May 2026 import)" : (o.ts || "").startsWith("audit") ? "audit row (Sep 2026)" : "–";
-    if (picked) $("ps-side").innerHTML = `<h3>Selected quote</h3><div class="kv"><span>provider</span><span>${esc(picked.provider)}</span><span>type</span><span>${esc(picked.ptype || "–")}</span><span>date</span><span>${picked.date}</span><span>term</span><span>${Math.round(picked.months || picked.tenor)} months</span><span>prepayment</span><span>${picked.known ? picked.prepay + "%" : "not stated"}</span><span>reported</span><span>${fmt(picked.price)}</span><span>on this basis</span><span>${fmt(val(picked))}</span><span>vs your price</span><span>${pct(S.price / val(picked) - 1)}</span>${picked.review ? `<span>note</span><span>looks like ${esc(picked.similar || "another row")}, kept for review</span>` : ""}<span>source</span><span>${link(picked)}</span></div>`;
-    else $("ps-side").innerHTML = `<h3>Comparable offers</h3><div class="kv"><span>count</span><span>${rk.n}</span><span>lower than yours</span><span>${rk.below - rk.equal}</span><span>higher than yours</span><span>${rk.above}</span><span>range</span><span>${rk.n ? fmt(Math.min(...cs.vals)) + " to " + fmt(Math.max(...cs.vals)) : "–"}</span><span>median</span><span>${fmt(cs.med)}</span><span>dates</span><span>${rk.n ? cs.comp.map(o => o.date).sort()[0] + " to " + cs.comp.map(o => o.date).sort().slice(-1)[0] : "–"}</span><span>providers</span><span>${new Set(cs.comp.map(o => o.provider)).size}</span></div><p style="margin:10px 0 0;color:var(--dim)">Click a dot to see that quote.</p>`;
+    $("ps-side").hidden = !picked; $("ps-split").classList.toggle("single", !picked); $("ps-hint").hidden = !!picked;
+    if (picked) $("ps-side").innerHTML = `<h3>Selected quote</h3><div class="kv"><span>provider</span><span>${esc(picked.provider)}</span><span>type</span><span>${esc(picked.ptype || "–")}</span><span>date</span><span>${picked.date}</span><span>term</span><span>${Math.round(picked.months || picked.tenor)} months</span><span>prepayment</span><span>${picked.known ? picked.prepay + "%" : "not stated"}</span><span>reported</span><span>${fmt(picked.price)}</span><span>on this basis</span><span>${fmt(val(picked))}</span><span>vs your price</span><span>${pct(S.price / val(picked) - 1)}</span>${picked.review ? `<span>note</span><span>looks like ${esc(picked.similar || "another row")}, kept for review</span>` : ""}<span>source</span><span>${link(picked)}</span></div><p style="margin:10px 0 0;color:var(--dim)">Click the dot again to close.</p>`;
+    else $("ps-side").innerHTML = "";
 
     // Finance check
     const seg = S.segForFin || "ai_native_above_512";
@@ -526,7 +533,6 @@ const DATA = /*__DATA__*/null;
   const RT = { W: 1100, H: 340, L: 84, R: 40, T: 30, B: 44 };
   function renderReturn(){
     const G = Math.max(1, S.gpus || 1), ec = econ(S.tier, S.price, S.tenor, S.pp, S.mode, S.util), T = S.tenor;
-    $("rt-q").textContent = `What does a ${T}-month ${S.tier} contract at ${fmt(S.price)} return after costs?`;
     if (!ec) {
       const ref = refTier[S.tier] && (refTier[S.tier][T] || refTier[S.tier][36]) || {};
       $("rt-a").className = "answer"; $("rt-a").innerHTML = `No Nebius cost model for ${S.tier} yet.`;
@@ -535,20 +541,14 @@ const DATA = /*__DATA__*/null;
       return;
     }
     const a = $("rt-a");
-    if (S.mode === "reserve") {
-      if (ec.recovered) { a.className = "answer pos"; a.innerHTML = `Returns <em>${exact(ec.net)} per GPU</em> after capital and operating costs, <em>${money(ec.net * G)}</em> for ${n0(G)} GPUs.`; }
-      else { a.className = "answer neg"; a.innerHTML = `Leaves <em>${exact(ec.residual)} per GPU</em> of capital unrecovered at expiry, <em>${money(ec.residual * G)}</em> for ${n0(G)} GPUs.`; }
-    } else {
-      if (ec.recovered) { a.className = "answer pos"; a.innerHTML = `At ${Math.round(S.util * 100)}% occupancy, returns <em>${exact(ec.net)} per GPU</em> over ${T} months, <em>${money(ec.net * G)}</em> for ${n0(G)} GPUs.`; }
-      else { a.className = "answer neg"; a.innerHTML = `At ${Math.round(S.util * 100)}% occupancy, leaves <em>${exact(ec.residual)} per GPU</em> of capital unrecovered after ${T} months, <em>${money(ec.residual * G)}</em> for ${n0(G)} GPUs.`; }
-    }
-    $("rt-b").innerHTML = `${S.mode === "reserve" ? `<b>Reserve contract</b>: 100% of contracted hours billed, ${S.pp}% of the contract value received at signing, the rest monthly` : `<b>PAYG cash-recovery scenario</b>: ${Math.round(S.util * 100)}% of hours billed, paid monthly, no prepayment`} · contract value ${money(ec.tcv * G)} (${exact(ec.tcv)} per GPU)${ec.upfront ? `, ${money(ec.upfront * G)} upfront` : ""} · cash operating cost ${fmt(ec.cashSold)} per billed hour · capital ${exact(ec.capex)} per GPU · ${pbText(ec)} · present value of the net at ${(MONEY_RATE * 100).toFixed(1)}%: ${money(ec.pvNet * G)} · costs from the PAYG portfolio workbook, period ${ec.e.period || "–"}, extracted ${EM.extracted || "–"} · pre-tax cash, no financing or depreciation`;
+    if (ec.recovered) { a.className = "answer pos"; a.innerHTML = `<em>${money(ec.net * G)}</em> after capital and operating costs.`; }
+    else { a.className = "answer neg"; a.innerHTML = `<em>${money(ec.residual * G)}</em> of capital unrecovered at expiry.`; }
+    const recovery = ec.payback == null ? (ec.coverAtSigning ? "upfront covers capital at signing, operating costs consume it" : "capital not recovered within the term")
+                     : ec.payback === 0 ? "capital covered from signing" : `capital recovered in month ${Math.ceil(ec.payback)}`;
+    $("rt-b").innerHTML = `${n0(G)} GPUs · ${T} months${S.mode === "reserve" ? (S.pp ? ` · ${S.pp}% prepaid` : "") : ` · PAYG scenario at ${Math.round(S.util * 100)}% occupancy`} · ${recovery}`;
     const flags = [];
-    if (ec.coverAtSigning && !ec.recovered) flags.push(`<span class="flag neg">upfront covers capital at signing, operating costs consume it</span>`);
-    if (!ec.recovered && !ec.coverAtSigning) flags.push(`<span class="flag neg">capital not recovered within the term</span>`);
-    if (S.price < ec.cashSold) flags.push(`<span class="flag neg">price below cash operating cost</span>`);
+    if (S.price < ec.cashSold) flags.push(`<span class="flag neg">price below cash operating cost ${fmt(ec.cashSold)}</span>`);
     if (S.mode === "payg" && S.price < ec.floor22) flags.push(`<span class="flag">below the portfolio's 22-month PAYG floor ${fmt(ec.floor22)}</span>`);
-    if (ec.recovered && ec.lowest < 0 && ec.payback > 0) flags.push(`<span class="flag">cash position negative until month ${Math.ceil(ec.payback)}</span>`);
     $("rt-flags").innerHTML = flags.join("");
 
     // one cash timeline: cumulative cash after capital, per GPU, zero line = capital recovered
@@ -575,7 +575,7 @@ const DATA = /*__DATA__*/null;
 
     // disclosures
     $("rt-costs").innerHTML = `<div class="kv2"><span>capital per GPU</span><span>${exact(ec.capex)} (portfolio model; low case ${exact(ec.e.capex_per_gpu_low_usd)})</span><span>cash operating cost</span><span>${exact(ec.opexM)} per GPU-month, ${fmt(ec.e.cash_opex_per_installed_gpu_hour_usd)} per installed hour (rent, electricity, other, taxes, bandwidth, deliveries, personnel)</span><span>of which electricity</span><span>${exact(ec.elecM)} per GPU-month</span><span>cash operating cost per billed hour</span><span>${fmt(ec.cashSold)} at ${Math.round(ec.billed * 100)}% billed</span><span>portfolio 22-month PAYG floor</span><span>${fmt(ec.floor22)} per billed hour</span><span>money rate</span><span>${(MONEY_RATE * 100).toFixed(1)}% a year (Finance prepay convention), used for the present value only</span><span>source</span><span>${esc(EM._source || "portfolio workbook")}</span></div>`;
-    $("rt-assume").innerHTML = `<p><b>Receipts.</b> ${S.mode === "reserve" ? "A reserve contract bills 100% of the contracted GPU-hours (730 per GPU-month). The prepayment share of the contract value is received at signing; the remainder arrives in equal monthly amounts." : `The PAYG scenario bills ${Math.round(S.util * 100)}% of hours, paid monthly. Occupancy is a sensitivity assumption, not current utilisation.`}</p><p><b>Costs.</b> Cash operating cost is deducted every month of the term at the portfolio model's per-installed-hour rate (744 hours a month). No depreciation, tax or financing cost is modelled; the money rate enters only the present value.</p><p><b>Capital.</b> Capital per GPU is the portfolio model's figure. "Recovered" means cumulative cash (receipts minus operating cost) stays at or above capital through expiry. An upfront receipt that covers capital at signing does not count if later operating costs consume it; that case is flagged.</p><p><b>At expiry.</b> The result is the cash left after capital and operating costs. Capital not recovered within the term is stated as such; a resale or re-lease of the hardware after expiry is not assumed.</p><p><b>Exact figures.</b> Per GPU: contract value ${exact(ec.tcv)}; upfront ${exact(ec.upfront)}; operating cost over the term ${exact(ec.opexM * T)}; capital ${exact(ec.capex)}; result at expiry ${exact(ec.net)}; present value of the result ${exact(ec.pvNet)}. For ${n0(G)} GPUs: contract value ${exact(ec.tcv * G)}; upfront ${exact(ec.upfront * G)}; operating cost ${exact(ec.opexM * T * G)}; capital ${exact(ec.capex * G)}; result at expiry ${exact(ec.net * G)}; present value ${exact(ec.pvNet * G)}.</p>`;
+    $("rt-assume").innerHTML = `<p><b>Receipts.</b> ${S.mode === "reserve" ? "A reserve contract bills 100% of the contracted GPU-hours (730 per GPU-month). The prepayment share of the contract value is received at signing; the remainder arrives in equal monthly amounts." : `The PAYG scenario bills ${Math.round(S.util * 100)}% of hours, paid monthly. Occupancy is a sensitivity assumption, not current utilisation.`}</p><p><b>Costs.</b> Cash operating cost is deducted every month of the term at the portfolio model's per-installed-hour rate (744 hours a month). No depreciation, tax or financing cost is modelled; the money rate enters only the present value.</p><p><b>Capital.</b> Capital per GPU is the portfolio model's figure. "Recovered" means cumulative cash (receipts minus operating cost) stays at or above capital through expiry. An upfront receipt that covers capital at signing does not count if later operating costs consume it; that case is flagged.</p><p><b>At expiry.</b> The result is the cash left after capital and operating costs. Capital not recovered within the term is stated as such; a resale or re-lease of the hardware after expiry is not assumed.</p><p><b>Exact figures.</b> Per GPU: contract value ${exact(ec.tcv)}${ec.upfront ? ` (upfront ${exact(ec.upfront)}, then ${exact(ec.monthly)} a month)` : ` (${exact(ec.monthly)} a month)`}; operating cost over the term ${exact(ec.opexM * T)} (${fmt(ec.cashSold)} per billed hour); capital ${exact(ec.capex)}; result at expiry ${exact(ec.net)}; present value of the result at ${(MONEY_RATE * 100).toFixed(1)}% ${exact(ec.pvNet)}. For ${n0(G)} GPUs: contract value ${exact(ec.tcv * G)}; upfront ${exact(ec.upfront * G)}; operating cost ${exact(ec.opexM * T * G)}; capital ${exact(ec.capex * G)}; result at expiry ${exact(ec.net * G)}; present value ${exact(ec.pvNet * G)}.</p><p><b>Basis.</b> ${S.mode === "reserve" ? `Reserve contract: 100% of contracted hours billed, ${S.pp}% of the contract value received at signing, the rest monthly.` : `PAYG cash-recovery scenario: ${Math.round(S.util * 100)}% of hours billed, paid monthly, no prepayment.`} Pre-tax cash, no financing or depreciation. Costs from the PAYG portfolio workbook, period ${ec.e.period || "–"}, extracted ${EM.extracted || "–"}.</p>`;
     const csR = cellStats(S.tier, T);
     const steps = [-0.5, -0.25, 0, 0.25, 0.5].map(d => { const p = d === 0 ? S.price : Math.max(0.05, Math.round((S.price + d) * 20) / 20); const r2 = rank(csR, p), e2 = econ(S.tier, p, T, S.pp, S.mode, S.util);
       return `<tr class="${d === 0 ? "sel" : ""}"><td>${fmt(p)}${d === 0 ? " (current)" : ""}</td><td>${r2.n >= 3 ? r2.above + " of " + r2.n : "–"}</td><td>${e2.payback == null ? (e2.coverAtSigning ? "no: upfront covers it, later costs use it up" : "no") : e2.payback === 0 ? "at signing, holds" : "month " + Math.ceil(e2.payback)}</td><td>${exact(e2.net)}</td><td>${money(e2.net * G)}</td></tr>`; }).join("");
