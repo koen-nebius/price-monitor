@@ -120,6 +120,11 @@ PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "
 import os as _os
 if _os.environ.get("SFCOMPUTE_TOKEN"):
     PROVIDERS.append("sfcompute_fills")
+# Shadeform marketplace aggregator (fetchers/shadeform.py, 2026-09-15): registered only
+# when a key is present — its Terms (s.4.2) want permission for systematic retrieval,
+# so the key doubles as the permission record. Ask support@shadeform.ai.
+if _os.environ.get("SHADEFORM_API_KEY"):
+    PROVIDERS.append("shadeform")
 # Note: set LAMBDA_API_KEY in the routine's environment variables for reliable Lambda Labs
 # API-based pricing. Without it, the scrape fallback is used.
 # Get a free key at: https://cloud.lambdalabs.com/api-keys
@@ -161,6 +166,7 @@ PROVIDER_TIERS = {
         "cp_vast", "cp_vultr", "cp_verda", "verda", "cp_akamai",   # verda = direct API fetcher (verda.py); cp_verda kept as cross-ref
         "cp_packet-ai", "cp_gcore", "together",  # Together = direct fetcher (together.py); also enterprise tier
         "sfcompute",  # spot-market exchange (H100 clearing price) — distinct pricing mechanism
+        "sf_boostrun", "sf_imwt", "sf_horizon", "sf_phyntec", "sf_amaya",  # Shadeform long tail (shadeform.py)
     ],
     # Named enterprise GPU cloud peers — used in Slack positioning and the executive
     # benchmark table. Criteria: GPU-first or significant GPU cloud business, meaningful

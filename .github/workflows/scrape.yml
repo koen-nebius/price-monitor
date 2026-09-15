@@ -78,6 +78,10 @@ jobs:
           # from https://computeprices.com/account/api-keys — without this secret the
           # ~34 cp_* aggregator providers serve from cache and hard-drop after 7 days.
           COMPUTEPRICES_API_KEY: ${{ secrets.COMPUTEPRICES_API_KEY }}
+          # OPTIONAL (2026-09-15): Shadeform marketplace aggregator. The provider registers
+          # itself only when this secret exists; obtain the key by asking support@shadeform.ai
+          # (their ToS s.4.2 wants permission for systematic retrieval).
+          SHADEFORM_API_KEY: ${{ secrets.SHADEFORM_API_KEY }}
         run: |
           # All-live run from non-blocked GitHub IPs. main.py writes the daily
           # snapshot, diff, run_manifest, AND the ready-to-post artifacts

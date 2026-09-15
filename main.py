@@ -252,7 +252,13 @@ def run(providers=None, test=False):
     # counting against the direct fetcher (e.g. cp_together-ai alongside direct together).
     # Drop them unconditionally at assembly so direct always wins.
     SUPERSEDED_AGGREGATORS = {"cp_oracle", "cp_together-ai", "cp_hyperstack",
-                              "cp_verda"}   # direct verda.py fetcher since 2026-08-11
+                              "cp_verda",   # direct verda.py fetcher since 2026-08-11
+                              # Shadeform twins of providers we already carry directly or via
+                              # ComputePrices (one provider, one vote; 2026-09-15). Net-new sf_
+                              # clouds (boostrun, imwt, horizon, phyntec, amaya) stay.
+                              "sf_lambdalabs", "sf_hyperstack", "sf_verda", "sf_nebius", "sf_crusoe",
+                              "sf_scaleway", "sf_massedcompute", "sf_paperspace", "sf_latitude",
+                              "sf_denvr", "sf_vultr", "sf_digitalocean", "sf_voltagepark"}
     _before = len(all_records)
     all_records = [r for r in all_records if r.provider not in SUPERSEDED_AGGREGATORS]
     if len(all_records) < _before:
@@ -400,6 +406,50 @@ def run(providers=None, test=False):
                         f"{n_flagged} flagged")
     except Exception as e:
         logger.debug(f"cross-check skipped: {e}")
+
+    # ── Second, independent cross-check: dstack gpuhunt catalogs (2026-09-15) ──
+    # ComputePrices and gpuhunt collect prices independently (gpuhunt with its own
+    # credentialed provider accounts), so a direct price that BOTH disagree with is
+    # a strong mis-parse signal, while agreement from either is reassurance. This
+    # is the "double-check the automated benchmarks" condition (Danila, 2026-08-21)
+    # made mechanical. Warnings only — no confidence downgrade from this source.
+    try:
+        from fetchers.gpuhunt import fetch_crosscheck as gh_fetch_crosscheck, LAST_VERSIONS as gh_versions
+        gh = gh_fetch_crosscheck()
+        if gh:
+            ours_gh: Dict[tuple, tuple] = {}
+            for r in accepted_records:
+                if r.provider == "nebius":
+                    continue
+                if r.consumption_type == "on_demand" and r.data_source in ("official_api", "web_scrape"):
+                    k = (r.provider, r.gpu_model)
+                    if k not in ours_gh or r.price_per_gpu_hour_usd < ours_gh[k][0]:
+                        ours_gh[k] = (r.price_per_gpu_hour_usd, r.data_source)
+            n_gh, n_cmp = 0, 0
+            for k, (our_px, src) in ours_gh.items():
+                xp = gh.get(k)
+                if not xp or our_px <= 0:
+                    continue
+                n_cmp += 1
+                gap = abs(our_px - xp) / our_px * 100
+                # Direction-aware like the ComputePrices check: gpuhunt often carries
+                # only the pricier variant (e.g. RunPod SXM $3.49 while we correctly
+                # keep the PCIe pod at $2.89), so ours BELOW gpuhunt is coverage
+                # asymmetry unless huge; ours ABOVE gpuhunt is the mis-parse signature.
+                if src == "web_scrape":
+                    flag = (our_px > xp and gap > 5) or (our_px < xp and gap > 40)
+                else:
+                    flag = (our_px > xp and gap > 15) or (our_px < xp and gap > 40)
+                if flag:
+                    n_gh += 1
+                    msg = (f"{k[0]} {k[1]} on-demand: ours ${our_px:.2f} ({'scrape' if src == 'web_scrape' else 'api'}) "
+                           f"vs gpuhunt ${xp:.2f} ({gap:.0f}% gap)")
+                    logger.warning(f"Cross-check (gpuhunt) disagreement: {msg}")
+                    warnings.append(f"cross-check(gpuhunt): {msg}")
+            logger.info(f"Cross-check (gpuhunt): {n_cmp} direct on-demand prices compared, {n_gh} flagged; "
+                        f"catalog versions {sorted(set(gh_versions.values()))}")
+    except Exception as e:
+        logger.debug(f"gpuhunt cross-check skipped: {e}")
 
     # ── Write canonical outputs (using validated records) ────────────────────
     save_snapshot(all_records, today)              # raw snapshot — includes everything
@@ -636,6 +686,7 @@ PROVIDER_MODULES = {
     "aws_capacity_blocks": "aws_capacity_blocks",
     "modal": "modal",
     "baseten": "baseten",
+    "shadeform": "shadeform",   # key-gated marketplace aggregator (2026-09-15)
 }
 
 
