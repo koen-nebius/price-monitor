@@ -40,7 +40,8 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install boto3>=1.34.0
+        # matplotlib only renders the forward-curve PNG (forward_curve.py falls back to SVG without it)
+        run: pip install "boto3>=1.34.0" matplotlib
 
       - name: Merge field-intel inbox (Confluence -> intel.csv)
         # Plan-2 migration (2026-07-10): the posting routine parks extracted
@@ -113,6 +114,23 @@ jobs:
           CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
         run: python3 scripts/publish_confluence_pages.py
 
+      - name: Build internal GPU forward curve
+        # 2026-09-15: marks a price-by-tenor curve per GPU tier from store/intel.csv (bid),
+        # store/reserve_tenor.csv (ask; weekly local CRM refresh) and store/history.csv (list
+        # references). Writes store/forward_curve/* (latest.json, marks_history.csv, chart,
+        # self-contained view) and store/forward_curve_body.html. Method: analysis/forward_curve_method.md.
+        run: python3 forward_curve.py
+
+      - name: Publish forward-curve page to Confluence (soft-fail)
+        # Upserts "GPU Forward Curve — Internal Marks" in space PR, uploads the chart PNG/SVG and
+        # the HTML view as attachments, then PUTs the body with the image embedded. Only after the
+        # publish gate above passed. Outcome -> store/forward_curve/publish.json.
+        continue-on-error: true
+        env:
+          CONFLUENCE_EMAIL: ${{ secrets.CONFLUENCE_EMAIL }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+        run: python3 scripts/publish_forward_curve.py
+
       - name: Publish storage page to Confluence
         # Sibling page published straight from the data build (storage moves
         # ~quarterly; no reason to route through the posting routine). Upsert
@@ -139,7 +157,8 @@ jobs:
                   store/spot_auction_body.html store/intel.csv \
                   store/provider_baseline.json store/position_history.csv \
                   store/aiven_prices.csv store/storage_body.html \
-                  store/storage_prices_prev.json store/confluence_publish.json
+                  store/storage_prices_prev.json store/confluence_publish.json \
+                  store/reserve_tenor.csv store/forward_curve_body.html store/forward_curve
           if git diff --cached --quiet; then
             echo "No changes — no commit needed"
           else

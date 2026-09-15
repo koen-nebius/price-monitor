@@ -394,6 +394,12 @@ CONFLUENCE_PAGE_URL = "https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469
 # build since 2026-09-07 (the posting routine no longer updates Confluence).
 CONFLUENCE_SPOT_PAGE_ID = "1970110707"
 CONFLUENCE_SPOT_PAGE_TITLE = "Competitor Spot & Auction Pricing"
+# Internal GPU forward curve (forward_curve.py) — child of the daily overview page,
+# created 2026-09-15 via the Atlassian connector; scripts/publish_forward_curve.py
+# updates it by ID (falls back to a title lookup if the ID ever 404s).
+CONFLUENCE_FORWARD_PAGE_ID = "2285044257"
+CONFLUENCE_FORWARD_PAGE_TITLE = "GPU Forward Curve — Internal Marks"
+CONFLUENCE_FORWARD_PAGE_URL = "https://nebius.atlassian.net/wiki/spaces/PR/pages/2285044257"
 
 SLACK_CHANNEL = "#competitor-pricing"
 
