@@ -117,10 +117,10 @@ def view_adf(result: dict, marks_page_id: str) -> dict:
     link = f"{CONFLUENCE_BASE_URL}/spaces/{CONFLUENCE_SPACE_KEY}/pages/{marks_page_id}"
     return {"type": "doc", "version": 1, "content": [
         {"type": "paragraph", "content": [
-            {"type": "text", "text": f"Interactive view of the internal GPU forward curve, as of {result.get('as_of')} "
+            {"type": "text", "text": f"Interactive GPU committed-price benchmarks (curve and where-we-land ladder), as of {result.get('as_of')} "
                                      "(refreshed daily by the price-monitor build). Internal only: never quote marks to customers. "
                                      "Tables, method and provenance: ", "marks": [{"type": "em"}]},
-            {"type": "text", "text": "GPU Forward Curve — Internal Marks", "marks": [{"type": "em"}, {"type": "link", "attrs": {"href": link}}]},
+            {"type": "text", "text": "GPU Committed-Price Benchmarks — Internal Marks", "marks": [{"type": "em"}, {"type": "link", "attrs": {"href": link}}]},
             {"type": "text", "text": ". If the panel below stays blank, your browser blocked the embedded script; the same page is attached there as forward_view.html.", "marks": [{"type": "em"}]},
         ]},
         {"type": "extension", "attrs": {

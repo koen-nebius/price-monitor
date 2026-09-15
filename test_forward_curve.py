@@ -50,6 +50,30 @@ class Helpers(unittest.TestCase):
         self.assertEqual(fc.weighted_median([1, 2, 3], [1, 1, 10]), 3)
 
 
+class IntelQuality(unittest.TestCase):
+    def test_prepay_known(self):
+        from intel_quality import prepay_known
+        self.assertTrue(prepay_known({"prepay_pct": "25", "notes": ""}))
+        self.assertTrue(prepay_known({"prepay_pct": "0", "notes": "3yr 0% prepay committed deal"}))
+        self.assertTrue(prepay_known({"prepay_pct": "0", "notes": "monthly payment terms large cluster"}))
+        self.assertFalse(prepay_known({"prepay_pct": "0", "notes": "3yr offer seen by Cursor; prepay unspecified"}))
+        self.assertFalse(prepay_known({"prepay_pct": "0", "notes": "512xB300 3yr US Jan/Feb delivery"}))
+
+    def test_dedupe_collapses_seed_and_same_message_rows(self):
+        from intel_quality import dedupe
+        rows = [
+            {"message_ts": "seed_20260528_01", "message_date": "2026-05-28", "gpu_model": "B200", "price_per_gpu_hour_usd": "3.68", "term_months": "36", "provider_name": "Oracle"},
+            {"message_ts": "1779927609.062", "message_date": "2026-05-28", "gpu_model": "B200", "price_per_gpu_hour_usd": "3.68", "term_months": "36", "provider_name": "Oracle"},
+            {"message_ts": "1787230678.978", "message_date": "2026-08-20", "gpu_model": "B300", "price_per_gpu_hour_usd": "4.90", "term_months": "36", "provider_name": "SFCompute"},
+            {"message_ts": "1787230678.978", "message_date": "2026-08-20", "gpu_model": "B300", "price_per_gpu_hour_usd": "4.90", "term_months": "36", "provider_name": "Ornn"},
+            {"message_ts": "1787599134.249", "message_date": "2026-08-24", "gpu_model": "B300", "price_per_gpu_hour_usd": "4.90", "term_months": "36", "provider_name": "AWS"},
+        ]
+        kept, dups = dedupe(rows)
+        self.assertEqual(len(kept), 3)                       # Oracle once, the joint SFC/Ornn offer once, AWS separately
+        self.assertEqual(len(dups), 2)
+        self.assertTrue(all(not str(k["message_ts"]).startswith("seed") for k in kept))
+
+
 class Build(unittest.TestCase):
     def _write(self, tmp, name, header, rows):
         p = Path(tmp) / name

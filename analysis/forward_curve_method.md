@@ -1,114 +1,105 @@
-# Internal GPU forward curve: methodology (v1.1, 2026-09-15)
+# GPU committed-price benchmarks: methodology (v1.2, 2026-09-15)
 
-What the Confluence pages "GPU Forward Curve — Internal Marks" (tables) and
-"GPU Forward Curve — Interactive" (embedded single-file app) show, how the marks are
-produced, and what they are not. Built 2026-09-15 (Koen + Claude) after Danila shared
-Ornn's paid forward curve (data.ornn.com/analytics/gpu/forward, $500/month, current
-marks only, no history). Code: `forward_curve.py`; templates `templates/forward_view.html`
-(curve) and `templates/position_view.html` (where-we-land ladder); publisher
-`scripts/publish_forward_curve.py`; ask-side refresh `scripts/refresh_reserve_tenor.py`.
+What the Confluence pages "GPU Committed-Price Benchmarks — Internal Marks" (tables)
+and "... — Interactive" (embedded single-file app) show, how the numbers are produced,
+and what they are not. Built 2026-09-15 after Danila shared Ornn's paid forward curve;
+revised the same day after Koen's review (inputs, price basis, Reserve economics,
+evidence classes, naming). Code: `forward_curve.py`, `intel_quality.py`;
+templates `templates/forward_view.html` (curve) and `templates/position_view.html`
+(where-we-land ladder); publisher `scripts/publish_forward_curve.py`; refreshes
+`scripts/refresh_reserve_tenor.py` (weekly, CRM) and `scripts/intel_quality_refresh.py`
+(after bulk imports).
+
+## Naming
+"Committed-price benchmarks", not "forward curve": the x-axis is commitment length at
+quote date. A delivery/start-date axis is not yet included, so the term structure is
+not a future price path.
 
 ## Definition
 For each GPU tier (H100, H200, B200, B300, GB200, GB300, VR) and commitment length
 (3, 6, 12, 18, 24, 36, 60 months) a **mark**: the weighted median $/GPU-hr, at a
-0%-prepay basis and today's price level, of every dated observation we hold for that
-cell. A *marked* curve of an illiquid market, the same thing Ornn publishes, not a
-traded strip. A cell without enough evidence prints "n/a" with a reason and is never
-interpolated, carried forward or filled from a model.
+0%-prepay basis and today's price level, of the distinct observations we hold for
+that cell. Cells below three distinct observations print "n/a" with a reason and are
+never interpolated, carried forward or filled from a model.
 
-## Observation legs (pooled into the mark)
-| leg | file | what it is | weight |
+## Evidence classes (kept visible separately; no bid/ask spread is implied)
+| class | file | what it is | pooled into the mark |
 |---|---|---|---|
-| bid | `store/intel.csv` | competitor quotes / deals reported by sales in #price-intelligence, parsed with term and prepay. 273 rows after the 2026-09-15 audit added 97 quotes the parser had missed (Jan-2025 → Sep-2026; spot-checked 7 of 8 correct) | 1 |
-| ask | `store/reserve_tenor.csv` | Nebius **signed** reserve deals from CRM deal reviews, aggregated per tier × tenor × close month × payment bucket (deals, GPUs, lo/median/hi). Aggregates only | min(deals, 3) |
-| public | `store/public_contracts.csv` | publicly announced multi-year contracts from the SemiAnalysis deal table (12 of 20 kept: rows whose price is a SemiAnalysis assumption, blended fleets, per-system prices and undisclosed chips excluded). Implied $/GPU-hr assumes 8,760 billed hours, i.e. a lower bound | ½ |
+| competitor offers | `store/intel.csv` | offers/deals reported by sales in #price-intelligence, **deduplicated by underlying offer** (`intel_quality.dedupe`: seed repeats, same-message multi-provider rows, same provider/price/term within 7 days). 273 rows → 236 distinct offers on 2026-09-15 (37 duplicates listed in `store/intel_duplicates.csv`). Column `prepay_known` = 1 only when the quote states its prepayment (any non-zero value or an explicit zero); 96 of 273 do. | yes, weight 1 |
+| Nebius achieved | `store/reserve_tenor.csv` | Nebius signed reserve deals from CRM deal reviews, aggregated per tier × tenor × close month × payment bucket (deals, GPUs, lo/median/hi). Aggregates only. Payment type is the only prepay signal (upfront / prepaid monthly / postpaid → 100 / 8 / 0 % proxy). | yes, weight min(deals, 3) |
+| public contracts | `store/public_contracts.csv` | 12 announced multi-year contracts from the SemiAnalysis deal table; implied $/GPU-hr assumes 8,760 billed hours, i.e. a lower bound | **no**, shown as reference |
 
-Reference only (shown, never pooled): Finance reserve grid by segment and prepay
-column (`store/nebius_reserve_grid.json`, versions 2026-06-11 and 2026-09-07), cheapest
-hyperscaler reserved/committed list tier (`store/history.csv`), SemiAnalysis modeled
-cost floor per SKU (Aug-10-2026 model, Full TCO row 147, Neocloud Giant), and Koen's
-PAYG portfolio economics per SKU (`store/economics.json`, cash-recovery basis).
+References (shown, never pooled): Finance reserve grid by segment and prepay column
+(`store/nebius_reserve_grid.json`, 2026-06-11 and 2026-09-07; shown only in the
+column Finance publishes, never re-based), cheapest hyperscaler reserved/committed list
+tier, SemiAnalysis modeled cost floor per SKU, and Koen's PAYG portfolio economics per
+SKU (`store/economics.json`).
 
 ## Normalisation (declared choices)
 1. **Prepay → 0% equivalent.** `discount(T, p) = 0.0345 × (T/12) × (1 − (1 − p)²)`,
-   capped at 25%; `p0 = p / (1 − discount)`. This is Finance's money-cost convention:
-   sheet "." of Pricing model.xlsx derives the 100/50/30% columns from the 0% column as
-   12m −3.40/−2.63/−1.80% and 24m −6.97/−5.26/−3.57%; a three-parameter fit returns
-   a = 0.0344/yr, linear in tenor, exponent 2.04 (rmse 0.02 pp). It also matches the
-   mechanism (prepayment consumes the first p × T months at ~7%/yr money cost).
-   **Not used:** the Sep-7 AI Native grid's 100→50% steps (5.8–13.0%, convex in p) are a
-   commercial ladder steering buyers to full prepayment; using them to normalise market
-   quotes would overstate every prepaid quote by 5–10 pp. Adversarially verified
-   2026-09-15. CRM deals carry no prepay percentage (field empty for every reserve deal),
-   so payment type is a proxy: upfront (prepaid, one-time) = 100%, prepaid monthly = 8%,
-   postpaid = 0%.
-2. **Quote date → as-of quarter.** Two-way fixed effects on `log p0`, cell(tier, tenor) +
-   quote quarter, pooled across tiers, alternating means (50 iterations). Every
-   observation is shifted by `effect[as-of quarter] − effect[its quarter]`. Estimated
-   effects on 2026-09-15: 2025Q3 −0.40, 2025Q4 −0.43, 2026Q1 −0.41, 2026Q2 −0.21 (log,
-   vs 2026Q3). Pooling is a v1 simplification; per-family effects are the first v2 item.
-3. **Age weights.** ≤ 120 days: 1; ≤ 365 days: ½; older: dropped.
-4. **Mark.** Weighted median of adjusted prices. `n < 3` → suppressed. "good" needs
-   `n ≥ 6` with ≥ 2 observations in the last 120 days, else "thin".
+   capped at 25%; `p0 = p / (1 − discount)`. Finance's money-cost convention (sheet "."
+   of Pricing model.xlsx; three-parameter fit rmse 0.02 pp). The Sep-7 grid's 100→50%
+   steps (5.8–13.0%) are a commercial ladder and are not used to normalise (adversarially
+   verified 2026-09-15). Offers with `prepay_known = 0` are counted at 0% for the pooled
+   mark and flagged; the interactive page excludes them from ranked comparisons by default.
+2. **Quote date → as-of quarter.** Two-way fixed effects on `log p0`, cell + quote
+   quarter, pooled across tiers. On 2026-09-15 the factors are large: quotes from
+   2025Q3–2026Q1 are lifted ×1.5–1.6, 2026Q2 ×1.2. The interactive page prints these
+   factors, shows the **recent raw median** (last 90 days, as reported) next to every
+   adjusted mark, and has a **recent only** switch (≤120 days, no date adjustment).
+3. **Age weights.** ≤120 days: 1; ≤365 days: ½; older: dropped.
+4. **Mark and confidence.** Weighted median of adjusted prices. `n < 3` → suppressed.
+   "good" needs `n ≥ 6` distinct observations from ≥ 2 providers with ≥ 2 in the last
+   120 days; otherwise "thin". Also reported per cell: `mark_known` (stated-prepay
+   observations only), `mark_recent` (≤120 days), `recent_raw_median`, `n_providers`.
 5. **Tenor buckets.** ≤4 → 3m, ≤8 → 6m, ≤14 → 12m, ≤20 → 18m, ≤27 → 24m, ≤42 → 36m,
-   longer → 60m. On-demand (term 0) is excluded from the curve.
+   longer → 60m. On-demand (term 0) is excluded.
 6. **Sanity band** $0.5–15/GPU-hr after prepay normalisation.
 
 ## The interactive page
-- **Curve tab.** Marks vs tenor per tier; prepay basis pills (0/30/50/100%) re-express
-  every mark with the convention above; the quotes filter recomputes cells client-side
-  from the exported (anonymised) observations, keeping only quotes whose own prepayment
-  sits in the chosen band; grid and cost references overlay on demand.
-- **Where we land tab** (design chosen by a three-proposal panel and two judges,
-  2026-09-15: a tenor ladder beat a price book and a single-cell ladder). One shared
-  $/GPU-hr axis, seven tenor rows, individual competitor quotes as ticks (raw prices,
-  never normalised; brightness = recency, hollow = prepay mismatch, short = hyperscaler),
-  Nebius signed median (◇), mark with range (|), Finance grid and hyperscaler list (▽),
-  a draggable white rule for the candidate price. Headline: "under k of n comparable ·
-  percentile · margin over cash cost · payback". Comparable = quotes ≤ 90 days old with
-  prepayment within ±12.5 pp; below six comparables the rank falls back to all in-date
-  quotes, below three to quotes up to 12 months old, and says so; below three it is
-  suppressed. Not a scatter: term is seven categorical tenors with 3–25 quotes each; a
-  scatter over-plots into stripes, invites a false trend line and cannot carry the
-  reference set or the cost view.
-- **Cost view.** From the PAYG portfolio model (Finance GPU Calculator inputs,
-  cash-recovery basis, period 2026-08-31): cash cost per sold hour = monthly cash opex per
-  installed GPU ÷ (730 × occupancy); 22-month floor adds capex/22; payback at a price =
-  capex per GPU ÷ (price × 730 × occupancy − monthly cash opex). Occupancy default 75%
-  (the model's sensitivity assumption, not current PAYG utilisation), stepper 50–95%.
-  It is a PAYG cost view applied to a term price, not a Reserve P&L. GB200, GB300 and VR
-  have no portfolio cost model; only the SemiAnalysis modeled floor is shown for them.
+- **Curve tab.** Marks vs tenor per tier; prepay basis 0/25/50/75/100%; filters: all /
+  stated prepay only / prepay bands; recent only; grid and cost references. Tier and
+  prepay basis are synchronised with the other tab.
+- **Where we land tab.** One shared $/GPU-hr axis, seven tenor rows, every competitor
+  offer as a dot (hollow when prepayment is not stated), Nebius achieved (◇, adjusted),
+  the mark with its recent range, Finance grid and hyperscaler marks (▽; grid only in
+  the published prepay column, dashed when that column does not exist), public contracts
+  as dashed diamonds, and a draggable rule for the candidate price. **Ranking basis** is
+  explicit and single: by default all prices are adjusted to today's level and to the
+  selected prepayment and only offers that state their prepayment are ranked; the raw
+  view ranks reported prices from the last 90 days within 12.5 prepay points. Percentile
+  needs six comparables, ordinal three; otherwise not ranked. Each dot opens the
+  observation list (provider, date, term, prepay, reported and adjusted price, Slack
+  link). A copy button emits the deal-review line with basis and date.
+- **Economics.** Two labelled modes. *Reserve contract* (default): 100% of contracted
+  hours are billed, the prepayment share is received at signing and the remainder
+  monthly, cash opex per GPU-month from the portfolio model is deducted, and payback is
+  the month cumulative cash covers capex per GPU; contribution over the term and its PV
+  at 6.9% are shown; capex not recovered within the term is stated as a residual with an
+  explicit resale scenario. *PAYG cash-recovery scenario*: the portfolio model's own
+  22-month floor logic at a chosen occupancy (default 75%), labelled as such. GB200,
+  GB300 and VR have no Nebius cost model; only the SemiAnalysis modeled floor is shown.
 
 ## Hosting
-The interactive page is embedded through the Forge "HTML" macro (Just Add+, Modus
-Create; extension key in `config.FORGE_HTML_MACRO_KEY`), which 47 Nebius pages already
-use for script-bearing single-file dashboards. Published in `atlas_doc_format` by the
-daily job as a child of the marks page; the same file is attached as forward_view.html
-and published as a private Claude artifact for Koen. A Claude artifact shared "to the
-organisation" reaches only claude.ai org members, not every employee behind SSO.
+Embedded through the Forge "HTML" macro (Just Add+) as a child of the marks page,
+published in `atlas_doc_format` by the daily job; also attached as forward_view.html
+and published as a private Claude artifact for Koen.
 
 ## Known limitations
-- No delivery-date axis: a 36m quote for Q1-2027 delivery and one for immediate start
-  land in the same cell. CRM has consumption start; intel only sometimes.
-- Cluster size, region, interconnect and credit quality are not controlled for.
-- Bid leg is sales-reported and loss-skewed (one in eight audited additions was wrong on
-  a detail); ask leg is thin at ≥ 24 months; GB200 and VR have no ask observations.
-- Quarter effects pooled across tiers; the latest quarter is noisy early in the quarter.
-- Public-contract prices assume 100% billed hours and are shown as lower bounds.
+- No delivery/start-date axis; cluster size, region, interconnect and credit quality
+  are not controlled for.
+- Competitor offers are sales-reported and loss-skewed; one in eight audited additions
+  was wrong on a detail. Nebius achieved is thin at ≥ 24 months; GB200 and VR have no
+  achieved observations.
+- Quarter effects are pooled across tiers.
+- Nebius achieved prepayment is a payment-type proxy, not a percentage (the CRM field is
+  empty for every reserve deal).
 
-## Refresh cadence and ownership
-- Daily: GHA `scrape.yml` runs `forward_curve.py` after `main.py`, publishes both pages
-  (soft-fail) and commits `store/forward_curve/*`. Manual re-publish: workflow
-  "Publish Confluence pages (manual)".
-- Weekly (local, Sunday with the reserve-wins task): `scripts/refresh_reserve_tenor.py`
-  via the YT data-client venv rewrites `store/reserve_tenor.csv`.
-- Occasional (manual): `store/nebius_reserve_grid.json` when Finance re-issues the grid;
-  `store/economics.json` when the portfolio model's Economics sheet changes;
-  `store/public_contracts.csv` when the SemiAnalysis deal table is updated.
-- Cross-checks worth adding: SemiAnalysis Pricing Index (10 tenors, seats held, API
-  pending), Ornn forward marks (72h trial / $500 per month), Silicon Data.
+## Refresh cadence
+Daily: `scrape.yml` builds and publishes both pages. Weekly (local): CRM aggregates.
+After bulk intel imports: `scripts/intel_quality_refresh.py` (rewrites `prepay_known`,
+writes the duplicates report). Occasional: grid, economics, public contracts files.
 
 ## Confidentiality
-Ask-side inputs are aggregates only (no customer names, no deal rows); the intel notes
-carry no customer names. Both pages are marked internal only; marks and the cost view
-must never be quoted to customers or pasted externally.
+Aggregates only for Nebius achieved; no customer names in offer notes. Internal only;
+never quote marks, achieved prices or the cost view to customers.

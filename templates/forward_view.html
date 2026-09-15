@@ -1,4 +1,4 @@
-<title>Nebius GPU Forward Curve</title>
+<title>GPU Committed-Price Benchmarks</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Schibsted+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
@@ -74,7 +74,7 @@ tr[data-tier]:hover td{background:var(--surface-2)}
 </style>
 
 <header class="top">
-  <div class="brand"><h1>GPU Forward Curve</h1><span>Nebius · internal marks</span>
+  <div class="brand"><h1>GPU committed-price benchmarks</h1><span>Nebius · internal</span>
     <div class="pills" id="view-tabs" role="tablist" aria-label="View" style="margin-left:10px">
       <button class="pill" role="tab" data-view="curve" aria-pressed="true">Curve</button>
       <button class="pill" role="tab" data-view="pos" aria-pressed="false">Where we land</button>
@@ -94,8 +94,8 @@ tr[data-tier]:hover td{background:var(--surface-2)}
       <span class="label">Series</span>
       <div class="pills" id="series-pills" role="group" aria-label="Series">
         <button class="pill" data-series="mark" aria-pressed="true" id="s-mark">Mark</button>
-        <button class="pill" data-series="bid" aria-pressed="false" id="s-bid">Bid · market quotes</button>
-        <button class="pill" data-series="ask" aria-pressed="false" id="s-ask">Ask · Nebius signed</button>
+        <button class="pill" data-series="bid" aria-pressed="false" id="s-bid">Competitor offers</button>
+        <button class="pill" data-series="ask" aria-pressed="false" id="s-ask">Nebius achieved</button>
       </div>
       <button class="tog" id="t-refs" aria-pressed="false"><i></i>Grid &amp; cost references</button>
       <button class="tog" id="t-all" aria-pressed="true"><i></i>Other GPUs</button>
@@ -104,17 +104,20 @@ tr[data-tier]:hover td{background:var(--surface-2)}
       <span class="label">Prepay basis</span>
       <div class="pills" id="basis-pills" role="group" aria-label="Prepayment basis">
         <button class="pill" data-basis="0" aria-pressed="true">0%</button>
-        <button class="pill" data-basis="30" aria-pressed="false">30%</button>
+        <button class="pill" data-basis="25" aria-pressed="false">25%</button>
         <button class="pill" data-basis="50" aria-pressed="false">50%</button>
+        <button class="pill" data-basis="75" aria-pressed="false">75%</button>
         <button class="pill" data-basis="100" aria-pressed="false">100%</button>
       </div>
       <span class="label">Quotes</span>
       <div class="pills" id="pf-pills" role="group" aria-label="Filter observations by their prepayment">
-        <button class="pill" data-pf="all" aria-pressed="true">All prepay levels</button>
+        <button class="pill" data-pf="all" aria-pressed="true">All</button>
+        <button class="pill" data-pf="known" aria-pressed="false">Stated prepay only</button>
         <button class="pill" data-pf="low" aria-pressed="false">≤10% down</button>
         <button class="pill" data-pf="mid" aria-pressed="false">20–60%</button>
         <button class="pill" data-pf="high" aria-pressed="false">≥75%</button>
       </div>
+      <button class="tog" id="t-recent" aria-pressed="false"><i></i>Recent only · last 120 days, no date adjustment</button>
     </div>
   </div>
 </section>
@@ -126,14 +129,14 @@ tr[data-tier]:hover td{background:var(--surface-2)}
 
 <section class="panels">
   <div class="panel">
-    <h2>Bid vs ask by tenor <span id="sp-tier"></span></h2>
+    <h2>Competitor offers vs Nebius achieved <span id="sp-tier"></span></h2>
     <svg class="spread" id="spread" viewBox="0 0 640 210" role="img" aria-label="Bid and ask medians by tenor"></svg>
   </div>
   <div class="panel notes">
     <h2>How to read it</h2>
-    <p><b>Marks</b> are weighted medians of every dated observation for a GPU and commitment length: competitor quotes reported by sales (the <b>bid</b> side, skews to losses) and Nebius signed reserve deals from CRM (the <b>ask</b> side, aggregates only). Public multi-year contracts (SemiAnalysis deal table) are a third, half-weighted leg. Everything is shifted to today's price level; the <b>prepay basis</b> re-expresses every point at the chosen prepayment using Finance's grid convention (about 3.4% per year of tenor at full prepay, concave in the share), and the <b>quotes</b> filter keeps only observations whose own prepayment sits in that band.</p>
+    <p><b>Marks</b> are weighted medians of two evidence classes kept visible separately: <b>competitor offers</b> reported by sales (deduplicated; skews to losses) and <b>Nebius achieved</b> prices from CRM (aggregates only). They are not a bid and an ask; no spread is implied. Public multi-year contracts are shown as a reference and never pooled. Observations are shifted to today's price level by quarter of quote (factors in the footer; the <b>recent only</b> switch removes that adjustment) and re-expressed at the chosen <b>prepay basis</b> with Finance's money-cost convention (about 3.45% per year of tenor at full prepay, concave in the share). Offers that do not state prepayment are counted at 0% unless the <b>stated prepay only</b> filter is on.</p>
     <p><b>Filled points</b> have six or more observations with recent support. <b>Hollow points</b> are thin (three to five). Cells under three observations are suppressed, never interpolated.</p>
-    <p><b>Backwardation</b> means the 36-month mark sits under the 12-month mark: the market pays less per hour for a longer lock. Internal only. Never quote marks to customers.</p>
+    <p><b>Backwardation</b> means the 36-month mark sits under the 12-month mark: the market pays less per hour for a longer lock. Commitment length alone is not a delivery-date curve; these are committed-price benchmarks at quote date. Internal only. Never quote marks to customers.</p>
   </div>
 </section>
 
@@ -152,18 +155,19 @@ const DATA = /*__DATA__*/null;
   const P = DATA.params, QE = DATA.quarter_effects_log || {}, OBS = DATA.observations || [];
   const AS_OF = new Date(DATA.as_of + "T00:00:00Z");
   const disc = (months, pp) => Math.min(P.prepay_cap, P.prepay_a * Math.max(0.25, (months || 12) / 12) * (1 - Math.pow(1 - Math.max(0, Math.min(1, pp / 100)), P.prepay_m || 2)));
-  const state = { tier: "B300", series: "mark", refs: false, all: true, hoverTenor: null, basis: 0, pf: "all" };
-  const PF = { all: () => true, low: o => o.prepay <= 10, mid: o => o.prepay >= 20 && o.prepay <= 60, high: o => o.prepay >= 75 };
+  const state = { tier: "B300", series: "mark", refs: false, all: true, hoverTenor: null, basis: 0, pf: "all", recent: false };
+  const PF = { all: () => true, known: o => o.known !== false, low: o => o.known !== false && o.prepay <= 10, mid: o => o.known !== false && o.prepay >= 20 && o.prepay <= 60, high: o => o.known !== false && o.prepay >= 75 };
   function wmedian(vals, wts){ const pairs = vals.map((v, i) => [v, wts[i]]).sort((a, b) => a[0] - b[0]); const tot = pairs.reduce((s, p) => s + p[1], 0); let acc = 0; for (const [v, w] of pairs) { acc += w; if (acc >= tot / 2) return v; } return pairs.length ? pairs[pairs.length - 1][0] : null; }
   let byTier = {};   // computed cells for the current basis + filter
   function computeCells(){
     const out = {}; TIERS.forEach(t => { out[t] = {}; TENORS.forEach(x => { out[t][x] = null; }); });
     const groups = {};
-    OBS.filter(PF[state.pf]).forEach(o => { const k = o.tier + "|" + o.tenor; (groups[k] = groups[k] || []).push(o); });
+    const ageOf = o => (AS_OF - new Date(o.date + "T00:00:00Z")) / 86400000;
+    OBS.filter(o => o.side !== "public").filter(PF[state.pf]).filter(o => !state.recent || ageOf(o) <= P.recent_days).forEach(o => { const k = o.tier + "|" + o.tenor; (groups[k] = groups[k] || []).push(o); });
     TIERS.forEach(t => TENORS.forEach(x => {
       const cell = groups[t + "|" + x] || [];
       const ref = refTier[t] && refTier[t][x] || {};
-      const adj = o => o.p0 * Math.exp(-(QE[o.q] || 0)) * (1 - disc(o.months || x, state.basis));
+      const adj = o => o.p0 * Math.exp(-(state.recent ? 0 : (QE[o.q] || 0))) * (1 - disc(o.months || x, state.basis));
       const age = o => (AS_OF - new Date(o.date + "T00:00:00Z")) / 86400000;
       const side = s => cell.filter(o => o.side === s);
       const med = arr => arr.length ? wmedian(arr.map(adj), arr.map(o => o.w)) : null;
@@ -190,9 +194,9 @@ const DATA = /*__DATA__*/null;
 
   // header meta
   document.getElementById("m-asof").textContent = "as of " + DATA.as_of;
-  document.getElementById("m-n").textContent = DATA.n_observations.bid + " quotes · " + DATA.n_observations.ask_deals + " signed deals";
-  document.getElementById("foot").textContent = "Method v" + DATA.method_version + ". Quote-date normalisation by quarter effects (log): " +
-    Object.entries(DATA.quarter_effects_log).map(([k,v]) => k + " " + (v>0?"+":"") + v.toFixed(2)).join(", ") +
+  document.getElementById("m-n").textContent = DATA.n_observations.bid + " distinct competitor offers (" + (DATA.n_observations.bid_duplicates_removed || 0) + " duplicates removed, " + (DATA.n_observations.bid_known_prepay || 0) + " state prepay) · " + DATA.n_observations.ask_deals + " Nebius signed deals";
+  document.getElementById("foot").textContent = "Method v" + DATA.method_version + ". Date adjustment: observations are lifted to today's price level by quarter of quote — " +
+    Object.entries(DATA.quarter_effects_log).map(([k,v]) => k + " ×" + Math.exp(-v).toFixed(2)).join(", ") + " (use 'Recent only' to see the last 120 days without it)" +
     ". Sources: field intel to " + (DATA.sources.intel_latest_quote||"–") + ", CRM reserve aggregates generated " + (DATA.sources.reserve_tenor_generated||"–") +
     ", list snapshot " + (DATA.sources.list_snapshot||"–") + ". Cost floor: " + DATA.sources.cost_floor + ".";
 
@@ -200,11 +204,16 @@ const DATA = /*__DATA__*/null;
   const tp = document.getElementById("tier-pills");
   TIERS.forEach(t => { const b = document.createElement("button"); b.className = "pill"; b.textContent = t; b.dataset.tier = t;
     if (!hasData(t)) { b.disabled = true; b.title = "no marks yet (suppressed)"; }
-    b.addEventListener("click", () => { state.tier = t; render(); }); tp.appendChild(b); });
+    b.addEventListener("click", () => { state.tier = t; render(); sync(); }); tp.appendChild(b); });
   document.querySelectorAll("#series-pills .pill").forEach(b => b.addEventListener("click", () => { state.series = b.dataset.series; render(); }));
-  document.querySelectorAll("#basis-pills .pill").forEach(b => b.addEventListener("click", () => { state.basis = Number(b.dataset.basis); byTier = computeCells(); render(); }));
+  document.querySelectorAll("#basis-pills .pill").forEach(b => b.addEventListener("click", () => { state.basis = Number(b.dataset.basis); byTier = computeCells(); render(); sync(); }));
   document.querySelectorAll("#pf-pills .pill").forEach(b => b.addEventListener("click", () => { state.pf = b.dataset.pf; byTier = computeCells(); if (!hasData(state.tier)) state.tier = TIERS.find(hasData) || state.tier; render(); }));
   document.getElementById("t-refs").addEventListener("click", e => { state.refs = !state.refs; render(); });
+  document.getElementById("t-recent").addEventListener("click", e => { state.recent = !state.recent; byTier = computeCells(); if (!hasData(state.tier)) state.tier = TIERS.find(hasData) || state.tier; render(); });
+  // cross-tab sync with the "Where we land" tab
+  let syncing = false;
+  const sync = () => { if (syncing || !window.__posSet) return; syncing = true; try { window.__posSet({ tier: state.tier, basis: state.basis }); } finally { syncing = false; } };
+  window.__curveSet = st => { if (syncing) return; syncing = true; try { let changed = false; if (st.tier && st.tier !== state.tier && hasData(st.tier)) { state.tier = st.tier; changed = true; } if (st.basis != null && st.basis !== state.basis) { state.basis = st.basis; changed = true; } if (changed) render(); } finally { syncing = false; } };
   document.getElementById("t-all").addEventListener("click", e => { state.all = !state.all; render(); });
 
   // scales
@@ -237,6 +246,7 @@ const DATA = /*__DATA__*/null;
     document.querySelectorAll("#pf-pills .pill").forEach(b => b.setAttribute("aria-pressed", b.dataset.pf === state.pf));
     document.querySelectorAll("#tier-pills .pill").forEach(b => { const ok = hasData(b.dataset.tier); b.disabled = !ok; b.title = ok ? "" : "no marks for this filter (suppressed)"; });
     document.getElementById("t-refs").setAttribute("aria-pressed", state.refs);
+    document.getElementById("t-recent").setAttribute("aria-pressed", state.recent);
     document.getElementById("t-all").setAttribute("aria-pressed", state.all);
 
     const visibleTiers = state.all ? TIERS.filter(hasData) : [state.tier];
@@ -287,7 +297,8 @@ const DATA = /*__DATA__*/null;
     document.getElementById("big-tenor").textContent = (focusT ? focusT + "-month " : "") + (state.series === "mark" ? "mark" : state.series === "bid" ? "bid median" : "ask median") + ", $/GPU-hr at " + state.basis + "% prepay";
     const sh = shapeOf(state.tier);
     let sub = "";
-    if (fm && fm.has_mark) sub += `<em>${fm.confidence}</em> · n=${fm.n_obs} (${fm.n_bid} bid / ${fm.n_ask} ask) · bid ${fmt(fm.bid_median)} · ask ${fmt(fm.ask_median)}`;
+    const rf = refTier[state.tier] && refTier[state.tier][focusT] || {};
+    if (fm && fm.has_mark) sub += `<em>${fm.confidence}</em> · n=${fm.n_obs} (${fm.n_bid} offers / ${fm.n_ask} achieved${rf.n_providers ? " · " + rf.n_providers + " providers" : ""}) · offers ${fmt(fm.bid_median)} · achieved ${fmt(fm.ask_median)}${rf.recent_raw_median != null ? " · recent raw median " + fmt(rf.recent_raw_median) : ""}`;
     else if (fm) sub += `suppressed · ${fm.n_obs} obs`;
     if (sh.slope_12_36_pct != null) sub += ` · 12→36m <em>${pct(sh.slope_12_36_pct)}</em> ${sh.structure}`;
     if (sh.short_end_premium_pct != null) sub += ` · 3m vs 12m ${pct(sh.short_end_premium_pct)}`;
@@ -316,7 +327,7 @@ const DATA = /*__DATA__*/null;
       if (m.ask_median != null) o.push(`<rect x="${(cx+2).toFixed(1)}" y="${y(m.ask_median).toFixed(1)}" width="${bw}" height="${(H2-b-y(m.ask_median)).toFixed(1)}" fill="#ffffff"><title>ask ${fmt(m.ask_median)} (${m.n_ask} · ${m.ask_deals} deals)</title></rect>`);
       if (m.spread_pct != null) o.push(`<text x="${cx.toFixed(1)}" y="${(Math.min(y(m.bid_median), y(m.ask_median))-6).toFixed(1)}" text-anchor="middle" fill="${m.spread_pct<0?"#e0765f":"#f2f2ef"}" font-family="IBM Plex Mono,monospace" font-size="11">${pct(m.spread_pct)}</text>`);
       o.push(`<text x="${cx.toFixed(1)}" y="${H2-b+16}" text-anchor="middle" fill="#8b8b95" font-family="Schibsted Grotesk,sans-serif" font-size="11.5">${LABEL[m.tenor_months]}</text>`); });
-    o.push(`<rect x="${l}" y="${H2-12}" width="10" height="6" fill="rgba(255,255,255,.28)"/><text x="${l+15}" y="${H2-6}" fill="#8b8b95" font-family="Schibsted Grotesk,sans-serif" font-size="10.5">bid · competitor quotes</text><rect x="${l+150}" y="${H2-12}" width="10" height="6" fill="#ffffff"/><text x="${l+165}" y="${H2-6}" fill="#8b8b95" font-family="Schibsted Grotesk,sans-serif" font-size="10.5">ask · Nebius signed · label = ask/bid − 1</text>`);
+    o.push(`<rect x="${l}" y="${H2-12}" width="10" height="6" fill="rgba(255,255,255,.28)"/><text x="${l+15}" y="${H2-6}" fill="#8b8b95" font-family="Schibsted Grotesk,sans-serif" font-size="10.5">competitor offers</text><rect x="${l+150}" y="${H2-12}" width="10" height="6" fill="#ffffff"/><text x="${l+165}" y="${H2-6}" fill="#8b8b95" font-family="Schibsted Grotesk,sans-serif" font-size="10.5">Nebius achieved · label = achieved / offers − 1</text>`);
     s.innerHTML = o.join("");
   }
 
@@ -339,7 +350,7 @@ const DATA = /*__DATA__*/null;
     if (best !== state.hoverTenor) { state.hoverTenor = best; render(); }
     const m = byTier[state.tier] && byTier[state.tier][best];
     let html = `<div class="h">${state.tier} · ${LABEL[best]}</div>`;
-    if (m) html += `<div class="k"><span>mark</span><span>${m.has_mark?fmt(m.mark)+" · "+m.confidence:"suppressed"}</span><span>bid</span><span>${fmt(m.bid_median)} (${m.n_bid})</span><span>ask</span><span>${fmt(m.ask_median)} (${m.n_ask} · ${m.ask_deals} deals)</span><span>range</span><span>${m.range_lo!=null?fmt(m.range_lo)+"–"+fmt(m.range_hi):"–"}</span><span>public contracts</span><span>${fmt(m.public_median)} (${m.n_public})</span><span>Nebius grid</span><span>${(g => g ? fmt(g.price) + " @" + g.prepay + "%" : "–")(gridAt(m))}</span><span>hyperscaler</span><span>${fmt(m.list_hyperscaler_min)}${m.list_hyperscaler_provider?" "+m.list_hyperscaler_provider:""}</span></div>`;
+    if (m) html += `<div class="k"><span>mark</span><span>${m.has_mark?fmt(m.mark)+" · "+m.confidence:"suppressed"}</span><span>competitor offers</span><span>${fmt(m.bid_median)} (${m.n_bid})</span><span>Nebius achieved</span><span>${fmt(m.ask_median)} (${m.n_ask} · ${m.ask_deals} deals)</span><span>range</span><span>${m.range_lo!=null?fmt(m.range_lo)+"–"+fmt(m.range_hi):"–"}</span><span>public contracts (ref)</span><span>${fmt(m.public_median)} (${m.n_public})</span><span>Nebius grid</span><span>${(g => g ? fmt(g.price) + " @" + g.prepay + "%" : "–")(gridAt(m))}</span><span>hyperscaler</span><span>${fmt(m.list_hyperscaler_min)}${m.list_hyperscaler_provider?" "+m.list_hyperscaler_provider:""}</span></div>`;
     const others = TIERS.filter(t => t !== state.tier).map(t => { const v = val(byTier[t] && byTier[t][best], state.series); return v == null ? "" : `<span>${t}</span><span>${fmt(v)}</span>`; }).join("");
     if (others) html += `<div class="others">${others}</div>`;
     tip.innerHTML = html;

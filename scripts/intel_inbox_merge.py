@@ -35,13 +35,16 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
+from intel_quality import prepay_known  # noqa: E402
 from intel_schema import validate_row   # noqa: E402
 
 PAGE_ID = "2054817562"
 BASE = "https://nebius.atlassian.net/wiki"
 INTEL_CSV = REPO / "store" / "intel.csv"
 COLUMNS = ["message_ts", "message_date", "gpu_model", "price_per_gpu_hour_usd",
-           "term_months", "prepay_pct", "provider_type", "provider_name", "notes"]
+           "term_months", "prepay_pct", "provider_type", "provider_name", "notes", "prepay_known"]
+# prepay_known (2026-09-15): 1 when the quote states its prepayment (any non-zero value or an
+# explicit zero in the notes), 0 when 0 % is only the extractor's default. See intel_quality.py.
 
 
 def fetch_inbox_storage() -> str:
@@ -129,6 +132,7 @@ def main():
                     dropped += 1
                     print(f"intel-inbox: dropping invalid row ts={ts}: {problems}")
                     continue
+                r["prepay_known"] = "1" if prepay_known(r) else "0"
                 out.append(r)
                 appended += 1
             existing_ts.add(ts)   # in-batch dedupe too

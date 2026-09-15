@@ -68,6 +68,9 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+import sys as _sys  # noqa: E402
+_sys.path.insert(0, str(ROOT))
+from intel_quality import dedupe as intel_dedupe, prepay_known as intel_prepay_known  # noqa: E402
 STORE = ROOT / "store"
 OUT_DIR = STORE / "forward_curve"
 INTEL_CSV = STORE / "intel.csv"
@@ -75,7 +78,7 @@ RESERVE_TENOR_CSV = STORE / "reserve_tenor.csv"
 HISTORY_CSV = STORE / "history.csv"
 BODY_HTML = STORE / "forward_curve_body.html"
 
-METHOD_VERSION = "1.1 (2026-09-15)"
+METHOD_VERSION = "1.2 (2026-09-15)"
 TIERS = ["H100", "H200", "B200", "B300", "GB200", "GB300", "VR"]
 TENORS = [3, 6, 12, 18, 24, 36, 60]            # months; buckets, see bucket_months()
 TENOR_LABEL = {3: "3m", 6: "6m", 12: "12m", 18: "18m", 24: "24m", 36: "36m", 60: "60m"}
@@ -167,6 +170,8 @@ def price_at_prepay(p0: float, tenor_months, prepay_pct) -> float:
 
 
 def weighted_median(values, weights) -> float:
+    if not values:
+        return None
     pairs = sorted(zip(values, weights))
     total = sum(w for _, w in pairs)
     acc = 0.0
@@ -188,32 +193,40 @@ def _parse_date(s: str) -> date | None:
 
 # ----------------------------------------------------------------------------- loaders
 def load_bid(path: Path = INTEL_CSV) -> list[dict]:
-    """Field-intel quotes -> observations (side=bid)."""
+    """Competitor offers from #price-intelligence -> observations (side=bid).
+    Deduplicated by underlying offer (intel_quality.dedupe: seed repeats, same-message
+    multi-provider rows, same provider/price/term within 7 days). Each observation
+    carries `known` = prepayment stated in the quote; unknown prepay stays 0 % for the
+    pooled mark but is flagged so consumers can exclude it from ranked comparisons."""
     obs = []
     if not path.exists():
         return obs
     with open(path, newline="") as f:
-        for r in csv.DictReader(f):
-            tier = (r.get("gpu_model") or "").strip().upper()
-            if tier not in TIERS:
-                continue
-            try:
-                price = float(r["price_per_gpu_hour_usd"])
-            except (KeyError, ValueError, TypeError):
-                continue
-            d = _parse_date(r.get("message_date", ""))
-            tenor = bucket_months(r.get("term_months"))
-            if not d or tenor is None:
-                continue
-            try:
-                months = float(r.get("term_months") or 0)
-            except (TypeError, ValueError):
-                months = 0.0
-            obs.append({"side": "bid", "tier": tier, "tenor": tenor, "months": months, "date": d,
-                        "price_raw": price, "prepay_pct": float(r.get("prepay_pct") or 0),
-                        "weight": 1.0, "provider": r.get("provider_name", ""),
-                        "provider_type": r.get("provider_type", ""),
-                        "source": f"intel:{r.get('message_ts', '')}"})
+        rows = list(csv.DictReader(f))
+    kept, dups = intel_dedupe(rows)
+    load_bid.duplicates = len(dups)  # noqa: attribute on function, read by build()
+    for r in kept:
+        tier = (r.get("gpu_model") or "").strip().upper()
+        if tier not in TIERS:
+            continue
+        try:
+            price = float(r["price_per_gpu_hour_usd"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        d = _parse_date(r.get("message_date", ""))
+        tenor = bucket_months(r.get("term_months"))
+        if not d or tenor is None:
+            continue
+        try:
+            months = float(r.get("term_months") or 0)
+        except (TypeError, ValueError):
+            months = 0.0
+        known = (r.get("prepay_known") == "1") if r.get("prepay_known") not in (None, "") else intel_prepay_known(r)
+        obs.append({"side": "bid", "tier": tier, "tenor": tenor, "months": months, "date": d,
+                    "price_raw": price, "prepay_pct": float(r.get("prepay_pct") or 0), "known": known,
+                    "weight": 1.0, "provider": r.get("provider_name", ""),
+                    "provider_type": r.get("provider_type", ""), "ts": str(r.get("message_ts", "")),
+                    "source": f"intel:{r.get('message_ts', '')}"})
     return obs
 
 
@@ -240,7 +253,7 @@ def load_ask(path: Path = RESERVE_TENOR_CSV) -> list[dict]:
             obs.append({"side": "ask", "tier": tier, "tenor": tenor, "months": float(r.get("tenor_months") or tenor),
                         "date": d + timedelta(days=14),      # month midpoint
                         "price_raw": price, "prepay_pct": float(PREPAY_BUCKET_PCT.get(bucket, 0)),
-                        "prepay_bucket": bucket,
+                        "prepay_bucket": bucket, "known": True,
                         "weight": float(min(deals, 3)), "deals": deals,
                         "provider": "Nebius", "provider_type": "nebius",
                         "source": f"reserve_tenor:{r.get('generated_date', '')}"})
@@ -273,7 +286,7 @@ def load_contracts(path: Path = CONTRACTS_CSV) -> list[dict]:
             except (TypeError, ValueError):
                 prepay = 0.0
             obs.append({"side": "public", "tier": tier, "tenor": tenor, "months": months, "date": d,
-                        "price_raw": price, "prepay_pct": prepay, "weight": 0.5,
+                        "price_raw": price, "prepay_pct": prepay, "weight": 0.0, "known": True,   # shown, never pooled
                         "provider": r.get("provider", ""), "provider_type": "public_contract",
                         "customer": r.get("customer", ""), "source": f"sa_contracts:{r.get('source_cell', '')}"})
     return obs
@@ -395,20 +408,31 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
     marks = []
     for tier in TIERS:
         for tenor in TENORS:
-            cell = by_cell.get((tier, tenor), [])
-            bids = [o for o in cell if o["side"] == "bid"]
-            asks = [o for o in cell if o["side"] == "ask"]
-            pubs = [o for o in cell if o["side"] == "public"]
+            allc = by_cell.get((tier, tenor), [])
+            bids = [o for o in allc if o["side"] == "bid"]
+            asks = [o for o in allc if o["side"] == "ask"]
+            pubs = [o for o in allc if o["side"] == "public"]
+            cell = bids + asks                                   # pooled evidence; public contracts are reference only
             n, n_recent = len(cell), sum(1 for o in cell if o["age_days"] <= RECENT_DAYS)
+            n_known = sum(1 for o in cell if o.get("known"))
+            providers = {(o.get("provider") or "").strip().lower() for o in bids if o.get("provider")} | ({"nebius"} if asks else set())
+            recent_raw = [o["price_raw"] for o in cell if o["age_days"] <= 90]
+            recent_adj = [o for o in cell if o["age_days"] <= RECENT_DAYS]
+            known_adj = [o for o in cell if o.get("known")]
             ask_deals = sum(o.get("deals", 0) for o in asks)
             ref = lists.get((tier, tenor), {})
             gref = grid_reference(grids, tier, tenor, segment)
             entry = {
                 "tier": tier, "tenor_months": tenor, "label": TENOR_LABEL[tenor],
                 "n_obs": n, "n_recent": n_recent, "n_bid": len(bids), "n_ask": len(asks), "n_public": len(pubs),
-                "ask_deals": ask_deals,
-                "public_median": round(weighted_median([o["p_adj"] for o in pubs],
-                                                       [o["weight"] for o in pubs]), 2) if pubs else None,
+                "n_known": n_known, "n_providers": len(providers), "ask_deals": ask_deals,
+                "recent_raw_median": round(statistics.median(recent_raw), 2) if recent_raw else None,
+                "n_recent90": len(recent_raw),
+                "mark_recent": (round(weighted_median([o["p0"] for o in recent_adj], [o["weight"] for o in recent_adj]), 2)
+                                if len(recent_adj) >= MIN_OBS else None),
+                "mark_known": (round(weighted_median([o["p_adj"] for o in known_adj], [o["weight"] for o in known_adj]), 2)
+                               if len(known_adj) >= MIN_OBS else None),
+                "public_median": round(statistics.median([o["p_adj"] for o in pubs]), 2) if pubs else None,
                 "grid": gref,
                 "grid_100": (gref or {}).get("prices", {}).get(100),
                 "grid_50": (gref or {}).get("prices", {}).get(50),
@@ -430,7 +454,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
                 entry.update({
                     "mark": round(mark, 2), "has_mark": True,
                     "range_lo": round(min(recent_vals), 2), "range_hi": round(max(recent_vals), 2),
-                    "confidence": "good" if n >= GOOD_OBS and n_recent >= 2 else "thin",
+                    "confidence": "good" if (n >= GOOD_OBS and n_recent >= 2 and len(providers) >= 2) else "thin",
                     "spread_pct": (round(entry["ask_median"] / entry["bid_median"] - 1, 3)
                                    if entry["bid_median"] and entry["ask_median"] else None),
                     "reason": None,
@@ -463,8 +487,9 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
     for o in obs:
         row = {"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),
                "date": o["date"].isoformat(), "price": round(o["price_raw"], 3),
-               "p0": round(o["p0"], 3), "q": o["quarter"], "prepay": o["prepay_pct"],
-               "w": o["weight"], "ptype": o.get("provider_type", ""), "provider": o.get("provider", "")}
+               "p0": round(o["p0"], 3), "q": o["quarter"], "prepay": o["prepay_pct"], "known": bool(o.get("known")),
+               "w": o["weight"], "ptype": o.get("provider_type", ""), "provider": o.get("provider", ""),
+               "ts": o.get("ts", "")}
         if o["side"] == "ask":
             row.update({"deals": o.get("deals"), "bucket": o.get("prepay_bucket")})
             row["provider"] = "Nebius"
@@ -489,6 +514,8 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
                    "tenors_months": TENORS, "tiers": TIERS},
         "quarter_effects_log": {k: round(v, 3) for k, v in q_eff.items()},
         "n_observations": {"bid": sum(1 for o in obs if o["side"] == "bid"),
+                           "bid_known_prepay": sum(1 for o in obs if o["side"] == "bid" and o.get("known")),
+                           "bid_duplicates_removed": getattr(load_bid, "duplicates", 0),
                            "ask": sum(1 for o in obs if o["side"] == "ask"),
                            "public": sum(1 for o in obs if o["side"] == "public"),
                            "ask_deals": sum(o.get("deals", 0) for o in obs if o["side"] == "ask")},
@@ -627,7 +654,7 @@ def _mark_cell(e: dict) -> str:
         return _lozenge("n/a", "grey") + f'<br/><small>{e["n_obs"]} obs</small>'
     colour = "green" if e["confidence"] == "good" else "yellow"
     return (f'<strong>{_fmt(e["mark"])}</strong> {_lozenge(e["confidence"], colour)}'
-            f'<br/><small>n={e["n_obs"]} ({e["n_bid"]}b/{e["n_ask"]}a) · recent {_range(e["range_lo"], e["range_hi"])}</small>')
+            f'<br/><small>n={e["n_obs"]} ({e["n_bid"]} offers · {e["n_ask"]} achieved) · recent {_range(e["range_lo"], e["range_hi"])}</small>')
 
 
 def render_confluence_body(result: dict, with_images: bool = False) -> str:
@@ -640,13 +667,14 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              f'<a href="https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419">GPU Competitor Pricing — Daily Overview</a> · '
              f'<a href="https://nebius.atlassian.net/wiki/spaces/Billing/pages/1970110707">Competitor Spot &amp; Auction Pricing</a>. '
              f'<strong>Interactive version</strong> (curve with prepay filters and the "where we land" price ladder): child page '
-             f'<em>GPU Forward Curve — Interactive</em> under this one, embedded via the HTML macro; also attached here as forward_view.html.</em></p>')
-    h.append('<div data-type="panel-warning"><p><strong>Read me first.</strong> This is a <strong>marked</strong> curve, not a traded one: '
-             'each cell is the weighted median of dated observations we hold — competitor quotes reported in #price-intelligence '
-             '(the <em>bid</em> side, skews to losses) and Nebius signed reserve deals from CRM deal reviews (the <em>ask</em> side, '
-             'aggregates only) — shifted to today\'s price level and to a 0%-prepay basis. Cells with fewer than '
+             f'<em>GPU Committed-Price Benchmarks — Interactive</em> under this one, embedded via the HTML macro; also attached here as forward_view.html.</em></p>')
+    h.append('<div data-type="panel-warning"><p><strong>Read me first.</strong> These are <strong>committed-price benchmarks</strong>, not a traded curve: '
+             'each cell is the weighted median of dated observations we hold — <em>competitor offers</em> reported in #price-intelligence '
+             '(deduplicated by underlying offer; skews to losses) and <em>Nebius achieved</em> prices from CRM deal reviews '
+             '(aggregates only) — shifted to today\'s price level and to a 0%-prepay basis. The two classes are shown separately and imply no bid/ask spread; '
+             'public multi-year contracts are a reference and never pooled. Commitment length alone is not a delivery-date curve. Cells with fewer than '
              f'{MIN_OBS} observations in the last {MAX_AGE_DAYS} days are <strong>suppressed</strong>, never interpolated. '
-             '<strong>Internal only</strong>: the ask side is derived from confidential contracts; never quote marks to customers '
+             '<strong>Internal only</strong>: Nebius achieved prices are derived from confidential contracts; never quote marks to customers '
              'or paste this page externally.</p></div>')
     if with_images:
         h.append('<p><ac:image ac:width="900"><ri:attachment ri:filename="forward_curve.png"/></ac:image></p>')
@@ -670,8 +698,8 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
                  "".join(f'<td>{_mark_cell(e)}</td>' for e in cells) +
                  f'<td>{struct_txt}</td></tr>')
     h.append('</tbody></table>')
-    h.append(f'<p><em>Cell = mark, confidence lozenge (good = n ≥ {GOOD_OBS} with ≥ 2 in the last {RECENT_DAYS} days; '
-             f'thin = {MIN_OBS}–{GOOD_OBS - 1}), then n (bid/ask split) and the min–max of recent adjusted observations. '
+    h.append(f'<p><em>Cell = mark, confidence lozenge (good = n ≥ {GOOD_OBS} distinct observations from ≥ 2 providers with ≥ 2 in the last {RECENT_DAYS} days; '
+             f'thin = {MIN_OBS}–{GOOD_OBS - 1}), then n (competitor offers / Nebius achieved) and the min–max of recent adjusted observations. '
              f'n/a = suppressed. Shape compares the 36m mark to the 12m mark; the 3m column is the short-end (immediacy) premium.</em></p>')
 
     # shape + references
@@ -698,19 +726,20 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              f'in the {s.get("list_snapshot") or "latest"} snapshot (rack rates; enterprise customers pay far less). SA cost floor = {SA_COST_FLOOR_SOURCE} — a third-party modeled cost, not Nebius COGS.</em></p>')
 
     # bid vs ask detail
-    h.append('<h2>Bid vs ask by cell</h2>')
-    h.append('<p><em>Bid = median of competitor quotes seen by customers (field intel); ask = median of Nebius signed reserve prices '
-             '(CRM, aggregates). Spread = ask / bid − 1. A large positive spread on a cell where we still win says the market pays for '
-             'our availability/quality; a negative spread says we are leaving money on the table.</em></p>')
-    h.append('<table><thead><tr><th>GPU</th><th>Tenor</th><th>Mark</th><th>Bid median (n)</th><th>Ask median (n · deals)</th>'
-             '<th>Public contracts (n)</th><th>Spread</th><th>Recent range</th><th>Status</th></tr></thead><tbody>')
+    h.append('<h2>Evidence by cell</h2>')
+    h.append('<p><em>Competitor offers = median of deduplicated offers reported by sales (adjusted to today and 0% prepay; "stated" = how many state their prepayment); '
+             'Nebius achieved = median of Nebius signed reserve prices (CRM aggregates, payment type as prepay proxy); recent raw = median of the last 90 days as reported, '
+             'no date adjustment, for comparison with the adjusted mark; public contracts = implied lower bounds, reference only. Gap = achieved / offers − 1, descriptive, not a spread.</em></p>')
+    h.append('<table><thead><tr><th>GPU</th><th>Tenor</th><th>Mark</th><th>Recent raw (n)</th><th>Competitor offers (n · stated · providers)</th><th>Nebius achieved (n · deals)</th>'
+             '<th>Public contracts (n)</th><th>Gap</th><th>Recent range</th><th>Status</th></tr></thead><tbody>')
     for e in result["marks"]:
         if e["n_obs"] == 0:
             continue
         status = (_lozenge("suppressed", "grey") if not e["has_mark"] else
                   _lozenge(e["confidence"], "green" if e["confidence"] == "good" else "yellow"))
         h.append(f'<tr><td><strong>{e["tier"]}</strong></td><td>{e["label"]}</td><td><strong>{_fmt(e["mark"])}</strong></td>'
-                 f'<td>{_fmt(e["bid_median"])} ({e["n_bid"]})</td>'
+                 f'<td>{_fmt(e.get("recent_raw_median"))} ({e.get("n_recent90", 0)})</td>'
+                 f'<td>{_fmt(e["bid_median"])} ({e["n_bid"]} · {e.get("n_known", 0) - e["n_ask"] if e.get("n_known") is not None else "–"} · {e.get("n_providers", "–")})</td>'
                  f'<td>{_fmt(e["ask_median"])} ({e["n_ask"]} · {e["ask_deals"]})</td>'
                  f'<td>{_fmt(e["public_median"])} ({e["n_public"]})</td>'
                  f'<td>{_pct(e["spread_pct"])}</td>'
@@ -720,9 +749,9 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
     # method
     qe = ", ".join(f'{k} {v:+.2f}' for k, v in result["quarter_effects_log"].items())
     h.append('<div data-type="expand" data-title="Method, parameters and provenance">')
-    h.append(f'<p><strong>Observations in window:</strong> {n["bid"]} bid quotes (field intel, latest {s.get("intel_latest_quote")}), '
-             f'{n["ask"]} ask cells covering {n["ask_deals"]} signed deals (reserve_tenor.csv generated {s.get("reserve_tenor_generated")}), '
-             f'{n.get("public", 0)} public announced contracts (SemiAnalysis deal table). Nebius grid version {s.get("grid_version")}, segment {result["params"].get("segment")}.</p>')
+    h.append(f'<p><strong>Observations in window:</strong> {n["bid"]} distinct competitor offers ({n.get("bid_duplicates_removed", 0)} duplicates removed; {n.get("bid_known_prepay", 0)} state their prepayment; latest {s.get("intel_latest_quote")}), '
+             f'{n["ask"]} Nebius achieved cells covering {n["ask_deals"]} signed deals (reserve_tenor.csv generated {s.get("reserve_tenor_generated")}), '
+             f'{n.get("public", 0)} public announced contracts shown as reference (never pooled). Nebius grid version {s.get("grid_version")}, segment {result["params"].get("segment")}.</p>')
     h.append('<ol>'
              f'<li><strong>Prepay normalisation:</strong> discount = {PREPAY_A:.4f} × years of tenor × (1 − (1 − prepay share)²), capped {PREPAY_CAP:.0%}; '
              'every quote is expressed at 0% prepay. This is Finance\'s money-cost convention (sheet "." of Pricing model.xlsx: '
@@ -733,8 +762,9 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              f'each observation is shifted to the as-of quarter. Estimated quarter effects (log, vs as-of): {qe}. '
              'Pooling across tiers is a v1 simplification; Hopper and Blackwell repriced by similar ratios in 2026H1.</li>'
              f'<li><strong>Weights:</strong> observations ≤ {RECENT_DAYS} days old count 1, ≤ {MAX_AGE_DAYS} days count ½, older are dropped; '
-             'ask cells weigh min(deals, 3) so a single mega-deal cannot dominate; public announced contracts weigh ½ (implied rates assume 8,760 billed hours).</li>'
-             f'<li><strong>Mark:</strong> weighted median of adjusted prices per cell; suppressed below {MIN_OBS} observations, never interpolated or carried forward.</li>'
+             'Nebius achieved cells weigh min(deals, 3) so a single mega-deal cannot dominate; public announced contracts are not pooled (implied rates assume 8,760 billed hours and are lower bounds).</li>'
+             f'<li><strong>Mark:</strong> weighted median of adjusted prices per cell; suppressed below {MIN_OBS} distinct observations, never interpolated or carried forward. '
+             '"Good" needs six observations from at least two providers with two in the last 120 days. Offers without a stated prepayment are counted at 0% for the pooled mark and flagged; the interactive page can exclude them.</li>'
              f'<li><strong>Tenor buckets:</strong> ≤4 → 3m, ≤8 → 6m, ≤14 → 12m, ≤20 → 18m, ≤27 → 24m, ≤42 → 36m, longer → 60m. '
              f'Sanity band {_fmt(PRICE_MIN)}–{_fmt(PRICE_MAX)}.</li>'
              '<li><strong>Not modelled yet (v2):</strong> delivery-date axis (forward start vs immediate), cluster size, region/interconnect, '
@@ -755,14 +785,15 @@ def view_payload(result: dict) -> dict:
     never reads and rounds numbers, so the embedded JSON stays small enough for
     Confluence macro bodies and connector calls."""
     keep_mark = ("tier", "tenor_months", "label", "n_obs", "n_recent", "n_bid", "n_ask", "n_public", "ask_deals",
+                 "n_known", "n_providers", "recent_raw_median", "n_recent90", "mark_recent", "mark_known",
                  "bid_median", "ask_median", "public_median", "grid", "grid_100", "grid_50", "list_nebius",
                  "list_hyperscaler_min", "list_hyperscaler_provider", "cost_floor", "mark", "has_mark",
                  "range_lo", "range_hi", "confidence", "spread_pct", "reason")
     out = {k: result[k] for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics")}
     out["marks"] = [{k: m.get(k) for k in keep_mark} for m in result["marks"]]
     out["observations"] = [{"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),
-                            "date": o["date"], "price": o["price"], "p0": round(o["p0"], 3), "q": o["q"], "prepay": o["prepay"], "w": o["w"],
-                            "ptype": o.get("ptype", ""), "provider": o.get("provider", ""),
+                            "date": o["date"], "price": o["price"], "p0": round(o["p0"], 3), "q": o["q"], "prepay": o["prepay"], "known": o.get("known", False), "w": o["w"],
+                            "ptype": o.get("ptype", ""), "provider": o.get("provider", ""), "ts": o.get("ts", ""),
                             **({"deals": o.get("deals"), "bucket": o.get("bucket")} if o["side"] == "ask" else {})}
                            for o in result.get("observations", [])]
     return out
