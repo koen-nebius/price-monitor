@@ -26,10 +26,11 @@ class Helpers(unittest.TestCase):
     def test_prepay_normalise_raises_price_for_prepaid_quotes(self):
         self.assertEqual(fc.prepay_normalise(5.0, 0, 12), 5.0)
         # Finance convention: 12m/100% = -3.4 %, 24m/100% = -6.8 % (grid says -6.97 %)
-        self.assertAlmostEqual(fc.prepay_discount(12, 100), 0.034)
-        self.assertAlmostEqual(fc.prepay_discount(24, 100), 0.068)
-        self.assertAlmostEqual(fc.prepay_discount(12, 50), 0.034 * 0.5 ** 0.5)
-        self.assertAlmostEqual(fc.prepay_normalise(5.0, 100, 12), 5.0 / (1 - 0.034))
+        self.assertAlmostEqual(fc.prepay_discount(12, 100), 0.0345)
+        self.assertAlmostEqual(fc.prepay_discount(24, 100), 0.069)
+        self.assertAlmostEqual(fc.prepay_discount(12, 50), 0.0345 * 0.75)
+        self.assertAlmostEqual(fc.prepay_discount(12, 30), 0.0345 * 0.51)
+        self.assertAlmostEqual(fc.prepay_normalise(5.0, 100, 12), 5.0 / (1 - 0.0345))
         self.assertGreater(fc.prepay_normalise(5.0, 30, 12), 5.0)
         self.assertEqual(fc.prepay_normalise(5.0, "bad", 12), 5.0)
         self.assertLessEqual(fc.prepay_discount(60, 100), fc.PREPAY_CAP)
@@ -78,7 +79,8 @@ class Build(unittest.TestCase):
                  "confidence", "interconnect", "form_factor"],
                 [["2026-09-14", "nebius", "B300", "committed_3yr", "", "", "8", "4.55", "", "", "", "", "", ""],
                  ["2026-09-14", "aws", "B300", "reserved_3yr", "", "", "8", "9.0", "", "", "", "", "", ""]])
-            res = fc.build(date(2026, 9, 15), intel=intel, reserve=reserve, history=history)
+            res = fc.build(date(2026, 9, 15), intel=intel, reserve=reserve, history=history,
+                           contracts=Path(tmp) / "none.csv", grid=Path(tmp) / "none.json")
         b300_36 = next(e for e in res["marks"] if e["tier"] == "B300" and e["tenor_months"] == 36)
         self.assertTrue(b300_36["has_mark"])
         self.assertEqual(b300_36["n_obs"], 4)            # junk price excluded by the sanity band

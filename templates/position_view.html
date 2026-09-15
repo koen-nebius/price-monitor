@@ -1,0 +1,247 @@
+<style>
+#pos{display:none}
+#pos.on{display:block}
+.pos-controls{display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:22px 0 10px}
+.pos-head{font:400 clamp(22px,3.2vw,34px)/1.2 var(--serif);color:var(--white);letter-spacing:-.01em;margin:12px 0 4px;font-variant-numeric:tabular-nums;text-wrap:balance;max-width:1100px}
+.pos-head .dim{color:var(--muted)}
+.pos-tags{display:flex;gap:8px;flex-wrap:wrap;min-height:22px;margin-bottom:10px}
+.tag{font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 8px;border-radius:5px;border:1px solid var(--thin);color:var(--thin)}
+.tag.grey{border-color:var(--line);color:var(--muted)}
+.pos-body{display:grid;grid-template-columns:1fr 230px;gap:26px;align-items:start}
+@media (max-width:900px){.pos-body{grid-template-columns:1fr}}
+svg.ladder{width:100%;height:auto;display:block;touch-action:none;user-select:none}
+.pos-stats{display:grid;gap:10px;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.pos-stats .st{border-top:1px solid var(--line-soft);padding-top:8px}
+.pos-stats .k{color:var(--muted);font-family:var(--sans);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.pos-stats .v{color:var(--text);font-size:16px;margin-top:2px}
+.pos-stats .v.neg{color:var(--neg)}
+.pos-stats .s{color:var(--dim);font-size:11px;margin-top:2px}
+.price-in{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px 6px 4px 10px}
+.price-in span{color:var(--muted);font-family:var(--mono)}
+.price-in input{width:88px;background:transparent;border:0;color:var(--white);font:500 15px/1 var(--mono);outline:none}
+.price-in input:focus-visible{outline:2px solid var(--white);border-radius:4px}
+.step{display:inline-flex;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:3px}
+.step button{appearance:none;border:0;background:transparent;color:var(--muted);font:500 15px/1 var(--mono);width:28px;height:28px;border-radius:6px;cursor:pointer}
+.step button:hover{color:var(--text);background:var(--surface-2)}
+.step output{min-width:44px;text-align:center;color:var(--text);font:500 13px/1 var(--mono)}
+.copy{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);font:500 12px/1 var(--sans);padding:9px 12px;border-radius:8px;cursor:pointer}
+.copy:hover{border-color:var(--ghost-strong)}
+.pos-notes{color:var(--muted);font-size:13px;max-width:70ch;margin-top:22px}
+.pos-notes b{color:var(--text);font-weight:500}
+</style>
+
+<section id="pos" aria-label="Price positioning">
+  <div class="pos-controls">
+    <div class="row"><span class="label">GPU</span><div class="pills" id="pos-tier" role="group" aria-label="GPU tier"></div>
+      <span class="label">Segment</span><div class="pills" id="pos-seg" role="group" aria-label="Nebius grid segment">
+        <button class="pill" data-seg="ai_native_above_512" aria-pressed="true">AI Native</button>
+        <button class="pill" data-seg="enterprise_above_512" aria-pressed="false">Enterprise</button></div></div>
+    <div class="row"><span class="label">Prepay</span><div class="pills" id="pos-prepay" role="group" aria-label="Prepayment of the candidate offer">
+        <button class="pill" data-pp="0" aria-pressed="true">0%</button><button class="pill" data-pp="25" aria-pressed="false">25%</button>
+        <button class="pill" data-pp="50" aria-pressed="false">50%</button><button class="pill" data-pp="75" aria-pressed="false">75%</button>
+        <button class="pill" data-pp="100" aria-pressed="false">100%</button></div>
+      <span class="label">Candidate price</span>
+      <label class="price-in"><span>$</span><input id="pos-price" type="number" step="0.05" min="0" inputmode="decimal" aria-label="Candidate price per GPU-hour"><span>/GPU-hr</span></label>
+      <span class="label">Occupancy</span>
+      <div class="step" role="group" aria-label="Billable occupancy"><button id="util-dn" aria-label="lower occupancy">−</button><output id="util-out">75%</output><button id="util-up" aria-label="raise occupancy">+</button></div>
+      <button class="copy" id="pos-copy">Copy deal-review line</button>
+    </div>
+  </div>
+  <div class="pos-head" id="pos-head">–</div>
+  <div class="pos-tags" id="pos-tags"></div>
+  <div class="pos-body">
+    <div><svg class="ladder" id="pos-ladder" viewBox="0 0 1100 520" role="img" aria-label="Competitor quotes by commitment length with the candidate price as a vertical rule"></svg></div>
+    <div class="pos-stats" id="pos-stats"></div>
+  </div>
+  <div class="pos-notes" id="pos-notes"></div>
+</section>
+
+<script>
+(function(){
+  const TENORS = DATA.params.tenors_months, TIERS = DATA.params.tiers, P = DATA.params;
+  const LABEL = {3:"3m",6:"6m",12:"12m",18:"18m",24:"24m",36:"36m",60:"60m"};
+  const OBS = DATA.observations || [], QE = DATA.quarter_effects_log || {};
+  const ECON = (DATA.economics && DATA.economics.families) || {}, ECON_META = DATA.economics || {};
+  const GRID = (DATA.grid && DATA.grid.segments) || {};
+  const AS_OF = new Date(DATA.as_of + "T00:00:00Z");
+  const refTier = {}; DATA.marks.forEach(m => { (refTier[m.tier] = refTier[m.tier] || {})[m.tenor_months] = m; });
+  const fmt = v => (v == null || !isFinite(v) ? "–" : "$" + Number(v).toFixed(2));
+  const fmt0 = v => (v == null || !isFinite(v) ? "–" : "$" + Math.round(v).toLocaleString("en-US"));
+  const pctf = v => (v == null || !isFinite(v) ? "–" : Math.round(v * 100) + "%");
+  const disc = (months, pp) => Math.min(P.prepay_cap, P.prepay_a * Math.max(0.25, (months || 12) / 12) * (1 - Math.pow(1 - Math.max(0, Math.min(1, pp / 100)), P.prepay_m || 2)));
+  const age = o => (AS_OF - new Date(o.date + "T00:00:00Z")) / 86400000;
+  const quotesFor = t => OBS.filter(o => o.tier === t && (o.side === "bid" || o.side === "public"));
+  const asksFor = t => OBS.filter(o => o.tier === t && o.side === "ask");
+  const hasQuotes = t => quotesFor(t).length >= 3 || asksFor(t).length >= 3;
+  const S = { tier: null, tenor: 36, pp: 0, seg: "ai_native_above_512", price: null, util: (ECON_META.occupancy_default || 0.75), dragging: false };
+  S.tier = ["B300","GB300","B200","H200","H100","VR","GB200"].find(hasQuotes) || TIERS[0];
+
+  function wmed(vals, wts){ const pr = vals.map((v, i) => [v, wts ? wts[i] : 1]).sort((a, b) => a[0] - b[0]); const tot = pr.reduce((s, p) => s + p[1], 0); let acc = 0; for (const [v, w] of pr) { acc += w; if (acc >= tot / 2) return v; } return pr.length ? pr[pr.length-1][0] : null; }
+  function gridCell(seg, tier, tenor){ const cells = (GRID[seg] || {})[tier] || {}; for (const m of Object.keys(cells)) { const mm = Number(m); const b = mm <= 4 ? 3 : mm <= 8 ? 6 : mm <= 14 ? 12 : mm <= 20 ? 18 : mm <= 27 ? 24 : mm <= 42 ? 36 : 60; if (b === tenor) { const pr = cells[m]; const ks = Object.keys(pr).map(Number); const k = ks.reduce((a, c) => Math.abs(c - S.pp) < Math.abs(a - S.pp) ? c : a); return { price: pr[k], prepay: k, months: mm }; } } return null; }
+  function economics(tier, price, util){
+    const e = ECON[tier]; if (!e) return null;
+    const hpm = ECON_META.hours_per_model_month || 730, src = ECON_META.source_hours_per_month || 744;
+    const opexMonth = e.cash_opex_per_installed_gpu_hour_usd * src;              // per GPU per month
+    const cashSold = opexMonth / (hpm * util);                                    // cash cost per sold hour
+    const floor22 = (e.capex_per_gpu_usd / (ECON_META.payback_target_months || 22) + opexMonth) / (hpm * util);
+    const netMonth = price * hpm * util - opexMonth;                              // contribution per GPU per month
+    const payback = netMonth > 0 ? e.capex_per_gpu_usd / netMonth : Infinity;
+    return { e, cashSold, floor22, margin: price - cashSold, marginPct: price > 0 ? (price - cashSold) / price : null, payback, netMonth,
+             elecSold: e.electricity_per_installed_gpu_hour_usd * src / (hpm * util) };
+  }
+  function cellStats(tier, tenor){
+    const q = quotesFor(tier).filter(o => o.tenor === tenor);
+    const inDate = q.filter(o => age(o) <= 90), stale = q.length - inDate.length;
+    let comp = inDate.filter(o => Math.abs(o.prepay - S.pp) <= 12.5), basis = "comparable";
+    let mism = inDate.length - comp.length;
+    if (comp.length < 6) { comp = inDate; basis = "all prepay levels"; mism = 0; }
+    let window = 90;
+    if (comp.length < 3) { comp = q.filter(o => age(o) <= 365); basis = "all prepay levels, up to 12 months old"; window = 365; mism = 0; }
+    const asks = asksFor(tier).filter(o => o.tenor === tenor && age(o) <= 365);
+    const askMed = asks.length ? wmed(asks.map(o => o.price), asks.map(o => o.w)) : null;
+    const ref = refTier[tier] && refTier[tier][tenor] || {};
+    const reb = v => v == null ? null : v * (1 - disc(tenor, S.pp));   // 0%-basis mark -> chosen prepay
+    return { q, inDate, stale, comp, basis, mism, window, asks, askMed, askDeals: asks.reduce((s, o) => s + (o.deals || 0), 0),
+             mark: ref.has_mark ? reb(ref.mark) : null, markLo: ref.has_mark ? reb(ref.range_lo) : null, markHi: ref.has_mark ? reb(ref.range_hi) : null, conf: ref.confidence,
+             gridAN: gridCell("ai_native_above_512", tier, tenor), gridENT: gridCell("enterprise_above_512", tier, tenor),
+             hyper: ref.list_hyperscaler_min, hyperProv: ref.list_hyperscaler_provider, saFloor: ref.cost_floor };
+  }
+  function rank(comp, price){ const n = comp.length; const below = comp.filter(o => o.price > price).length, atOrUnder = n - below; return { n, below, pct: n ? atOrUnder / n : null, ordinal: n ? (comp.filter(o => o.price < price).length + 1) : null }; }
+  const ord = k => k + (k % 10 === 1 && k !== 11 ? "st" : k % 10 === 2 && k !== 12 ? "nd" : k % 10 === 3 && k !== 13 ? "rd" : "th");
+
+  // ---------- controls
+  const tp = document.getElementById("pos-tier");
+  TIERS.forEach(t => { const b = document.createElement("button"); b.className = "pill"; b.textContent = t; b.dataset.tier = t; b.disabled = !hasQuotes(t); b.addEventListener("click", () => { S.tier = t; S.price = null; pickTenor(); render(); }); tp.appendChild(b); });
+  document.querySelectorAll("#pos-seg .pill").forEach(b => b.addEventListener("click", () => { S.seg = b.dataset.seg; render(); }));
+  document.querySelectorAll("#pos-prepay .pill").forEach(b => b.addEventListener("click", () => { S.pp = Number(b.dataset.pp); S.price = null; render(); }));
+  const priceIn = document.getElementById("pos-price");
+  priceIn.addEventListener("input", () => { const v = parseFloat(priceIn.value); if (isFinite(v) && v > 0) { S.price = v; render(false); } });
+  document.getElementById("util-dn").addEventListener("click", () => { S.util = Math.max(0.5, Math.round((S.util - 0.05) * 100) / 100); render(); });
+  document.getElementById("util-up").addEventListener("click", () => { S.util = Math.min(0.95, Math.round((S.util + 0.05) * 100) / 100); render(); });
+  document.getElementById("pos-copy").addEventListener("click", () => { const line = document.getElementById("pos-head").dataset.line || ""; const ctx = ` [${S.tier} ${LABEL[S.tenor]} ${S.pp}% prepay · occupancy ${Math.round(S.util*100)}% · data as of ${DATA.as_of} · internal marks, not for customers]`; (navigator.clipboard ? navigator.clipboard.writeText(line + ctx) : Promise.reject()).then(() => { const b = document.getElementById("pos-copy"); b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy deal-review line", 1400); }, () => {}); });
+  function pickTenor(){ const ok = TENORS.filter(t => cellStats(S.tier, t).comp.length >= 3); S.tenor = ok.includes(36) ? 36 : ok.includes(12) ? 12 : (ok[0] || 36); }
+  pickTenor();
+
+  // ---------- ladder geometry
+  const W = 1100, L = 150, R = 30, TOP = 22, AXIS_H = 34, GAP = 6, H_EXP = 124, H_CMP = 26;
+  let xmax = 10; const X = v => L + Math.max(0, Math.min(1.02, v / xmax)) * (W - L - R);
+  function domain(tier){ const q = quotesFor(tier).filter(o => age(o) <= 365).map(o => o.price).sort((a, b) => a - b); const p98 = q.length ? q[Math.min(q.length - 1, Math.floor(q.length * 0.98))] : 5; let m = p98; TENORS.forEach(t => { const c = cellStats(tier, t); [c.gridAN && c.gridAN.price, c.gridENT && c.gridENT.price, c.hyper, c.askMed, c.mark].forEach(v => { if (v != null) m = Math.max(m, v); }); }); const ec = economics(tier, 1, S.util); if (ec) m = Math.max(m, ec.floor22); if (S.price) m = Math.max(m, S.price); return Math.max(1, m) * 1.08; }
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+  function render(updateInput = true){
+    document.querySelectorAll("#pos-tier .pill").forEach(b => b.setAttribute("aria-pressed", b.dataset.tier === S.tier));
+    document.querySelectorAll("#pos-seg .pill").forEach(b => b.setAttribute("aria-pressed", b.dataset.seg === S.seg));
+    document.querySelectorAll("#pos-prepay .pill").forEach(b => b.setAttribute("aria-pressed", Number(b.dataset.pp) === S.pp));
+    document.getElementById("util-out").textContent = Math.round(S.util * 100) + "%";
+    const cs = cellStats(S.tier, S.tenor);
+    if (S.price == null) { const g = S.seg === "enterprise_above_512" ? cs.gridENT : cs.gridAN; S.price = cs.mark != null ? cs.mark : g ? g.price : cs.comp.length ? wmed(cs.comp.map(o => o.price)) : (cs.askMed || 5); S.price = Math.round(S.price * 20) / 20; }
+    if (updateInput) priceIn.value = S.price.toFixed(2);
+    xmax = domain(S.tier);
+    const ec = economics(S.tier, S.price, S.util);
+    const rk = rank(cs.comp, S.price);
+
+    // headline
+    let head = `<span>${fmt(S.price)}</span>`;
+    if (rk.n >= 6) head += ` <span class="dim">·</span> under ${rk.below} of ${rk.n} ${cs.basis === "comparable" ? "comparable" : "quotes"} <span class="dim">(${cs.q.length} quotes, ${cs.stale} stale${cs.mism ? ", " + cs.mism + " prepay-mismatched" : ""}${cs.basis !== "comparable" ? ", rank vs " + cs.basis : ""})</span> <span class="dim">·</span> ${ord(Math.round(rk.pct * 100))} pct`;
+    else if (rk.n >= 3) head += ` <span class="dim">·</span> ${ord(rk.ordinal)} lowest of ${rk.n} <span class="dim">(${cs.q.length} quotes, ${cs.stale} stale; rank vs ${cs.basis})</span>`;
+    else head += ` <span class="dim">· suppressed · n=${rk.n} quotes for ${S.tier} ${LABEL[S.tenor]}</span>`;
+    if (ec) head += ` <span class="dim">·</span> ${ec.margin >= 0 ? "+" : "−"}${fmt(Math.abs(ec.margin))} over cash cost <span class="dim">(${pctf(ec.marginPct)})</span>, payback ${isFinite(ec.payback) ? Math.round(ec.payback) + " months" : "never"}`;
+    else if (cs.saFloor != null) head += ` <span class="dim">·</span> ${S.price >= cs.saFloor ? "+" : "−"}${fmt(Math.abs(S.price - cs.saFloor))} vs modeled cost floor <span class="dim">(no Nebius cost model for ${S.tier})</span>`;
+    const hd = document.getElementById("pos-head"); hd.innerHTML = head; hd.dataset.line = hd.textContent.replace(/\s+/g, " ").trim();
+    const tags = [];
+    if (ec && S.price < ec.cashSold) tags.push(`<span class="tag">below cash cost</span>`);
+    if (ec && S.price < ec.floor22) tags.push(`<span class="tag">below 22-month floor ${fmt(ec.floor22)}</span>`);
+    if (!ec && cs.saFloor != null && S.price < cs.saFloor) tags.push(`<span class="tag">below modeled cost floor</span>`);
+    if (Math.abs(S.util - (ECON_META.occupancy_default || 0.75)) > 0.05) tags.push(`<span class="tag grey">occupancy ${Math.round(S.util*100)}% ≠ default ${Math.round((ECON_META.occupancy_default||0.75)*100)}%</span>`);
+    if (cs.conf === "thin") tags.push(`<span class="tag grey">mark thin (n ${refTier[S.tier][S.tenor].n_obs})</span>`);
+    if (cs.window === 365) tags.push(`<span class="tag grey">quotes up to 12 months old</span>`);
+    document.getElementById("pos-tags").innerHTML = tags.join("");
+
+    // ladder
+    const rowsH = TENORS.map(t => t === S.tenor ? H_EXP : H_CMP);
+    const H = TOP + rowsH.reduce((a, b) => a + b + GAP, 0) + AXIS_H;
+    const g = [`<rect width="${W}" height="${H}" fill="#0b0b0d"/>`];
+    // axis
+    const step = xmax <= 6 ? 1 : xmax <= 12 ? 2 : xmax <= 24 ? 4 : 5;
+    for (let v = 0; v <= xmax; v += step) { g.push(`<line x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${TOP}" y2="${H-AXIS_H}" stroke="#17171c"/>`); g.push(`<text x="${X(v).toFixed(1)}" y="${H-AXIS_H+18}" text-anchor="middle" fill="#8b8b95" font-family="IBM Plex Mono,monospace" font-size="11">$${v}</text>`); }
+    g.push(`<text x="${W-R}" y="${H-6}" text-anchor="end" fill="#5b5b66" font-family="Schibsted Grotesk,sans-serif" font-size="11">$/GPU-hr · quotes as reported (not normalised) · ticks left of the rule are quotes you undercut</text>`);
+    let y = TOP;
+    TENORS.forEach((t, i) => {
+      const h = rowsH[i], exp = t === S.tenor, c = cellStats(S.tier, t), r = rank(c.comp, S.price);
+      const base = y + (exp ? 78 : h - 6), tickH = exp ? 36 : 12;
+      g.push(`<rect x="0" y="${y}" width="${W}" height="${h}" fill="${exp ? "#101014" : "transparent"}" data-row="${t}" style="cursor:pointer"/>`);
+      // label
+      const ecT = economics(S.tier, S.price, S.util); const pays = ecT && isFinite(ecT.payback) && ecT.payback <= t;
+      g.push(`<text x="12" y="${(exp ? y + 26 : base - 1).toFixed(1)}" fill="${exp ? "#f2f2ef" : "#8b8b95"}" font-family="IBM Plex Mono,monospace" font-size="${exp ? 14 : 12}" font-weight="${exp ? 600 : 400}" data-row="${t}" style="cursor:pointer">${LABEL[t]}</text>`);
+      g.push(`<text x="52" y="${(exp ? y + 26 : base - 1).toFixed(1)}" fill="#5b5b66" font-family="IBM Plex Mono,monospace" font-size="11" data-row="${t}" style="cursor:pointer">${r.n >= 3 ? `${r.below}/${r.n}` : `n=${r.n}`}${c.stale ? ` <tspan fill="#3f3f48">(${c.q.length})</tspan>` : ""}</text>`);
+      if (ecT) g.push(`<rect x="${exp ? 128 : 128}" y="${(exp ? y + 17 : base - 10).toFixed(1)}" width="8" height="8" fill="${pays ? "#f2f2ef" : "none"}" stroke="#8b8b95" stroke-width="1"><title>${pays ? "pays back within the term" : "does not pay back within the term"} at ${fmt(S.price)}</title></rect>`);
+      // quotes
+      const inDateSet = new Set(c.inDate), compSet = new Set(c.comp);
+      c.q.filter(o => age(o) <= 365).forEach(o => { const a = age(o); const op = a <= 30 ? .85 : a <= 90 ? .55 : .3; const hh = tickH * (o.ptype === "hyperscaler" || o.ptype === "undisclosed_hyperscaler" ? .6 : 1); const under = o.price > S.price && compSet.has(o); const col = under ? "#d0d0d0" : "#9a9a9a"; const mism = inDateSet.has(o) && Math.abs(o.prepay - S.pp) > 12.5;
+        const x = X(o.price).toFixed(1);
+        if (o.side === "public") g.push(`<rect x="${(X(o.price)-4).toFixed(1)}" y="${(base-10).toFixed(1)}" width="8" height="8" fill="none" stroke="#9a9a9a" stroke-dasharray="2 1" opacity="${op}"><title>public contract ${esc(o.provider)} ${Math.round(o.months)}m ${fmt(o.price)} (${o.date}; 8,760 billed hrs assumed)</title></rect>`);
+        else g.push(`<rect x="${(X(o.price)-(exp?.75:.5)).toFixed(1)}" y="${(base-hh).toFixed(1)}" width="${exp?1.5:1}" height="${hh.toFixed(1)}" fill="${mism ? "none" : col}" stroke="${mism ? col : "none"}" stroke-width="1" opacity="${op}"><title>${esc(o.provider)} ${fmt(o.price)} · ${o.prepay}% prepay · ${o.date}${a>90?" · stale":""}${mism?" · prepay mismatch":""}</title></rect>`);
+      });
+      // Nebius signed median (hollow diamond) and mark (white tick + whisker)
+      if (c.askMed != null) { const x = X(c.askMed); g.push(`<path d="M${x.toFixed(1)},${(base-tickH/2-6).toFixed(1)} l6,6 l-6,6 l-6,-6 z" fill="none" stroke="#ffffff" stroke-width="1.5"><title>Nebius signed median ${fmt(c.askMed)} (${c.asks.length} cells · ${c.askDeals} deals, 12 months)</title></path>`); }
+      if (c.mark != null) { const x = X(c.mark); g.push(`<line x1="${X(c.markLo).toFixed(1)}" x2="${X(c.markHi).toFixed(1)}" y1="${(base+5).toFixed(1)}" y2="${(base+5).toFixed(1)}" stroke="#ffffff" stroke-width="1" stroke-dasharray="${c.conf==="good"?"":"2 2"}" opacity=".7"/><rect x="${(x-1).toFixed(1)}" y="${(base-tickH-4).toFixed(1)}" width="2" height="${(tickH+10).toFixed(1)}" fill="#ffffff"><title>market mark ${fmt(c.mark)} at ${S.pp}% prepay (${c.conf}), recent range ${fmt(c.markLo)}–${fmt(c.markHi)}</title></rect>`); }
+      if (exp) {
+        // top rail: policy marks
+        const rail = y + 40;
+        const tri = (v, fill, stroke, label) => v == null ? "" : `<path d="M${(X(v)-6).toFixed(1)},${rail} l12,0 l-6,9 z" fill="${fill}" stroke="${stroke}" stroke-width="1"><title>${label} ${fmt(v)}</title></path>`;
+        g.push(tri(c.gridAN && c.gridAN.price, S.seg==="ai_native_above_512"?"#ffffff":"none", "#ffffff", `Nebius grid AI Native ${DATA.grid.version} ${c.gridAN?c.gridAN.months+"m @"+c.gridAN.prepay+"% prepay":""}`));
+        g.push(tri(c.gridENT && c.gridENT.price, S.seg==="enterprise_above_512"?"#9a9a9a":"none", "#9a9a9a", `Nebius grid Enterprise ${DATA.grid.version} ${c.gridENT?c.gridENT.months+"m @"+c.gridENT.prepay+"% prepay":""}`));
+        g.push(tri(c.hyper, "none", "#5b5b66", `cheapest hyperscaler list (${c.hyperProv})`));
+        g.push(`<text x="${L}" y="${rail-4}" fill="#5b5b66" font-family="Schibsted Grotesk,sans-serif" font-size="10.5">▽ grid AI Native · ▽ Enterprise · ▽ hyperscaler list &nbsp;&nbsp; ◇ Nebius signed median &nbsp; | mark</text>`);
+        // bottom rail: cost stack
+        const cy = y + h - 22;
+        if (ec) {
+          g.push(`<rect x="${X(0).toFixed(1)}" y="${cy}" width="${(X(ec.elecSold)-X(0)).toFixed(1)}" height="8" fill="#5b5b66"><title>electricity ${fmt(ec.elecSold)}/sold hr</title></rect>`);
+          g.push(`<rect x="${X(ec.elecSold).toFixed(1)}" y="${cy}" width="${Math.max(0,X(ec.cashSold)-X(ec.elecSold)).toFixed(1)}" height="8" fill="#3f3f48"><title>other cash opex ${fmt(ec.cashSold-ec.elecSold)}/sold hr (rent, bandwidth, personnel, other)</title></rect>`);
+          g.push(`<rect x="${X(ec.cashSold).toFixed(1)}" y="${cy}" width="${Math.max(0,X(ec.floor22)-X(ec.cashSold)).toFixed(1)}" height="8" fill="#26262e" stroke="#3f3f48" stroke-width="1"><title>capex recovery to a 22-month payback ${fmt(ec.floor22-ec.cashSold)}/sold hr</title></rect>`);
+          g.push(`<text x="${(X(ec.floor22)+6).toFixed(1)}" y="${cy+8}" fill="#5b5b66" font-family="IBM Plex Mono,monospace" font-size="10">22M floor ${fmt(ec.floor22)}</text>`);
+          const mx0 = X(ec.cashSold), mx1 = X(S.price), neg = S.price < ec.cashSold;
+          g.push(`<line x1="${Math.min(mx0,mx1).toFixed(1)}" x2="${Math.max(mx0,mx1).toFixed(1)}" y1="${cy-6}" y2="${cy-6}" stroke="${neg?"#d9a441":"#f2f2ef"}" stroke-width="1.5" ${neg?'stroke-dasharray="3 2"':''}/><text x="${((mx0+mx1)/2).toFixed(1)}" y="${cy-10}" text-anchor="middle" fill="${neg?"#d9a441":"#f2f2ef"}" font-family="IBM Plex Mono,monospace" font-size="10.5">${neg?"−":"+"}${fmt(Math.abs(ec.margin))} over cash</text>`);
+          g.push(`<text x="12" y="${cy+8}" fill="#5b5b66" font-family="Schibsted Grotesk,sans-serif" font-size="10.5">cost view</text>`);
+        }
+        if (c.saFloor != null) g.push(`<line x1="${X(c.saFloor).toFixed(1)}" x2="${X(c.saFloor).toFixed(1)}" y1="${cy-4}" y2="${cy+12}" stroke="#d9a441" stroke-dasharray="2 2"><title>SemiAnalysis modeled cost floor ${fmt(c.saFloor)}</title></line>`);
+      }
+      y += h + GAP;
+    });
+    // candidate rule
+    const rx = X(S.price).toFixed(1);
+    g.push(`<line x1="${rx}" x2="${rx}" y1="${TOP}" y2="${H-AXIS_H}" stroke="#ffffff" stroke-width="1.2"/>`);
+    const selIdx = TENORS.indexOf(S.tenor); const selY = TOP + rowsH.slice(0, selIdx).reduce((a, b) => a + b + GAP, 0);
+    g.push(`<circle cx="${rx}" cy="${(selY+78-18).toFixed(1)}" r="7" fill="#0b0b0d" stroke="#ffffff" stroke-width="2" style="cursor:ew-resize" id="pos-handle"/>`);
+    g.push(`<text x="${rx}" y="${TOP-8}" text-anchor="middle" fill="#ffffff" font-family="IBM Plex Mono,monospace" font-size="12" font-weight="600">${fmt(S.price)}</text>`);
+    const svg = document.getElementById("pos-ladder"); svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.innerHTML = g.join("");
+    svg.querySelectorAll("[data-row]").forEach(el => el.addEventListener("click", () => { if (!S.dragging) { S.tenor = Number(el.dataset.row); render(); } }));
+
+    // stats
+    const st = [];
+    if (ec) {
+      st.push(`<div class="st"><div class="k">Cash cost per sold hour</div><div class="v">${fmt(ec.cashSold)}</div><div class="s">at ${Math.round(S.util*100)}% occupancy · electricity ${fmt(ec.elecSold)}</div></div>`);
+      st.push(`<div class="st"><div class="k">Margin over cash</div><div class="v ${ec.margin<0?"neg":""}">${ec.margin>=0?"+":"−"}${fmt(Math.abs(ec.margin))} · ${pctf(ec.marginPct)}</div><div class="s">contribution ${fmt0(ec.netMonth)} per GPU per month</div></div>`);
+      st.push(`<div class="st"><div class="k">Payback</div><div class="v ${isFinite(ec.payback)&&ec.payback<=22?"":"neg"}">${isFinite(ec.payback) ? Math.round(ec.payback) + " months" : "never"}</div><div class="s">target ${ECON_META.payback_target_months||22} · 22M floor ${fmt(ec.floor22)} at this occupancy</div></div>`);
+      st.push(`<div class="st"><div class="k">Term contribution per GPU</div><div class="v">${fmt0(ec.netMonth * S.tenor)}</div><div class="s">${LABEL[S.tenor]} · capex per GPU ${fmt0(ec.e.capex_per_gpu_usd)}</div></div>`);
+      st.push(`<div class="st"><div class="k">Cost at 65 / 75 / 90%</div><div class="v" style="font-size:13px">${[0.65,0.75,0.9].map(u => fmt(economics(S.tier, S.price, u).floor22)).join(" · ")}</div><div class="s">22-month floor by occupancy · ${esc((ec.e.reference_site||"").replace("DC : ",""))}</div></div>`);
+    } else {
+      st.push(`<div class="st"><div class="k">Cost model</div><div class="v" style="font-size:13px">not in the portfolio workbook for ${S.tier}</div><div class="s">SemiAnalysis modeled floor ${fmt(cs.saFloor)} shown as the dotted tick</div></div>`);
+    }
+    st.push(`<div class="st"><div class="k">Market at ${S.pp}% prepay</div><div class="v" style="font-size:13px">mark ${fmt(cs.mark)} · signed ${fmt(cs.askMed)}</div><div class="s">grid AI Native ${cs.gridAN?fmt(cs.gridAN.price)+" @"+cs.gridAN.prepay+"%":"–"} · Enterprise ${cs.gridENT?fmt(cs.gridENT.price)+" @"+cs.gridENT.prepay+"%":"–"}</div></div>`);
+    document.getElementById("pos-stats").innerHTML = st.join("");
+    document.getElementById("pos-notes").innerHTML = `<b>How to read.</b> Each row is one commitment length on a shared price axis. Ticks are individual competitor quotes as reported by sales (bright = you undercut them, faded = older than 90 days, hollow = prepayment more than 12.5 points away from yours, short = hyperscaler). ◇ is the median of Nebius signed deals, | the market mark with its recent range, ▽ the Finance grid and hyperscaler list. The white rule is the candidate price; drag it or type it. Percentile counts only comparable quotes (≤ 90 days, matching prepayment); below six comparables the rank falls back to all quotes and says so. <b>Cost view</b> is Nebius cash cost per sold hour plus the capex recovery needed for a 22-month payback, from the PAYG portfolio model (Finance GPU Calculator inputs, cash-recovery basis, occupancy ${Math.round((ECON_META.occupancy_default||0.75)*100)}% default). It is a PAYG cost view applied to a term price, not a Reserve P&amp;L. Internal only.`;
+  }
+
+  // drag
+  const svgEl = document.getElementById("pos-ladder");
+  const toPrice = ev => { const r = svgEl.getBoundingClientRect(); const sx = (ev.clientX - r.left) * W / r.width; return Math.max(0.05, Math.round(((sx - L) / (W - L - R)) * xmax * 20) / 20); };
+  svgEl.addEventListener("pointerdown", ev => { if (ev.target.id === "pos-handle" || Math.abs(ev.clientX - (svgEl.getBoundingClientRect().left + X(S.price) * svgEl.getBoundingClientRect().width / W)) < 12) { S.dragging = true; svgEl.setPointerCapture(ev.pointerId); S.price = toPrice(ev); render(); } });
+  svgEl.addEventListener("pointermove", ev => { if (S.dragging) { S.price = toPrice(ev); render(); } });
+  svgEl.addEventListener("pointerup", () => { setTimeout(() => S.dragging = false, 0); });
+  svgEl.addEventListener("pointercancel", () => { S.dragging = false; });
+
+  render();
+  window.__posRender = render;
+})();
+</script>

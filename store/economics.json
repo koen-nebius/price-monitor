@@ -1,0 +1,81 @@
+{
+ "_source": "Koen's PAYG_GPU_CPU_Pricing_Portfolio_2026-09-07_v5.xlsx (OneDrive, synced copy modified 2026-09-14), sheet Economics rows 6-10 / 36-59 / 503-510; capital components from Finance GPU Calculator (source S008), cash components Rent/Electricity/Other/US taxes/Bandwidth/Deliveries/Pers Costs; period 2026-08-31.",
+ "_method": "Cash-recovery basis, no depreciation. floor_Nm = (capex_per_gpu / N + cash_opex_per_installed_hour * 744) / (730 * occupancy). Occupancy default 0.75 (a sensitivity assumption, not current PAYG utilisation). Payback at a price p and occupancy u = capex_per_gpu / (p * 730 * u - cash_opex_per_installed_hour * 744) months. GB200 / GB300 / VR are not in the portfolio workbook (no PAYG); only the SemiAnalysis modeled cost floor exists for them.",
+ "occupancy_default": 0.75,
+ "hours_per_model_month": 730,
+ "source_hours_per_month": 744,
+ "payback_target_months": 22,
+ "extracted": "2026-09-15",
+ "families": {
+  "H100": {
+   "capex_per_gpu_usd": 43949.14,
+   "capex_per_gpu_low_usd": 43949.14,
+   "cash_opex_per_installed_gpu_hour_usd": 0.195,
+   "cash_opex_low": 0.195,
+   "electricity_per_installed_gpu_hour_usd": 0.0492,
+   "floor_22m_usd_per_gpu_hour": 3.9137,
+   "sites": 1,
+   "period": "2026-08-31",
+   "floor_18m": 4.7245,
+   "floor_24m": 3.6096,
+   "reference_site": "DC : Finland : Finland Mantsala (Own)",
+   "reference_site_gpus": 9774
+  },
+  "H200": {
+   "capex_per_gpu_usd": 42518.72,
+   "capex_per_gpu_low_usd": 35968.39,
+   "cash_opex_per_installed_gpu_hour_usd": 0.4941,
+   "cash_opex_low": 0.1324,
+   "electricity_per_installed_gpu_hour_usd": 0.1861,
+   "floor_22m_usd_per_gpu_hour": 3.7099,
+   "sites": 4,
+   "period": "2026-08-31",
+   "floor_18m": 4.4944,
+   "floor_24m": 3.4158,
+   "reference_site": "DC : Finland : Finland Mantsala (Own)",
+   "reference_site_gpus": 4228
+  },
+  "B200": {
+   "capex_per_gpu_usd": 51022.16,
+   "capex_per_gpu_low_usd": 49995.25,
+   "cash_opex_per_installed_gpu_hour_usd": 0.7982,
+   "cash_opex_low": 0.5778,
+   "electricity_per_installed_gpu_hour_usd": 0.3197,
+   "floor_22m_usd_per_gpu_hour": 5.3207,
+   "sites": 2,
+   "period": "2026-08-31",
+   "floor_18m": 6.262,
+   "floor_24m": 4.9677,
+   "reference_site": "DC : Israel : Israel Modiin (Colocation)",
+   "reference_site_gpus": 4144
+  },
+  "B300": {
+   "capex_per_gpu_usd": 66840.21,
+   "capex_per_gpu_low_usd": 57398.08,
+   "cash_opex_per_installed_gpu_hour_usd": 0.9565,
+   "cash_opex_low": 0.8347,
+   "electricity_per_installed_gpu_hour_usd": 0.3184,
+   "floor_22m_usd_per_gpu_hour": 6.6916,
+   "sites": 3,
+   "period": "2026-08-31",
+   "floor_18m": 7.9248,
+   "floor_24m": 6.2292,
+   "reference_site": "DC : USA : Minnesota Iron Gates (Colocation)",
+   "reference_site_gpus": 4800
+  },
+  "RTX6000": {
+   "capex_per_gpu_usd": 32487.72,
+   "capex_per_gpu_low_usd": 25587.16,
+   "cash_opex_per_installed_gpu_hour_usd": 1.321,
+   "cash_opex_low": 0.0882,
+   "electricity_per_installed_gpu_hour_usd": 0.0132,
+   "floor_22m_usd_per_gpu_hour": 4.4923,
+   "sites": 2,
+   "period": "2026-08-31",
+   "floor_18m": 5.0917,
+   "floor_24m": 4.2676,
+   "reference_site": "DC : Spain : (Colocation) Total",
+   "reference_site_gpus": 960
+  }
+ }
+}

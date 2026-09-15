@@ -68,14 +68,21 @@ td.na{color:var(--dim)}
 tr[data-tier]{cursor:pointer}
 tr[data-tier]:hover td{background:var(--surface-2)}
 .foot{margin-top:30px;color:var(--dim);font-size:12px;max-width:80ch;border-top:1px solid var(--line);padding-top:14px}
+#curve-view.off{display:none}
+.brand{flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 
 <header class="top">
-  <div class="brand"><h1>GPU Forward Curve</h1><span>Nebius · internal marks</span></div>
+  <div class="brand"><h1>GPU Forward Curve</h1><span>Nebius · internal marks</span>
+    <div class="pills" id="view-tabs" role="tablist" aria-label="View" style="margin-left:10px">
+      <button class="pill" role="tab" data-view="curve" aria-pressed="true">Curve</button>
+      <button class="pill" role="tab" data-view="pos" aria-pressed="false">Where we land</button>
+    </div></div>
   <div class="meta"><span id="m-asof"></span><span id="m-n"></span><span id="m-basis">0% prepay basis</span></div>
 </header>
 
+<div id="curve-view">
 <section class="hero">
   <div>
     <div class="big"><div class="num" id="big-num">–</div><div class="unit"><b id="big-tier">B300</b><span id="big-tenor">36-month mark, $/GPU-hr</span></div></div>
@@ -134,6 +141,7 @@ tr[data-tier]:hover td{background:var(--surface-2)}
   <table id="grid"><thead></thead><tbody></tbody></table>
 </div>
 <p class="foot" id="foot"></p>
+</div>
 
 <script>
 const DATA = /*__DATA__*/null;
@@ -143,7 +151,7 @@ const DATA = /*__DATA__*/null;
   const refTier = {}; DATA.marks.forEach(m => { (refTier[m.tier] = refTier[m.tier] || {})[m.tenor_months] = m; });   // server references (grid, list, cost)
   const P = DATA.params, QE = DATA.quarter_effects_log || {}, OBS = DATA.observations || [];
   const AS_OF = new Date(DATA.as_of + "T00:00:00Z");
-  const disc = (months, pp) => Math.min(P.prepay_cap, P.prepay_a * Math.max(0.25, (months || 12) / 12) * Math.pow(Math.max(0, Math.min(1, pp / 100)), P.prepay_b));
+  const disc = (months, pp) => Math.min(P.prepay_cap, P.prepay_a * Math.max(0.25, (months || 12) / 12) * (1 - Math.pow(1 - Math.max(0, Math.min(1, pp / 100)), P.prepay_m || 2)));
   const state = { tier: "B300", series: "mark", refs: false, all: true, hoverTenor: null, basis: 0, pf: "all" };
   const PF = { all: () => true, low: o => o.prepay <= 10, mid: o => o.prepay >= 20 && o.prepay <= 60, high: o => o.prepay >= 75 };
   function wmedian(vals, wts){ const pairs = vals.map((v, i) => [v, wts[i]]).sort((a, b) => a[0] - b[0]); const tot = pairs.reduce((s, p) => s + p[1], 0); let acc = 0; for (const [v, w] of pairs) { acc += w; if (acc >= tot / 2) return v; } return pairs.length ? pairs[pairs.length - 1][0] : null; }
@@ -340,5 +348,14 @@ const DATA = /*__DATA__*/null;
   });
   svgEl.addEventListener("mouseleave", () => { tip.classList.remove("on"); state.hoverTenor = null; render(); });
   render();
+  // view tabs (curve | positioning); the positioning section registers window.__posRender when present
+  document.querySelectorAll("#view-tabs .pill").forEach(b => b.addEventListener("click", () => {
+    const v = b.dataset.view; document.querySelectorAll("#view-tabs .pill").forEach(x => x.setAttribute("aria-pressed", x.dataset.view === v));
+    const pos = document.getElementById("pos"); document.getElementById("curve-view").classList.toggle("off", v !== "curve");
+    if (pos) { pos.classList.toggle("on", v === "pos"); if (v === "pos" && window.__posRender) window.__posRender(); }
+    try { history.replaceState(null, "", "#" + v); } catch (e) {}
+  }));
+  if (location.hash === "#pos") { const b = document.querySelector('#view-tabs .pill[data-view="pos"]'); if (b) setTimeout(() => b.click(), 0); }
 })();
 </script>
+<!--__POSITION__-->

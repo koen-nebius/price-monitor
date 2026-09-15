@@ -79,17 +79,21 @@ METHOD_VERSION = "1.1 (2026-09-15)"
 TIERS = ["H100", "H200", "B200", "B300", "GB200", "GB300", "VR"]
 TENORS = [3, 6, 12, 18, 24, 36, 60]            # months; buckets, see bucket_months()
 TENOR_LABEL = {3: "3m", 6: "6m", 12: "12m", 18: "18m", 24: "24m", 36: "36m", 60: "60m"}
-# Prepay normalisation, v1.1: Finance's own grid convention. Sheet "." of the Finance
+# Prepay normalisation, v1.1: Finance's money-cost convention. Sheet "." of the Finance
 # "Pricing model.xlsx" derives the 100/50/30 % columns from the 0 % column as
-# 12m: -3.40 / -2.63 / -1.80 %, 24m: -6.97 / -5.26 / -3.57 % — i.e. roughly
-# 3.4 % per year of tenor at full prepay, concave in the prepay share (50 % earns
-# ~77 % of the full-prepay discount, 30 % ~53 %). discount = A * years * share**B.
-PREPAY_A = 0.034          # per year of tenor at 100 % prepay
-PREPAY_B = 0.5            # concavity in the prepay share (sqrt)
+# 12m: -3.40 / -2.63 / -1.80 %, 24m: -6.97 / -5.26 / -3.57 %. A three-parameter fit to
+# those six cells returns a=0.0344/yr, linear in tenor, g(p)=1-(1-p)^2 (rmse 0.02pp), i.e.
+# discount = 0.0345 * years * (2p - p^2): prepaying consumes the first p*T months at a
+# ~7 %/yr money cost. The Sep-7 AI Native grid steps (100->50 % = 6-13 %) are a
+# commercial ladder steering buyers to full prepay, NOT a money-cost convention, and are
+# deliberately not used to normalise market quotes (verified 2026-09-15, see method note).
+PREPAY_A = 0.0345         # per year of tenor at 100 % prepay
+PREPAY_M = 2.0            # g(p) = 1 - (1 - p) ** PREPAY_M  (concave: g(.3)=.51, g(.5)=.75, g(.75)=.94)
 PREPAY_CAP = 0.25         # never more than 25 % (5-yr / 100 % would be 17 %)
 PREPAY_BUCKET_PCT = {"upfront": 100, "prepaid_monthly": 8, "postpaid": 0}   # CRM proxy buckets
 GRID_JSON = STORE / "nebius_reserve_grid.json"
 CONTRACTS_CSV = STORE / "public_contracts.csv"
+ECONOMICS_JSON = STORE / "economics.json"
 DEFAULT_SEGMENT = "ai_native_above_512"
 RECENT_DAYS = 120
 MAX_AGE_DAYS = 365
@@ -149,7 +153,7 @@ def prepay_discount(tenor_months, prepay_pct) -> float:
         years = max(0.25, float(tenor_months or 12) / 12.0)
     except (TypeError, ValueError):
         return 0.0
-    return min(PREPAY_CAP, PREPAY_A * years * (frac ** PREPAY_B))
+    return min(PREPAY_CAP, PREPAY_A * years * (1.0 - (1.0 - frac) ** PREPAY_M))
 
 
 def prepay_normalise(price: float, prepay_pct, tenor_months=12) -> float:
@@ -478,7 +482,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
     return {
         "as_of": as_of.isoformat(),
         "method_version": METHOD_VERSION,
-        "params": {"prepay_a": PREPAY_A, "prepay_b": PREPAY_B, "prepay_cap": PREPAY_CAP,
+        "params": {"prepay_a": PREPAY_A, "prepay_m": PREPAY_M, "prepay_cap": PREPAY_CAP,
                    "prepay_bucket_pct": PREPAY_BUCKET_PCT, "segment": segment,
                    "recent_days": RECENT_DAYS, "max_age_days": MAX_AGE_DAYS,
                    "min_obs": MIN_OBS, "good_obs": GOOD_OBS, "price_band": [PRICE_MIN, PRICE_MAX],
@@ -499,6 +503,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         "marks": marks,
         "shape": shape,
         "observations": export,
+        "economics": (json.loads(ECONOMICS_JSON.read_text()) if ECONOMICS_JSON.exists() else {}),
     }
 
 
@@ -633,7 +638,9 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
     h.append(f'<p><em>As of {as_of} — refreshed daily by the price-monitor build (method v{result["method_version"]}). '
              f'All prices <strong>$/GPU-hr, normalised to 0% prepay</strong>. Sibling pages: '
              f'<a href="https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419">GPU Competitor Pricing — Daily Overview</a> · '
-             f'<a href="https://nebius.atlassian.net/wiki/spaces/Billing/pages/1970110707">Competitor Spot &amp; Auction Pricing</a>.</em></p>')
+             f'<a href="https://nebius.atlassian.net/wiki/spaces/Billing/pages/1970110707">Competitor Spot &amp; Auction Pricing</a>. '
+             f'<strong>Interactive version</strong> (curve with prepay filters and the "where we land" price ladder): child page '
+             f'<em>GPU Forward Curve — Interactive</em> under this one, embedded via the HTML macro; also attached here as forward_view.html.</em></p>')
     h.append('<div data-type="panel-warning"><p><strong>Read me first.</strong> This is a <strong>marked</strong> curve, not a traded one: '
              'each cell is the weighted median of dated observations we hold — competitor quotes reported in #price-intelligence '
              '(the <em>bid</em> side, skews to losses) and Nebius signed reserve deals from CRM deal reviews (the <em>ask</em> side, '
@@ -717,9 +724,10 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              f'{n["ask"]} ask cells covering {n["ask_deals"]} signed deals (reserve_tenor.csv generated {s.get("reserve_tenor_generated")}), '
              f'{n.get("public", 0)} public announced contracts (SemiAnalysis deal table). Nebius grid version {s.get("grid_version")}, segment {result["params"].get("segment")}.</p>')
     h.append('<ol>'
-             f'<li><strong>Prepay normalisation:</strong> discount = {PREPAY_A:.3f} × years of tenor × (prepay share)^{PREPAY_B} (capped {PREPAY_CAP:.0%}); '
-             'every quote is expressed at 0% prepay. This is Finance\'s own grid convention (sheet "." of Pricing model.xlsx: '
-             '12m −3.4/−2.63/−1.8% and 24m −6.97/−5.26/−3.57% for 100/50/30% prepay). Nebius CRM deals carry no prepay percentage, '
+             f'<li><strong>Prepay normalisation:</strong> discount = {PREPAY_A:.4f} × years of tenor × (1 − (1 − prepay share)²), capped {PREPAY_CAP:.0%}; '
+             'every quote is expressed at 0% prepay. This is Finance\'s money-cost convention (sheet "." of Pricing model.xlsx: '
+             '12m −3.4/−2.63/−1.8% and 24m −6.97/−5.26/−3.57% for 100/50/30% prepay; three-parameter fit rmse 0.02pp). '
+             'The Sep-7 grid\'s much larger 100→50% steps are a commercial ladder, shown as policy and not used to normalise. Nebius CRM deals carry no prepay percentage, '
              f'so payment type is used as a proxy: upfront = {PREPAY_BUCKET_PCT["upfront"]}%, prepaid monthly = {PREPAY_BUCKET_PCT["prepaid_monthly"]}%, postpaid = 0%.</li>'
              f'<li><strong>Quote-date normalisation:</strong> two-way fixed effects on log p₀ (tier×tenor cell + quote quarter, pooled across tiers); '
              f'each observation is shifted to the as-of quarter. Estimated quarter effects (log, vs as-of): {qe}. '
@@ -750,10 +758,10 @@ def view_payload(result: dict) -> dict:
                  "bid_median", "ask_median", "public_median", "grid", "grid_100", "grid_50", "list_nebius",
                  "list_hyperscaler_min", "list_hyperscaler_provider", "cost_floor", "mark", "has_mark",
                  "range_lo", "range_hi", "confidence", "spread_pct", "reason")
-    out = {k: result[k] for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape")}
+    out = {k: result[k] for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics")}
     out["marks"] = [{k: m.get(k) for k in keep_mark} for m in result["marks"]]
     out["observations"] = [{"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),
-                            "date": o["date"], "p0": round(o["p0"], 3), "q": o["q"], "prepay": o["prepay"], "w": o["w"],
+                            "date": o["date"], "price": o["price"], "p0": round(o["p0"], 3), "q": o["q"], "prepay": o["prepay"], "w": o["w"],
                             "ptype": o.get("ptype", ""), "provider": o.get("provider", ""),
                             **({"deals": o.get("deals"), "bucket": o.get("bucket")} if o["side"] == "ask" else {})}
                            for o in result.get("observations", [])]
@@ -766,6 +774,8 @@ def render_view_fragment(result: dict) -> str:
     artifact, embedded in the Confluence HTML macro and, wrapped by render_view_html(),
     attached to the Confluence page."""
     tpl = TEMPLATE.read_text()
+    pos = ROOT / "templates" / "position_view.html"
+    tpl = tpl.replace("<!--__POSITION__-->", pos.read_text() if pos.exists() else "")
     data = json.dumps(view_payload(result), separators=(",", ":"), default=str).replace("</", "<\\/")
     return tpl.replace("/*__DATA__*/null", data)
 
