@@ -144,6 +144,46 @@ term and its PV at 6.9% are shown. *PAYG cash-recovery scenario*: the portfolio 
 own 22-month floor logic at a chosen occupancy (default 75%), labelled as such. GB200,
 GB300 and VR have no Nebius cost model; only the SemiAnalysis modeled floor is shown.
 
+## SemiAnalysis references and hypothetical guidance (added 2026-09-15, evening)
+Two SemiAnalysis sources exist and only one is on the page. The **GPU Pricing Index**
+(monthly survey, 10 tenors, 25th–75th percentile ranges, 25% prepay assumed from 3 months)
+is the true term structure; we hold seats but no export, and the API documentation Kyle
+Connor promised on 2026-07-20 has not been located. It will be drawn as a shaded band on
+both graphs once an export or the API is available. The **AI-Cloud TCO model** workbook
+(Aug-10-2026 release, local download) is on the page now:
+- `scripts/extract_sa_reference.py` writes `store/sa_reference.json` from the workbook:
+  the base-case monthly market rental path per tier (Rental Price Forecasts), Full TCO
+  capex per GPU, opex per GPU-month, capital/operating/total cost per hour, WACC, useful
+  life, 5-year calibrated price (Neocloud Giant column; the total-cost row reproduces the
+  cost floors already used: H100 $1.55 … VR $4.02), and SemiAnalysis' own floor/ceiling
+  blocks (VR NVL72 $5.25 floor at ~15.6% IRR; ceiling = marketed dense-FP8 TFLOPS ratio ×
+  the comparison SKU's 5-year market price, e.g. VR = 3.5 × GB300 $4.10 = $14.35).
+- The builder turns the path into `sa.tiers[tier].now` (as-of month) and `term_avg[T]`
+  (average of the next T months from the as-of month, or from the path start when it
+  begins later, e.g. VR from 2027-01). On 2026-09-15, B300: now $6.16, 12m $5.28, 36m
+  $3.63; GB300: $8.32 / $7.19 / $5.02. SemiAnalysis' 12-month averages sit within a few
+  percent of our 12-month marks; from 24 months out its path falls about 45% a year, far
+  below our marks (B300 36m $3.63 vs $4.91).
+- Market benchmarks: optional dotted "SemiAnalysis path average" series with diamonds
+  (Other comparisons). Market position: optional dashed line for the selected term.
+  Never pooled into a mark; captioned as a modelled path.
+
+**Guidance lines on Market position** (on by default; hypothetical, sources on hover):
+- Floor 1: Finance's Tier-2 GM-approval floor from `Pricing model.xlsx` (segments
+  `tier2_gm_floor_ai_native` / `_enterprise` in `store/nebius_reserve_grid.json`), the
+  published column for the chosen prepayment or the nearest one, labelled as such.
+- Floor 2: SemiAnalysis' cost-based floor, the price at which a 5-year contract with 15%
+  prepaid earns ~15.6% project IRR on SemiAnalysis' Neocloud Giant inputs, reproduced
+  for every tier by `scripts/sa_irr_floor.py` (`floor_irr_15_6` in `sa_reference.json`).
+  The Full-TCO cash cost (no return) is quoted in text only.
+- Ceiling: parity with the previous generation, `mark(prev, T)` re-based to the chosen
+  prepayment × a delivered-performance multiple from `store/perf_multiples.json`
+  (MLPerf-based, customer-realisable base with low/high and sources; H200←H100,
+  B200←H200, B300←B200, GB200←B200, GB300←B300, VR←GB300). The multiple is editable in
+  Comparison settings so a pricing discussion can test its own assumption; SemiAnalysis'
+  marketed-FLOPS ceiling is not used because every offer on file sits far below it.
+- Dots are coloured by provider (palette by frequency, "other" beyond ten) with a legend.
+
 ## Hosting
 Embedded through the Forge "HTML" macro (Just Add+) as a child of the marks page,
 published in `atlas_doc_format` by the daily job; also attached as forward_view.html

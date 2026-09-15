@@ -7507,5 +7507,327 @@
    "quotes_od_median": 7.0,
    "quotes_od_n": 3
   }
+ },
+ "sa": {
+  "_source": "SemiAnalysis AI-Cloud TCO model, file AI-Cloud-TCO-Model-Update-August-10-2026-SKU-1 (1).xlsx",
+  "_version": "August-10-2026",
+  "_extracted": "2026-09-15",
+  "tiers": {
+   "H100": {
+    "now": 2.8873,
+    "path_starts": "2024-07",
+    "term_avg": {
+     "3": 2.868,
+     "6": 2.763,
+     "12": 2.409,
+     "18": 2.125,
+     "24": 1.904,
+     "36": 1.566,
+     "60": 1.118
+    },
+    "cost_per_hour": 1.5507,
+    "capex_per_gpu": 43547.3467,
+    "opex_per_gpu_month": 319.7839,
+    "wacc": 0.1025,
+    "floor_irr_15_6": 1.862,
+    "floor_irr_wacc": 1.737,
+    "calibrated_5y_price": 1.4448
+   },
+   "H200": {
+    "now": 3.5876,
+    "path_starts": "2026-01",
+    "term_avg": {
+     "3": 3.578,
+     "6": 3.455,
+     "12": 3.011,
+     "18": 2.661,
+     "24": 2.391,
+     "36": 1.982,
+     "60": 1.435
+    },
+    "cost_per_hour": 1.5925,
+    "capex_per_gpu": 45180.844,
+    "opex_per_gpu_month": 319.7839,
+    "wacc": 0.1025,
+    "floor_irr_15_6": 1.917,
+    "floor_irr_wacc": 1.788,
+    "calibrated_5y_price": 1.8269
+   },
+   "B200": {
+    "now": 5.3052,
+    "path_starts": "2026-01",
+    "term_avg": {
+     "3": 5.377,
+     "6": 5.23,
+     "12": 4.553,
+     "18": 4.049,
+     "24": 3.679,
+     "36": 3.137,
+     "60": 2.378
+    },
+    "cost_per_hour": 2.0699,
+    "capex_per_gpu": 59841.8625,
+    "opex_per_gpu_month": 394.8698,
+    "wacc": 0.1025,
+    "floor_irr_15_6": 2.509,
+    "floor_irr_wacc": 2.336,
+    "calibrated_5y_price": 2.8781
+   },
+   "GB200": {
+    "now": 5.994,
+    "path_starts": "2026-01",
+    "term_avg": {
+     "3": 6.098,
+     "6": 5.942,
+     "12": 5.172,
+     "18": 4.606,
+     "24": 4.196,
+     "36": 3.601,
+     "60": 2.757
+    },
+    "cost_per_hour": 2.2668,
+    "capex_per_gpu": 65608.1052,
+    "opex_per_gpu_month": 431.0192,
+    "wacc": 0.1025,
+    "floor_irr_15_6": 2.741,
+    "floor_irr_wacc": 2.551,
+    "calibrated_5y_price": 3.3
+   },
+   "B300": {
+    "now": 6.1601,
+    "path_starts": "2026-02",
+    "term_avg": {
+     "3": 6.237,
+     "6": 6.064,
+     "12": 5.28,
+     "18": 4.693,
+     "24": 4.262,
+     "36": 3.629,
+     "60": 2.744
+    },
+    "cost_per_hour": 2.428,
+    "capex_per_gpu": 71660.1905,
+    "opex_per_gpu_month": 435.8499,
+    "wacc": 0.1025,
+    "floor_irr_15_6": 2.96,
+    "floor_irr_wacc": 2.752,
+    "calibrated_5y_price": 3.3297
+   },
+   "GB300": {
+    "now": 8.3153,
+    "path_starts": "2026-04",
+    "term_avg": {
+     "3": 8.471,
+     "6": 8.258,
+     "12": 7.188,
+     "18": 6.404,
+     "24": 5.838,
+     "36": 5.021,
+     "60": 3.857
+    },
+    "cost_per_hour": 2.7945,
+    "capex_per_gpu": 83430.5921,
+    "opex_per_gpu_month": 483.8017,
+    "wacc": 0.1025,
+    "floor_irr_15_6": 3.41,
+    "floor_irr_wacc": 3.167,
+    "calibrated_5y_price": 4.6
+   },
+   "VR": {
+    "now": null,
+    "path_starts": "2027-01",
+    "term_avg": {
+     "3": 13.994,
+     "6": 12.828,
+     "12": 11.242,
+     "18": 10.187,
+     "24": 9.384,
+     "36": 8.127,
+     "60": 6.233
+    },
+    "cost_per_hour": 4.019,
+    "capex_per_gpu": 117794.5163,
+    "opex_per_gpu_month": 736.7326,
+    "wacc": 0.1025,
+    "floor_irr_15_6": 4.894,
+    "floor_irr_wacc": 4.553,
+    "calibrated_5y_price": 7.75
+   }
+  }
+ },
+ "perf": {
+  "_source": "Delivered-performance multiples between GPU generations, assembled 2026-09-15 from MLCommons results, NVIDIA/Nebius/Lambda/StorageReview MLPerf write-ups, SemiAnalysis InferenceX (VR) and the GB300 pricing template's validated evidence; independently verified the same day (all ratios re-derived; no base moved by more than 15%).",
+  "_method": "base = customer-realisable multiple = 1 + 0.75 x (raw per-GPU ratio - 1), raw = blend of same-round MLPerf training and inference per-GPU ratios; low = weakest measured leg; high = vendor dense-TFLOPS ratio (or the raw measured peak where no spec ratio applies). The parity ceiling uses base; the page lets the user override it.",
+  "_realisation_factor": {
+   "value": 0.75,
+   "rationale": "The template's ratified bridge (sku-pricing-template-spec.md:23: raw ratio x0.75 customer realisation x substitute price = term ceiling) is kept at 0.75 but applied to the UPLIFT, realised = 1 + 0.75 x (raw - 1), not to the raw ratio: on the big Hopper-to-Blackwell jumps the two conventions differ by ~0.1-0.4x (GB300/H200 3.36 vs 3.5), while on the 1.07-1.17x intra-generation steps multiplying the raw ratio by 0.75 would assert the newer chip is SLOWER (1.068 x 0.75 = 0.80), which no data supports. Why 0.75 and not 1.0: (1) precision mix - the headline MLPerf ratios put NVFP4 on the new part against FP8 on the old; a customer who stays FP8/BF16 sees the dense FP8 spec gap (B200/H100 2.27x vs 3-4x measured; GB300/H200 2.5x vs 4.7-5.2x), and Nebius' reserve book is still majority FP8/BF16 training; (2) closed-division MLPerf is vendor-tuned peak and open-source stacks trail by months - GB300's own day-0 numbers were 36-60% of its 6-months-later numbers (DSR1 server 2,907->8,064, offline 5,842->9,821), so a launch-quarter customer realises materially less than the later lab figure; (3) fragmentation and idle time do not shrink with per-GPU throughput, so cost-per-unit-of-work improves less than tokens/s; (4) the only day-0 realisation actually measured on a new part is VR at ~61% of dense spec (build_vr_v2.py:9), which brackets 0.75 from below. Why not lower: for mature pairs (H200/H100, B300/B200, GB300/B300) both sides are on the same precision and the same software generation, so the uplift is nearly fully realised - applying 0.75 to the uplift only costs 2-6 points there, which is the right order. Blend: base = arithmetic mean of central training raw and central inference raw (50/50) reflecting the mixed reserve book; VR is inference-only because no training measurement exists."
+  },
+  "_caveats": [
+   "Hopper baseline in the GB300-vs-H200 4.7x/5.2x figure is NVIDIA-internal ('not verified by MLCommons Association') and mixes NVFP4 vs FP8 - the MLCommons-verified chains give 3.7-5.4x; the base 3.36 already discounts this.",
+   "VR is pre-release: only SemiAnalysis single-rack per-MW measurements (Jul-26 and 14-Sep-26, early software) and vendor specs exist; no MLPerf entry; no training measurement at all, so VR base is inference-only and the 50/50 blend rule could not be applied. Re-check at the next MLPerf Inference round (~Sep-Oct 2026) and at RFS; template trigger: step down if <1.8x measured.",
+   "Per-MW vs per-GPU: SemiAnalysis normalises VR per all-in utility MW; at 190-230 kW vs 132-142 kW rack power the per-GPU multiple is ~1.35-1.7x higher than the per-MW one (2.0 -> ~2.7-3.5 at 100 TPS). Kept 2.0 as base because it is one pre-production rack on pre-release software; flag as the single biggest swing in the VR ceiling.",
+   "Training-side multiples for Blackwell vs Hopper come from different rounds (B200 v4.1 at FP8; GB200 v5.0 vs v5.1 with NVFP4 training added) - software ramp is confounded with hardware; I used the earlier, FP8-era numbers for HGX B200 (2.0-2.2x vs H100) and the same-GPU-count v5.1 statements for GB300.",
+   "GB200-vs-B200 and GB300-vs-B300 have no equal-scale training pair; their training centrals (1.10 / 1.08) are spec-and-memory inferences, not measurements. Aggregated inference shows per-GPU parity (0.93-1.03x); the NVL72 value is workload-conditional (disaggregated interactive +47%, rack-scale MoE serving +106-263% per InferenceX) and should be priced as a workload premium rather than a chip multiple.",
+   "H200-vs-H100 'high' is the raw measured 1.5x, not a vendor dense-TFLOPS ratio, because FP8 dense compute is identical (1,979 TFLOPS); NVIDIA's marketed 1.9x/1.6x claims are excluded.",
+   "Nebius v6.0 and Lambda v6.0 per-GPU numbers were read from vendor blogs, not re-derived from the MLCommons results tables; the GB300 v5.1 numbers (5,842 / 2,907) were cross-checked exact against the template's MLCommons-validated 2026-08-16/17 audit (build_final_v4.py:746-747, memory: gb300-performance-tab-validation).",
+   "Software ramp cuts the other way for a fixed-price term: GB300 gained 2.77x server / 1.68x offline in six months on unchanged hardware (v5.1->v6.0); a 12-36 month parity ceiling priced on day-0 realisation is conservative by that amount (Value curve tab, build_final_v4.py:739-749).",
+   "Vendor dense spec ratios used for 'high': H100/H200 FP8 dense 1.979 PF; HGX B200 FP4 dense 9 PF; HGX B300 13.5 PF; GB200 10 PF; GB300 15 PF; Rubin 35 PF dense NVFP4 (50 PF sparsity-assisted), 17.5 PF FP8 dense vs GB300 5 PF. The nvidia.com GB300 page extraction returned garbled per-GPU numbers (150/75 PF); the 15 PF dense figure is taken from NVIDIA's Training v5.1 blog ('15 petaflops of NVFP4') and the '1.5x dense FP4 vs Blackwell' statement.",
+   "Computation script: /private/tmp/claude-501/-Users-koenbrormann/cfc871a0-87bc-4f90-8c99-37b10f05d5ba/scratchpad/perf_multiples.py (all ratios above reproduce from it)."
+  ],
+  "_extracted": "2026-09-15",
+  "pairs": [
+   {
+    "sku": "H200",
+    "versus": "H100",
+    "low": 1.1,
+    "base": 1.24,
+    "high": 1.5,
+    "basis": "Per-GPU, same GPU count. Inference raw: MLPerf Inference v4.0/v4.1 Llama 2 70B H200 vs H100 = 31,712/22,290 = 1.42x offline (NVIDIA blog states 1.5x; DCD/TensorRT-LLM 1.43x server / 1.45x offline at 1000W); Mixtral 1.13x. Training raw: Llama 2 70B LoRA 8-GPU 1.14-1.16x (Training v4.0/v4.1), GPT-3 175B 512-GPU +28% (Azure v4.1), GNN +47%. Blend = 50% training (central 1.20) + 50% inference (central 1.45) = 1.325 raw; realised 1+0.75x(1.325-1) = 1.24. Low = compute-bound workloads (Mixtral 1.13 raw -> 1.10). High = 1.5x, the unrealised measured LLM ratio; NOTE vendor dense TFLOPS are IDENTICAL (FP8 1,979 TFLOPS dense both), so the spec 'high' would be 1.0 - the H200 uplift is memory (1.4x BW, 1.76x capacity); NVIDIA's marketed 1.9x Llama2-70B claim is a single-GPU-fit artefact not reproduced in MLPerf and is excluded. Mature software on both sides, so realisation is the least contentious of all pairs.",
+    "sources": [
+     "https://developer.nvidia.com/blog/nvidia-blackwell-platform-sets-new-llm-inference-records-in-mlperf-inference-v4-1 (H200 1.5x H100; Llama2-70B server 32,790 tok/s; +14% since v4.0)",
+     "https://developer.nvidia.com/blog/nvidia-sets-new-generative-ai-performance-and-scale-records-in-mlperf-training-v4-0/ (LoRA +14%, GNN +47% at 8 GPUs)",
+     "https://developer.nvidia.com/blog/nvidia-blackwell-doubles-llm-training-performance-in-mlperf-training-v4-1 (H200 ~16% better than H100 on LoRA 8-GPU)",
+     "https://windowsforum.com/threads/azure-mlperf-training-v4-1-512-gpu-h200-28-faster-signal-for-cloud-ai.427187/ (512-GPU H200 +28% vs H100)",
+     "https://www.datacenterdynamics.com/en/news/nvidia-sets-new-benchmarking-performance-records-with-its-h200-tensor-core-and-tensorrt-llm-software/ (43%/45% at 1000W)",
+     "https://www.nvidia.com/en-us/data-center/h200/ (FP8 3,958 TFLOPS sparse = 1,979 dense, same as H100; marketed 1.9x/1.6x claims)",
+     "/Users/koenbrormann/Claude PM/gb300-pricing/scripts/build_final_v4.py:744 (H200 Llama2-70B offline 3,964 -> ~4,365 tok/s v4.0->v5.1, plateau case)"
+    ],
+    "verifier_notes": [
+     "31,712/22,290 is not in any cited source (22,290 is not an offline H100 figure in either round). Same-round v4.1: H200 34,864 / H100 24,525 = 1.42x offline, but NVIDIA's v4.1 H200 entries are at 1,000 W custom thermal; NVIDIA's own v4.0 blog states +28% at the shipping 700 W TDP and 43%/45% only at 1,000 W (1.42/1.12 = 1.27). State the inference central 1.45 as a 1,000 W figure with ~1.28 at 700 W; base would read ~1.15-1.18 at 700 W (-6 to -7%, below the 15% move threshold).",
+     "Secondary source only (windowsforum 403; windowsnews mirror says '28 percent speedup over comparable H100-based runs', benchmark not named). Label as secondary and benchmark-unconfirmed, or cite the Microsoft primary."
+    ]
+   },
+   {
+    "sku": "B200",
+    "versus": "H200",
+    "low": 1.55,
+    "base": 2.05,
+    "high": 4.55,
+    "basis": "Per-GPU, 8 vs 8. Inference raw (same round, MLCommons-verified): MLPerf Inference v5.0 Llama 2 70B 98,443/33,072 = 2.98x server, 98,858/34,988 = 2.83x offline, Llama 2 70B interactive 3.1x, Mixtral 2.1x, SDXL 1.6x; v5.1 Llama 3.1 405B (Nebius submission) 4.3x server / 3.0x offline. Central inference 3.0. Training raw: B200 vs H100 2.0x (GPT-3 175B) / 2.2x (LoRA) in Training v4.1 at FP8, divided by the H200/H100 training factor 1.2 = 1.67-1.83x vs H200; central 1.8 (NVFP4 training first appears on GB200 in v5.1 at 3.2x vs Hopper - upside not yet in HGX B200 customer stacks). Blend (1.8+3.0)/2 = 2.40 raw -> realised 2.05. Low = training-only customer, LoRA raw 1.75 -> 1.56. High = vendor dense spec: HGX B200 FP4 dense 9 PF/GPU (72 PF sparse/8 = 9 sparse... NVIDIA HGX table: 144|72 PF FP4 sparse|dense per 8 GPUs = 9 PF dense) vs H200 FP8 dense 1.979 PF = 4.55x; FP8-to-FP8 dense is only 4.5/1.979 = 2.27x, which is what an FP8-only customer can see - the reason the realisation haircut is applied.",
+    "sources": [
+     "https://developer.nvidia.com/blog/nvidia-blackwell-delivers-massive-performance-leaps-in-mlperf-inference-v5-0/ (Llama2-70B 98,443 vs 33,072 server; 98,858 vs 34,988 offline; interactive 3.1x; Mixtral 2.1x; SDXL 1.6x)",
+     "https://nebius.com/blog/posts/bare-metal-class-performance-mlperf-inference (v5.1: 8xB200 405B 1,280 server / 1,660 offline tok/s; 4.3x / 3.0x vs 8xH200)",
+     "https://developer.nvidia.com/blog/nvidia-blackwell-doubles-llm-training-performance-in-mlperf-training-v4-1 (B200 vs H100 per GPU: GPT-3 2.0x, LoRA 2.2x, T2I 1.7x, NLP 1.4x)",
+     "https://www.nvidia.com/en-us/data-center/hgx/ (HGX B200 FP4 144|72 PFLOPS sparse|dense per 8 GPUs; FP8 72 PF sparse)",
+     "https://www.nvidia.com/en-us/data-center/h200/ (FP8 3,958 TFLOPS with sparsity)"
+    ]
+   },
+   {
+    "sku": "B200",
+    "versus": "H100",
+    "low": 1.75,
+    "base": 2.61,
+    "high": 4.55,
+    "basis": "Per-GPU. Inference raw: no same-round MLCommons B200-vs-H100 LLM pair exists after v4.1; chain B200/H200 3.0 x H200/H100 1.45 = 4.35 (Llama 2 70B class), corroborated by NVIDIA's v4.1 preview 'up to 4x tokens/s per GPU vs H100' (Llama 2 70B server, FP4). Central inference 4.2. Training raw (direct, Training v4.1, FP8, normalised per GPU): GPT-3 175B 2.0x, LoRA 2.2x; central 2.1. Blend (2.1+4.2)/2 = 3.15 raw -> realised 1+0.75x2.15 = 2.61. Low = training-only, GPT-3 2.0 raw -> 1.75 (the NLP 1.4x benchmark would give 1.30 but is not an LLM-customer workload). High = FP4 dense 9 PF vs H100 FP8 dense 1.979 PF = 4.55x (FP8-to-FP8 dense 2.27x). Sanity: base 2.61 x H200/H100 base 1.24 = 3.2, above the B200/H200 base 2.05 chained (2.05x1.24 = 2.54) - the two paths bracket 2.5-3.2; 2.61 sits at the conservative end.",
+    "sources": [
+     "https://developer.nvidia.com/blog/nvidia-blackwell-doubles-llm-training-performance-in-mlperf-training-v4-1 (2.0x / 2.2x per GPU vs H100; 'normalized per GPU')",
+     "https://developer.nvidia.com/blog/nvidia-blackwell-platform-sets-new-llm-inference-records-in-mlperf-inference-v4-1 (B200 preview up to 4x per GPU vs H100 Llama 2 70B server, 10,756 tok/s/GPU)",
+     "https://developer.nvidia.com/blog/nvidia-blackwell-delivers-massive-performance-leaps-in-mlperf-inference-v5-0/ (B200/H200 3.0x/2.8x used for the chain)",
+     "https://www.nvidia.com/en-us/data-center/hgx/ (dense FP4 spec)"
+    ]
+   },
+   {
+    "sku": "B300",
+    "versus": "B200",
+    "low": 1.09,
+    "base": 1.11,
+    "high": 1.5,
+    "basis": "Per-GPU, 8 vs 8, same round, Nebius' own MLCommons-verified submissions. Inference raw (Inference v6.0): DeepSeek-R1 server 60,413/51,693 = 1.169x, offline 69,319/58,582 = 1.183x, gpt-oss-120B server 100,437/87,444 = 1.149x; central 1.17. Training raw (Training v5.1): Llama 2 70B LoRA 9.55/8.48 = 1.126x, Llama 3.1 8B 85.37/75.84 = 1.126x (Nebius: 'average 12.6% reduction in training time'); central 1.126. Blend (1.126+1.17)/2 = 1.148 raw -> realised 1.11. Low = training-only 1.126 raw -> 1.09. High = vendor dense FP4 spec 13.5 PF (108/8) vs 9 PF = 1.5x; FP8/BF16 dense spec is UNCHANGED (72 PF sparse per 8 GPUs both), so a BF16/FP8 training customer sees only the memory (288 vs 180 GB) and attention gains, i.e. the 1.09-1.13 measured. Thin spot: no 405B pretraining B300-vs-B200 pair at equal scale.",
+    "sources": [
+     "https://nebius.com/blog/posts/mlperf-inference-v6-0-results (DSR1 server B200 51,693 / B300 60,413; offline 58,582 / 69,319; gpt-oss server 87,444 / 100,437)",
+     "https://nebius.com/blog/posts/mlperf-training-v5-1-results (LoRA B300 8.48 vs B200 9.55 min; Llama-3.1-8B 75.84 vs 85.37; -12.6%)",
+     "https://www.nvidia.com/en-us/data-center/hgx/ (HGX B300 FP4 144|108 PF, B200 144|72 PF; FP8 72 PF both)"
+    ]
+   },
+   {
+    "sku": "GB200",
+    "versus": "B200",
+    "low": 1,
+    "base": 1.11,
+    "high": 1.47,
+    "basis": "Per-GPU (rack GPU count / 72). Inference raw, same round (Inference v5.1, Nebius): aggregated serving shows NO per-GPU premium - Llama 3.1 405B 4xGB200 855.82/4 = 214 vs 8xB200 1,660/8 = 208 tok/s/GPU offline (1.03x), server 149 vs 160 (0.93x); NVIDIA's disaggregated Llama 3.1 405B Interactive on GB200 NVL72 = 'nearly 1.5x' (blogs.nvidia.com: 47%) per GPU vs DGX B200 - this is the rack-scale serving story and is MLCommons-verified. Central inference 1.20 (mix of aggregated ~1.0 and disaggregated 1.47). Training raw: only cross-round evidence - GB200 8-GPU LoRA 2.5x H100 (Training v5.0) vs B200 8-GPU LoRA 2.2x H100 (v4.1) = 1.14x, software-confounded; dense spec 10 vs 9 PF FP4 = 1.11 (1,200 W vs 1,000 W parts); central 1.10. Blend 1.15 raw -> realised 1.11. Low = 1.00 (aggregated per-GPU parity; market pays no rack premium - template line 819 for the GB300/B300 analogue). High = 1.47 measured disaggregated interactive (exceeds the 1.11 dense-spec ratio, so the measured MLCommons number is used as the ceiling). Thin: no same-round training pair; per-GPU value of NVL72 is workload-conditional (MoE / interactive serving), not a chip multiple.",
+    "sources": [
+     "https://nebius.com/blog/posts/bare-metal-class-performance-mlperf-inference (4xGB200 405B 596.11 server / 855.82 offline; 8xB200 1,280 / 1,660)",
+     "https://blogs.nvidia.com/blog/mlperf-inference-blackwell-ultra (GB200 NVL72 disaggregated 405B interactive +47% per GPU vs DGX B200)",
+     "https://developer.nvidia.com/blog/nvidia-blackwell-ultra-sets-new-inference-records-in-mlperf-debut/ ('nearly 1.5x throughput per GPU' disaggregated)",
+     "https://developer.nvidia.com/blog/nvidia-blackwell-delivers-up-to-2-6x-higher-performance-in-mlperf-training-v5-0/ (GB200 8-GPU LoRA 2.5x H100)",
+     "https://developer.nvidia.com/blog/nvidia-blackwell-doubles-llm-training-performance-in-mlperf-training-v4-1 (B200 LoRA 2.2x H100)",
+     "https://www.nvidia.com/en-us/data-center/gb200-nvl72/ (FP4 1,440|720 PF per rack = 20|10 PF per GPU sparse|dense)"
+    ]
+   },
+   {
+    "sku": "GB300",
+    "versus": "B300",
+    "low": 1,
+    "base": 1.06,
+    "high": 1.11,
+    "basis": "Per-GPU, 8 vs 8, same round (Inference v6.0, Nebius): DeepSeek-R1 server 64,510/60,413 = 1.068x (this is the template's 'chip parity x1.068'), offline 76,347/69,319 = 1.101x; central inference 1.085. Training raw: no equal-scale pair (GB300 NVL72 submitted at 72-8,192 GPUs, HGX B300 at 8); dense spec 15 vs 13.5 PF FP4 = 1.11, same FP8; central 1.08. Blend 1.083 raw -> realised 1.06. Low = 1.00 (own B300 closes $5.56 x 1.068 = $5.94 = GB300 achieved $5.90: the market pays zero rack-scale premium today - build_final_v4.py:299/819). High = dense-spec 1.11. OUT-OF-BAND, workload-specific: rack-scale MoE serving at high interactivity measures +106-263% (2.06-3.63x) for the NVL72 over HGX (InferenceX, build_final_v4.py:455) - price that as a workload premium for MoE-serving customers, not as the SKU parity ceiling.",
+    "sources": [
+     "https://nebius.com/blog/posts/mlperf-inference-v6-0-results (GB300 NVL72 8-GPU DSR1 64,510 server / 76,347 offline vs HGX B300 60,413 / 69,319)",
+     "https://lambda.ai/blog/lambdas-mlperf-inference-v6.0-hardware-leap-software-maturity-research-breakthrough (GB300 4-GPU tray gpt-oss 1.29x/1.22x vs 4xB200; with B300/B200 1.149 implies GB300/B300 ~1.06-1.12)",
+     "/Users/koenbrormann/Claude PM/gb300-pricing/scripts/build_final_v4.py:455 (B300 vs GB300 +6.8% server / +10.1% offline per chip; +106-263% rack-scale MoE serving)",
+     "/Users/koenbrormann/Claude PM/gb300-pricing/scripts/build_final_v4.py:299 and :819 (B300 $5.56 x 1.068 = $5.94 vs GB300 achieved $5.90)",
+     "https://developer.nvidia.com/blog/nvidia-blackwell-tops-mlperf-training-6-0-with-industry-leading-scale-and-performance/ (GB300 vs GB200 1.3-1.6x; no B300 equal-scale pair)"
+    ],
+    "verifier_notes": [
+     "Lambda's 4xB200 baseline is derived from its 8-GPU B200 result (halved), not a measured 4-GPU run - note as estimated baseline."
+    ]
+   },
+   {
+    "sku": "GB300",
+    "versus": "B200",
+    "low": 1.09,
+    "base": 1.17,
+    "high": 1.67,
+    "basis": "Per-GPU, 8 vs 8, same round. Inference raw (Inference v6.0): Nebius DeepSeek-R1 server 64,510/51,693 = 1.248x, offline 76,347/58,582 = 1.303x; Lambda gpt-oss-120B GB300 4-GPU tray vs 4xB200 1.29x offline / 1.22x server; central 1.26. Training raw: chained GB300/B300 (1.05-1.11) x B300/B200 1.126 = 1.18-1.25; central 1.20. Blend 1.23 raw -> realised 1.17. Low = B300/B200 training step only with zero rack premium, 1.126 raw -> 1.09. High = dense FP4 spec 15 vs 9 PF = 1.67x. Consistency: equals GB300/B300 (1.06) x B300/B200 (1.11) = 1.18 within rounding. Added to the requested list because it is the pair the CRM actually trades (GB300 rack vs HGX B200 substitutes).",
+    "sources": [
+     "https://nebius.com/blog/posts/mlperf-inference-v6-0-results",
+     "https://lambda.ai/blog/lambdas-mlperf-inference-v6.0-hardware-leap-software-maturity-research-breakthrough",
+     "https://nebius.com/blog/posts/mlperf-training-v5-1-results",
+     "https://www.nvidia.com/en-us/data-center/gb300-nvl72/ ('1.5x more dense FP4 Tensor Core FLOPS ... compared to Blackwell')"
+    ]
+   },
+   {
+    "sku": "GB300",
+    "versus": "H200",
+    "low": 2.7,
+    "base": 3.36,
+    "high": 7.58,
+    "basis": "Per-GPU. Inference raw: MLPerf Inference v5.1 DeepSeek-R1 GB300 5,842 vs DGX H200 1,253 tok/s/GPU offline = 4.66x, server 2,907 vs 556 = 5.23x - NVFP4 on GB300 vs FP8 on H200, and the Hopper side is 'not verified by MLCommons Association' (template build_final_v4.py:451 carries exactly this caveat); MLCommons-verified chains give 3.0 x 1.25 = 3.74x (Llama 2 70B path) and 4.3 x 1.25 = 5.37x (Llama 3.1 405B server path). Central inference 4.7 (template's own anchor). Training raw: Training v5.1 GB300 NVL72 vs Hopper at the same GPU count '>4x' Llama 3.1 405B pretrain and '~5x' Llama 2 70B LoRA (Hopper = H100), and GB300/GB200 (4.2/3.2 = 1.31) x GB200/H100 3.2 (NVFP4 training) = 4.2x; divided by H200/H100 training 1.2 -> 3.3-4.2x vs H200; central 3.6. Blend (3.6+4.7)/2 = 4.15 raw -> realised 1+0.75x3.15 = 3.36 (template's '$9 story' 3.10 = 60% of 5.2 and the raw-ratio bridge 0.75x4.7 = 3.5 bracket it). Low = training 405B-derived 3.3 raw -> 2.72; cross-check FP8-only spec GB300 5 PF FP8 dense vs H200 1.979 = 2.5x. High = dense NVFP4 15 PF vs H200 FP8 dense 1.979 = 7.58x. Out-of-band: InferenceX Aug-26 measures ~15x tok/s/GPU at 98 tok/s/user (build_final_v4.py:452) - interactivity-conditional, H200 collapses there; not a parity ceiling for the average customer. Software ramp on GB300 alone was 2.77x server / 1.68x offline v5.1->v6.0 (build_final_v4.py:454, :746-747): a fixed-price customer keeps that, so the day-0 realisation haircut is conservative for a 12-36 month term.",
+    "sources": [
+     "https://developer.nvidia.com/blog/nvidia-blackwell-ultra-sets-new-inference-records-in-mlperf-debut/ (5,842 vs 1,253 offline; 2,907 vs 556 server; 'Hopper results not verified by MLCommons'; GB300 vs GB200 +45% offline / +25% server)",
+     "https://blogs.nvidia.com/blog/mlperf-training-benchmark-blackwell-ultra/ ('more than 4x Llama 3.1 405B pretraining and nearly 5x Llama 2 70B LoRA vs Hopper, same GPU count'; 4.2x cumulative, 1.9x vs GB200 v5.0; GB200 NVFP4 3.2x vs Hopper)",
+     "https://www.storagereview.com/news/nvidia-sets-mlperf-inference-v6-0-records-with-blackwell-ultra-platform (v5.1->v6.0: DSR1 server 2,907->8,064 = 2.77x; offline 5,842->9,821 = 1.68x; 405B 1.52x/1.21x)",
+     "/Users/koenbrormann/Claude PM/gb300-pricing/scripts/build_final_v4.py:451-455 (4.7-5.2x lab, InferenceX ~15x, SemiAnalysis FoM training 3.13x)",
+     "/Users/koenbrormann/Claude PM/gb300-pricing/scripts/build_final_v4.py:141-143 ($9 story 3.10 = 60% of 5.2; launch lab ratio 5.20 'not customer-realizable day 1')",
+     "/Users/koenbrormann/Claude PM/gb300-pricing/sku-pricing-template-spec.md:22-23 (9-gate table; raw ratio x0.75 customer realisation x substitute price = term ceiling)",
+     "https://www.nvidia.com/en-us/data-center/gb300-nvl72/ (FP8/FP6 10 PF sparse per GPU; 1.5x dense FP4 vs Blackwell -> 15 PF dense)"
+    ],
+    "verifier_notes": [
+     "That page contains only 'more than 4x' (405B), 'nearly 5x' (LoRA), '2.7x faster than prior round' and '45% faster at 2,560 vs 2,496 GPUs'. The 4.2x cumulative / 1.9x vs GB200 / 3.2x NVFP4 figures are confirmed to exist but sit in the developer.nvidia.com MLPerf Training v5.1 post - re-point the citation.",
+     "3.36 retained (no >15% move), but flag that the training central 3.6 is NVFP4-only; the measured FP8 chain (2.1 x 1.126 x 1.05 / 1.2 = 2.07 vs H200) with a mixed-precision training central gives 3.08 (-8.5%) - the base sits at the top of the defensible range, and the template's own '$9 story' 3.10 is the conservative alternative."
+    ]
+   },
+   {
+    "sku": "VR",
+    "versus": "GB300",
+    "low": 1.4,
+    "base": 2,
+    "high": 3.5,
+    "basis": "PRE-RELEASE - THIN EVIDENCE, no MLPerf entry as of 2026-09-15 (next inference round ~Sep-Oct 2026). Measured: SemiAnalysis InferenceX Jul-26, DeepSeek-R1 671B single-turn 8k/1k, pre-production Dell rack without scale-out fabric, early software: ~2x GB300 at 100 tok/s/user, ~4x at 200, 5.4x at 300 - normalised per all-in utility MW, not per GPU; SemiAnalysis 14-Sep-2026 AgentX (DeepSeek V4 Pro 1.6T proxy, pre-release TRT-LLM): 2.09x per MW at 100 TPS vs GB300 Dynamo-SGLang, up to 7x per MW, 1.4-3x throughput per TCO-dollar at 80 TPS. Per-GPU translation: VR rack 190-230 kW vs GB300 132-142 kW, so the per-MW 2.0x reads ~2.7-3.5x per GPU at 100 TPS - but that is early software on one rack, so the template's 2.0x is kept as base rather than uplifted (the 0.75 rule on the uplift would give 1.75; the rack-power uplift would give ~2.7; 2.0 is the declared middle, identical to build_vr_v2.py:195 and build_final_v4.py:820 'VR at $8.50 / ~2.0x measured GB300 perf = $4.25 GB300-equivalent'). Training: NO measurement anywhere; vendor dense NVFP4 35 vs 15 PF = 2.33x, FP8 dense 17.5 vs 5 PF = 3.5x (NVIDIA slide '3.5x training'), so the 50/50 blend cannot be evidence-based - base is inference-only. Low = dense NVFP4 spec 2.33 x the ~61% day-0 realisation measured on the inference side = 1.42 (build_vr_v2.py:196 bear row is 1.17 at 50%; template's own trigger: price steps down if <1.8x measured at RFS, build_vr_v2.py:381; SemiAnalysis TCO-parity ratio 1.44-1.51x, build_vr_v2.py:194). High = vendor dense spec 3.5x (FP8 dense) ~ sparsity-assisted NVFP4 50/15 = 3.33x; NVIDIA's '5x inference' / '30x per MW on agentic' claims are per-rack/per-MW, NVIDIA-measured and 'pending SemiAnalysis review' - not used. HBM4 BW 19.2-22 vs 8 TB/s = 2.4-2.75x supports the low-2s for memory-bound decode.",
+    "sources": [
+     "https://inferencex.semianalysis.com/blog/vera-rubin-nvl72-vs-gb200-nvl72-inference (Jul-26: ~2x GB300 at 100 tok/s/user, 4x at 200, 5.4x at 300; per-MW; pre-production Dell rack; TCO VR $3.57 vs GB300 $2.36/GPU-hr)",
+     "https://newsletter.semianalysis.com/p/vera-rubin-nvl72-agentic-inference (14-Sep-2026: 2.09x per MW at 100 TPS vs GB300; up to 7x per MW; 1.4-3x per TCO-dollar at 80 TPS; early pre-release TRT-LLM)",
+     "https://www.nvidia.com/en-us/data-center/vera-rubin-nvl72 (per GPU: 50 PF NVFP4 inference sparse, 35 PF NVFP4 training dense, 17.5 PF FP8 dense, 288 GB HBM4 19.2 TB/s; rack 3,600/2,520/1,260 PF)",
+     "https://developer.nvidia.com/blog/nvidia-vera-rubin-and-blackwell-set-a-new-standard-for-agentic-ai-performance-per-watt/ ('up to 30x per MW vs GB300' at 160 TPS on DeepSeek V4-Pro; 'measured by NVIDIA ... pending SemiAnalysis review')",
+     "https://hashrateindex.com/blog/nvidia-vera-rubin-nvl72-specs-breakdown/ and https://www.moduledge.com/blog/gb300-nvl72 (VR rack 190-230 kW; GB300 132-142 kW nominal)",
+     "/Users/koenbrormann/Claude PM/gb300-pricing/scripts/build_vr_v2.py:9,194-197,206,381,472 (dense 2.33x relabel, 61% day-0 realisation, 2.0x measured row, 1.17 bear row, <1.8x step-down trigger, no MLPerf entry)",
+     "/Users/koenbrormann/Claude PM/gb300-pricing/scripts/build_final_v4.py:749,820 (VR200 day-0 ~61% of 3.3x; 2.0x -> FoM mature 2.46x; $4.25 GB300-equivalent)"
+    ],
+    "verifier_notes": [
+     "2.0 retained, but the claim's own per-GPU translation (2.0 x 190/142 = 2.68; x 190/137 = 2.77 raw) realised under the 0.75-on-uplift rule gives 2.26-2.33 (+13 to +17%) - the borderline case, upward; also the template rows (build_vr_v2.py:195/472, build_final_v4.py:749) say 'single CoreWeave rack' while InferenceX says Dell Engineering Sample rack - the claim is correct, the template is stale."
+    ]
+   }
+  ]
  }
 }

@@ -98,6 +98,8 @@ GRID_JSON = STORE / "nebius_reserve_grid.json"
 CONTRACTS_CSV = STORE / "public_contracts.csv"
 ECONOMICS_JSON = STORE / "economics.json"
 PAYG_REALISED_CSV = STORE / "payg_realised.csv"
+SA_REFERENCE_JSON = STORE / "sa_reference.json"        # scripts/extract_sa_reference.py (local, from the SA TCO workbook)
+PERF_MULTIPLES_JSON = STORE / "perf_multiples.json"    # delivered-performance multiples between generations (sourced)
 DEFAULT_SEGMENT = "ai_native_above_512"
 RECENT_DAYS = 120
 MAX_AGE_DAYS = 365
@@ -380,6 +382,51 @@ def load_grid(path: Path = GRID_JSON) -> dict:
         return {}
     try:
         return json.loads(path.read_text()).get("grids", {})
+    except Exception:
+        return {}
+
+
+def load_sa_reference(as_of: date, path: Path = SA_REFERENCE_JSON) -> dict:
+    """SemiAnalysis references per tier, as of a month: the modelled market rental price for
+    the as-of month ('now'), the average of the modelled path over each tenor starting at the
+    as-of month ('term_avg', what a customer would pay on average if the path came true), the
+    Full-TCO cash cost per hour, SemiAnalysis' own IRR floor when computed, and the 5-year
+    calibrated price. A model reference for the page: never pooled into a mark."""
+    if not path.exists():
+        return {}
+    try:
+        d = json.loads(path.read_text())
+    except Exception:
+        return {}
+    ym = as_of.strftime("%Y-%m")
+    out = {"_source": d.get("_source"), "_version": d.get("_version"), "_extracted": d.get("_extracted"), "tiers": {}}
+    for tier, t in d.get("tiers", {}).items():
+        p = t.get("rental_path_monthly") or {}
+        months = sorted(p)
+        start = ym if ym in p else next((m for m in months if m >= ym), None)
+        term_avg = {}
+        for T in TENORS:
+            if start is None:
+                term_avg[T] = None
+                continue
+            window = [m for m in months if m >= start][:T]
+            term_avg[T] = round(sum(p[m] for m in window) / T, 3) if len(window) == T else None
+        out["tiers"][tier] = {
+            "now": p.get(ym), "path_starts": months[0] if months else None, "term_avg": term_avg,
+            "cost_per_hour": t.get("total_cost_per_hour"), "capex_per_gpu": t.get("capex_per_gpu_usd"),
+            "opex_per_gpu_month": t.get("opex_per_gpu_month_usd"), "wacc": t.get("wacc"),
+            "floor_irr_15_6": t.get("floor_irr_15_6"), "floor_irr_wacc": t.get("floor_irr_wacc"),
+            "calibrated_5y_price": t.get("calibrated_5y_price"),
+        }
+    return out
+
+
+def load_perf_multiples(path: Path = PERF_MULTIPLES_JSON) -> dict:
+    """Delivered-performance multiples between generations for the parity ceiling; {} if absent."""
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text())
     except Exception:
         return {}
 
@@ -711,6 +758,8 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         "observations": export,
         "economics": (json.loads(ECONOMICS_JSON.read_text()) if ECONOMICS_JSON.exists() else {}),
         "on_demand": load_on_demand(history, od_quotes, as_of=as_of),
+        "sa": load_sa_reference(as_of),
+        "perf": load_perf_multiples(),
     }
 
 
@@ -996,7 +1045,12 @@ def view_payload(result: dict) -> dict:
                  "bid_median", "bid_median_all", "bid_median_unstated", "ask_median", "public_median", "grid", "grid_100", "grid_50", "list_nebius",
                  "list_hyperscaler_min", "list_hyperscaler_provider", "cost_floor", "mark", "has_mark",
                  "range_lo", "range_hi", "range_recent", "confidence", "confidence_reason", "spread_pct", "reason")
-    out = {k: result[k] for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics", "on_demand")}
+    out = {k: result.get(k) for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics", "on_demand", "sa")}
+    perf = result.get("perf") or {}
+    out["perf"] = {"_source": perf.get("_source"), "_method": perf.get("_method"), "_extracted": perf.get("_extracted"),
+                   "pairs": [{"sku": p.get("sku"), "versus": p.get("versus"), "low": p.get("low"), "base": p.get("base"), "high": p.get("high"),
+                              "basis": (p.get("basis") or "")[:260], "sources": [s[:160] for s in (p.get("sources") or [])[:3]]}
+                             for p in perf.get("pairs", [])]}
     out["marks"] = [{k: m.get(k) for k in keep_mark} for m in result["marks"]]
     out["observations"] = [{"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),
                             "date": o["date"], "price": o["price"], "p0": o["p0"], "pa": o.get("pa"), "q": o["q"], "prepay": o["prepay"], "known": o.get("known", False), "w": o["w"],

@@ -143,12 +143,17 @@ tr[data-ts]{cursor:pointer}
       <label><span class="k" style="color:var(--dim);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-right:8px">Compare on</span><select id="c-cb" aria-label="Comparison basis"><option value="adjusted">Adjusted to today's level and this prepayment</option><option value="raw">Reported prices, last 90 days, matching prepayment</option></select></label>
       <label class="chk"><input type="checkbox" id="c-unstated">Include offers with unstated prepayment, counted as 0%</label>
       <label class="chk"><input type="checkbox" id="c-achieved">Show Nebius achieved</label>
+      <label class="chk"><input type="checkbox" id="c-guide" checked>Show floor and ceiling guidance</label>
+      <label class="chk"><input type="checkbox" id="c-sapos">Show SemiAnalysis path average</label>
+      <label><span class="k" style="color:var(--dim);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-right:8px" id="c-mult-label">Parity multiple</span><span class="in"><input id="c-mult" type="number" step="0.1" min="0.5" max="10" inputmode="decimal" aria-label="Delivered-performance multiple versus the previous generation" style="width:64px">×</span></label>
     </div></details>
   </div>
   <div class="result"><p class="answer" id="ps-a"></p><p class="basis" id="ps-b"></p><div class="flags" id="ps-flags"></div></div>
   <div class="split single" id="ps-split">
     <div><div class="chart-wrap"><svg class="chart" id="ps-chart" viewBox="0 0 900 230" role="img" aria-label="Comparable offers and your price"></svg></div>
-      <div class="legend"><span><i></i>comparable offer</span><span><i class="med"></i>median of comparables</span><span><i class="acc"></i>your price</span><span id="lg-ach" hidden><i class="ach"></i>Nebius achieved</span><span id="ps-hint">click a dot to see that quote</span></div></div>
+      <div class="legend" id="ps-prov"></div>
+      <div class="legend"><span><i class="med"></i>median of comparables</span><span><i class="acc"></i>your price</span><span id="lg-ach" hidden><i class="ach"></i>Nebius achieved</span><span id="ps-hint">click a dot to see that quote</span></div>
+      <div class="hint" id="ps-guide" style="margin-top:8px;line-height:1.5"></div></div>
     <aside class="side" id="ps-side" hidden></aside>
   </div>
   <div class="fin" id="ps-fin"></div>
@@ -183,6 +188,9 @@ const DATA = /*__DATA__*/null;
   const NOBS = DATA.n_observations || {};
   const ECON = (DATA.economics && DATA.economics.families) || {}, EM = DATA.economics || {};
   const GRID = (DATA.grid && DATA.grid.segments) || {}, GRIDV = (DATA.grid && DATA.grid.version) || "";
+  const SA = (DATA.sa && DATA.sa.tiers) || {}, SAV = DATA.sa || {}, PERF = DATA.perf || {};
+  const PREV = { H200: "H100", B200: "H200", B300: "B200", GB200: "B200", GB300: "B300", VR: "GB300" };   // previous generation for the parity ceiling
+  const PALETTE = ["#6aa9ff", "#5fd3a3", "#f47fb0", "#c39bff", "#4fd1e0", "#a3e07a", "#ff8e6b", "#d9b98a", "#3fb8a0", "#9aa7ff"];
   const OD = DATA.on_demand || {};
   const AS_OF = new Date(DATA.as_of + "T00:00:00Z");
   const MONEY_RATE = 0.069;   // Finance money-cost convention behind the prepay factors
@@ -212,7 +220,8 @@ const DATA = /*__DATA__*/null;
 
   // ---------- state (GPU, term, prepayment and price are shared by every view)
   const S = { view: "market", tier: null, tenor: 36, pp: 0, price: null, priceEntered: false, gpus: 1000, mode: "reserve", util: EM.occupancy_default || 0.75,
-              cb: "adjusted", unstated: false, achieved: false, pf: "known", recent: false, others: false, table: false, refsOnChart: false, pick: null, hoverT: null };
+              cb: "adjusted", unstated: false, achieved: false, pf: "known", recent: false, others: false, table: false, refsOnChart: false, pick: null, hoverT: null,
+              saChart: false, saPos: false, guide: true, multOverride: null, segForFin: "ai_native_above_512" };
   S.tier = ["B300", "GB300", "B200", "H200", "H100", "VR", "GB200"].find(hasData) || TIERS[0];
   if (!offersFor(S.tier).some(o => o.tenor === 36)) S.tenor = TENORS.find(t => offersFor(S.tier).some(o => o.tenor === t)) || 36;
 
@@ -326,6 +335,9 @@ const DATA = /*__DATA__*/null;
   selCB.addEventListener("change", () => { S.cb = selCB.value; render(); });
   $("c-unstated").addEventListener("change", ev => { S.unstated = ev.target.checked; render(); });
   $("c-achieved").addEventListener("change", ev => { S.achieved = ev.target.checked; render(); });
+  $("c-guide").addEventListener("change", ev => { S.guide = ev.target.checked; render(); });
+  $("c-sapos").addEventListener("change", ev => { S.saPos = ev.target.checked; render(); });
+  $("c-mult").addEventListener("input", () => { const v = parseFloat($("c-mult").value); S.multOverride = isFinite(v) && v > 0 ? v : null; render(false); });
   inGpus.addEventListener("input", () => { const v = parseInt(inGpus.value, 10); if (isFinite(v) && v > 0) { S.gpus = v; render(false); } });
   selMode.addEventListener("change", () => { S.mode = selMode.value; render(); });
   $("util-dn").addEventListener("click", () => { S.util = Math.max(0.5, Math.round((S.util - 0.05) * 100) / 100); render(); });
@@ -341,6 +353,7 @@ const DATA = /*__DATA__*/null;
     document.querySelectorAll("#bar .mk").forEach(el => { el.hidden = S.view !== "market"; });
     selTier.value = S.tier; selTenor.value = String(S.tenor); selPP.value = String(S.pp); selPF.value = S.pf; selCB.value = S.cb; selMode.value = S.mode;
     $("c-recent").checked = S.recent; $("c-others").checked = S.others; $("c-unstated").checked = S.unstated; $("c-achieved").checked = S.achieved;
+    $("c-guide").checked = S.guide; $("c-sapos").checked = S.saPos;
     $("util-wrap").hidden = S.mode !== "payg"; $("util-out").textContent = Math.round(S.util * 100) + "%";
     const bench = benchPrice(S.tier, S.tenor, S.pp);
     if (!S.priceEntered || S.price == null) S.price = Math.round(bench.price * 20) / 20;
@@ -384,6 +397,8 @@ const DATA = /*__DATA__*/null;
       showT.forEach(t => TENORS.forEach(x => { const m = mk(CELLS[t][x]); if (m != null) vals.push(m); }));
       const refs = refsFor(S.tier);
       if (S.refsOnChart) refs.chart.forEach(r => vals.push(r.v));
+      const saPts = S.saChart && SA[S.tier] && SA[S.tier].term_avg ? TENORS.map(t => [t, SA[S.tier].term_avg[t]]).filter(p => p[1] != null) : [];
+      saPts.forEach(p => vals.push(p[1]));
       const ymax = Math.max(1, ...vals) * 1.15;
       const Y = p => MK.T + (MK.H - MK.T - MK.B) - p / ymax * (MK.H - MK.T - MK.B);
       const g = [`<rect width="${MK.W}" height="${MK.H}" fill="#0b0b0d"/>`];
@@ -394,6 +409,11 @@ const DATA = /*__DATA__*/null;
       g.push(`<text x="${MK.L - 54}" y="${MK.T - 12}" fill="#7c7c88" font-size="11.5">$/GPU-hr</text>`);
       if (S.refsOnChart) refs.chart.forEach(r => { if (r.kind === "line") g.push(`<line x1="${MK.L}" x2="${MK.W - MK.R}" y1="${Y(r.v).toFixed(1)}" y2="${Y(r.v).toFixed(1)}" stroke="#55555f" stroke-dasharray="4 5"/><text x="${MK.W - MK.R}" y="${(Y(r.v) - 5).toFixed(1)}" fill="#7c7c88" font-size="11" text-anchor="end">${esc(r.label)}</text>`);
         else g.push(`<path d="M${MX(r.t)},${(Y(r.v) - 7).toFixed(1)} l6,10 h-12 z" fill="none" stroke="#b4b4bd" stroke-width="1.2"><title>${esc(r.label)}</title></path>`); });
+      // SemiAnalysis path average per term (model reference), dotted with diamonds
+      if (saPts.length) { const late = SA[S.tier].path_starts && SA[S.tier].path_starts > DATA.as_of.slice(0, 7);
+        if (saPts.length > 1) g.push(`<path d="${saPts.map((p, i) => (i ? "L" : "M") + MX(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="#9aa7ff" stroke-width="1.5" stroke-dasharray="2 5"/>`);
+        saPts.forEach(p => g.push(`<path d="M${MX(p[0]).toFixed(1)},${(Y(p[1]) - 6).toFixed(1)} l6,6 l-6,6 l-6,-6 z" fill="#0b0b0d" stroke="#9aa7ff" stroke-width="1.5"><title>SemiAnalysis path average over ${p[0]} months${late ? " from " + SA[S.tier].path_starts : ""}: ${fmt(p[1])}</title></path>`));
+        const lp = saPts[saPts.length - 1]; g.push(`<text x="${MX(lp[0]).toFixed(1)}" y="${(Y(lp[1]) + 20).toFixed(1)}" fill="#9aa7ff" font-size="11.5" text-anchor="middle">SemiAnalysis path average${late ? " from " + SA[S.tier].path_starts : ""}</text>`); }
       // other tiers, faint
       if (S.others) showT.filter(t => t !== S.tier).forEach(t => { const p2 = TENORS.map(x => [MX(x), mk(CELLS[t][x])]).filter(p => p[1] != null); if (p2.length > 1) g.push(`<path d="${p2.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + Y(p[1]).toFixed(1)).join(" ")}" fill="none" stroke="#3a3a44" stroke-width="1.5"/>`); p2.forEach(p => g.push(`<circle cx="${p[0].toFixed(1)}" cy="${Y(p[1]).toFixed(1)}" r="3" fill="#3a3a44"/>`)); if (p2.length) g.push(`<text x="${(p2[p2.length - 1][0] + 8).toFixed(1)}" y="${(Y(p2[p2.length - 1][1]) + 4).toFixed(1)}" fill="#55555f" font-size="11">${t}</text>`); });
       // selected tier
@@ -424,6 +444,26 @@ const DATA = /*__DATA__*/null;
     } else $("mk-sel").innerHTML = btns;
     const ev = $("mk-eval"); if (ev) ev.addEventListener("click", () => { S.view = "position"; render(); });
   }
+  // ---------- guidance: floors, parity ceiling and the SemiAnalysis path average for one tier and term (hypothetical, model-based)
+  function perfPair(tier){ const prev = PREV[tier]; const p = (PERF.pairs || []).find(x => x.sku === tier && x.versus === prev); return { prev, base: p ? p.base : null, low: p ? p.low : null, high: p ? p.high : null, basis: p ? p.basis : "", sources: p ? p.sources : [] }; }
+  function guidance(tier, tenor, pp){
+    const out = { floors: [], ceiling: null, sa: null };
+    const finSeg = S.segForFin === "enterprise_above_512" ? "tier2_gm_floor_enterprise" : "tier2_gm_floor_ai_native";
+    const fg = gridCell(finSeg, tier, tenor, pp);
+    if (fg) { const k = fg.exact != null ? fg.exact : fg.cols.reduce((a, c) => Math.abs(c[0] - pp) < Math.abs(a[0] - pp) ? c : a)[0]; const pr = fg.cols.find(c => c[0] === k)[1];
+      out.floors.push({ key: "finance", price: pr, short: "Finance Tier-2 floor " + fmt(pr), label: `Finance Tier-2 GM-approval floor ${fmt(pr)} (rate card ${GRIDV}, ${SEGS[S.segForFin]}, ${fg.months} months, ${k}% prepay column${k !== pp ? ", nearest published" : ""})` }); }
+    const sa = SA[tier];
+    if (sa && sa.floor_irr_15_6 != null) out.floors.push({ key: "sa_irr", price: sa.floor_irr_15_6, short: "SA 15.6% IRR floor " + fmt(sa.floor_irr_15_6), label: `SemiAnalysis cost-based floor ${fmt(sa.floor_irr_15_6)}: price for ~15.6% project IRR on a 5-year contract with 15% prepaid, Neocloud Giant profile (${SAV._version || "SA model"})` });
+    const pair = perfPair(tier);
+    if (pair.prev) { const pr = refTier[pair.prev] && refTier[pair.prev][tenor]; const cs = pr && pr.has_mark ? null : cellStats(pair.prev, tenor);
+      const prevPrice = pr && pr.has_mark ? pr.mark * (1 - disc(tenor, pp)) : (cs && cs.med != null ? cs.med : null), prevSrc = pr && pr.has_mark ? "mark" : (cs && cs.med != null ? "comparable median" : null);
+      const mult = S.multOverride != null ? S.multOverride : pair.base;
+      if (prevPrice != null && mult) out.ceiling = { price: prevPrice * mult, mult, prev: pair.prev, prevPrice, prevSrc, overridden: S.multOverride != null, pair,
+        short: `parity with ${pair.prev} ×${mult} = ${fmt(prevPrice * mult)}`, label: `Parity ceiling ${fmt(prevPrice * mult)}: ${pair.prev} ${prevSrc} ${fmt(prevPrice)} at ${monthsLabel(tenor)}, ${pp}% prepay × ${mult} delivered-performance multiple${S.multOverride != null ? " (your override)" : pair.low != null ? ` (MLPerf-based, customer-realisable; range ${pair.low}–${pair.high}; sources on the multiple's tooltip)` : ""}` };
+      else out.ceiling = { price: null, prev: pair.prev, mult, prevPrice, reason: prevPrice == null ? `no ${pair.prev} price at ${monthsLabel(tenor)}` : "no performance multiple on file; type one in Comparison settings" }; }
+    if (sa && sa.term_avg && sa.term_avg[tenor] != null) { const late = sa.path_starts && sa.path_starts > DATA.as_of.slice(0, 7); out.sa = { price: sa.term_avg[tenor], now: sa.now, short: "SemiAnalysis path avg " + fmt(sa.term_avg[tenor]), label: `SemiAnalysis base-case path averaged over ${monthsLabel(tenor)}${late ? " from " + sa.path_starts : " from today"}: ${fmt(sa.term_avg[tenor])} (modelled market rental, not offers; ${SAV._version || ""})` }; }
+    return out;
+  }
   function refsFor(tier){
     const od = OD[tier] || {}, ref36 = refTier[tier] && (refTier[tier][36] || refTier[tier][12]) || {};
     const chart = [];
@@ -440,9 +480,14 @@ const DATA = /*__DATA__*/null;
     const hl = TENORS.map(t => { const x = refTier[S.tier] && refTier[S.tier][t]; return x && x.list_hyperscaler_min != null ? `${t}m ${fmt(x.list_hyperscaler_min)} (${x.list_hyperscaler_provider})` : null; }).filter(Boolean);
     rows.push(`<p><b>Cheapest hyperscaler reserved list</b> (rack rates; enterprise customers pay less): ${hl.length ? hl.join(" · ") : "none in the snapshot"}.</p>`);
     rows.push(`<p><b>Modeled cost floor</b>: ${r.cost != null ? fmt(r.cost) + "/GPU-hr" : "none"} (${esc(DATA.sources.cost_floor)}). A third-party model, not Nebius cost.</p>`);
+    const sa = SA[S.tier];
+    if (sa && sa.term_avg) { const late = sa.path_starts && sa.path_starts > DATA.as_of.slice(0, 7);
+      rows.push(`<p><b>SemiAnalysis base case</b> (${esc(SAV._version || "TCO model")}; a modelled monthly market rental path, not observed offers): ${sa.now != null ? `market rental now ${fmt(sa.now)}` : `path starts ${sa.path_starts}`} · averaged over the term ${late ? "from " + sa.path_starts : "from today"}: ${TENORS.map(t => sa.term_avg[t] != null ? `${t}m ${fmt(sa.term_avg[t])}` : null).filter(Boolean).join(", ")}${sa.floor_irr_15_6 != null ? ` · SemiAnalysis 15.6%-IRR floor ${fmt(sa.floor_irr_15_6)}` : ""}${sa.calibrated_5y_price != null ? ` · 5-year calibrated price ${fmt(sa.calibrated_5y_price)}` : ""}.</p>`); }
     rows.push(`<label class="chk"><input type="checkbox" id="c-refs" ${S.refsOnChart ? "checked" : ""}>Show Finance rate card, hyperscaler list and cost floor on the chart</label>`);
+    if (sa && sa.term_avg) rows.push(` <label class="chk" style="margin-left:14px"><input type="checkbox" id="c-sa" ${S.saChart ? "checked" : ""}>Show the SemiAnalysis path average on the chart</label>`);
     $("mk-extras-body").innerHTML = rows.join("");
     $("c-refs").addEventListener("change", ev => { S.refsOnChart = ev.target.checked; render(); });
+    const csa = $("c-sa"); if (csa) csa.addEventListener("change", ev => { S.saChart = ev.target.checked; render(); });
   }
   function renderMarketTable(){
     // same scope as the chart: the selected GPU, plus the others only when "Other GPUs" is on; a cell click selects that GPU and term
@@ -478,11 +523,20 @@ const DATA = /*__DATA__*/null;
     if (nOld) flags.push(`<span class="flag">${nOld} of ${rk.n} comparable offers are older than 90 days, lifted to today's level</span>`);
     $("ps-flags").innerHTML = flags.join("");
 
-    // chart: one axis, neutral dots, one accent for your price
+    // chart: one axis, dots coloured by provider, one accent for your price, dashed guidance lines
     const val = cs.compVal;
     const shown = cs.comp.slice().sort((a, b) => val(a) - val(b));
-    const vals = shown.map(val).concat([S.price]); if (S.achieved && cs.askAt != null) vals.push(cs.askAt); if (cs.med != null) vals.push(cs.med);
+    const gd = guidance(S.tier, S.tenor, S.pp);
+    const guideLines = [];
+    if (S.guide) { gd.floors.forEach(f => guideLines.push({ ...f, kind: "floor" })); if (gd.ceiling && gd.ceiling.price != null) guideLines.push({ ...gd.ceiling, kind: "ceiling", short: "parity ceiling " + fmt(gd.ceiling.price) }); }
+    if (S.saPos && gd.sa) guideLines.push({ ...gd.sa, kind: "sa" });
+    const vals = shown.map(val).concat([S.price]); if (S.achieved && cs.askAt != null) vals.push(cs.askAt); if (cs.med != null) vals.push(cs.med); guideLines.forEach(l => vals.push(l.price));
     let xmin = Math.min(...vals), xmax = Math.max(...vals); const pad = Math.max(0.3, (xmax - xmin) * 0.12); xmin = Math.max(0, xmin - pad); xmax += pad;
+    // provider colours: most frequent providers in this comparable set first; beyond the palette, grey "other"
+    const provCount = {}; shown.forEach(o => { provCount[o.provider] = (provCount[o.provider] || 0) + 1; });
+    const provOrder = Object.keys(provCount).sort((a, b) => provCount[b] - provCount[a] || a.localeCompare(b));
+    const provColor = {}; provOrder.forEach((p, i) => { provColor[p] = i < PALETTE.length ? PALETTE[i] : "#8b8b98"; });
+    $("ps-prov").innerHTML = provOrder.map((p, i) => `<span><i style="background:${provColor[p]}"></i>${esc(p)}${provCount[p] > 1 ? " ×" + provCount[p] : ""}${i >= PALETTE.length ? " (other)" : ""}</span>`).join("") || `<span>no comparable offers</span>`;
     const X = v => PS.L + (v - xmin) / (xmax - xmin) * (PS.W - PS.L - PS.R);
     const g = [`<rect width="${PS.W}" height="${PS.H}" fill="#0b0b0d"/>`];
     const span = xmax - xmin, step = span <= 1.5 ? 0.25 : span <= 3 ? 0.5 : span <= 8 ? 1 : 2;
@@ -492,14 +546,31 @@ const DATA = /*__DATA__*/null;
     const DOT = 7, slots = swarm(shown, o => X(val(o)), DOT * 2 + 2);
     if (cs.med != null) { g.push(`<line x1="${X(cs.med).toFixed(1)}" x2="${X(cs.med).toFixed(1)}" y1="${PS.base - 8}" y2="${PS.base + 8}" stroke="#f2f2ef" stroke-width="2"/>`); g.push(`<text x="${X(cs.med).toFixed(1)}" y="${PS.base + 36}" fill="#b4b4bd" font-size="11.5" text-anchor="middle">median ${fmt(cs.med)}</text>`); }
     if (S.achieved && cs.askAt != null) { const x = X(cs.askAt); g.push(`<path d="M${x.toFixed(1)},${PS.base - 22} l7,7 l-7,7 l-7,-7 z" fill="none" stroke="#f2f2ef" stroke-width="1.5"><title>Nebius achieved ${fmt(cs.askAt)} (${cs.askDeals} deals), adjusted to ${S.pp}% prepay</title></path>`); g.push(`<text x="${(x + 11).toFixed(1)}" y="${PS.base - 12}" fill="#b4b4bd" font-size="11">Nebius achieved ${fmt(cs.askAt)}</text>`); }
+    // guidance lines (dashed) with stacked labels under the price label
+    guideLines.forEach((l, i) => { const x = X(l.price), col = l.kind === "ceiling" ? "#e0765f" : l.kind === "sa" ? "#9aa7ff" : "#8fbf9f", ly = 40 + i * 13, right = x > PS.W - 190;
+      g.push(`<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${ly + 4}" y2="${PS.base}" stroke="${col}" stroke-width="1.2" stroke-dasharray="4 4"><title>${esc(l.label)}</title></line>`);
+      g.push(`<text x="${(x + (right ? -6 : 6)).toFixed(1)}" y="${ly}" fill="${col}" font-size="11" text-anchor="${right ? "end" : "start"}">${esc(l.short)}</text>`); });
     shown.forEach((o, k) => { const cx = X(val(o)), cy = PS.base - DOT - 2 - slots[k] * (DOT * 2 + 2), sel = S.pick === o.ts + "|" + o.provider;
-      g.push(`<circle data-k="${k}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${DOT}" fill="${sel ? "#f2f2ef" : "#a3a3ae"}" stroke="${sel ? "#ffb547" : "#0b0b0d"}" stroke-width="${sel ? 2 : 1}" style="cursor:pointer"><title>${esc(o.provider)} · ${o.date} · ${Math.round(o.months || o.tenor)}m · ${o.known ? o.prepay + "% prepay" : "prepay not stated"} · reported ${fmt(o.price)} · here ${fmt(val(o))}</title></circle>`); });
+      g.push(`<circle data-k="${k}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${DOT}" fill="${provColor[o.provider] || "#a3a3ae"}" stroke="${sel ? "#ffffff" : "#0b0b0d"}" stroke-width="${sel ? 2.5 : 1}" style="cursor:pointer"><title>${esc(o.provider)} · ${o.date} · ${Math.round(o.months || o.tenor)}m · ${o.known ? o.prepay + "% prepay" : "prepay not stated"} · reported ${fmt(o.price)} · here ${fmt(val(o))}</title></circle>`); });
     const xp = X(S.price);
     g.push(`<line x1="${xp.toFixed(1)}" x2="${xp.toFixed(1)}" y1="22" y2="${PS.base + 4}" stroke="#ffb547" stroke-width="3"/>`);
     g.push(`<text x="${(xp + (xp > PS.W - 120 ? -8 : 8)).toFixed(1)}" y="18" fill="#ffb547" font-size="13" font-weight="600" text-anchor="${xp > PS.W - 120 ? "end" : "start"}">your price ${fmt(S.price)}</text>`);
     const svg = $("ps-chart"); svg.innerHTML = g.join("");
     svg.querySelectorAll("circle[data-k]").forEach(el => el.addEventListener("click", () => { const o = shown[Number(el.dataset.k)]; const key = o.ts + "|" + o.provider; S.pick = S.pick === key ? null : key; render(false); }));
     $("lg-ach").hidden = !(S.achieved && cs.askAt != null);
+    // guidance text under the graph: definitions and sources beside the values
+    const gparts = [];
+    if (S.guide) { gd.floors.forEach(f => gparts.push(`<span style="color:#8fbf9f">■</span> ${esc(f.label)}`));
+      if (gd.ceiling && gd.ceiling.price != null) gparts.push(`<span style="color:#e0765f">■</span> ${esc(gd.ceiling.label)}`);
+      else if (gd.ceiling) gparts.push(`<span style="color:#e0765f">■</span> Parity ceiling not shown: ${esc(gd.ceiling.reason)}`);
+      if (SA[S.tier] && SA[S.tier].cost_per_hour != null) gparts.push(`SemiAnalysis cash cost ${fmt(SA[S.tier].cost_per_hour)}/GPU-hr (Full TCO, no return) sits below every floor above.`); }
+    if (S.saPos && gd.sa) gparts.push(`<span style="color:#9aa7ff">■</span> ${esc(gd.sa.label)}`);
+    $("ps-guide").innerHTML = gparts.length ? `<b style="color:var(--text);font-weight:500">Hypothetical guidance</b> · ${gparts.join(" · ")}` : "";
+    const pair = perfPair(S.tier);
+    $("c-mult-label").textContent = pair.prev ? `Parity multiple vs ${pair.prev}` : "Parity multiple";
+    if (document.activeElement !== $("c-mult")) $("c-mult").value = S.multOverride != null ? S.multOverride : (pair.base != null ? pair.base : "");
+    $("c-mult").placeholder = pair.base != null ? String(pair.base) : "n/a";
+    $("c-mult").title = pair.base != null ? `${pair.basis}${pair.low != null ? `; range ${pair.low}–${pair.high}` : ""}` : "no sourced multiple for this pair yet";
 
     // side panel: the clicked quote, else the comparable set
     const picked = shown.find(o => o.ts + "|" + o.provider === S.pick);
@@ -594,7 +665,8 @@ const DATA = /*__DATA__*/null;
       <p><b>Evidence.</b> ${n.bid} distinct competitor offers reported in #price-intelligence (${n.bid_duplicates_removed} confirmed repeats removed; ${n.bid_review} offers that resemble another row are kept and listed for review in store/intel_duplicates.csv). ${n.bid_known_prepay} state their prepayment and can enter marks; ${n.bid_unstated_prepay} do not and are only counted, unless the "All (unstated as 0%)" filter is chosen. Nebius achieved prices come from CRM deal reviews as aggregates only: per-month, per-payment-type medians are merged (quarter and payment type, then quarter, then the whole window) until each aggregate holds at least ${n.ask_min_deals || 3} signed deals; ${n.ask} such aggregates cover ${n.ask_deals} deals${n.ask_deals_withheld ? `, and ${n.ask_deals_withheld} further deals in ${n.ask_withheld} thinner groups are counted but their prices withheld` : ""}. Payment type stands in for the prepayment share: upfront ${P.prepay_bucket_pct.upfront}%, prepaid monthly ${P.prepay_bucket_pct.prepaid_monthly}%, postpaid 0%. ${n.public} announced public contracts are shown as reference and never pooled.</p>
       <p><b>Repeats.</b> A row is removed only as a confirmed repeat: same provider, price and term within 7 days, or a seed row that repeats a retrieved row with the same or an anonymised provider or identical notes. Rows that only share a Slack message with another provider are kept; one message can carry several providers' offers at one price.</p>
       <p><b>Normalisation.</b> Prepayment to 0% with Finance's money-cost convention (${(P.prepay_a * 100).toFixed(2)}% a year of term at full prepayment, concave in the share, capped at ${Math.round(P.prepay_cap * 100)}%). Quote date to today with two-way fixed effects on log price (cell + quarter), fitted on the stated-prepay offers and Nebius achieved only and pooled across GPUs: ${qe}. Observations up to ${P.recent_days} days old count 1, up to ${P.max_age_days} days count ½, older are dropped; Nebius achieved aggregates carry the summed weight of their months (min(deals, 3) each).</p>
-      <p><b>Freshness.</b> Latest offer ${s.intel_latest_quote || "–"}; CRM aggregates generated ${s.reserve_tenor_generated || "–"} (weekly); Finance rate card ${s.grid_version || "–"}; list-price snapshot ${s.list_snapshot || "–"}. Method v${DATA.method_version}.</p>
+      <p><b>Guidance and references (hypothetical, never pooled).</b> The Market position graph can show three dashed lines. <i>Floors</i>: Finance's Tier-2 GM-approval floor from the rate card (the published column for the chosen prepayment, or the nearest one, labelled) and, where computed, SemiAnalysis' cost-based floor (the price at which a 5-year contract with 15% prepaid earns about 15.6% project IRR on SemiAnalysis' Neocloud Giant cost inputs). <i>Ceiling</i>: parity with the previous generation, its current mark at the same term and prepayment times a delivered-performance multiple${PERF.pairs ? " (MLPerf-based, customer-realisable; sources in the multiple's tooltip; editable)" : " (no sourced multiple loaded yet; type one in Comparison settings)"}. <i>SemiAnalysis path average</i>: the base-case monthly market rental path from the ${esc(SAV._version || "")} TCO model averaged over the term from today; SemiAnalysis is a subscription source and this page is internal only.</p>
+      <p><b>Freshness.</b> Latest offer ${s.intel_latest_quote || "–"}; CRM aggregates generated ${s.reserve_tenor_generated || "–"} (weekly); Finance rate card ${s.grid_version || "–"}; list-price snapshot ${s.list_snapshot || "–"}; SemiAnalysis model ${esc(SAV._version || "–")} extracted ${esc(SAV._extracted || "–")}. Method v${DATA.method_version}.</p>
       <p><b>Limitations.</b> Offers are sales-reported and skew to lost deals; cluster size, region, interconnect and credit quality are not controlled for; quarter effects are pooled across GPUs; the term axis is commitment length at quote date, not a delivery-date curve; Nebius achieved is thin beyond 24 months and absent for GB200 and VR.</p>
       <p>Tables and history: <a href="https://nebius.atlassian.net/wiki/spaces/PR/pages/2285044257" target="_blank" rel="noopener">GPU Committed-Price Benchmarks, internal marks</a>. Code: forward_curve.py in the price-monitor repo.</p>`;
     $("foot").textContent = "Internal only. Nebius achieved prices come from confidential contracts; never quote marks, achieved prices or the cost view to customers.";
