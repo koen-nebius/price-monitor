@@ -172,7 +172,7 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1788540957.926409,2026-09-04,B300,6.50,3,0,broker,Ornn,256xB300 3mo Paris DC; corr of 1788414848 (Ornn not IREN),0
 1789129113.191989,2026-09-11,GB300,5.00,36,30,undisclosed,Undisclosed,7kxGB300 UK Jan2027; UAE customer <$5,1
 1789129113.191989,2026-09-11,VR,7.00,0,0,undisclosed,Undisclosed,UAE customer; VR ~$7 undisclosed terms,0
-1789132570.330649,2026-09-11,B300,5.39,0,25,neocloud,CoreWeave,Remanence (FR AI lab) 25% upfront; term unknown,1
+1789132570.330649,2026-09-11,B300,5.39,24,25,neocloud,CoreWeave,Remanence (FR AI lab) 25% upfront; 24 months (confirmed by Tanguy Derouet 2026-09-14),1
 1789135521.902249,2026-09-11,H200,2.50,12,0,undisclosed,Undisclosed,Gandara AI (PT) H200 1yr competitor offer,0
 1789135614.370919,2026-09-11,B300,5.97,24,20,neocloud,Nscale,Nscale B300 24mo 20% prepay; same $ as Nebius @30%,1
 1769453225.167629,2026-01-26,B200,3.0,12,0,neocloud,Together,[audit 2026-09-15] sub-$3 upper bound B200 on 6mo and 1yr terms per second customer; corroborates $2.75 6mo row,0

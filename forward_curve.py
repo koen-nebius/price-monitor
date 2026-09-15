@@ -60,6 +60,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 import json
 import math
 import statistics
@@ -317,7 +318,7 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
         rows = [r for r in csv.DictReader(open(history, newline="")) if r.get("consumption_type") in ("on_demand", "spot", "preemptible")]
         if rows:
             latest = max(r["snapshot_date"] for r in rows)
-            per = defaultdict(lambda: {"peer": [], "hyper": []})
+            per = defaultdict(lambda: {"peer": [], "hyper": [], "other": []})
             for r in rows:
                 if r["snapshot_date"] != latest:
                     continue
@@ -339,6 +340,8 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
                     per[tier]["peer"].append((p, prov))
                 elif tag == "hyperscaler":
                     per[tier]["hyper"].append((p, prov))
+                else:
+                    per[tier]["other"].append((p, prov))   # price fighters / platforms, PAYG term only
             for tier, d in per.items():
                 if d["peer"]:
                     best = {}
@@ -348,9 +351,19 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
                     out[tier]["peer_od_median"] = round(statistics.median(vals), 2)
                     out[tier]["peer_od_n"] = len(vals)
                     out[tier]["peer_od_min"] = round(vals[0], 2)
+                    out[tier]["peer_list"] = [{"provider": k, "price": round(v, 4)} for k, v in sorted(best.items(), key=lambda kv: kv[1])]
                 if d["hyper"]:
                     p, prov = min(d["hyper"])
                     out[tier]["hyperscaler_od_min"] = round(p, 2); out[tier]["hyperscaler_od_provider"] = prov
+                    hb = {}
+                    for hp, hprov in d["hyper"]:
+                        hb[hprov] = min(hp, hb.get(hprov, 99))
+                    out[tier]["hyper_list"] = [{"provider": k, "price": round(v, 4)} for k, v in sorted(hb.items(), key=lambda kv: kv[1])]
+                if d["other"]:
+                    ob = {}
+                    for op, oprov in d["other"]:
+                        ob[oprov] = min(op, ob.get(oprov, 99))
+                    out[tier]["other_list"] = [{"provider": k, "price": round(v, 4)} for k, v in sorted(ob.items(), key=lambda kv: kv[1])]
             for tier in out:
                 out[tier]["list_snapshot"] = latest
     if intel_obs:
@@ -360,6 +373,8 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
             if q:
                 out[tier]["quotes_od_median"] = round(statistics.median([o["price_raw"] for o in q]), 2)
                 out[tier]["quotes_od_n"] = len(q)
+                out[tier]["quotes"] = [{"provider": o.get("provider", ""), "price": round(o["price_raw"], 4), "date": o["date"].isoformat(),
+                                        "ts": str(o.get("ts", "")), "known": bool(o.get("known", False))} for o in sorted(q, key=lambda o: o["date"])]
     if realised.exists():
         for r in csv.DictReader(open(realised, newline="")):
             tier = (r.get("tier") or "").upper()
@@ -569,9 +584,13 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
             try:
                 if float(r.get("term_months") or 0) != 0:
                     continue
+                # term 0 in intel.csv also means "term unknown"; only rows that say on-demand count here
+                if not re.search(r"on[- ]?demand|\bpayg\b|pay[- ]as[- ]you[- ]go|hourly|no commit|\bOD\b", str(r.get("notes", "")), re.I):
+                    continue
                 d = _parse_date(r.get("message_date", "")); tier = (r.get("gpu_model") or "").upper()
                 if d and tier in TIERS:
-                    od_quotes.append({"tier": tier, "months": 0, "date": d, "price_raw": float(r["price_per_gpu_hour_usd"])})
+                    od_quotes.append({"tier": tier, "months": 0, "date": d, "price_raw": float(r["price_per_gpu_hour_usd"]),
+                                      "provider": r.get("provider_name", ""), "ts": str(r.get("message_ts", ""))})
             except (TypeError, ValueError):
                 continue
     obs = []

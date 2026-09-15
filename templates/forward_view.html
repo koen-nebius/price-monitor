@@ -46,9 +46,9 @@ select{appearance:none;-webkit-appearance:none;background:var(--surface) url("da
 .result{display:flex;flex-direction:column;gap:6px;padding:14px 0 6px}
 .result h2{margin:0;font:500 14px/1.3 var(--sans);color:var(--muted)}
 .result .answer{margin:0;font:600 clamp(20px,2.6vw,28px)/1.2 var(--sans);color:var(--white);letter-spacing:-.01em;text-wrap:balance}
-.result .answer em{font-style:normal;color:var(--accent)}
-.result .answer.neg em{color:var(--neg)}
-.result .answer.pos em{color:var(--pos)}
+.result .answer em{font-style:normal;color:inherit}
+.result .answer.neg em{color:inherit}
+.result .answer.pos em{color:inherit}
 .result .basis{margin:0;color:var(--muted);font-size:13px;max-width:96ch}
 .result .basis b{color:var(--text);font-weight:500}
 .flags{display:flex;gap:6px;flex-wrap:wrap}
@@ -206,7 +206,7 @@ const DATA = /*__DATA__*/null;
   const money = v => { if (v == null || !isFinite(v)) return "–"; const a = Math.abs(v), s = v < 0 ? "−" : ""; if (a >= 1e9) return s + "$" + (a / 1e9).toFixed(2) + "b"; if (a >= 1e6) return s + "$" + (a / 1e6).toFixed(1) + "m"; if (a >= 1e4) return s + "$" + (a / 1e3).toFixed(1) + "k"; return s + "$" + Math.round(a).toLocaleString("en-US"); };
   const exact = v => (v == null || !isFinite(v) ? "–" : (v < 0 ? "−" : "") + "$" + Math.round(Math.abs(v)).toLocaleString("en-US"));
   const n0 = v => Number(v || 0).toLocaleString("en-US");
-  const monthsLabel = t => t + " months";
+  const monthsLabel = t => (t === 0 ? "PAYG (on-demand)" : t + " months");
   const disc = (months, pp) => Math.min(P.prepay_cap, P.prepay_a * Math.max(0.25, (months || 12) / 12) * (1 - Math.pow(1 - Math.max(0, Math.min(1, pp / 100)), P.prepay_m || 2)));
   const age = o => (AS_OF - new Date(o.date + "T00:00:00Z")) / 86400000;
   const adjTo = (o, pp, dateAdj = true) => (dateAdj ? (o.pa != null ? o.pa : o.p0 * Math.exp(-(QE[o.q] || 0))) : o.p0) * (1 - disc(o.months || o.tenor, pp));   // 0%-basis (today's level when dateAdj) -> chosen prepay; pa = the builder's date-adjusted value
@@ -265,7 +265,26 @@ const DATA = /*__DATA__*/null;
   }
 
   // ---------- comparable set for the position view
+  // ---------- PAYG term (0): today's on-demand list prices and term-0 quotes; a separate class, never pooled into marks
+  function odObs(tier){
+    const od = OD[tier] || {}, snap = od.list_snapshot || DATA.as_of;
+    const nice = k => ({ hyperstack: "Hyperstack", coreweave: "CoreWeave", lambda: "Lambda", crusoe: "Crusoe", verda: "Verda", together: "Together", runpod: "RunPod", aws: "AWS", gcp: "GCP", azure: "Azure", oracle: "Oracle", nebius: "Nebius" }[k] || k.replace(/^(cp|sf|gh)_/, "").replace(/-com$/, "").replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+    const mk = (l, tag) => (l || []).map(x => ({ tier, tenor: 0, months: 0, provider: nice(x.provider), tag, side: "list", price: x.price, p0: x.price, pa: x.price, q: "", prepay: 0, known: true, date: snap, ts: "list:" + x.provider, notes: "on-demand list price, 8-GPU node, snapshot " + snap }));
+    const quotes = (od.quotes || []).map(x => ({ tier, tenor: 0, months: 0, provider: x.provider || "undisclosed", tag: "quote", side: "bid", price: x.price, p0: x.price, pa: x.price, q: "", prepay: 0, known: true, date: x.date, ts: x.ts || ("quote:" + x.date), notes: "on-demand quote, #price-intelligence" }));
+    return { peers: mk(od.peer_list, "peer"), hypers: mk(od.hyper_list, "hyperscaler"), others: mk(od.other_list, "pricefighter"), quotes };
+  }
+  function cellStatsOD(tier){
+    const s = odObs(tier), od = OD[tier] || {};
+    const all = s.peers.concat(s.quotes, s.hypers, s.others);
+    const comp = s.peers.concat(s.quotes);   // hyperscalers and price fighters are listed below, not compared
+    const compVal = o => o.p0, vals = comp.map(compVal), med = vals.length ? wmed(vals) : null;
+    const basisLabel = "today's 8-GPU on-demand list prices of peer clouds and on-demand quotes from the last 90 days; no prepayment, no date adjustment; hyperscalers and price fighters listed below, not compared";
+    const latest = all.length ? all.map(o => o.date).sort().slice(-1)[0] : null;
+    return { all, known: all, unknown: [], comp, compVal, vals, med, basisLabel, excluded: all.filter(o => !comp.includes(o)), unstatedIn: 0, asks: [],
+             askAt: od.realised_payg != null ? od.realised_payg : null, askDeals: 0, withheld: [], pubs: [], latest, n90: all.length };
+  }
   function cellStats(tier, tenor){
+    if (tenor === 0) return cellStatsOD(tier);
     const all = offersFor(tier).filter(o => o.tenor === tenor && age(o) <= P.max_age_days);
     const known = all.filter(o => o.known), unknown = all.filter(o => !o.known);
     let comp, compVal, basisLabel;
@@ -284,6 +303,11 @@ const DATA = /*__DATA__*/null;
   }
   function rank(cs, price){ const n = cs.vals.length, above = cs.vals.filter(v => v > price).length; return { n, above, below: n - above, equal: cs.vals.filter(v => Math.abs(v - price) < 0.005).length }; }
   function benchPrice(tier, tenor, pp){
+    if (tenor === 0) { const od = OD[tier] || {}, cs0 = cellStats(tier, 0);
+      if (od.peer_od_median != null && (od.peer_od_n || 0) >= 2) return { price: od.peer_od_median, src: "Peer on-demand median", why: `median of ${od.peer_od_n} peer clouds' 8-GPU list prices` };
+      if (cs0.med != null && cs0.comp.length >= 2) return { price: cs0.med, src: "Comparable median", why: `median of ${cs0.comp.length} on-demand prices and quotes` };
+      if (od.nebius_list != null) return { price: od.nebius_list, src: "Nebius list", why: "no peer on-demand price on file; Nebius list shown" };
+      return { price: 5, src: "No benchmark", why: "no on-demand evidence for this GPU; $5.00 placeholder" }; }
     const cs = cellStats(tier, tenor);
     if (cs.med != null && cs.comp.length >= 3) return { price: cs.med, src: "Comparable median", why: `median of the ${cs.comp.length} comparable offers` };
     const ref = refTier[tier] && refTier[tier][tenor];
@@ -321,9 +345,9 @@ const DATA = /*__DATA__*/null;
   // ---------- controls
   const selTier = $("c-tier"), selTenor = $("c-tenor"), selPP = $("c-pp"), inPrice = $("c-price"), selPF = $("c-pf"), inGpus = $("c-gpus"), selMode = $("c-mode"), selCB = $("c-cb");
   TIERS.forEach(t => { const o = document.createElement("option"); o.value = t; o.textContent = t + (hasData(t) ? "" : " (no offers)"); o.disabled = !hasData(t); selTier.appendChild(o); });
-  TENORS.forEach(t => { const o = document.createElement("option"); o.value = t; o.textContent = monthsLabel(t); selTenor.appendChild(o); });
+  [0].concat(TENORS).forEach(t => { const o = document.createElement("option"); o.value = t; o.textContent = monthsLabel(t); selTenor.appendChild(o); });
   inGpus.value = S.gpus;
-  selTier.addEventListener("change", () => { S.tier = selTier.value; S.pick = null; if (!offersFor(S.tier).some(o => o.tenor === S.tenor)) S.tenor = TENORS.find(t => offersFor(S.tier).some(o => o.tenor === t)) || S.tenor; render(); });
+  selTier.addEventListener("change", () => { S.tier = selTier.value; S.pick = null; if (S.tenor !== 0 && !offersFor(S.tier).some(o => o.tenor === S.tenor)) S.tenor = TENORS.find(t => offersFor(S.tier).some(o => o.tenor === t)) || S.tenor; render(); });
   selTenor.addEventListener("change", () => { S.tenor = Number(selTenor.value); S.pick = null; render(); });
   selPP.addEventListener("change", () => { S.pp = Number(selPP.value); CELLS = computeCells(); render(); });
   inPrice.addEventListener("input", () => { const v = parseFloat(inPrice.value); if (isFinite(v) && v > 0) { S.price = v; S.priceEntered = true; render(false); } });
@@ -351,6 +375,8 @@ const DATA = /*__DATA__*/null;
     ["market", "position", "return"].forEach(v => { $("v-" + v).hidden = v !== S.view; });
     document.querySelectorAll("#bar .ev").forEach(el => { el.hidden = S.view === "market"; });
     document.querySelectorAll("#bar .mk").forEach(el => { el.hidden = S.view !== "market"; });
+    if (S.tenor === 0) { S.pp = 0; S.mode = "payg"; }   // on-demand: no prepayment, occupancy-based economics
+    selPP.disabled = S.tenor === 0; selMode.disabled = S.tenor === 0;
     selTier.value = S.tier; selTenor.value = String(S.tenor); selPP.value = String(S.pp); selPF.value = S.pf; selCB.value = S.cb; selMode.value = S.mode;
     $("c-recent").checked = S.recent; $("c-others").checked = S.others; $("c-unstated").checked = S.unstated; $("c-achieved").checked = S.achieved;
     $("c-guide").checked = S.guide; $("c-sapos").checked = S.saPos;
@@ -360,9 +386,11 @@ const DATA = /*__DATA__*/null;
     if (updateInput) inPrice.value = S.price.toFixed(2);
     // one control states the benchmark, its source and whether the current price is it; clicking always sets the price to the benchmark
     const benchRounded = Math.round(bench.price * 20) / 20, atBench = Math.abs(S.price - benchRounded) < 0.005, ub = $("c-usebench");
-    ub.textContent = (atBench ? "At benchmark " : "Use benchmark ") + fmt(benchRounded) + " · " + bench.src;
-    ub.title = bench.why + (S.priceEntered && !atBench ? ". The price you typed stays until you use the benchmark." : "");
-    ub.classList.toggle("quiet", atBench); ub.classList.toggle("act", !atBench);
+    ub.hidden = atBench;   // nothing to click when the price already is the benchmark
+    ub.textContent = "Reset to benchmark " + fmt(benchRounded);
+    ub.title = bench.why + ". The price you typed stays until you reset.";
+    ub.classList.remove("quiet"); ub.classList.add("act");
+    S.benchLabel = fmt(bench.price) + " = " + bench.src.toLowerCase() + (bench.why ? " (" + bench.why + ")" : "");   // exact value; the price box rounds to 5 cents
     $("m-asof").textContent = "as of " + DATA.as_of;
 
     if (S.view === "market") renderMarket();
@@ -433,7 +461,12 @@ const DATA = /*__DATA__*/null;
     renderExtras();
   }
   function renderSelSummary(c){
-    const btns = `<button class="btn quiet" id="mk-table-btn" type="button">${S.table ? "View as chart" : "View as table"}</button><button class="btn" id="mk-eval" type="button">Evaluate a price at ${S.tenor} months</button>`;
+    const btns = `<button class="btn quiet" id="mk-table-btn" type="button">${S.table ? "View as chart" : "View as table"}</button><button class="btn" id="mk-eval" type="button">Evaluate a price at ${monthsLabel(S.tenor)}</button>`;
+    if (S.tenor === 0) { const od = OD[S.tier] || {};
+      $("mk-sel").innerHTML = `<span><b>PAYG (on-demand)</b> · not a curve point: list prices and quotes, never pooled into marks</span><span>Nebius list ${fmt(od.nebius_list)}${od.nebius_preemptible != null ? `, preemptible ${fmt(od.nebius_preemptible)}` : ""}</span><span>peer on-demand median ${fmt(od.peer_od_median)}${od.peer_od_n ? ` (${od.peer_od_n} clouds, cheapest ${fmt(od.peer_od_min)})` : ""}</span><span>cheapest hyperscaler ${fmt(od.hyperscaler_od_min)}${od.hyperscaler_od_provider ? ` (${od.hyperscaler_od_provider})` : ""}</span>${od.quotes_od_n ? `<span>${od.quotes_od_n} on-demand quote${od.quotes_od_n > 1 ? "s" : ""}, median ${fmt(od.quotes_od_median)}</span>` : ""}${od.realised_payg != null ? `<span>Nebius realised PAYG ${fmt(od.realised_payg)} (last ${od.realised_window_days || 30} days)</span>` : ""}${btns}`;
+      const ev0 = $("mk-eval"); if (ev0) ev0.addEventListener("click", () => { S.view = "position"; render(); });
+      const tb0 = $("mk-table-btn"); if (tb0) tb0.addEventListener("click", () => { S.table = !S.table; render(); });
+      return; }
     if (c && c.has_mark) {
       const quality = c.achieved_only ? "Nebius achieved only, no competitor offer" : c.confidence === "good" ? "good: 6 or more observations from 2 or more providers, 2 recent" : "thin: " + c.confidence_reason;
       const who = [c.n_bid ? `${c.n_bid} offer${c.n_bid > 1 ? "s" : ""} from ${c.n_providers - (c.n_ask ? 1 : 0)} provider${c.n_providers - (c.n_ask ? 1 : 0) > 1 ? "s" : ""}` : "", c.n_ask ? `Nebius achieved ${c.ask_deals} deal${c.ask_deals > 1 ? "s" : ""} in ${c.n_ask} aggregate${c.n_ask > 1 ? "s" : ""}` : "", c.ask_deals_withheld ? `${c.ask_deals_withheld} further Nebius deal${c.ask_deals_withheld > 1 ? "s" : ""} withheld (under ${NOBS.ask_min_deals || 3})` : "", c.n_unstated && S.pf !== "all" ? `${c.n_unstated} unstated excluded` : ""].filter(Boolean).join(", ");
@@ -453,7 +486,7 @@ const DATA = /*__DATA__*/null;
     if (fg) { const k = fg.exact != null ? fg.exact : fg.cols.reduce((a, c) => Math.abs(c[0] - pp) < Math.abs(a[0] - pp) ? c : a)[0]; const pr = fg.cols.find(c => c[0] === k)[1];
       out.floors.push({ key: "finance", price: pr, short: "Finance Tier-2 floor " + fmt(pr), label: `Finance Tier-2 GM-approval floor ${fmt(pr)} (rate card ${GRIDV}, ${SEGS[S.segForFin]}, ${fg.months} months, ${k}% prepay column${k !== pp ? ", nearest published" : ""})` }); }
     const sa = SA[tier];
-    if (sa && sa.floor_irr_15_6 != null) out.floors.push({ key: "sa_irr", price: sa.floor_irr_15_6, short: "SA 15.6% IRR floor " + fmt(sa.floor_irr_15_6), label: `SemiAnalysis cost-based floor ${fmt(sa.floor_irr_15_6)}: price for ~15.6% project IRR on a 5-year contract with 15% prepaid, Neocloud Giant profile (${SAV._version || "SA model"})` });
+    if (tenor !== 0 && sa && sa.floor_irr_15_6 != null) out.floors.push({ key: "sa_irr", price: sa.floor_irr_15_6, short: "SA 15.6% IRR floor " + fmt(sa.floor_irr_15_6), label: `SemiAnalysis cost-based floor ${fmt(sa.floor_irr_15_6)}: price for ~15.6% project IRR on a 5-year contract with 15% prepaid, Neocloud Giant profile (${SAV._version || "SA model"})` });
     const pair = perfPair(tier);
     if (pair.prev) { const pr = refTier[pair.prev] && refTier[pair.prev][tenor]; const cs = pr && pr.has_mark ? null : cellStats(pair.prev, tenor);
       const prevPrice = pr && pr.has_mark ? pr.mark * (1 - disc(tenor, pp)) : (cs && cs.med != null ? cs.med : null), prevSrc = pr && pr.has_mark ? "mark" : (cs && cs.med != null ? "comparable median" : null);
@@ -461,6 +494,7 @@ const DATA = /*__DATA__*/null;
       if (prevPrice != null && mult) out.ceiling = { price: prevPrice * mult, mult, prev: pair.prev, prevPrice, prevSrc, overridden: S.multOverride != null, pair,
         short: `parity with ${pair.prev} ×${mult} = ${fmt(prevPrice * mult)}`, label: `Parity ceiling ${fmt(prevPrice * mult)}: ${pair.prev} ${prevSrc} ${fmt(prevPrice)} at ${monthsLabel(tenor)}, ${pp}% prepay × ${mult} delivered-performance multiple${S.multOverride != null ? " (your override)" : pair.low != null ? ` (MLPerf-based, customer-realisable; range ${pair.low}–${pair.high}; sources on the multiple's tooltip)` : ""}` };
       else out.ceiling = { price: null, prev: pair.prev, mult, prevPrice, reason: prevPrice == null ? `no ${pair.prev} price at ${monthsLabel(tenor)}` : "no performance multiple on file; type one in Comparison settings" }; }
+    if (tenor === 0 && sa && sa.now != null) out.sa = { price: sa.now, now: sa.now, short: "SemiAnalysis modelled rental now " + fmt(sa.now), label: `SemiAnalysis modelled market rental for ${tier} this month ${fmt(sa.now)} (base case, TCO model ${SAV._version || ""}; a modelled path value, not an offer)` };
     if (sa && sa.term_avg && sa.term_avg[tenor] != null) { const late = sa.path_starts && sa.path_starts > DATA.as_of.slice(0, 7); out.sa = { price: sa.term_avg[tenor], now: sa.now, short: "SemiAnalysis path avg " + fmt(sa.term_avg[tenor]), label: `SemiAnalysis base-case path averaged over ${monthsLabel(tenor)}${late ? " from " + sa.path_starts : " from today"}: ${fmt(sa.term_avg[tenor])} (modelled market rental, not offers; ${SAV._version || ""})` }; }
     return out;
   }
@@ -512,10 +546,12 @@ const DATA = /*__DATA__*/null;
     let ans;
     if (rk.n >= 3) ans = `Lower than <em>${rk.above} of ${rk.n}</em> comparable offers${rk.equal ? ` (${rk.equal} at the same price)` : ""}.`;
     else if (rk.n > 0) ans = `Only <em>${rk.n}</em> comparable offer${rk.n === 1 ? "" : "s"} on file: not enough to position. ${rk.n === 1 ? "It is" : "They are"} shown for reference.`;
-    else ans = `No comparable offers on file for ${S.tier} at ${S.tenor} months.`;
+    else ans = `No comparable offers on file for ${S.tier} at ${monthsLabel(S.tenor)}.`;
     $("ps-a").innerHTML = ans;
     const exclUnst = cs.unknown.filter(o => cs.excluded.includes(o)).length;
-    $("ps-b").innerHTML = `$/GPU-hr · <b>${S.tier}</b>, <b>${monthsLabel(S.tenor)}</b> · ${S.cb === "raw" ? "reported prices, last 90 days, matching prepayment" : `adjusted to today's level and ${S.pp}% prepayment`} · ${rk.n} of ${cs.all.length} offers comparable${exclUnst ? ` (${exclUnst} unstated excluded)` : ""} · latest ${cs.latest || "–"} · sales-reported, skews to lost deals`;
+    $("ps-b").innerHTML = S.tenor === 0
+      ? `$/GPU-hr · <b>${S.tier}</b>, <b>PAYG (on-demand)</b> · ${cs.basisLabel} · ${rk.n} of ${cs.all.length} prices comparable · benchmark ${S.benchLabel || "–"} · list snapshot ${cs.latest || "–"}`
+      : `$/GPU-hr · <b>${S.tier}</b>, <b>${monthsLabel(S.tenor)}</b> · ${S.cb === "raw" ? "reported prices, last 90 days, matching prepayment" : `adjusted to today's level and ${S.pp}% prepayment`} · ${rk.n} of ${cs.all.length} offers comparable${exclUnst ? ` (${exclUnst} unstated excluded)` : ""} · benchmark ${S.benchLabel || "–"} · latest ${cs.latest || "–"} · sales-reported, skews to lost deals`;
     const flags = [];
     if (rk.n && rk.n < 6) flags.push(`<span class="flag">thin evidence: ${rk.n} comparable offers</span>`);
     if (S.unstated && cs.unstatedIn) flags.push(`<span class="flag">${cs.unstatedIn} of ${rk.n} comparable offers have unstated prepayment, counted as 0%</span>`);
@@ -542,29 +578,29 @@ const DATA = /*__DATA__*/null;
     const span = xmax - xmin, step = span <= 1.5 ? 0.25 : span <= 3 ? 0.5 : span <= 8 ? 1 : 2;
     for (let v = Math.ceil(xmin / step) * step; v <= xmax + 1e-9; v += step) { g.push(`<line x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="30" y2="${PS.base}" stroke="#1d1d24"/>`); g.push(`<text x="${X(v).toFixed(1)}" y="${PS.base + 20}" fill="#7c7c88" font-size="12" text-anchor="middle">$${step < 1 ? v.toFixed(2) : v.toFixed(0)}</text>`); }
     g.push(`<line x1="${PS.L}" x2="${PS.W - PS.R}" y1="${PS.base}" y2="${PS.base}" stroke="#2a2a31"/>`);
-    g.push(`<text x="${PS.L}" y="${PS.H - 6}" fill="#7c7c88" font-size="11.5">$/GPU-hr · ${esc(cs.basisLabel)}</text>`);
+    g.push(`<text x="${PS.L}" y="${PS.H - 6}" fill="#7c7c88" font-size="11.5">$/GPU-hr</text>`);
     const DOT = 7, slots = swarm(shown, o => X(val(o)), DOT * 2 + 2);
     if (cs.med != null) { g.push(`<line x1="${X(cs.med).toFixed(1)}" x2="${X(cs.med).toFixed(1)}" y1="${PS.base - 8}" y2="${PS.base + 8}" stroke="#f2f2ef" stroke-width="2"/>`); g.push(`<text x="${X(cs.med).toFixed(1)}" y="${PS.base + 36}" fill="#b4b4bd" font-size="11.5" text-anchor="middle">median ${fmt(cs.med)}</text>`); }
     if (S.achieved && cs.askAt != null) { const x = X(cs.askAt); g.push(`<path d="M${x.toFixed(1)},${PS.base - 22} l7,7 l-7,7 l-7,-7 z" fill="none" stroke="#f2f2ef" stroke-width="1.5"><title>Nebius achieved ${fmt(cs.askAt)} (${cs.askDeals} deals), adjusted to ${S.pp}% prepay</title></path>`); g.push(`<text x="${(x + 11).toFixed(1)}" y="${PS.base - 12}" fill="#b4b4bd" font-size="11">Nebius achieved ${fmt(cs.askAt)}</text>`); }
     // guidance lines (dashed) with stacked labels under the price label
-    guideLines.forEach((l, i) => { const x = X(l.price), col = l.kind === "ceiling" ? "#e0765f" : l.kind === "sa" ? "#9aa7ff" : "#8fbf9f", ly = 40 + i * 13, right = x > PS.W - 190;
-      g.push(`<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${ly + 4}" y2="${PS.base}" stroke="${col}" stroke-width="1.2" stroke-dasharray="4 4"><title>${esc(l.label)}</title></line>`);
+    guideLines.forEach((l, i) => { const x = X(l.price), col = "#d6d6dc", dash = l.kind === "ceiling" ? "2 3" : l.kind === "sa" ? "8 4" : "4 4", ly = 40 + i * 13, right = x > PS.W - 190;
+      g.push(`<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${ly + 4}" y2="${PS.base}" stroke="${col}" stroke-width="1.2" stroke-dasharray="${dash}"><title>${esc(l.label)}</title></line>`);
       g.push(`<text x="${(x + (right ? -6 : 6)).toFixed(1)}" y="${ly}" fill="${col}" font-size="11" text-anchor="${right ? "end" : "start"}">${esc(l.short)}</text>`); });
     shown.forEach((o, k) => { const cx = X(val(o)), cy = PS.base - DOT - 2 - slots[k] * (DOT * 2 + 2), sel = S.pick === o.ts + "|" + o.provider;
       g.push(`<circle data-k="${k}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${DOT}" fill="${provColor[o.provider] || "#a3a3ae"}" stroke="${sel ? "#ffffff" : "#0b0b0d"}" stroke-width="${sel ? 2.5 : 1}" style="cursor:pointer"><title>${esc(o.provider)} · ${o.date} · ${Math.round(o.months || o.tenor)}m · ${o.known ? o.prepay + "% prepay" : "prepay not stated"} · reported ${fmt(o.price)} · here ${fmt(val(o))}</title></circle>`); });
     const xp = X(S.price);
-    g.push(`<line x1="${xp.toFixed(1)}" x2="${xp.toFixed(1)}" y1="22" y2="${PS.base + 4}" stroke="#ffb547" stroke-width="3"/>`);
-    g.push(`<text x="${(xp + (xp > PS.W - 120 ? -8 : 8)).toFixed(1)}" y="18" fill="#ffb547" font-size="13" font-weight="600" text-anchor="${xp > PS.W - 120 ? "end" : "start"}">your price ${fmt(S.price)}</text>`);
+    g.push(`<line x1="${xp.toFixed(1)}" x2="${xp.toFixed(1)}" y1="22" y2="${PS.base + 4}" stroke="#d6d6dc" stroke-width="3"/>`);
+    g.push(`<text x="${(xp + (xp > PS.W - 120 ? -8 : 8)).toFixed(1)}" y="18" fill="#d6d6dc" font-size="13" font-weight="600" text-anchor="${xp > PS.W - 120 ? "end" : "start"}">your price ${fmt(S.price)}</text>`);
     const svg = $("ps-chart"); svg.innerHTML = g.join("");
     svg.querySelectorAll("circle[data-k]").forEach(el => el.addEventListener("click", () => { const o = shown[Number(el.dataset.k)]; const key = o.ts + "|" + o.provider; S.pick = S.pick === key ? null : key; render(false); }));
     $("lg-ach").hidden = !(S.achieved && cs.askAt != null);
     // guidance text under the graph: definitions and sources beside the values
     const gparts = [];
-    if (S.guide) { gd.floors.forEach(f => gparts.push(`<span style="color:#8fbf9f">■</span> ${esc(f.label)}`));
-      if (gd.ceiling && gd.ceiling.price != null) gparts.push(`<span style="color:#e0765f">■</span> ${esc(gd.ceiling.label)}`);
-      else if (gd.ceiling) gparts.push(`<span style="color:#e0765f">■</span> Parity ceiling not shown: ${esc(gd.ceiling.reason)}`);
-      if (SA[S.tier] && SA[S.tier].cost_per_hour != null) gparts.push(`SemiAnalysis cash cost ${fmt(SA[S.tier].cost_per_hour)}/GPU-hr (Full TCO, no return) sits below every floor above.`); }
-    if (S.saPos && gd.sa) gparts.push(`<span style="color:#9aa7ff">■</span> ${esc(gd.sa.label)}`);
+    if (S.guide) { gd.floors.forEach(f => gparts.push(esc(f.label)));
+      if (gd.ceiling && gd.ceiling.price != null) gparts.push(esc(gd.ceiling.label));
+      else if (gd.ceiling) gparts.push(`Parity ceiling not shown: ${esc(gd.ceiling.reason)}`);
+    }
+    if (S.saPos && gd.sa) gparts.push(esc(gd.sa.label));
     $("ps-guide").innerHTML = gparts.length ? `<b style="color:var(--text);font-weight:500">Hypothetical guidance</b> · ${gparts.join(" · ")}` : "";
     const pair = perfPair(S.tier);
     $("c-mult-label").textContent = pair.prev ? `Parity multiple vs ${pair.prev}` : "Parity multiple";
@@ -583,7 +619,7 @@ const DATA = /*__DATA__*/null;
     const seg = S.segForFin || "ai_native_above_512";
     const gc = gridCell(seg, S.tier, S.tenor, S.pp);
     let fin;
-    if (!gc) fin = `<span class="lead">No published rate for ${S.tier} at ${S.tenor} months</span><span>Finance rate card ${GRIDV}, ${SEGS[seg]}</span>`;
+    if (!gc) fin = `<span class="lead">No published rate for ${S.tier} at ${monthsLabel(S.tenor)}</span><span>Finance rate card ${GRIDV}, ${SEGS[seg]}</span>`;
     else if (gc.price != null) { const d = S.price / gc.price - 1; fin = `<span class="lead">${fmt(gc.price)} published rate, your price ${pctAbs(d)} ${d < 0 ? "below" : d > 0 ? "above" : "at it"}</span><span>Finance rate card ${GRIDV}, ${SEGS[seg]}, ${gc.months} months, ${S.pp}% prepayment</span>`; }
     else fin = `<span class="lead">No matching published rate for ${S.pp}% prepayment</span><span>Finance rate card ${GRIDV}, ${SEGS[seg]}, ${gc.months} months publishes other prepayment columns; see the rate card below</span>`;
     $("ps-fin").innerHTML = fin + `<label style="margin-left:auto;color:var(--dim)">Segment <select id="c-seg" aria-label="Finance segment">${Object.keys(SEGS).map(k => `<option value="${k}" ${k === seg ? "selected" : ""}>${SEGS[k]}</option>`).join("")}</select></label>`;
@@ -598,7 +634,7 @@ const DATA = /*__DATA__*/null;
     cs.asks.slice().sort((a, b) => b.date.localeCompare(a.date)).forEach(o => rows.push(`<tr><td>Nebius achieved</td><td>${o.deals} deal${o.deals > 1 ? "s" : ""} · ${o.bucket}</td><td>${period(o)}</td><td>${Math.round(o.months || o.tenor)}m</td><td>${o.prepay == null ? "mixed" : o.prepay + "% proxy"}</td><td>${fmt(o.price)}</td><td>${fmt(adjTo(o, S.pp))}</td><td class="dim">reference</td><td>CRM aggregate</td></tr>`));
     cs.withheld.forEach(o => rows.push(`<tr><td>Nebius achieved</td><td>${o.deals} deal${o.deals > 1 ? "s" : ""} · ${o.bucket}</td><td>${period(o)}</td><td>${Math.round(o.months || o.tenor)}m</td><td class="dim">–</td><td class="dim">withheld</td><td class="dim">withheld</td><td class="dim">under ${NOBS.ask_min_deals || 3} deals</td><td>CRM aggregate</td></tr>`));
     cs.pubs.forEach(o => rows.push(`<tr><td>public contract</td><td>${esc(o.provider)}</td><td>${o.date}</td><td>${Math.round(o.months)}m</td><td>${o.prepay}%</td><td>${fmt(o.price)}</td><td>${fmt(adjTo(o, S.pp))}</td><td class="dim">lower bound</td><td>SemiAnalysis</td></tr>`));
-    $("ps-obs-sum").textContent = `All observations for ${S.tier} at ${S.tenor} months (${cs.all.length} offers, ${cs.asks.length + cs.withheld.length} Nebius achieved aggregates, ${cs.pubs.length} public contracts)`;
+    $("ps-obs-sum").textContent = `All observations for ${S.tier} at ${monthsLabel(S.tenor)} (${cs.all.length} offers, ${cs.asks.length + cs.withheld.length} Nebius achieved aggregates, ${cs.pubs.length} public contracts)`;
     $("ps-obs-t").innerHTML = `<div class="table-wrap" style="margin-top:0"><table><thead><tr><th>class</th><th>provider</th><th>date</th><th>term</th><th>prepay</th><th>reported</th><th>adjusted to ${S.pp}%</th><th>status</th><th>source</th></tr></thead><tbody>${rows.join("") || '<tr><td colspan="9" class="dim">no observations</td></tr>'}</tbody></table></div>`;
     $("ps-obs-t").querySelectorAll("tr[data-ts]").forEach(tr => tr.addEventListener("click", () => { S.pick = S.pick === tr.dataset.ts ? null : tr.dataset.ts; render(false); }));
   }
@@ -606,7 +642,7 @@ const DATA = /*__DATA__*/null;
   // ===================== Contract return =====================
   const RT = { W: 1100, H: 340, L: 84, R: 40, T: 30, B: 44 };
   function renderReturn(){
-    const G = Math.max(1, S.gpus || 1), ec = econ(S.tier, S.price, S.tenor, S.pp, S.mode, S.util), T = S.tenor;
+    const G = Math.max(1, S.gpus || 1), T = S.tenor || 12, ec = econ(S.tier, S.price, T, S.pp, S.mode, S.util);   // PAYG: 12-month horizon
     if (!ec) {
       const ref = refTier[S.tier] && (refTier[S.tier][T] || refTier[S.tier][36]) || {};
       $("rt-a").className = "answer"; $("rt-a").innerHTML = `No Nebius cost model for ${S.tier} yet.`;
@@ -619,7 +655,7 @@ const DATA = /*__DATA__*/null;
     else { a.className = "answer neg"; a.innerHTML = `<em>${money(ec.residual * G)}</em> of capital unrecovered at expiry.`; }
     const recovery = ec.payback == null ? (ec.coverAtSigning ? "upfront covers capital at signing, operating costs consume it" : "capital not recovered within the term")
                      : ec.payback === 0 ? "capital covered from signing" : `capital recovered in month ${Math.ceil(ec.payback)}`;
-    $("rt-b").innerHTML = `${n0(G)} GPUs · ${T} months${S.mode === "reserve" ? (S.pp ? ` · ${S.pp}% prepaid` : "") : ` · PAYG scenario at ${Math.round(S.util * 100)}% occupancy`} · ${recovery}`;
+    $("rt-b").innerHTML = `${n0(G)} GPUs · ${T} months${S.tenor === 0 ? " (PAYG, 12-month horizon)" : ""}${S.mode === "reserve" ? (S.pp ? ` · ${S.pp}% prepaid` : "") : ` · PAYG scenario at ${Math.round(S.util * 100)}% occupancy`} · ${recovery}`;
     const flags = [];
     if (S.price < ec.cashSold) flags.push(`<span class="flag neg">price below cash operating cost ${fmt(ec.cashSold)}</span>`);
     if (S.mode === "payg" && S.price < ec.floor22) flags.push(`<span class="flag">below the portfolio's 22-month PAYG floor ${fmt(ec.floor22)}</span>`);
