@@ -59,19 +59,34 @@ class IntelQuality(unittest.TestCase):
         self.assertFalse(prepay_known({"prepay_pct": "0", "notes": "3yr offer seen by Cursor; prepay unspecified"}))
         self.assertFalse(prepay_known({"prepay_pct": "0", "notes": "512xB300 3yr US Jan/Feb delivery"}))
 
-    def test_dedupe_collapses_seed_and_same_message_rows(self):
-        from intel_quality import dedupe
+    def test_classify_removes_confirmed_repeats_and_keeps_lookalikes_for_review(self):
+        from intel_quality import classify, dedupe
         rows = [
-            {"message_ts": "seed_20260528_01", "message_date": "2026-05-28", "gpu_model": "B200", "price_per_gpu_hour_usd": "3.68", "term_months": "36", "provider_name": "Oracle"},
-            {"message_ts": "1779927609.062", "message_date": "2026-05-28", "gpu_model": "B200", "price_per_gpu_hour_usd": "3.68", "term_months": "36", "provider_name": "Oracle"},
-            {"message_ts": "1787230678.978", "message_date": "2026-08-20", "gpu_model": "B300", "price_per_gpu_hour_usd": "4.90", "term_months": "36", "provider_name": "SFCompute"},
-            {"message_ts": "1787230678.978", "message_date": "2026-08-20", "gpu_model": "B300", "price_per_gpu_hour_usd": "4.90", "term_months": "36", "provider_name": "Ornn"},
-            {"message_ts": "1787599134.249", "message_date": "2026-08-24", "gpu_model": "B300", "price_per_gpu_hour_usd": "4.90", "term_months": "36", "provider_name": "AWS"},
+            # seed row repeating the retrieved Oracle row: confirmed repeat, removed
+            {"message_ts": "seed_20260528_01", "message_date": "2026-05-28", "gpu_model": "B200", "price_per_gpu_hour_usd": "3.68", "term_months": "36", "provider_name": "Oracle", "notes": "3yr 0% prepay committed deal"},
+            {"message_ts": "1779927609.062", "message_date": "2026-05-28", "gpu_model": "B200", "price_per_gpu_hour_usd": "3.68", "term_months": "36", "provider_name": "Oracle", "notes": "3yr 0% prepay 512 GPUs"},
+            # one Slack message, two providers, same price: two offers (BoostRun 20k US Q4 vs Nscale 15k EU Q1); both kept, flagged
+            {"message_ts": "1780592471.289", "message_date": "2026-06-04", "gpu_model": "GB300", "price_per_gpu_hour_usd": "3.80", "term_months": "36", "provider_name": "BoostRun", "notes": "20k GPUs US Q4 3yr"},
+            {"message_ts": "1780592471.289", "message_date": "2026-06-04", "gpu_model": "GB300", "price_per_gpu_hour_usd": "3.80", "term_months": "36", "provider_name": "Nscale", "notes": "15k GPUs EU Q1 3yr high $3/hr range"},
+            # seed row anonymised the provider: same day, price, term, notes -> confirmed repeat
+            {"message_ts": "seed_20260501_03", "message_date": "2026-05-01", "gpu_model": "GB300", "price_per_gpu_hour_usd": "3.50", "term_months": "36", "provider_name": "Undisclosed", "notes": "3yr 100% upfront UAE market"},
+            {"message_ts": "1777630000.000", "message_date": "2026-05-01", "gpu_model": "GB300", "price_per_gpu_hour_usd": "3.50", "term_months": "36", "provider_name": "Mistral", "notes": "3yr 100% upfront UAE market"},
+            # seed row naming a different provider than the retrieved row: kept, review
+            {"message_ts": "seed_20260414_02", "message_date": "2026-04-14", "gpu_model": "B200", "price_per_gpu_hour_usd": "4.25", "term_months": "0", "provider_name": "AWS", "notes": "through reseller 25% down"},
+            {"message_ts": "1776160000.000", "message_date": "2026-04-14", "gpu_model": "B200", "price_per_gpu_hour_usd": "4.25", "term_months": "0", "provider_name": "Lyceum", "notes": "AWS nodes German broker 25% down"},
+            # same provider, price and term four days apart: confirmed repeat
+            {"message_ts": "1787599134.249", "message_date": "2026-08-24", "gpu_model": "B300", "price_per_gpu_hour_usd": "4.90", "term_months": "36", "provider_name": "AWS", "notes": ""},
+            {"message_ts": "1787900000.000", "message_date": "2026-08-28", "gpu_model": "B300", "price_per_gpu_hour_usd": "4.90", "term_months": "36", "provider_name": "AWS", "notes": "same quote re-posted"},
         ]
-        kept, dups = dedupe(rows)
-        self.assertEqual(len(kept), 3)                       # Oracle once, the joint SFC/Ornn offer once, AWS separately
-        self.assertEqual(len(dups), 2)
-        self.assertTrue(all(not str(k["message_ts"]).startswith("seed") for k in kept))
+        kept, removed, review = classify(rows)
+        self.assertEqual(len(removed), 3)
+        self.assertEqual({str(d["row"]["message_ts"]) for d in removed}, {"seed_20260528_01", "seed_20260501_03", "1787900000.000"})
+        self.assertEqual(len(kept), 7)
+        self.assertEqual({str(d["row"]["message_ts"]) + ":" + d["row"]["provider_name"] for d in review},
+                         {"1780592471.289:Nscale", "seed_20260414_02:AWS"})
+        self.assertTrue(any(k["provider_name"] == "Nscale" for k in kept))   # never removed on a shared message alone
+        kept2, removed2 = dedupe(rows)
+        self.assertEqual((len(kept2), len(removed2)), (7, 3))
 
 
 class Build(unittest.TestCase):
@@ -88,11 +103,14 @@ class Build(unittest.TestCase):
             intel = self._write(tmp, "intel.csv",
                 ["message_ts", "message_date", "gpu_model", "price_per_gpu_hour_usd", "term_months",
                  "prepay_pct", "provider_type", "provider_name", "notes"],
-                [["a", "2026-09-01", "B300", "4.0", "36", "0", "neocloud", "X", ""],
-                 ["b", "2026-08-15", "B300", "4.2", "36", "0", "neocloud", "Y", ""],
-                 ["c", "2026-08-01", "B300", "4.4", "36", "0", "hyperscaler", "Z", ""],
-                 ["d", "2026-08-01", "H100", "2.0", "12", "0", "hyperscaler", "Z", ""],   # alone -> suppressed
-                 ["e", "2026-08-01", "B300", "40.0", "36", "0", "neocloud", "junk", ""]])  # outside band
+                [["a", "2026-09-01", "B300", "4.0", "36", "0", "neocloud", "X", "3yr 0% prepay"],
+                 ["b", "2026-08-15", "B300", "4.2", "36", "25", "neocloud", "Y", ""],
+                 ["c", "2026-08-01", "B300", "4.4", "36", "0", "hyperscaler", "Z", "monthly payment terms"],
+                 ["d", "2026-08-01", "H100", "2.0", "12", "0", "hyperscaler", "Z", "no prepay"],   # alone -> suppressed
+                 ["e", "2026-08-01", "B300", "40.0", "36", "0", "neocloud", "junk", "0% down"],   # outside band
+                 ["f", "2026-08-20", "B300", "3.0", "36", "0", "neocloud", "Q", "512 GPUs US delivery"],     # prepay unstated -> counted, not pooled
+                 ["g", "2026-08-21", "B300", "3.05", "36", "0", "neocloud", "R", "1k GPUs EU"],
+                 ["h", "2026-08-22", "B300", "3.1", "36", "0", "broker", "S", "broker offer, terms tbc"]])
             reserve = self._write(tmp, "reserve_tenor.csv",
                 ["generated_date", "gpu", "tenor_months", "close_month", "deals", "lines", "gpus",
                  "price_lo", "price_med", "price_hi"],
@@ -107,11 +125,18 @@ class Build(unittest.TestCase):
                            contracts=Path(tmp) / "none.csv", grid=Path(tmp) / "none.json")
         b300_36 = next(e for e in res["marks"] if e["tier"] == "B300" and e["tenor_months"] == 36)
         self.assertTrue(b300_36["has_mark"])
-        self.assertEqual(b300_36["n_obs"], 4)            # junk price excluded by the sanity band
+        self.assertEqual(b300_36["n_obs"], 4)            # junk price excluded by the sanity band; unstated offer not pooled
         self.assertEqual(b300_36["n_bid"], 3)
+        self.assertEqual(b300_36["n_bid_unstated"], 3)
+        self.assertEqual(b300_36["n_all"], 7)
         self.assertEqual(b300_36["n_ask"], 1)
         self.assertEqual(b300_36["ask_deals"], 2)
         self.assertTrue(4.0 <= b300_36["mark"] <= 4.8)
+        self.assertEqual(b300_36["mark"], b300_36["mark_known"])
+        self.assertLess(b300_36["mark_all"], b300_36["mark"])   # the ~$3 unstated offers would have pulled a pooled figure down
+        self.assertAlmostEqual(b300_36["bid_median_unstated"], 3.05, places=2)
+        unstated_obs = [o for o in res["observations"] if o["side"] == "bid" and not o["known"]]
+        self.assertEqual(len(unstated_obs), 3)
         self.assertEqual(b300_36["list_nebius"], 4.55)
         self.assertEqual(b300_36["list_hyperscaler_min"], 9.0)
         self.assertGreater(b300_36["spread_pct"], 0)

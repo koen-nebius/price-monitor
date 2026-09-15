@@ -70,7 +70,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 import sys as _sys  # noqa: E402
 _sys.path.insert(0, str(ROOT))
-from intel_quality import dedupe as intel_dedupe, prepay_known as intel_prepay_known  # noqa: E402
+from intel_quality import classify as intel_classify, dedupe as intel_dedupe, prepay_known as intel_prepay_known  # noqa: E402
 STORE = ROOT / "store"
 OUT_DIR = STORE / "forward_curve"
 INTEL_CSV = STORE / "intel.csv"
@@ -78,7 +78,7 @@ RESERVE_TENOR_CSV = STORE / "reserve_tenor.csv"
 HISTORY_CSV = STORE / "history.csv"
 BODY_HTML = STORE / "forward_curve_body.html"
 
-METHOD_VERSION = "1.2 (2026-09-15)"
+METHOD_VERSION = "1.3 (2026-09-15)"
 TIERS = ["H100", "H200", "B200", "B300", "GB200", "GB300", "VR"]
 TENORS = [3, 6, 12, 18, 24, 36, 60]            # months; buckets, see bucket_months()
 TENOR_LABEL = {3: "3m", 6: "6m", 12: "12m", 18: "18m", 24: "24m", 36: "36m", 60: "60m"}
@@ -195,17 +195,20 @@ def _parse_date(s: str) -> date | None:
 # ----------------------------------------------------------------------------- loaders
 def load_bid(path: Path = INTEL_CSV) -> list[dict]:
     """Competitor offers from #price-intelligence -> observations (side=bid).
-    Deduplicated by underlying offer (intel_quality.dedupe: seed repeats, same-message
-    multi-provider rows, same provider/price/term within 7 days). Each observation
-    carries `known` = prepayment stated in the quote; unknown prepay stays 0 % for the
-    pooled mark but is flagged so consumers can exclude it from ranked comparisons."""
+    Confirmed repeats are removed (intel_quality.classify: same provider/price/term within
+    7 days, seed rows repeating a retrieved row); offers that merely look alike (same Slack
+    message, different provider) are kept and carry `review` = True. Each observation
+    carries `known` = prepayment stated in the quote; only known observations enter a
+    mark, unknown ones are counted separately and never ranked by default."""
     obs = []
     if not path.exists():
         return obs
     with open(path, newline="") as f:
         rows = list(csv.DictReader(f))
-    kept, dups = intel_dedupe(rows)
-    load_bid.duplicates = len(dups)  # noqa: attribute on function, read by build()
+    kept, removed, review = intel_classify(rows)
+    load_bid.duplicates = len(removed)  # noqa: attribute on function, read by build()
+    load_bid.review = len(review)
+    review_ids = {id(x["row"]): x for x in review}
     for r in kept:
         tier = (r.get("gpu_model") or "").strip().upper()
         if tier not in TIERS:
@@ -223,10 +226,12 @@ def load_bid(path: Path = INTEL_CSV) -> list[dict]:
         except (TypeError, ValueError):
             months = 0.0
         known = (r.get("prepay_known") == "1") if r.get("prepay_known") not in (None, "") else intel_prepay_known(r)
+        rv = review_ids.get(id(r))
         obs.append({"side": "bid", "tier": tier, "tenor": tenor, "months": months, "date": d,
                     "price_raw": price, "prepay_pct": float(r.get("prepay_pct") or 0), "known": known,
                     "weight": 1.0, "provider": r.get("provider_name", ""),
                     "provider_type": r.get("provider_type", ""), "ts": str(r.get("message_ts", "")),
+                    "review": bool(rv), "similar_provider": (rv or {}).get("similar_provider", ""),
                     "source": f"intel:{r.get('message_ts', '')}"})
     return obs
 
@@ -499,35 +504,42 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
     for tier in TIERS:
         for tenor in TENORS:
             allc = by_cell.get((tier, tenor), [])
-            bids = [o for o in allc if o["side"] == "bid"]
-            asks = [o for o in allc if o["side"] == "ask"]
+            bids_all = [o for o in allc if o["side"] == "bid"]
+            bids = [o for o in bids_all if o.get("known")]          # offers that state their prepayment
+            bids_unstated = [o for o in bids_all if not o.get("known")]
+            asks = [o for o in allc if o["side"] == "ask"]           # payment type known (proxy)
             pubs = [o for o in allc if o["side"] == "public"]
-            cell = bids + asks                                   # pooled evidence; public contracts are reference only
+            cell = bids + asks                                       # the mark's evidence: one payment basis
+            cell_all = bids_all + asks                               # reference only: unstated terms counted at 0%
             n, n_recent = len(cell), sum(1 for o in cell if o["age_days"] <= RECENT_DAYS)
-            n_known = sum(1 for o in cell if o.get("known"))
             providers = {(o.get("provider") or "").strip().lower() for o in bids if o.get("provider")} | ({"nebius"} if asks else set())
             recent_raw = [o["price_raw"] for o in cell if o["age_days"] <= 90]
             recent_adj = [o for o in cell if o["age_days"] <= RECENT_DAYS]
-            known_adj = [o for o in cell if o.get("known")]
             ask_deals = sum(o.get("deals", 0) for o in asks)
             ref = lists.get((tier, tenor), {})
             gref = grid_reference(grids, tier, tenor, segment)
             entry = {
                 "tier": tier, "tenor_months": tenor, "label": TENOR_LABEL[tenor],
                 "n_obs": n, "n_recent": n_recent, "n_bid": len(bids), "n_ask": len(asks), "n_public": len(pubs),
-                "n_known": n_known, "n_providers": len(providers), "ask_deals": ask_deals,
+                "n_known": n, "n_bid_unstated": len(bids_unstated), "n_all": len(cell_all),
+                "n_providers": len(providers), "ask_deals": ask_deals,
                 "recent_raw_median": round(statistics.median(recent_raw), 2) if recent_raw else None,
                 "n_recent90": len(recent_raw),
                 "mark_recent": (round(weighted_median([o["p0"] for o in recent_adj], [o["weight"] for o in recent_adj]), 2)
                                 if len(recent_adj) >= MIN_OBS else None),
-                "mark_known": (round(weighted_median([o["p_adj"] for o in known_adj], [o["weight"] for o in known_adj]), 2)
-                               if len(known_adj) >= MIN_OBS else None),
+                "mark_known": None,   # set below: equals the mark (stated-prepay basis) when published
+                "mark_all": (round(weighted_median([o["p_adj"] for o in cell_all], [o["weight"] for o in cell_all]), 2)
+                             if len(cell_all) >= MIN_OBS else None),
                 "public_median": round(statistics.median([o["p_adj"] for o in pubs]), 2) if pubs else None,
                 "grid": gref,
                 "grid_100": (gref or {}).get("prices", {}).get(100),
                 "grid_50": (gref or {}).get("prices", {}).get(50),
                 "bid_median": round(weighted_median([o["p_adj"] for o in bids],
                                                     [o["weight"] for o in bids]), 2) if bids else None,
+                "bid_median_all": round(weighted_median([o["p_adj"] for o in bids_all],
+                                                        [o["weight"] for o in bids_all]), 2) if bids_all else None,
+                "bid_median_unstated": round(weighted_median([o["p_adj"] for o in bids_unstated],
+                                                             [o["weight"] for o in bids_unstated]), 2) if bids_unstated else None,
                 "ask_median": round(weighted_median([o["p_adj"] for o in asks],
                                                     [o["weight"] for o in asks]), 2) if asks else None,
                 "list_nebius": ref.get("nebius"),
@@ -542,7 +554,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
                 mark = weighted_median(vals, wts)
                 recent_vals = [o["p_adj"] for o in cell if o["age_days"] <= RECENT_DAYS] or vals
                 entry.update({
-                    "mark": round(mark, 2), "has_mark": True,
+                    "mark": round(mark, 2), "mark_known": round(mark, 2), "has_mark": True,
                     "range_lo": round(min(recent_vals), 2), "range_hi": round(max(recent_vals), 2),
                     "confidence": "good" if (n >= GOOD_OBS and n_recent >= 2 and len(providers) >= 2) else "thin",
                     "spread_pct": (round(entry["ask_median"] / entry["bid_median"] - 1, 3)
@@ -552,7 +564,8 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
             else:
                 entry.update({"mark": None, "has_mark": False, "range_lo": None, "range_hi": None,
                               "confidence": "suppressed", "spread_pct": None,
-                              "reason": f"insufficient_data ({n} obs in {MAX_AGE_DAYS}d, need {MIN_OBS})"})
+                              "reason": (f"insufficient_data ({n} stated-prepay obs in {MAX_AGE_DAYS}d, need {MIN_OBS}"
+                                         + (f"; {len(bids_unstated)} more with unstated terms" if bids_unstated else "") + ")")})
             marks.append(entry)
 
     shape = []
@@ -579,7 +592,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
                "date": o["date"].isoformat(), "price": round(o["price_raw"], 3),
                "p0": round(o["p0"], 3), "q": o["quarter"], "prepay": o["prepay_pct"], "known": bool(o.get("known")),
                "w": o["weight"], "ptype": o.get("provider_type", ""), "provider": o.get("provider", ""),
-               "ts": o.get("ts", "")}
+               "ts": o.get("ts", ""), "review": bool(o.get("review")), "similar": o.get("similar_provider", "")}
         if o["side"] == "ask":
             row.update({"deals": o.get("deals"), "bucket": o.get("prepay_bucket")})
             row["provider"] = "Nebius"
@@ -605,7 +618,10 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         "quarter_effects_log": {k: round(v, 3) for k, v in q_eff.items()},
         "n_observations": {"bid": sum(1 for o in obs if o["side"] == "bid"),
                            "bid_known_prepay": sum(1 for o in obs if o["side"] == "bid" and o.get("known")),
+                           "bid_unstated_prepay": sum(1 for o in obs if o["side"] == "bid" and not o.get("known")),
                            "bid_duplicates_removed": getattr(load_bid, "duplicates", 0),
+                           "bid_review": getattr(load_bid, "review", 0),
+                           "bid_in_window_review": sum(1 for o in obs if o["side"] == "bid" and o.get("review")),
                            "ask": sum(1 for o in obs if o["side"] == "ask"),
                            "public": sum(1 for o in obs if o["side"] == "public"),
                            "ask_deals": sum(o.get("deals", 0) for o in obs if o["side"] == "ask")},
@@ -744,8 +760,9 @@ def _mark_cell(e: dict) -> str:
     if not e["has_mark"]:
         return _lozenge("n/a", "grey") + f'<br/><small>{e["n_obs"]} obs</small>'
     colour = "green" if e["confidence"] == "good" else "yellow"
+    unst = f' · +{e["n_bid_unstated"]} unstated excluded' if e.get("n_bid_unstated") else ""
     return (f'<strong>{_fmt(e["mark"])}</strong> {_lozenge(e["confidence"], colour)}'
-            f'<br/><small>n={e["n_obs"]} ({e["n_bid"]} offers · {e["n_ask"]} achieved) · recent {_range(e["range_lo"], e["range_hi"])}</small>')
+            f'<br/><small>n={e["n_obs"]} ({e["n_bid"]} offers · {e["n_ask"]} achieved){unst} · recent {_range(e["range_lo"], e["range_hi"])}</small>')
 
 
 def render_confluence_body(result: dict, with_images: bool = False) -> str:
@@ -761,8 +778,9 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              f'<em>GPU Committed-Price Benchmarks — Interactive</em> under this one, embedded via the HTML macro; also attached here as forward_view.html.</em></p>')
     h.append('<div data-type="panel-warning"><p><strong>Read me first.</strong> These are <strong>committed-price benchmarks</strong>, not a traded curve: '
              'each cell is the weighted median of dated observations we hold — <em>competitor offers</em> reported in #price-intelligence '
-             '(deduplicated by underlying offer; skews to losses) and <em>Nebius achieved</em> prices from CRM deal reviews '
-             '(aggregates only) — shifted to today\'s price level and to a 0%-prepay basis. The two classes are shown separately and imply no bid/ask spread; '
+             '(confirmed repeats removed; skews to losses) and <em>Nebius achieved</em> prices from CRM deal reviews '
+             '(aggregates only) — shifted to today\'s price level and to a 0%-prepay basis. <strong>Only offers that state their prepayment enter a mark</strong>; '
+             'offers with unstated terms are counted per cell and never pooled. The two classes are shown separately and imply no bid/ask spread; '
              'public multi-year contracts are a reference and never pooled. Commitment length alone is not a delivery-date curve. Cells with fewer than '
              f'{MIN_OBS} observations in the last {MAX_AGE_DAYS} days are <strong>suppressed</strong>, never interpolated. '
              '<strong>Internal only</strong>: Nebius achieved prices are derived from confidential contracts; never quote marks to customers '
@@ -789,8 +807,8 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
                  "".join(f'<td>{_mark_cell(e)}</td>' for e in cells) +
                  f'<td>{struct_txt}</td></tr>')
     h.append('</tbody></table>')
-    h.append(f'<p><em>Cell = mark, confidence lozenge (good = n ≥ {GOOD_OBS} distinct observations from ≥ 2 providers with ≥ 2 in the last {RECENT_DAYS} days; '
-             f'thin = {MIN_OBS}–{GOOD_OBS - 1}), then n (competitor offers / Nebius achieved) and the min–max of recent adjusted observations. '
+    h.append(f'<p><em>Cell = mark on a stated-prepay basis, confidence lozenge (good = n ≥ {GOOD_OBS} distinct stated-prepay observations from ≥ 2 providers with ≥ 2 in the last {RECENT_DAYS} days; '
+             f'thin = {MIN_OBS}–{GOOD_OBS - 1}), then n (competitor offers / Nebius achieved), the number of offers excluded for unstated terms, and the min–max of recent adjusted observations. '
              f'n/a = suppressed. Shape compares the 36m mark to the 12m mark; the 3m column is the short-end (immediacy) premium.</em></p>')
 
     # shape + references
@@ -818,19 +836,21 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
 
     # bid vs ask detail
     h.append('<h2>Evidence by cell</h2>')
-    h.append('<p><em>Competitor offers = median of deduplicated offers reported by sales (adjusted to today and 0% prepay; "stated" = how many state their prepayment); '
+    h.append('<p><em>Competitor offers = median of offers reported by sales that state their prepayment (confirmed repeats removed; adjusted to today and 0% prepay); '
+             'unstated = offers without payment terms, excluded from the mark, shown with their median at a 0% assumption for reference only; '
              'Nebius achieved = median of Nebius signed reserve prices (CRM aggregates, payment type as prepay proxy); recent raw = median of the last 90 days as reported, '
              'no date adjustment, for comparison with the adjusted mark; public contracts = implied lower bounds, reference only. Gap = achieved / offers − 1, descriptive, not a spread.</em></p>')
-    h.append('<table><thead><tr><th>GPU</th><th>Tenor</th><th>Mark</th><th>Recent raw (n)</th><th>Competitor offers (n · stated · providers)</th><th>Nebius achieved (n · deals)</th>'
+    h.append('<table><thead><tr><th>GPU</th><th>Tenor</th><th>Mark</th><th>Recent raw (n)</th><th>Competitor offers, stated prepay (n · providers)</th><th>Unstated terms, excluded (n · median at 0%)</th><th>Nebius achieved (n · deals)</th>'
              '<th>Public contracts (n)</th><th>Gap</th><th>Recent range</th><th>Status</th></tr></thead><tbody>')
     for e in result["marks"]:
-        if e["n_obs"] == 0:
+        if e["n_all"] == 0 and e["n_public"] == 0:
             continue
         status = (_lozenge("suppressed", "grey") if not e["has_mark"] else
                   _lozenge(e["confidence"], "green" if e["confidence"] == "good" else "yellow"))
         h.append(f'<tr><td><strong>{e["tier"]}</strong></td><td>{e["label"]}</td><td><strong>{_fmt(e["mark"])}</strong></td>'
                  f'<td>{_fmt(e.get("recent_raw_median"))} ({e.get("n_recent90", 0)})</td>'
-                 f'<td>{_fmt(e["bid_median"])} ({e["n_bid"]} · {e.get("n_known", 0) - e["n_ask"] if e.get("n_known") is not None else "–"} · {e.get("n_providers", "–")})</td>'
+                 f'<td>{_fmt(e["bid_median"])} ({e["n_bid"]} · {e.get("n_providers", "–")})</td>'
+                 f'<td>{e["n_bid_unstated"]}{" · " + _fmt(e["bid_median_unstated"]) if e["n_bid_unstated"] else ""}</td>'
                  f'<td>{_fmt(e["ask_median"])} ({e["n_ask"]} · {e["ask_deals"]})</td>'
                  f'<td>{_fmt(e["public_median"])} ({e["n_public"]})</td>'
                  f'<td>{_pct(e["spread_pct"])}</td>'
@@ -840,7 +860,9 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
     # method
     qe = ", ".join(f'{k} {v:+.2f}' for k, v in result["quarter_effects_log"].items())
     h.append('<div data-type="expand" data-title="Method, parameters and provenance">')
-    h.append(f'<p><strong>Observations in window:</strong> {n["bid"]} distinct competitor offers ({n.get("bid_duplicates_removed", 0)} duplicates removed; {n.get("bid_known_prepay", 0)} state their prepayment; latest {s.get("intel_latest_quote")}), '
+    h.append(f'<p><strong>Observations in window:</strong> {n["bid"]} distinct competitor offers ({n.get("bid_duplicates_removed", 0)} confirmed repeats removed, '
+             f'{n.get("bid_review", 0)} similar offers kept and listed for review in store/intel_duplicates.csv; {n.get("bid_known_prepay", 0)} state their prepayment and enter marks, '
+             f'{n.get("bid_unstated_prepay", 0)} do not and are counted only; latest {s.get("intel_latest_quote")}), '
              f'{n["ask"]} Nebius achieved cells covering {n["ask_deals"]} signed deals (reserve_tenor.csv generated {s.get("reserve_tenor_generated")}), '
              f'{n.get("public", 0)} public announced contracts shown as reference (never pooled). Nebius grid version {s.get("grid_version")}, segment {result["params"].get("segment")}.</p>')
     h.append('<ol>'
@@ -854,8 +876,11 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              'Pooling across tiers is a v1 simplification; Hopper and Blackwell repriced by similar ratios in 2026H1.</li>'
              f'<li><strong>Weights:</strong> observations ≤ {RECENT_DAYS} days old count 1, ≤ {MAX_AGE_DAYS} days count ½, older are dropped; '
              'Nebius achieved cells weigh min(deals, 3) so a single mega-deal cannot dominate; public announced contracts are not pooled (implied rates assume 8,760 billed hours and are lower bounds).</li>'
-             f'<li><strong>Mark:</strong> weighted median of adjusted prices per cell; suppressed below {MIN_OBS} distinct observations, never interpolated or carried forward. '
-             '"Good" needs six observations from at least two providers with two in the last 120 days. Offers without a stated prepayment are counted at 0% for the pooled mark and flagged; the interactive page can exclude them.</li>'
+             f'<li><strong>Mark:</strong> weighted median of adjusted prices per cell on one payment basis: competitor offers that state their prepayment plus Nebius achieved cells (payment type known). '
+             f'Suppressed below {MIN_OBS} such observations, never interpolated or carried forward. "Good" needs six observations from at least two providers with two in the last 120 days. '
+             'Offers without a stated prepayment never enter a mark; they are counted per cell, their median at a 0% assumption is shown for reference, and the interactive page can add them to a comparison only through an explicitly labelled switch.</li>'
+             '<li><strong>Duplicates:</strong> a row is removed only as a confirmed repeat (same provider, price and term within 7 days, or a seed row repeating a retrieved row with the same or an anonymised provider or identical notes). '
+             'Rows that only share a Slack message with another provider, or seed rows matching another provider, are kept and listed for review; one message can carry several providers\' offers at one price.</li>'
              f'<li><strong>Tenor buckets:</strong> ≤4 → 3m, ≤8 → 6m, ≤14 → 12m, ≤20 → 18m, ≤27 → 24m, ≤42 → 36m, longer → 60m. '
              f'Sanity band {_fmt(PRICE_MIN)}–{_fmt(PRICE_MAX)}.</li>'
              '<li><strong>Not modelled yet (v2):</strong> delivery-date axis (forward start vs immediate), cluster size, region/interconnect, '
@@ -876,8 +901,8 @@ def view_payload(result: dict) -> dict:
     never reads and rounds numbers, so the embedded JSON stays small enough for
     Confluence macro bodies and connector calls."""
     keep_mark = ("tier", "tenor_months", "label", "n_obs", "n_recent", "n_bid", "n_ask", "n_public", "ask_deals",
-                 "n_known", "n_providers", "recent_raw_median", "n_recent90", "mark_recent", "mark_known",
-                 "bid_median", "ask_median", "public_median", "grid", "grid_100", "grid_50", "list_nebius",
+                 "n_known", "n_bid_unstated", "n_all", "n_providers", "recent_raw_median", "n_recent90", "mark_recent", "mark_known", "mark_all",
+                 "bid_median", "bid_median_all", "bid_median_unstated", "ask_median", "public_median", "grid", "grid_100", "grid_50", "list_nebius",
                  "list_hyperscaler_min", "list_hyperscaler_provider", "cost_floor", "mark", "has_mark",
                  "range_lo", "range_hi", "confidence", "spread_pct", "reason")
     out = {k: result[k] for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics", "on_demand")}
@@ -885,6 +910,7 @@ def view_payload(result: dict) -> dict:
     out["observations"] = [{"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),
                             "date": o["date"], "price": o["price"], "p0": round(o["p0"], 3), "q": o["q"], "prepay": o["prepay"], "known": o.get("known", False), "w": o["w"],
                             "ptype": o.get("ptype", ""), "provider": o.get("provider", ""), "ts": o.get("ts", ""),
+                            **({"review": True, "similar": o.get("similar", "")} if o.get("review") else {}),
                             **({"deals": o.get("deals"), "bucket": o.get("bucket")} if o["side"] == "ask" else {})}
                            for o in result.get("observations", [])]
     return out
