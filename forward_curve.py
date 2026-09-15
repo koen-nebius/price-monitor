@@ -75,11 +75,22 @@ RESERVE_TENOR_CSV = STORE / "reserve_tenor.csv"
 HISTORY_CSV = STORE / "history.csv"
 BODY_HTML = STORE / "forward_curve_body.html"
 
-METHOD_VERSION = "1.0 (2026-09-15)"
+METHOD_VERSION = "1.1 (2026-09-15)"
 TIERS = ["H100", "H200", "B200", "B300", "GB200", "GB300", "VR"]
 TENORS = [3, 6, 12, 18, 24, 36, 60]            # months; buckets, see bucket_months()
 TENOR_LABEL = {3: "3m", 6: "6m", 12: "12m", 18: "18m", 24: "24m", 36: "36m", 60: "60m"}
-PREPAY_K = 0.06
+# Prepay normalisation, v1.1: Finance's own grid convention. Sheet "." of the Finance
+# "Pricing model.xlsx" derives the 100/50/30 % columns from the 0 % column as
+# 12m: -3.40 / -2.63 / -1.80 %, 24m: -6.97 / -5.26 / -3.57 % — i.e. roughly
+# 3.4 % per year of tenor at full prepay, concave in the prepay share (50 % earns
+# ~77 % of the full-prepay discount, 30 % ~53 %). discount = A * years * share**B.
+PREPAY_A = 0.034          # per year of tenor at 100 % prepay
+PREPAY_B = 0.5            # concavity in the prepay share (sqrt)
+PREPAY_CAP = 0.25         # never more than 25 % (5-yr / 100 % would be 17 %)
+PREPAY_BUCKET_PCT = {"upfront": 100, "prepaid_monthly": 8, "postpaid": 0}   # CRM proxy buckets
+GRID_JSON = STORE / "nebius_reserve_grid.json"
+CONTRACTS_CSV = STORE / "public_contracts.csv"
+DEFAULT_SEGMENT = "ai_native_above_512"
 RECENT_DAYS = 120
 MAX_AGE_DAYS = 365
 MIN_OBS = 3
@@ -131,12 +142,24 @@ def quarter_of(d: date) -> str:
     return f"{d.year}Q{(d.month - 1) // 3 + 1}"
 
 
-def prepay_normalise(price: float, prepay_pct) -> float:
+def prepay_discount(tenor_months, prepay_pct) -> float:
+    """Fraction by which a quote at `prepay_pct` sits below the same quote at 0 % prepay."""
     try:
         frac = max(0.0, min(1.0, float(prepay_pct or 0) / 100.0))
+        years = max(0.25, float(tenor_months or 12) / 12.0)
     except (TypeError, ValueError):
-        frac = 0.0
-    return price / (1.0 - PREPAY_K * frac)
+        return 0.0
+    return min(PREPAY_CAP, PREPAY_A * years * (frac ** PREPAY_B))
+
+
+def prepay_normalise(price: float, prepay_pct, tenor_months=12) -> float:
+    """Quote -> 0 %-prepay equivalent."""
+    return price / (1.0 - prepay_discount(tenor_months, prepay_pct))
+
+
+def price_at_prepay(p0: float, tenor_months, prepay_pct) -> float:
+    """0 %-prepay price -> price at a chosen prepay share (inverse of prepay_normalise)."""
+    return p0 * (1.0 - prepay_discount(tenor_months, prepay_pct))
 
 
 def weighted_median(values, weights) -> float:
@@ -178,8 +201,12 @@ def load_bid(path: Path = INTEL_CSV) -> list[dict]:
             tenor = bucket_months(r.get("term_months"))
             if not d or tenor is None:
                 continue
-            obs.append({"side": "bid", "tier": tier, "tenor": tenor, "date": d,
-                        "price_raw": price, "prepay_pct": r.get("prepay_pct") or 0,
+            try:
+                months = float(r.get("term_months") or 0)
+            except (TypeError, ValueError):
+                months = 0.0
+            obs.append({"side": "bid", "tier": tier, "tenor": tenor, "months": months, "date": d,
+                        "price_raw": price, "prepay_pct": float(r.get("prepay_pct") or 0),
                         "weight": 1.0, "provider": r.get("provider_name", ""),
                         "provider_type": r.get("provider_type", ""),
                         "source": f"intel:{r.get('message_ts', '')}"})
@@ -205,13 +232,71 @@ def load_ask(path: Path = RESERVE_TENOR_CSV) -> list[dict]:
             tenor = bucket_months(r.get("tenor_months"))
             if not d or tenor is None:
                 continue
-            obs.append({"side": "ask", "tier": tier, "tenor": tenor,
+            bucket = (r.get("prepay_bucket") or "postpaid").strip()
+            obs.append({"side": "ask", "tier": tier, "tenor": tenor, "months": float(r.get("tenor_months") or tenor),
                         "date": d + timedelta(days=14),      # month midpoint
-                        "price_raw": price, "prepay_pct": 0,   # CRM price = as-billed
+                        "price_raw": price, "prepay_pct": float(PREPAY_BUCKET_PCT.get(bucket, 0)),
+                        "prepay_bucket": bucket,
                         "weight": float(min(deals, 3)), "deals": deals,
                         "provider": "Nebius", "provider_type": "nebius",
                         "source": f"reserve_tenor:{r.get('generated_date', '')}"})
     return obs
+
+
+def load_contracts(path: Path = CONTRACTS_CSV) -> list[dict]:
+    """Publicly announced multi-year GPU rental contracts (SemiAnalysis 'AI Cloud Deal
+    Information' extraction) -> observations (side=public). Implied $/GPU-hr assumes
+    8760 billed hours and ignores prepay time-value, so weight 0.5 and prepay as given."""
+    obs = []
+    if not path.exists():
+        return obs
+    with open(path, newline="") as f:
+        for r in csv.DictReader(f):
+            tier = (r.get("tier") or "").strip().upper()
+            if tier not in TIERS:
+                continue
+            try:
+                price = float(r["implied_price_gpu_hr"])
+                months = float(r["term_months"])
+            except (KeyError, ValueError, TypeError):
+                continue
+            d = _parse_date((r.get("announced") or "")[:10]) or _parse_date((r.get("announced") or "") + "-01")
+            tenor = bucket_months(months)
+            if not d or tenor is None:
+                continue
+            try:
+                prepay = float(r.get("prepay_pct") or 0)
+            except (TypeError, ValueError):
+                prepay = 0.0
+            obs.append({"side": "public", "tier": tier, "tenor": tenor, "months": months, "date": d,
+                        "price_raw": price, "prepay_pct": prepay, "weight": 0.5,
+                        "provider": r.get("provider", ""), "provider_type": "public_contract",
+                        "customer": r.get("customer", ""), "source": f"sa_contracts:{r.get('source_cell', '')}"})
+    return obs
+
+
+def load_grid(path: Path = GRID_JSON) -> dict:
+    """Nebius Finance reserve grid(s): {version: {segments: {seg: {tier: {months: {prepay: price}}}}}}."""
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text()).get("grids", {})
+    except Exception:
+        return {}
+
+
+def grid_reference(grids: dict, tier: str, tenor: int, segment: str = DEFAULT_SEGMENT):
+    """Latest grid cell for (tier, tenor bucket) in a segment: {version, months, prices{prepay: p}} or None."""
+    if not grids:
+        return None
+    version = max(grids)
+    seg = grids[version].get("segments", {}).get(segment, {})
+    cells = seg.get(tier, {})
+    for m, prices in cells.items():
+        if bucket_months(float(m)) == tenor:
+            return {"version": version, "segment": segment, "months": int(float(m)),
+                    "prices": {int(float(k)): v for k, v in prices.items()}}
+    return None
 
 
 def load_list(path: Path = HISTORY_CSV) -> dict:
@@ -279,15 +364,16 @@ def quarter_effects(obs: list[dict], as_of: date) -> dict:
 
 
 def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
-          history=HISTORY_CSV) -> dict:
+          history=HISTORY_CSV, contracts=CONTRACTS_CSV, grid=GRID_JSON, segment=DEFAULT_SEGMENT) -> dict:
     as_of = as_of or date.today()
-    raw = load_bid(intel) + load_ask(reserve)
+    raw = load_bid(intel) + load_ask(reserve) + load_contracts(contracts)
+    grids = load_grid(grid)
     obs = []
     for o in raw:
         age = (as_of - o["date"]).days
         if age < -3 or age > MAX_AGE_DAYS:
             continue
-        p0 = prepay_normalise(o["price_raw"], o["prepay_pct"])
+        p0 = prepay_normalise(o["price_raw"], o["prepay_pct"], o.get("months") or o["tenor"])
         if not (PRICE_MIN <= p0 <= PRICE_MAX):
             continue
         o = dict(o, age_days=age, p0=p0, logp0=math.log(p0), quarter=quarter_of(o["date"]),
@@ -308,13 +394,20 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
             cell = by_cell.get((tier, tenor), [])
             bids = [o for o in cell if o["side"] == "bid"]
             asks = [o for o in cell if o["side"] == "ask"]
+            pubs = [o for o in cell if o["side"] == "public"]
             n, n_recent = len(cell), sum(1 for o in cell if o["age_days"] <= RECENT_DAYS)
             ask_deals = sum(o.get("deals", 0) for o in asks)
             ref = lists.get((tier, tenor), {})
+            gref = grid_reference(grids, tier, tenor, segment)
             entry = {
                 "tier": tier, "tenor_months": tenor, "label": TENOR_LABEL[tenor],
-                "n_obs": n, "n_recent": n_recent, "n_bid": len(bids), "n_ask": len(asks),
+                "n_obs": n, "n_recent": n_recent, "n_bid": len(bids), "n_ask": len(asks), "n_public": len(pubs),
                 "ask_deals": ask_deals,
+                "public_median": round(weighted_median([o["p_adj"] for o in pubs],
+                                                       [o["weight"] for o in pubs]), 2) if pubs else None,
+                "grid": gref,
+                "grid_100": (gref or {}).get("prices", {}).get(100),
+                "grid_50": (gref or {}).get("prices", {}).get(50),
                 "bid_median": round(weighted_median([o["p_adj"] for o in bids],
                                                     [o["weight"] for o in bids]), 2) if bids else None,
                 "ask_median": round(weighted_median([o["p_adj"] for o in asks],
@@ -361,8 +454,21 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
             "cost_floor": SA_COST_FLOOR.get(tier),
         })
 
+    # anonymised per-observation export for the interactive view (client-side filters)
+    export = []
+    for o in obs:
+        row = {"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),
+               "date": o["date"].isoformat(), "price": round(o["price_raw"], 3),
+               "p0": round(o["p0"], 3), "q": o["quarter"], "prepay": o["prepay_pct"],
+               "w": o["weight"], "ptype": o.get("provider_type", ""), "provider": o.get("provider", "")}
+        if o["side"] == "ask":
+            row.update({"deals": o.get("deals"), "bucket": o.get("prepay_bucket")})
+            row["provider"] = "Nebius"
+        export.append(row)
+
     src_dates = {"intel_latest": max((o["date"] for o in raw if o["side"] == "bid"), default=None),
-                 "reserve_tenor_generated": None}
+                 "reserve_tenor_generated": None, "contracts": sum(1 for o in raw if o["side"] == "public"),
+                 "grid_version": max(grids) if grids else None}
     if RESERVE_TENOR_CSV.exists():
         with open(RESERVE_TENOR_CSV, newline="") as f:
             first = next(csv.DictReader(f), None)
@@ -372,18 +478,27 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
     return {
         "as_of": as_of.isoformat(),
         "method_version": METHOD_VERSION,
-        "params": {"prepay_k": PREPAY_K, "recent_days": RECENT_DAYS, "max_age_days": MAX_AGE_DAYS,
+        "params": {"prepay_a": PREPAY_A, "prepay_b": PREPAY_B, "prepay_cap": PREPAY_CAP,
+                   "prepay_bucket_pct": PREPAY_BUCKET_PCT, "segment": segment,
+                   "recent_days": RECENT_DAYS, "max_age_days": MAX_AGE_DAYS,
                    "min_obs": MIN_OBS, "good_obs": GOOD_OBS, "price_band": [PRICE_MIN, PRICE_MAX],
                    "tenors_months": TENORS, "tiers": TIERS},
         "quarter_effects_log": {k: round(v, 3) for k, v in q_eff.items()},
         "n_observations": {"bid": sum(1 for o in obs if o["side"] == "bid"),
                            "ask": sum(1 for o in obs if o["side"] == "ask"),
+                           "public": sum(1 for o in obs if o["side"] == "public"),
                            "ask_deals": sum(o.get("deals", 0) for o in obs if o["side"] == "ask")},
         "sources": {"intel_latest_quote": src_dates["intel_latest"].isoformat() if src_dates["intel_latest"] else None,
                     "reserve_tenor_generated": src_dates["reserve_tenor_generated"],
+                    "public_contracts": src_dates["contracts"], "grid_version": src_dates["grid_version"],
                     "list_snapshot": list_date, "cost_floor": SA_COST_FLOOR_SOURCE},
+        "grid": {"version": max(grids) if grids else None,
+                 "segments": {k: {t: {int(float(m)): {int(float(pp)): v for pp, v in ps.items()} for m, ps in cells.items()}
+                                  for t, cells in seg.items()}
+                              for k, seg in (grids[max(grids)]["segments"].items() if grids else [])}},
         "marks": marks,
         "shape": shape,
+        "observations": export,
     }
 
 
@@ -556,14 +671,14 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
     h.append('<h2>Curve shape and references</h2>')
     h.append('<table><thead><tr><th>GPU</th><th>3m</th><th>12m</th><th>36m</th><th>60m</th>'
              '<th>Short-end premium (3m vs 12m)</th><th>12→36m slope</th>'
-             '<th>Nebius list 12m / 36m (512+, 100% upfront)</th><th>Cheapest hyperscaler list 12m / 36m</th>'
+             '<th>Nebius grid 24m / 36m (100% · 50% prepay)</th><th>Cheapest hyperscaler list 12m / 36m</th>'
              '<th>SA cost floor</th></tr></thead><tbody>')
     for tier in TIERS:
         sh = shape_by[tier]
         if not any(v for k, v in sh.items() if k.startswith("mark_")):
             continue
         m = {e["tenor_months"]: e for e in result["marks"] if e["tier"] == tier}
-        neb = f'{_fmt(m[12]["list_nebius"])} / {_fmt(m[36]["list_nebius"])}'
+        neb = (f'{_fmt(m[24]["grid_100"])} · {_fmt(m[24]["grid_50"])} / {_fmt(m[36]["grid_100"])} · {_fmt(m[36]["grid_50"])}')
         hyp = (f'{_fmt(m[12]["list_hyperscaler_min"])} <small>{m[12]["list_hyperscaler_provider"]}</small> / '
                f'{_fmt(m[36]["list_hyperscaler_min"])} <small>{m[36]["list_hyperscaler_provider"]}</small>')
         h.append(f'<tr><td><strong>{tier}</strong></td><td>{_fmt(sh["mark_3m"])}</td><td>{_fmt(sh["mark_12m"])}</td>'
@@ -571,8 +686,8 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
                  f'<td>{_pct(sh["short_end_premium_pct"])}</td><td>{_pct(sh["slope_12_36_pct"])}</td>'
                  f'<td>{neb}</td><td>{hyp}</td><td>{_fmt(sh["cost_floor"])}</td></tr>')
     h.append('</tbody></table>')
-    h.append(f'<p><em>Nebius list from the AE committed grid tracked in this repo (config.NEBIUS_COMMITTED_PRICES, 512+ GPUs, 100% upfront, '
-             f'shown as published, i.e. NOT prepay-normalised). Hyperscaler list = cheapest of AWS/GCP/Azure/Oracle reserved/committed tier '
+    h.append(f'<p><em>Nebius grid = Finance reserve price grid version {s.get("grid_version")}, segment {result["params"].get("segment")} '
+             f'(Pricing model.xlsx, NebiusFinance/GPU), shown as published, i.e. NOT prepay-normalised; 12m Blackwell cells are "per request" in that grid. Hyperscaler list = cheapest of AWS/GCP/Azure/Oracle reserved/committed tier '
              f'in the {s.get("list_snapshot") or "latest"} snapshot (rack rates; enterprise customers pay far less). SA cost floor = {SA_COST_FLOOR_SOURCE} — a third-party modeled cost, not Nebius COGS.</em></p>')
 
     # bid vs ask detail
@@ -581,7 +696,7 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              '(CRM, aggregates). Spread = ask / bid − 1. A large positive spread on a cell where we still win says the market pays for '
              'our availability/quality; a negative spread says we are leaving money on the table.</em></p>')
     h.append('<table><thead><tr><th>GPU</th><th>Tenor</th><th>Mark</th><th>Bid median (n)</th><th>Ask median (n · deals)</th>'
-             '<th>Spread</th><th>Recent range</th><th>Status</th></tr></thead><tbody>')
+             '<th>Public contracts (n)</th><th>Spread</th><th>Recent range</th><th>Status</th></tr></thead><tbody>')
     for e in result["marks"]:
         if e["n_obs"] == 0:
             continue
@@ -590,6 +705,7 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
         h.append(f'<tr><td><strong>{e["tier"]}</strong></td><td>{e["label"]}</td><td><strong>{_fmt(e["mark"])}</strong></td>'
                  f'<td>{_fmt(e["bid_median"])} ({e["n_bid"]})</td>'
                  f'<td>{_fmt(e["ask_median"])} ({e["n_ask"]} · {e["ask_deals"]})</td>'
+                 f'<td>{_fmt(e["public_median"])} ({e["n_public"]})</td>'
                  f'<td>{_pct(e["spread_pct"])}</td>'
                  f'<td>{_range(e["range_lo"], e["range_hi"])}</td><td>{status}</td></tr>')
     h.append('</tbody></table>')
@@ -598,15 +714,18 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
     qe = ", ".join(f'{k} {v:+.2f}' for k, v in result["quarter_effects_log"].items())
     h.append('<div data-type="expand" data-title="Method, parameters and provenance">')
     h.append(f'<p><strong>Observations in window:</strong> {n["bid"]} bid quotes (field intel, latest {s.get("intel_latest_quote")}), '
-             f'{n["ask"]} ask cells covering {n["ask_deals"]} signed deals (reserve_tenor.csv generated {s.get("reserve_tenor_generated")}).</p>')
+             f'{n["ask"]} ask cells covering {n["ask_deals"]} signed deals (reserve_tenor.csv generated {s.get("reserve_tenor_generated")}), '
+             f'{n.get("public", 0)} public announced contracts (SemiAnalysis deal table). Nebius grid version {s.get("grid_version")}, segment {result["params"].get("segment")}.</p>')
     h.append('<ol>'
-             f'<li><strong>Prepay normalisation:</strong> p₀ = p ÷ (1 − {PREPAY_K} × prepay share). Calibrated between the Nebius AE grid '
-             '(30%→100% prepay = −3% on B300 12m, −7% on GB300 36m) and the CoreWeave H100 ladder (25%→100% = −4.4%).</li>'
+             f'<li><strong>Prepay normalisation:</strong> discount = {PREPAY_A:.3f} × years of tenor × (prepay share)^{PREPAY_B} (capped {PREPAY_CAP:.0%}); '
+             'every quote is expressed at 0% prepay. This is Finance\'s own grid convention (sheet "." of Pricing model.xlsx: '
+             '12m −3.4/−2.63/−1.8% and 24m −6.97/−5.26/−3.57% for 100/50/30% prepay). Nebius CRM deals carry no prepay percentage, '
+             f'so payment type is used as a proxy: upfront = {PREPAY_BUCKET_PCT["upfront"]}%, prepaid monthly = {PREPAY_BUCKET_PCT["prepaid_monthly"]}%, postpaid = 0%.</li>'
              f'<li><strong>Quote-date normalisation:</strong> two-way fixed effects on log p₀ (tier×tenor cell + quote quarter, pooled across tiers); '
              f'each observation is shifted to the as-of quarter. Estimated quarter effects (log, vs as-of): {qe}. '
              'Pooling across tiers is a v1 simplification; Hopper and Blackwell repriced by similar ratios in 2026H1.</li>'
              f'<li><strong>Weights:</strong> observations ≤ {RECENT_DAYS} days old count 1, ≤ {MAX_AGE_DAYS} days count ½, older are dropped; '
-             'ask cells weigh min(deals, 3) so a single mega-deal cannot dominate.</li>'
+             'ask cells weigh min(deals, 3) so a single mega-deal cannot dominate; public announced contracts weigh ½ (implied rates assume 8,760 billed hours).</li>'
              f'<li><strong>Mark:</strong> weighted median of adjusted prices per cell; suppressed below {MIN_OBS} observations, never interpolated or carried forward.</li>'
              f'<li><strong>Tenor buckets:</strong> ≤4 → 3m, ≤8 → 6m, ≤14 → 12m, ≤20 → 18m, ≤27 → 24m, ≤42 → 36m, longer → 60m. '
              f'Sanity band {_fmt(PRICE_MIN)}–{_fmt(PRICE_MAX)}.</li>'
@@ -623,12 +742,31 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
 TEMPLATE = ROOT / "templates" / "forward_view.html"
 
 
+def view_payload(result: dict) -> dict:
+    """Compact copy of the build result for the interactive page: drops fields the view
+    never reads and rounds numbers, so the embedded JSON stays small enough for
+    Confluence macro bodies and connector calls."""
+    keep_mark = ("tier", "tenor_months", "label", "n_obs", "n_recent", "n_bid", "n_ask", "n_public", "ask_deals",
+                 "bid_median", "ask_median", "public_median", "grid", "grid_100", "grid_50", "list_nebius",
+                 "list_hyperscaler_min", "list_hyperscaler_provider", "cost_floor", "mark", "has_mark",
+                 "range_lo", "range_hi", "confidence", "spread_pct", "reason")
+    out = {k: result[k] for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape")}
+    out["marks"] = [{k: m.get(k) for k in keep_mark} for m in result["marks"]]
+    out["observations"] = [{"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),
+                            "date": o["date"], "p0": round(o["p0"], 3), "q": o["q"], "prepay": o["prepay"], "w": o["w"],
+                            "ptype": o.get("ptype", ""), "provider": o.get("provider", ""),
+                            **({"deals": o.get("deals"), "bucket": o.get("bucket")} if o["side"] == "ask" else {})}
+                           for o in result.get("observations", [])]
+    return out
+
+
 def render_view_fragment(result: dict) -> str:
     """Interactive view body (title/style/markup/script) with the curve data inlined.
     Reads templates/forward_view.html; the same fragment is published as a Claude
-    artifact and, wrapped by render_view_html(), attached to the Confluence page."""
+    artifact, embedded in the Confluence HTML macro and, wrapped by render_view_html(),
+    attached to the Confluence page."""
     tpl = TEMPLATE.read_text()
-    data = json.dumps(result, default=str).replace("</", "<\\/")
+    data = json.dumps(view_payload(result), separators=(",", ":"), default=str).replace("</", "<\\/")
     return tpl.replace("/*__DATA__*/null", data)
 
 

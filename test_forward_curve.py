@@ -24,10 +24,25 @@ class Helpers(unittest.TestCase):
         self.assertEqual(fc.bucket_months(60), 60)
 
     def test_prepay_normalise_raises_price_for_prepaid_quotes(self):
-        self.assertEqual(fc.prepay_normalise(5.0, 0), 5.0)
-        self.assertAlmostEqual(fc.prepay_normalise(5.0, 100), 5.0 / 0.94)
-        self.assertGreater(fc.prepay_normalise(5.0, 30), 5.0)
-        self.assertEqual(fc.prepay_normalise(5.0, "bad"), 5.0)
+        self.assertEqual(fc.prepay_normalise(5.0, 0, 12), 5.0)
+        # Finance convention: 12m/100% = -3.4 %, 24m/100% = -6.8 % (grid says -6.97 %)
+        self.assertAlmostEqual(fc.prepay_discount(12, 100), 0.034)
+        self.assertAlmostEqual(fc.prepay_discount(24, 100), 0.068)
+        self.assertAlmostEqual(fc.prepay_discount(12, 50), 0.034 * 0.5 ** 0.5)
+        self.assertAlmostEqual(fc.prepay_normalise(5.0, 100, 12), 5.0 / (1 - 0.034))
+        self.assertGreater(fc.prepay_normalise(5.0, 30, 12), 5.0)
+        self.assertEqual(fc.prepay_normalise(5.0, "bad", 12), 5.0)
+        self.assertLessEqual(fc.prepay_discount(60, 100), fc.PREPAY_CAP)
+        p0 = fc.prepay_normalise(4.55, 100, 36)
+        self.assertAlmostEqual(fc.price_at_prepay(p0, 36, 100), 4.55)
+
+    def test_grid_reference_picks_bucketed_tenor(self):
+        grids = {"2026-09-07": {"segments": {"ai_native_above_512": {"B300": {"24": {"100": 6.69, "50": 7.15}, "36": {"100": 5.40}}}}}}
+        ref = fc.grid_reference(grids, "B300", 24)
+        self.assertEqual(ref["prices"][100], 6.69)
+        self.assertEqual(ref["months"], 24)
+        self.assertIsNone(fc.grid_reference(grids, "B300", 12))
+        self.assertIsNone(fc.grid_reference(grids, "VR", 60))
 
     def test_weighted_median(self):
         self.assertEqual(fc.weighted_median([1, 2, 3], [1, 1, 1]), 2)

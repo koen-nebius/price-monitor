@@ -38,7 +38,8 @@ sys.path.insert(0, str(ROOT))
 import forward_curve  # noqa: E402
 from config import (  # noqa: E402
     CONFLUENCE_BASE_URL, CONFLUENCE_FORWARD_PAGE_ID, CONFLUENCE_FORWARD_PAGE_TITLE,
-    CONFLUENCE_PAGE_ID, CONFLUENCE_SPACE_KEY,
+    CONFLUENCE_FORWARD_VIEW_PAGE_ID, CONFLUENCE_FORWARD_VIEW_PAGE_TITLE, CONFLUENCE_PAGE_ID,
+    CONFLUENCE_SPACE_KEY, FORGE_HTML_MACRO_KEY,
 )
 from confluence_storage import to_storage, validate_xml  # noqa: E402
 
@@ -108,6 +109,60 @@ def _upsert_attachment(auth, page_id, name, content, as_of):
     return _req("POST", url, auth, raw=raw, headers=headers)
 
 
+def view_adf(result: dict, marks_page_id: str) -> dict:
+    """ADF document for the interactive child page: intro paragraph + the Forge HTML macro
+    (Just Add+) carrying the whole self-contained view as its body. Node shape copied from
+    Nebius page 2078277860 (a pasted Claude artifact) on 2026-09-15."""
+    fragment = forward_curve.render_view_fragment(result)
+    link = f"{CONFLUENCE_BASE_URL}/spaces/{CONFLUENCE_SPACE_KEY}/pages/{marks_page_id}"
+    return {"type": "doc", "version": 1, "content": [
+        {"type": "paragraph", "content": [
+            {"type": "text", "text": f"Interactive view of the internal GPU forward curve, as of {result.get('as_of')} "
+                                     "(refreshed daily by the price-monitor build). Internal only: never quote marks to customers. "
+                                     "Tables, method and provenance: ", "marks": [{"type": "em"}]},
+            {"type": "text", "text": "GPU Forward Curve — Internal Marks", "marks": [{"type": "em"}, {"type": "link", "attrs": {"href": link}}]},
+            {"type": "text", "text": ". If the panel below stays blank, your browser blocked the embedded script; the same page is attached there as forward_view.html.", "marks": [{"type": "em"}]},
+        ]},
+        {"type": "extension", "attrs": {
+            "layout": "full-width", "extensionType": "com.atlassian.ecosystem", "extensionKey": FORGE_HTML_MACRO_KEY,
+            "text": "HTML",
+            "parameters": {"layout": "extension", "guestParams": {
+                "sourceType": "MacroBody", "darkmode": "auto", "attachmentPageId": "", "syntax": "HTML",
+                "attachmentId": "", "__bodyContent": fragment}}}},
+    ]}
+
+
+def _find_view_page(auth, parent_id):
+    if CONFLUENCE_FORWARD_VIEW_PAGE_ID:
+        try:
+            return _req("GET", f"{API}/{CONFLUENCE_FORWARD_VIEW_PAGE_ID}?expand=version", auth)
+        except urllib.error.HTTPError as e:
+            log.warning(f"view page id lookup failed (HTTP {e.code}); falling back to title")
+    q = urllib.parse.urlencode({"title": CONFLUENCE_FORWARD_VIEW_PAGE_TITLE, "spaceKey": SPACE, "expand": "version"})
+    res = _req("GET", f"{API}?{q}", auth).get("results", [])
+    return res[0] if res else None
+
+
+def publish_view(auth, result, marks_page_id):
+    """Create/update the interactive child page (atlas_doc_format body)."""
+    adf = json.dumps(view_adf(result, marks_page_id))
+    body = {"atlas_doc_format": {"value": adf, "representation": "atlas_doc_format"}}
+    page = _find_view_page(auth, marks_page_id)
+    if page:
+        payload = {"type": "page", "title": page["title"],
+                   "version": {"number": page["version"]["number"] + 1,
+                               "message": f"Forward curve interactive refresh {result.get('as_of')} (GHA publisher)"},
+                   "body": body}
+        out = _req("PUT", f"{API}/{page['id']}", auth, payload)
+    else:
+        payload = {"type": "page", "title": CONFLUENCE_FORWARD_VIEW_PAGE_TITLE, "space": {"key": SPACE},
+                   "ancestors": [{"id": marks_page_id}], "body": body}
+        out = _req("POST", API, auth, payload)
+        log.info(f"created interactive page {out.get('id')} — set CONFLUENCE_FORWARD_VIEW_PAGE_ID in config.py")
+    return {"ok": True, "page_id": out.get("id"), "version": out.get("version", {}).get("number"),
+            "bytes": len(adf.encode()), "url": f"{CONFLUENCE_BASE_URL}{out.get('_links', {}).get('webui', '')}"}
+
+
 def main(argv) -> int:
     dry, strict = "--dry-run" in argv, "--strict" in argv
     latest = OUT_DIR / "latest.json"
@@ -123,7 +178,8 @@ def main(argv) -> int:
     if xml_err:
         log.warning(f"body not well-formed XML ({xml_err}); publishing anyway")
     if dry:
-        log.info(f"DRY RUN: {info}")
+        adf_bytes = len(json.dumps(view_adf(result, CONFLUENCE_FORWARD_PAGE_ID or "0")).encode())
+        log.info(f"DRY RUN: {info} | interactive page ADF {adf_bytes // 1024} KB")
         return 0
 
     email, token = os.environ.get("CONFLUENCE_EMAIL", ""), os.environ.get("CONFLUENCE_API_TOKEN", "")
@@ -174,6 +230,12 @@ def main(argv) -> int:
                 time.sleep(10)
         if not outcome["ok"]:
             outcome.update(error=last_err, page_id=page_id, attachments=att)
+        try:
+            outcome["interactive"] = publish_view(auth, result, page_id)
+        except urllib.error.HTTPError as e:
+            outcome["interactive"] = {"ok": False, "error": f"HTTP {e.code}: {e.read().decode(errors='replace')[:600]}"}
+        except Exception as e:
+            outcome["interactive"] = {"ok": False, "error": repr(e)}
     except urllib.error.HTTPError as e:
         outcome["error"] = f"HTTP {e.code}: {e.read().decode(errors='replace')[:600]}"
     except Exception as e:

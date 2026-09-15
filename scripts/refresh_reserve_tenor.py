@@ -29,6 +29,13 @@ to $/GPU-hr BEFORE the 0.2-20 sanity bound, 'H100 SXM' -> H100, Vera Rubin from
 product_name. Tenor = consumption window in months, bucketed to 3/6/12/18/24/36/
 48/60 (see TENOR_CASE). History from 2025-01-01 so quote-date normalisation in
 forward_curve.py has depth.
+
+Prepayment (added 2026-09-15): the CRM prepaid-percentage field is empty for every
+reserve deal (checked 2026-08-05 and again 2026-09-15), so the only usable signal is
+payment_type_slug x billing_frequency_slug. Cells are therefore split by a coarse
+prepay_bucket: 'upfront' (PREPAID + ONE_TIME), 'prepaid_monthly' (PREPAID, monthly
+or unspecified frequency), 'postpaid' (POSTPAID / NO_PAYMENT / null). It is a proxy,
+not a percentage; forward_curve.py maps it to 100% / 10% / 0% for normalisation.
 """
 import csv
 import os
@@ -46,12 +53,14 @@ TENOR_CASE = ("multiIf(term_m <= 4, 3, term_m <= 8, 6, term_m <= 14, 12, term_m 
 
 QUERY = f"""
 SELECT gpu, {TENOR_CASE} AS tenor_months,
-  toString(toStartOfMonth(close_utc_dttm)) AS close_month,
+  toString(toStartOfMonth(close_utc_dttm)) AS close_month, prepay_bucket,
   uniqExact(crm_deal_id) AS deals, count() AS lines, round(sum(gpu_qty)) AS gpus,
   round(min(price_gpu_hr),2) AS price_lo, round(quantile(0.5)(price_gpu_hr),2) AS price_med,
   round(max(price_gpu_hr),2) AS price_hi
 FROM (
   SELECT crm_deal_id, close_utc_dttm, gpu,
+    multiIf(payment_type_slug = 'PREPAID' AND billing_frequency_slug = 'ONE_TIME', 'upfront',
+            payment_type_slug = 'PREPAID', 'prepaid_monthly', 'postpaid') AS prepay_bucket,
     dateDiff('day', consumption_start_utc_dttm, consumption_end_utc_dttm)/30.4 AS term_m,
     multiIf(lower(coalesce(unit,'')) IN ('gpu','gpus'), unit_price_calculated,
             lower(coalesce(unit,'')) IN ('rack','racks'), unit_price_calculated / gpus_per_rack, NULL) AS price_gpu_hr,
@@ -59,7 +68,7 @@ FROM (
             lower(coalesce(unit,'')) IN ('rack','racks'), resource_quantity * gpus_per_rack, NULL) AS gpu_qty
   FROM (
     SELECT crm_deal_id, unit, unit_price_calculated, resource_quantity, close_utc_dttm,
-      consumption_start_utc_dttm, consumption_end_utc_dttm,
+      consumption_start_utc_dttm, consumption_end_utc_dttm, payment_type_slug, billing_frequency_slug,
       multiIf(coalesce(gpu_model_canonical,'') = 'H100 SXM', 'H100',
               gpu_model_canonical IS NOT NULL, gpu_model_canonical,
               match(coalesce(product_name,''), '(?i)vera rubin'), 'VR',
@@ -83,11 +92,11 @@ FROM (
   )
 )
 WHERE gpu IN {TRACKED} AND price_gpu_hr > 0.2 AND price_gpu_hr < 20
-GROUP BY gpu, tenor_months, close_month
-ORDER BY gpu, tenor_months, close_month
+GROUP BY gpu, tenor_months, close_month, prepay_bucket
+ORDER BY gpu, tenor_months, close_month, prepay_bucket
 """
 
-COLUMNS = ["generated_date", "gpu", "tenor_months", "close_month", "deals", "lines",
+COLUMNS = ["generated_date", "gpu", "tenor_months", "close_month", "prepay_bucket", "deals", "lines",
            "gpus", "price_lo", "price_med", "price_hi"]
 
 

@@ -400,6 +400,14 @@ CONFLUENCE_SPOT_PAGE_TITLE = "Competitor Spot & Auction Pricing"
 CONFLUENCE_FORWARD_PAGE_ID = "2285044257"
 CONFLUENCE_FORWARD_PAGE_TITLE = "GPU Forward Curve — Internal Marks"
 CONFLUENCE_FORWARD_PAGE_URL = "https://nebius.atlassian.net/wiki/spaces/PR/pages/2285044257"
+# Interactive child page: the self-contained forward_view.html embedded through the
+# Forge "HTML" macro (Just Add+, Modus Create) that 47 Nebius pages already use for
+# script-bearing single-file dashboards (e.g. NTPT 1899266148 "NCCL Log browser").
+# Published in atlas_doc_format by scripts/publish_forward_curve.py; created on first
+# run (found by title under the marks page when the id is empty).
+CONFLUENCE_FORWARD_VIEW_PAGE_ID = ""
+CONFLUENCE_FORWARD_VIEW_PAGE_TITLE = "GPU Forward Curve — Interactive"
+FORGE_HTML_MACRO_KEY = "7dc8a3ac-0e9e-4564-8e1a-098386c53e02/6e55fe61-328b-4ae8-94f4-97a02ba5b351/static/macro-html"
 
 SLACK_CHANNEL = "#competitor-pricing"
 
