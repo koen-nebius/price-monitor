@@ -16,7 +16,7 @@ forward-curve input next to SemiAnalysis and field intel). Gaps are honest:
 many captures are JS shells with no price content; up to 4 captures per month
 are tried.
 
-Usage:  python3 scripts/backfill_wayback_history.py [--dry-run] [--providers coreweave,lambda] [--from 2024-01]
+Usage:  python3 scripts/backfill_wayback_history.py [--dry-run] [--providers coreweave,lambda]  (nebius excluded, see PROVIDERS) [--from 2024-01]
 """
 import argparse
 import csv
@@ -28,7 +28,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from fetchers import coreweave, crusoe, hyperstack, lambda_labs, nebius, together  # noqa: E402
+from fetchers import coreweave, crusoe, hyperstack, lambda_labs, together  # noqa: E402
 
 HISTORY = Path(__file__).resolve().parent.parent / "store" / "history.csv"
 CDX = ("http://web.archive.org/cdx/search/cdx?url={url}&output=json"
@@ -42,7 +42,9 @@ PROVIDERS = {
     "crusoe":    (crusoe._parse_html,    ["https://crusoe.ai/cloud/pricing/", "https://www.crusoe.ai/cloud/pricing"]),
     "hyperstack": (hyperstack._parse_pricing, ["https://www.hyperstack.cloud/gpu-pricing"]),
     "lambda":    (lambda_labs._parse_html, ["https://lambda.ai/instances", "https://lambda.ai/pricing", "https://lambdalabs.com/service/gpu-cloud"]),
-    "nebius":    (nebius._parse_html,    ["https://nebius.com/prices", "https://nebius.ai/prices"]),
+    # "nebius": excluded 2026-09-15 — on older page markups the parser reads the
+    # preemptible column as on-demand (H200 $2.30, GB200 $5.50 in captures) and our
+    # own list history is authoritative in cdm/billing/sku_prices_hist anyway.
     "together":  (together._parse,       ["https://www.together.ai/pricing"]),
 }
 
