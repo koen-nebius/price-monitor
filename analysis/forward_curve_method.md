@@ -127,6 +127,19 @@ view answers one question with one result line, one graph and details on demand.
   the position at signing and at expiry, and the recovery month. Cost components,
   assumptions (with exact totals) and "Compare price scenarios" (±$0.50) are
   disclosures. Totals print as $128.8m; exact values are in the assumptions.
+- **PAYG (on-demand) as a term.** Not a curve point and never pooled. Market position
+  compares a price with peer clouds' 8-GPU on-demand list prices plus quotes that say
+  on-demand (last 90 days); hyperscaler and price-fighter list prices are drawn as
+  squares, never counted; benchmark = peer on-demand median; no prepayment (the control
+  is hidden, the user's prepayment and scenario choices are kept for the next term);
+  contract floors hidden, parity ceiling and SemiAnalysis' modelled rental this month
+  kept; the Finance check becomes Nebius' PAYG list, realised PAYG and preemptible.
+  Contract return runs the PAYG occupancy scenario over a 24-month horizon (the
+  portfolio payback standard is 22 months), stated in the sub-line.
+- **Published list prices** (hyperscaler reserved tiers per term; on-demand lists for
+  PAYG) appear as squares in the provider colours; rack rates beyond twice the
+  comparable median are pinned at the right edge with a label. Hyperscaler reserved
+  tiers exist in the scraper history only for H100, H200 and B200.
 - **Data & method** and the footer carry counts, freshness, rules and limitations.
 
 ## Economics
