@@ -1,7 +1,7 @@
-*GPU Pricing Daily — September 15, 2026*
+*GPU Pricing Daily — September 16, 2026*
 
-*Changed in 24h:* GCP raised L4 spot +6% across 8 SKUs ($0.27→$0.30) · 4 more major-provider moves + 6 small-provider moves in thread
+*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Upcloud L40S on-demand +35% · 3 small-provider moves in thread
 
-*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 12w). RTX PRO 6000 -18% vs RTX market median (25 providers).
+*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 13w). RTX PRO 6000 -18% vs RTX market median (27 providers).
 
 Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>
