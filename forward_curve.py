@@ -1254,17 +1254,18 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
         h.append(f'<p><em>Generated {coh[0]["generated"]} by scripts/refresh_deal_cohorts.py (weekly, local). Internal only: derived from CRM.</em></p>')
 
     # ask-to-close paths (HubSpot era, reference class, never pooled)
-    ap = [a for a in (result.get("ask_paths") or []) if a["outcome"] in ("won", "lost")]
+    ap_labels = (("won", "won"), ("lost_capacity", "accepted, lost for capacity"), ("lost_price_or_competitor", "lost on price / competitor"))
+    ap = [a for a in (result.get("ask_paths") or []) if a["outcome"] in dict(ap_labels)]
     if ap:
         h.append('<h2>Ask-to-close price paths — HubSpot deal reviews (reference, never pooled)</h2>')
         h.append(f'<p><em>Every GPU deal line priced at a twice-weekly deal review between {ap[0]["window_from"]} and {ap[0]["window_to"]} (the HubSpot mirror froze at the CRM cutover), '
                  'followed from its first review to its final state. Cell = median first asked price → median final price (deals; share of lines whose price was revised). '
-                 'For won deals the final price is the signed price; for lost deals it is the last ask before the loss. Salesforce keeps no such history; '
+                 'For won deals the final price is the signed price; for deals lost for capacity it is the price the customer had accepted; for deals lost on price it is the last ask before the loss. Salesforce keeps no such history; '
                  'scripts/refresh_quote_asks.py rebuilds it from daily quote snapshots.</em></p>')
         h.append('<table data-layout="wide"><thead><tr><th>GPU</th><th>Outcome</th>' +
                  "".join(f'<th>{TENOR_LABEL[t]}</th>' for t in TENORS) + '</tr></thead><tbody>')
         for tier in TIERS:
-            for outcome in ("won", "lost"):
+            for outcome, label in ap_labels:
                 cells = []
                 for t in TENORS:
                     cs = [a for a in ap if a["gpu"] == tier and a["tenor_months"] == t and a["outcome"] == outcome]
@@ -1274,7 +1275,7 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
                     cells.append(f'${a["first_ask_med"]:.2f} → ${a["final_med"]:.2f} <span style="color:#6b6b76">({a["deals"]}, {round(100 * a["share_revised"])}% revised)</span>')
                 if all(x == "—" for x in cells):
                     continue
-                h.append(f'<tr><td><strong>{tier}</strong></td><td>{outcome}</td>' + "".join(f'<td>{x}</td>' for x in cells) + '</tr>')
+                h.append(f'<tr><td><strong>{tier}</strong></td><td>{label}</td>' + "".join(f'<td>{x}</td>' for x in cells) + '</tr>')
         h.append('</tbody></table>')
         h.append(f'<p><em>Generated {ap[0]["generated"]} by scripts/backfill_hubspot_ask_paths.py (one-off, the source is frozen). Internal only: derived from CRM.</em></p>')
 

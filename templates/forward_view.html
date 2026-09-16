@@ -555,10 +555,11 @@ const DATA = /*__DATA__*/null;
         const seg = Object.keys(lab).map(o => { const x = cs.filter(c => c.outcome === o); if (!x.length) return null; const opps = x.reduce((s, c) => s + c.opps, 0); const med = x.reduce((s, c) => s + c.med * c.opps, 0) / opps; return `${lab[o]} ${fmt(med)} (${opps})`; }).filter(Boolean);
         return seg.length ? `${t}m: ${seg.join(", ")}` : null; }).filter(Boolean);
       if (parts.length) rows.push(`<p><b>Nebius deal outcomes</b> (CRM aggregates since ${esc(coh[0].window_from)}, opportunities in brackets; accepted = the customer took our price and we had no capacity; never pooled into marks): ${parts.join(" · ")}.</p>`); }
-    const ap = (DATA.ask_paths || []).filter(a => a.gpu === S.tier && (a.outcome === "won" || a.outcome === "lost"));
+    const apLab = { won: "won", lost_capacity: "accepted, lost for capacity", lost_price_or_competitor: "lost on price" };
+    const ap = (DATA.ask_paths || []).filter(a => a.gpu === S.tier && apLab[a.outcome]);
     if (ap.length) { const parts = TENORS.map(t => { const cs = ap.filter(a => a.tenor_months === t); if (!cs.length) return null;
-        return `${t}m: ` + cs.map(a => `${a.outcome} ${fmt(a.first_ask_med)} → ${fmt(a.final_med)} (${a.deals}, ${Math.round(a.share_revised * 100)}% revised)`).join(", "); }).filter(Boolean);
-      if (parts.length) rows.push(`<p><b>Ask-to-close paths</b> (HubSpot deal reviews ${esc(ap[0].window_from)} to ${esc(ap[0].window_to)}: median first asked price → median final price, deals in brackets; won = signed price, lost = last ask; never pooled into marks): ${parts.join(" · ")}.</p>`); }
+        return `${t}m: ` + cs.map(a => `${apLab[a.outcome]} ${fmt(a.first_ask_med)} → ${fmt(a.final_med)} (${a.deals}, ${Math.round(a.share_revised * 100)}% revised)`).join(", "); }).filter(Boolean);
+      if (parts.length) rows.push(`<p><b>Ask-to-close paths</b> (HubSpot deal reviews ${esc(ap[0].window_from)} to ${esc(ap[0].window_to)}: median first asked price → median final price, deals in brackets; won = signed price, accepted = the price the customer took before we ran out of capacity, lost on price = last ask; never pooled into marks): ${parts.join(" · ")}.</p>`); }
     const gl = TENORS.map(t => { const a = gridCell("ai_native_above_512", S.tier, t, S.pp), e = gridCell("enterprise_above_512", S.tier, t, S.pp); return (a || e) ? `${t}m: AI Native ${a ? a.columns : "–"}; Enterprise ${e ? e.columns : "–"}` : null; }).filter(Boolean);
     rows.push(`<p><b>Finance rate card ${GRIDV}</b> (policy, shown only in the prepayment columns Finance publishes): ${gl.length ? gl.join(" · ") : "no published rates for " + S.tier}.</p>`);
     const hl = TENORS.map(t => { const x = refTier[S.tier] && refTier[S.tier][t]; return x && x.list_hyperscaler_min != null ? `${t}m ${fmt(x.list_hyperscaler_min)} (${x.list_hyperscaler_provider})` : null; }).filter(Boolean);
