@@ -76,6 +76,7 @@ STORE = ROOT / "store"
 OUT_DIR = STORE / "forward_curve"
 INTEL_CSV = STORE / "intel.csv"
 RESERVE_TENOR_CSV = STORE / "reserve_tenor.csv"
+DEAL_COHORTS_CSV = STORE / "deal_cohorts.csv"   # CRM closed-deal cohorts (scripts/refresh_deal_cohorts.py, weekly)
 HISTORY_CSV = STORE / "history.csv"
 BODY_HTML = STORE / "forward_curve_body.html"
 
@@ -392,6 +393,28 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
                 out[tier]["realised_window_days"] = int(float(r.get("window_days") or 30))
                 out[tier]["realised_generated"] = r.get("generated_date")
             except (TypeError, ValueError):
+                continue
+    return out
+
+
+def load_cohorts(path: Path = DEAL_COHORTS_CSV) -> list[dict]:
+    """Nebius closed-deal cohorts per GPU x tenor x outcome (won / lost_capacity = accepted
+    price, we had no capacity / lost_price_or_competitor / lost_other), aggregates only,
+    from scripts/refresh_deal_cohorts.py. Reference class: rendered, never pooled."""
+    out = []
+    if not path.exists():
+        return out
+    with open(path, newline="") as f:
+        for r in csv.DictReader(f):
+            if r.get("gpu") not in TIERS:
+                continue
+            try:
+                out.append({"gpu": r["gpu"], "tenor_months": int(float(r["tenor_months"])), "outcome": r["outcome"],
+                            "opps": int(float(r["opps"])), "gpus": int(float(r["gpus"] or 0)),
+                            "p25": float(r["price_p25"]), "med": float(r["price_med"]), "p75": float(r["price_p75"]),
+                            "source": r.get("source", ""), "window_from": r.get("window_from", ""),
+                            "window_to": r.get("window_to", ""), "generated": r.get("generated_date", "")})
+            except (KeyError, ValueError, TypeError):
                 continue
     return out
 
@@ -933,6 +956,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         "observations": export,
         "economics": (json.loads(ECONOMICS_JSON.read_text()) if ECONOMICS_JSON.exists() else {}),
         "on_demand": load_on_demand(history, od_quotes, as_of=as_of),
+        "cohorts": load_cohorts(),
         "sa": load_sa_reference(as_of),
         "perf": load_perf_multiples(),
         # other evidence classes: shown on the page with their own labels, never pooled into a mark
@@ -1121,6 +1145,36 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              f'thin = one of those three tests fails (the failing test is named); achieved only = Nebius signed deals with no competitor offer in the cell (always one provider, so never "good"). '
              f'Then n (competitor offers / Nebius achieved aggregates), the number of offers excluded for unstated terms, and the min–max of recent adjusted observations (of all observations when none is recent). '
              f'n/a = suppressed. Shape compares the 36m mark to the 12m mark.</em></p>')
+
+    # CRM deal-outcome cohorts (reference class, never pooled)
+    coh = result.get("cohorts") or []
+    if coh:
+        h.append('<h2>Nebius deal outcomes — CRM aggregates (reference, never pooled)</h2>')
+        h.append(f'<p><em>Closed opportunities since {min(c["window_from"] for c in coh)} (Salesforce from the 2026-08-10 CRM cutover, the HubSpot mirror before it), '
+                 'per-GPU $/hr as quoted at close, cells with at least 2 opportunities; two sources in one cell are combined opportunity-weighted. '
+                 '<strong>Accepted</strong> = the customer accepted our price and we could not deliver (lost for capacity): confirmed willingness to pay, stronger than any quote. '
+                 '<strong>Lost on price</strong> = lost to price or a named competitor: a ceiling. Won = signed. Cell = median (opportunities, GPUs).</em></p>')
+        h.append('<table data-layout="wide"><thead><tr><th>GPU</th><th>Outcome</th>' +
+                 "".join(f'<th>{TENOR_LABEL[t]}</th>' for t in TENORS) + '</tr></thead><tbody>')
+        labels = (("won", "won"), ("lost_capacity", "accepted, lost for capacity"), ("lost_price_or_competitor", "lost on price / competitor"))
+        for tier in TIERS:
+            rows_t = [c for c in coh if c["gpu"] == tier]
+            if not rows_t:
+                continue
+            for outcome, label in labels:
+                cells = []
+                for t in TENORS:
+                    cs = [c for c in rows_t if c["tenor_months"] == t and c["outcome"] == outcome]
+                    if not cs:
+                        cells.append("—"); continue
+                    opps = sum(c["opps"] for c in cs); gpus = sum(c["gpus"] for c in cs)
+                    med = sum(c["med"] * c["opps"] for c in cs) / opps
+                    cells.append(f'${med:.2f} <span style="color:#6b6b76">({opps}, {gpus:,})</span>')
+                if all(x == "—" for x in cells):
+                    continue
+                h.append(f'<tr><td><strong>{tier}</strong></td><td>{label}</td>' + "".join(f'<td>{x}</td>' for x in cells) + '</tr>')
+        h.append('</tbody></table>')
+        h.append(f'<p><em>Generated {coh[0]["generated"]} by scripts/refresh_deal_cohorts.py (weekly, local). Internal only: derived from CRM.</em></p>')
 
     # shape + references
     h.append('<h2>Curve shape and references</h2>')

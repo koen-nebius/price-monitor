@@ -540,6 +540,12 @@ const DATA = /*__DATA__*/null;
     const r = refsFor(S.tier), od = r.od;
     const rows = [];
     if (od.nebius_list != null || od.realised_payg != null) rows.push(`<p><b>On-demand today</b> (no commitment; a different product, never joined to the marks): Nebius list ${fmt(od.nebius_list)}${od.realised_payg != null ? `, Nebius realised PAYG ${fmt(od.realised_payg)} over the last ${od.realised_window_days || 30} days` : ""}${od.nebius_preemptible != null ? `, preemptible ${fmt(od.nebius_preemptible)}` : ""}${od.peer_od_median != null ? `, peer on-demand median ${fmt(od.peer_od_median)} (${od.peer_od_n} peers)` : ""}${od.quotes_od_median != null ? `, recent on-demand quotes ${fmt(od.quotes_od_median)} (${od.quotes_od_n})` : ""}${od.hyperscaler_od_min != null ? `, cheapest hyperscaler ${fmt(od.hyperscaler_od_min)} (${od.hyperscaler_od_provider})` : ""}.</p>`);
+    const coh = (DATA.cohorts || []).filter(c => c.gpu === S.tier);
+    if (coh.length) { const lab = { won: "won", lost_capacity: "accepted, lost for capacity", lost_price_or_competitor: "lost on price" };
+      const parts = TENORS.map(t => { const cs = coh.filter(c => c.tenor_months === t); if (!cs.length) return null;
+        const seg = Object.keys(lab).map(o => { const x = cs.filter(c => c.outcome === o); if (!x.length) return null; const opps = x.reduce((s, c) => s + c.opps, 0); const med = x.reduce((s, c) => s + c.med * c.opps, 0) / opps; return `${lab[o]} ${fmt(med)} (${opps})`; }).filter(Boolean);
+        return seg.length ? `${t}m: ${seg.join(", ")}` : null; }).filter(Boolean);
+      if (parts.length) rows.push(`<p><b>Nebius deal outcomes</b> (CRM aggregates since ${esc(coh[0].window_from)}, opportunities in brackets; accepted = the customer took our price and we had no capacity; never pooled into marks): ${parts.join(" · ")}.</p>`); }
     const gl = TENORS.map(t => { const a = gridCell("ai_native_above_512", S.tier, t, S.pp), e = gridCell("enterprise_above_512", S.tier, t, S.pp); return (a || e) ? `${t}m: AI Native ${a ? a.columns : "–"}; Enterprise ${e ? e.columns : "–"}` : null; }).filter(Boolean);
     rows.push(`<p><b>Finance rate card ${GRIDV}</b> (policy, shown only in the prepayment columns Finance publishes): ${gl.length ? gl.join(" · ") : "no published rates for " + S.tier}.</p>`);
     const hl = TENORS.map(t => { const x = refTier[S.tier] && refTier[S.tier][t]; return x && x.list_hyperscaler_min != null ? `${t}m ${fmt(x.list_hyperscaler_min)} (${x.list_hyperscaler_provider})` : null; }).filter(Boolean);
