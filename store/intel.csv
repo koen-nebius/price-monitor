@@ -195,9 +195,6 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1782901181.113229,2026-07-01,RTX6000,1.85,0,0,neocloud,Hyperstack,"[audit 2026-09-15] RTX PRO 6000 on-demand via Shadeform marketplace, eff Jul 10 2026 (was $1.80)",0
 1782901181.113229,2026-07-01,B200,6.0,0,0,neocloud,Hyperstack,"[audit 2026-09-15] B200 on-demand via Shadeform marketplace, eff Jul 10 2026 (was $3.50)",0
 1786040857.456889,2026-08-06,VR,7.0,0,0,undisclosed_hyperscaler,Undisclosed hyperscaler,"[audit 2026-09-15] hyperscalers VR low-7s to high-7s, contracting Q2-Q4 2027 delivery; term unknown; lower bound",0
-1789132624.685869,2026-09-11,GB300,5.6,36,25,undisclosed,SemiAnalysis GB300 index (draft),[audit 2026-09-15] SemiAnalysis draft neocloud GB300 contract index Aug-2026 3y $5.60-6.00 @25% prepay; lower bound; via FR lab,1
-1789132624.685869,2026-09-11,GB300,5.5,48,25,undisclosed,SemiAnalysis GB300 index (draft),[audit 2026-09-15] SemiAnalysis draft neocloud GB300 contract index Aug-2026 4y $5.50-5.80 @25% prepay; lower bound; via FR lab,1
-1789132624.685869,2026-09-11,GB300,5.4,60,25,undisclosed,SemiAnalysis GB300 index (draft),[audit 2026-09-15] SemiAnalysis draft neocloud GB300 contract index Aug-2026 5y $5.40-5.70 @25% prepay; lower bound; via FR lab,1
 1744854565.678219,2025-04-17,H100,2.20,12,0,neocloud,CoreWeave,[audit 2026-09-15] 64xH100 12mo quote collected by CentML for its customer,0
 1744854565.678219,2025-04-17,H100,1.80,12,0,neocloud,Lambda,[audit 2026-09-15] 64xH100 12mo quote collected by CentML for its customer,0
 1744854565.678219,2025-04-17,H100,1.60,12,0,neocloud,Vultr,[audit 2026-09-15] 64xH100 12mo quote collected by CentML for its customer,0
@@ -272,3 +269,6 @@ seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-no
 1760604957.327919,2025-10-16,B200,2.92,12,75,neocloud,CoreWeave,[audit 2026-09-15] 1248 B200 Feb target 1yr 75% prepay tier (25%=$3.02 in store; 50%=$2.97),1
 1760604957.327919,2025-10-16,B200,2.88,12,100,neocloud,CoreWeave,[audit 2026-09-15] 1248 B200 Feb target 1yr 100% prepay tier,1
 1765267345.620039,2025-12-09,H200,1.30,6,0,undisclosed,Undisclosed,"[audit 2026-09-15] most aggressive H200 seen: ~256 GPUs, 6-12mo term context; thread reply to 1765258716",0
+1789491104.048739,2026-09-15,VR,6.30,0,20,neocloud,CoreWeave,"Jane Street: previous deal signed with CoreWeave ~$6.3/hr, 20% upfront, 30k VR; term not stated (Khaled Ibrahim)",1
+1789491104.048739,2026-09-15,VR,7.25,0,30,undisclosed,Undisclosed,HRT: seeing low-mid $7s with 30% upfront for VR; midpoint 7.25; provider and term not stated (Khaled Ibrahim),1
+1789491003.199359,2026-09-15,VR,6.75,60,22,undisclosed,Undisclosed,"Perplexity: 5-year VR deals mid $6 to low $7, 20-25% down; midpoint 6.75 at 22.5%; two clusters 8k/11k; one provider Q2 timeline (Nav Kala)",1

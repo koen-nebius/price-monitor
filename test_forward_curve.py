@@ -1,5 +1,6 @@
 """Unit checks for forward_curve.py (stdlib unittest; run: python3 -m unittest test_forward_curve)."""
 import csv
+import json
 import math
 import tempfile
 import unittest
@@ -131,7 +132,7 @@ class Build(unittest.TestCase):
                  "confidence", "interconnect", "form_factor"],
                 [["2026-09-14", "nebius", "B300", "committed_3yr", "", "", "8", "4.55", "", "", "", "", "", ""],
                  ["2026-09-14", "aws", "B300", "reserved_3yr", "", "", "8", "9.0", "", "", "", "", "", ""]])
-            res = fc.build(date(2026, 9, 15), intel=intel, reserve=reserve, history=history,
+            res = fc.build(date(2026, 9, 15), intel=intel, reserve=reserve, history=history, crm_asks=Path(tmp) / "none.csv", index=Path(tmp) / "none.csv", snapshot=Path(tmp) / "none.json",
                            contracts=Path(tmp) / "none.csv", grid=Path(tmp) / "none.json")
         b300_36 = next(e for e in res["marks"] if e["tier"] == "B300" and e["tenor_months"] == 36)
         self.assertTrue(b300_36["has_mark"])
@@ -213,7 +214,7 @@ class Build(unittest.TestCase):
         for price in (1.5, 6.0):
             with tempfile.TemporaryDirectory() as tmp:
                 intel = self._write(tmp, "intel.csv", header, rows(price))
-                res = fc.build(date(2026, 9, 15), intel=intel, reserve=Path(tmp) / "none.csv", history=Path(tmp) / "none.csv",
+                res = fc.build(date(2026, 9, 15), intel=intel, reserve=Path(tmp) / "none.csv", history=Path(tmp) / "none.csv", crm_asks=Path(tmp) / "none.csv", index=Path(tmp) / "none.csv", snapshot=Path(tmp) / "none.json",
                                contracts=Path(tmp) / "none.csv", grid=Path(tmp) / "none.json")
             results.append(res)
         self.assertEqual(results[0]["quarter_effects_log"], results[1]["quarter_effects_log"])
@@ -231,6 +232,63 @@ class Build(unittest.TestCase):
         eff = fc.quarter_effects(obs, date(2026, 9, 15))
         self.assertAlmostEqual(eff["2026Q3"], 0.0)
         self.assertLess(eff["2026Q1"], 0.0)
+
+
+class OtherEvidenceClasses(unittest.TestCase):
+    """Lost/open CRM asks, index rows and short-term market prices are references: labelled, thresholded, never pooled."""
+
+    def test_crm_asks_aggregate_to_three_deals_and_withhold_the_rest(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "crm_asks.csv"
+            with open(p, "w", newline="") as f:
+                w = csv.writer(f)
+                w.writerow(["generated_date", "gpu", "tenor_months", "stage_class", "close_month", "prepay_bucket", "deals", "lines", "gpus", "price_lo", "price_med", "price_hi"])
+                w.writerow(["2026-09-16", "B300", "36", "lost", "2026-07-01", "postpaid", "2", "2", "512", "4.5", "4.7", "4.9"])
+                w.writerow(["2026-09-16", "B300", "36", "lost", "2026-08-01", "upfront", "2", "2", "256", "4.0", "4.2", "4.4"])
+                w.writerow(["2026-09-16", "B300", "36", "proposal", "2026-09-01", "postpaid", "2", "2", "128", "5.4", "5.5", "5.6"])
+                w.writerow(["2026-09-16", "B300", "36", "lost", "2025-01-01", "postpaid", "9", "9", "999", "1.0", "1.0", "1.0"])   # outside the window
+            res = fc.load_crm_asks(p, as_of=date(2026, 9, 16))
+        cell = res["cells"]["B300"][36]
+        self.assertEqual(cell["lost"]["deals"], 4)
+        self.assertFalse(cell["lost"]["withheld"])
+        self.assertGreater(cell["lost"]["p0"], 4.2)          # the upfront month is lifted to the 0% basis
+        self.assertLess(cell["lost"]["p0"], 4.9)
+        self.assertTrue(cell["proposal"]["withheld"])
+        self.assertNotIn("p0", cell["proposal"])
+        self.assertEqual(res["withheld_cells"], 1)
+        self.assertEqual(res["deals"], {"lost": 4, "proposal": 2})
+        self.assertEqual(res["generated"], "2026-09-16")
+
+    def test_index_rows_are_rebased_and_kept_out_of_observations(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "index_quotes.csv"
+            with open(p, "w", newline="") as f:
+                w = csv.writer(f)
+                w.writerow(["source", "as_of", "gpu_model", "tenor_months", "prepay_pct", "price_per_gpu_hour_usd", "stat", "notes"])
+                w.writerow(["SemiAnalysis GPU Pricing Index (draft)", "2026-09-15", "GB300", "36", "25", "5.60", "median", ""])
+                w.writerow(["SemiAnalysis GPU Pricing Index (draft)", "2026-09-15", "GB300", "48", "25", "5.50", "median", ""])
+            idx = fc.load_index(p)
+        self.assertEqual([e["tenor"] for e in idx["GB300"]], [36, 60])   # 48 months buckets to the 60-month column
+        self.assertGreater(idx["GB300"][0]["p0"], 5.60)
+        self.assertEqual(idx["GB300"][0]["price"], 5.60)
+        self.assertNotIn("weight", idx["GB300"][0])
+
+    def test_short_term_clearing_maps_to_payg_and_small_hosts_are_flagged(self):
+        with tempfile.TemporaryDirectory() as td:
+            h, s = Path(td) / "history.csv", Path(td) / "latest.json"
+            with open(h, "w", newline="") as f:
+                w = csv.writer(f)
+                w.writerow(["snapshot_date", "provider", "gpu_model", "consumption_type", "region", "instance_type", "gpu_count", "price_per_gpu_hour_usd"])
+                w.writerow(["2026-09-15", "sfcompute", "H100", "spot", "us", "node", "8", "1.95"])
+                w.writerow(["2026-09-16", "sfcompute", "H100", "spot", "us", "node", "8", "1.90"])
+                w.writerow(["2026-09-16", "aws", "H100", "spot", "us", "p5", "8", "3.00"])            # hyperscaler spot is not an exchange price
+            s.write_text(json.dumps([{"provider": "vast", "gpu_model": "H100", "consumption_type": "reserved_short", "gpu_count": 2,
+                                      "price_per_gpu_hour_usd": 1.05, "region": "Montana, US", "fetched_at": "2026-09-16T07:00:00+00:00"}]))
+            st = fc.load_short_term(h, s, as_of=date(2026, 9, 16))
+        kinds = {e["kind"]: e for e in st["H100"]}
+        self.assertEqual(set(kinds), {"clearing", "marketplace"})
+        self.assertEqual((kinds["clearing"]["price"], kinds["clearing"]["tenor"], kinds["clearing"]["stale"]), (1.9, 0, False))
+        self.assertEqual((kinds["marketplace"]["tenor"], kinds["marketplace"]["cluster_class"]), (3, False))
 
 
 if __name__ == "__main__":

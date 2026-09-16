@@ -1,4 +1,4 @@
-# GPU committed-price benchmarks: methodology (v1.3, 2026-09-15)
+# GPU committed-price benchmarks: methodology (v1.4, 2026-09-16)
 
 What the Confluence pages "GPU Committed-Price Benchmarks — Internal Marks" (tables)
 and "... — Interactive" (embedded single-file app) show, how the numbers are produced,
@@ -196,6 +196,23 @@ both graphs once an export or the API is available. The **AI-Cloud TCO model** w
   Comparison settings so a pricing discussion can test its own assumption; SemiAnalysis'
   marketed-FLOPS ceiling is not used because every offer on file sits far below it.
 - Dots are coloured by provider (palette by frequency, "other" beyond ten) with a legend.
+
+## Other evidence classes (added 2026-09-16, v1.4)
+
+Three classes joined the page after the data-breadth review of 2026-09-16. Each is labelled, thresholded and shown beside the marks; none enters a mark.
+
+**Nebius asked prices that did not (yet) sign** (`store/crm_asks.csv`, `scripts/refresh_crm_asks.py`, local weekly, same query rules as the signed-deal leg: Actual overview, reserve, no autorenewal, rack ÷ 72). Two classes, never pooled with each other or with anything else:
+
+- *lost*: deals in stage Closed lost. A lost ask is an upper bound on what that customer would pay. The CRM stores `closed_lost_reason_name/desc` but the text never names a price or a competitor, so no competitor price is implied.
+- *proposal*: deals in Commercial Proposal or Agreement signing. What we are asking now, not yet accepted.
+
+Rows are per GPU × tenor bucket × class × close month × payment type (deal count, GPU sum, lo/median/hi). `forward_curve.load_crm_asks` merges rows over the last 365 days per GPU × tenor × class, takes the deal-weighted median of the monthly medians re-based to 0% prepayment through the payment-type proxy (upfront 100%, prepaid monthly 8%, postpaid 0%), applies no quote-date adjustment (stated on the page), and withholds the price of any cell under 3 deals (`CRM_ASK_MIN_DEALS`). The Market position graph draws them as hollow triangles (down = lost, up = open) re-based to the selected prepayment, with the deal count, months covered and 0%-basis asked range in the definitions block; both toggles default on and hide for PAYG (reserve deals only). First pull 2026-09-16: 345 cells since 2025-09; lost deal-months H200 147, H100 114, B200 113, B300 109, GB300 29, GB200 3, VR 1; open B300 40, B200 21, H200 17, GB300 14, H100 10, VR 1.
+
+**Index prices** (`store/index_quotes.csv`, `load_index`). The three "SemiAnalysis GB300 index (draft)" rows (36/48/60 months at $5.60/5.50/5.40, 25% prepayment, audit 2026-09-15) had been sitting in `intel.csv` as offers and were pooled into GB300 marks. An index is a statistic over a market, not an offer, so they now live in their own file with `source`, `as_of`, `stat`, are re-based to 0% with the Finance convention and appear as crosses on Market benchmarks and a dotted line on Market position ("SemiAnalysis index (draft)"), toggle in Other comparisons. Source still to be confirmed with Danila; the SA Pricing Index proper (10 tenors, 25th–75th percentile) remains unexported.
+
+**Short-term market prices** (`load_short_term`). SF Compute's public H100 clearing price (history.csv `consumption_type=spot`, provider `sfcompute`; 8-GPU InfiniBand nodes booked for hours to weeks) is shown at the PAYG term; Vast.ai's cheapest marketplace reservation (`reserved_short`, 1–6 months prepaid; only in the daily `store/latest.json`, not in history.csv) at the 3-month term. Entries under 8 GPUs are flagged "not cluster-class" and stay in the text; only cluster-class entries from a snapshot at most 7 days old are drawn (as squares, uncounted). Locally the daily snapshot is stale (2026-07-14), so Vast shows only in the GitHub Actions build. SF Compute fills (transacted term windows) stay parked: Koen is waitlisted for the API token.
+
+**Intake fix, same day.** The 15 Sep #price-intelligence VR posts (Khaled Ibrahim: Jane Street prior CoreWeave deal ~$6.30 at 20% upfront for 30k VR, HRT low-mid $7s at 30% upfront; Nav Kala: Perplexity 5-year mid-$6 to low-$7 at 20–25% down) were added to `intel.csv` by hand with their Slack `message_ts`, so the inbox merge dedupes against them. Term is unknown for the first two (term 0, notes say so; they do not enter a tenor cell); Perplexity enters the 60-month cell at $6.75 and 22% prepayment (midpoints).
 
 ## Hosting
 Embedded through the Forge "HTML" macro (Just Add+) as a child of the marks page,

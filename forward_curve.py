@@ -79,7 +79,7 @@ RESERVE_TENOR_CSV = STORE / "reserve_tenor.csv"
 HISTORY_CSV = STORE / "history.csv"
 BODY_HTML = STORE / "forward_curve_body.html"
 
-METHOD_VERSION = "1.3 (2026-09-15)"
+METHOD_VERSION = "1.4 (2026-09-16)"
 TIERS = ["H100", "H200", "B200", "B300", "GB200", "GB300", "VR"]
 TENORS = [3, 6, 12, 18, 24, 36, 60]            # months; buckets, see bucket_months()
 TENOR_LABEL = {3: "3m", 6: "6m", 12: "12m", 18: "18m", 24: "24m", 36: "36m", 60: "60m"}
@@ -101,6 +101,11 @@ ECONOMICS_JSON = STORE / "economics.json"
 PAYG_REALISED_CSV = STORE / "payg_realised.csv"
 SA_REFERENCE_JSON = STORE / "sa_reference.json"        # scripts/extract_sa_reference.py (local, from the SA TCO workbook)
 PERF_MULTIPLES_JSON = STORE / "perf_multiples.json"    # delivered-performance multiples between generations (sourced)
+INDEX_QUOTES_CSV = STORE / "index_quotes.csv"          # survey/index prices (SemiAnalysis draft index): class "index", never pooled
+CRM_ASKS_CSV = STORE / "crm_asks.csv"                  # scripts/refresh_crm_asks.py (local, weekly): Nebius lost and open asked prices, aggregates only
+LATEST_SNAPSHOT_JSON = STORE / "latest.json"           # main.py daily provider snapshot; marketplace short reservations live only here
+CRM_ASK_MIN_DEALS = 3                                  # a lost/open aggregate under this many deals is counted, its price withheld
+CRM_ASK_WINDOW_DAYS = 365
 DEFAULT_SEGMENT = "ai_native_above_512"
 RECENT_DAYS = 120
 MAX_AGE_DAYS = 365
@@ -504,6 +509,148 @@ def load_list(path: Path = HISTORY_CSV) -> dict:
     return dict(out)
 
 
+# ----------------------------------------------------------------------------- other evidence classes (shown, never pooled)
+def load_index(path: Path = INDEX_QUOTES_CSV) -> dict:
+    """Survey or index prices (the SemiAnalysis GPU Pricing Index draft rows that used to sit in
+    intel.csv as if they were offers): {tier: [{tenor, months, prepay, price, p0, source, ...}]}.
+    An index is a statistic over a market, not an offer, so it is a labelled reference and never
+    enters a mark. p0 = the price re-based to 0% prepayment with the Finance convention."""
+    out: dict = {}
+    if not path.exists():
+        return out
+    with open(path, newline="") as f:
+        for r in csv.DictReader(f):
+            tier = (r.get("gpu_model") or "").strip().upper()
+            if tier not in TIERS:
+                continue
+            try:
+                price = float(r["price_per_gpu_hour_usd"]); months = float(r.get("tenor_months") or 0)
+                prepay = float(r.get("prepay_pct") or 0)
+            except (KeyError, TypeError, ValueError):
+                continue
+            tenor = bucket_months(months)
+            if tenor is None:
+                continue
+            out.setdefault(tier, []).append({"source": r.get("source", ""), "as_of": r.get("as_of", ""), "tenor": tenor, "months": months,
+                                             "prepay": prepay, "price": price, "p0": round(prepay_normalise(price, prepay, months), 4),
+                                             "stat": r.get("stat", "median"), "notes": r.get("notes", "")})
+    return out
+
+
+def load_crm_asks(path: Path = CRM_ASKS_CSV, as_of: date | None = None, min_deals: int = CRM_ASK_MIN_DEALS) -> dict:
+    """Nebius' own asked prices that did not (yet) sign, from the CRM deal-review table through
+    scripts/refresh_crm_asks.py, per tier x tenor x class:
+      lost      deals in stage Closed lost: an upper bound on what those customers would pay;
+                loss reasons are not recorded in a usable way, so no competitor price is implied
+      proposal  deals in Commercial Proposal or Agreement signing: what we are asking now
+    The file holds one row per close month x payment type (deal count, GPU sum, lo/median/hi).
+    Each class cell merges its rows over the last CRM_ASK_WINDOW_DAYS; the price is the
+    deal-weighted median of the monthly medians re-based to 0% prepayment through the payment-type
+    proxy (no quote-date adjustment, stated on the page). Cells under min_deals are counted and
+    their prices withheld. Never pooled into a mark."""
+    as_of = as_of or date.today()
+    out: dict = {"cells": {}, "generated": None, "min_deals": min_deals, "window_days": CRM_ASK_WINDOW_DAYS,
+                 "withheld_cells": 0, "deals": {"lost": 0, "proposal": 0}}
+    if not path.exists():
+        return out
+    grp: dict = defaultdict(list)
+    with open(path, newline="") as f:
+        for r in csv.DictReader(f):
+            out["generated"] = out["generated"] or r.get("generated_date")
+            tier = (r.get("gpu") or "").strip().upper(); cls = (r.get("stage_class") or "").strip()
+            if tier not in TIERS or cls not in ("lost", "proposal"):
+                continue
+            d = _parse_date(r.get("close_month", ""))
+            tenor = bucket_months(r.get("tenor_months"))
+            if not d or tenor is None or (as_of - d).days > CRM_ASK_WINDOW_DAYS:
+                continue
+            try:
+                med = float(r["price_med"]); lo = float(r.get("price_lo") or med); hi = float(r.get("price_hi") or med)
+                deals = int(float(r.get("deals") or 1)); gpus = float(r.get("gpus") or 0)
+            except (KeyError, TypeError, ValueError):
+                continue
+            if not all(math.isfinite(v) for v in (med, lo, hi)):
+                continue
+            if not math.isfinite(gpus):
+                gpus = 0.0   # rack-priced lines without a known GPUs-per-rack sum to NaN in the export
+            pp = float(PREPAY_BUCKET_PCT.get((r.get("prepay_bucket") or "postpaid").strip(), 0))
+            grp[(tier, tenor, cls)].append({"p0": prepay_normalise(med, pp, tenor), "lo0": prepay_normalise(lo, pp, tenor),
+                                            "hi0": prepay_normalise(hi, pp, tenor), "deals": deals, "gpus": gpus, "month": d})
+    for (tier, tenor, cls), rows in sorted(grp.items()):
+        deals = sum(x["deals"] for x in rows)
+        out["deals"][cls] += deals
+        entry = {"deals": deals, "months": len({x["month"] for x in rows}), "gpus": round(sum(x["gpus"] for x in rows)),
+                 "first_month": min(x["month"] for x in rows).isoformat()[:7], "latest_month": max(x["month"] for x in rows).isoformat()[:7],
+                 "withheld": deals < min_deals}
+        if deals >= min_deals:
+            entry.update({"p0": round(weighted_median([x["p0"] for x in rows], [x["deals"] for x in rows]), 2),
+                          "lo": round(min(x["lo0"] for x in rows), 2), "hi": round(max(x["hi0"] for x in rows), 2)})
+        else:
+            out["withheld_cells"] += 1
+        out["cells"].setdefault(tier, {}).setdefault(tenor, {})[cls] = entry
+    return out
+
+
+_EXCHANGES = {"sfcompute": "SF Compute"}
+
+
+def load_short_term(history: Path = HISTORY_CSV, snapshot: Path = LATEST_SNAPSHOT_JSON, as_of: date | None = None) -> dict:
+    """Short-term market prices outside the committed-contract classes, per tier, sorted by price:
+      clearing     exchange clearing price (SF Compute H100: 8-GPU InfiniBand nodes booked for hours to
+                   weeks), from the latest history.csv snapshot -> shown against the PAYG cell
+      marketplace  cheapest marketplace short reservation (Vast.ai, 1-6 months prepaid, usually 1-2 GPU
+                   hosts), from the latest daily snapshot (not kept in history.csv) -> the 3-month cell
+    Entries under 8 GPUs are flagged not cluster-class; a snapshot older than 7 days is flagged stale.
+    Labelled references, never pooled."""
+    as_of = as_of or date.today()
+    out: dict = {t: [] for t in TIERS}
+    if history.exists():
+        with open(history, newline="") as f:
+            rows = [r for r in csv.DictReader(f) if r.get("consumption_type") == "spot" and r.get("provider") in _EXCHANGES]
+        if rows:
+            latest = max(r["snapshot_date"] for r in rows)
+            for r in rows:
+                if r["snapshot_date"] != latest:
+                    continue
+                tier = (r.get("gpu_model") or "").upper()
+                if tier not in TIERS:
+                    continue
+                try:
+                    p = float(r["price_per_gpu_hour_usd"]); gc = int(float(r.get("gpu_count") or 0))
+                except (KeyError, TypeError, ValueError):
+                    continue
+                d = _parse_date(latest)
+                out[tier].append({"provider": _EXCHANGES[r["provider"]], "kind": "clearing", "tenor": 0, "months": 0, "price": round(p, 4),
+                                  "gpus": gc, "date": latest, "stale": bool(d and (as_of - d).days > 7), "cluster_class": gc >= 8,
+                                  "note": "exchange clearing price for short bookings (hours to weeks) on 8-GPU InfiniBand nodes; a spot market, not a committed contract"})
+    if snapshot.exists():
+        try:
+            rows = json.loads(snapshot.read_text())
+        except (OSError, ValueError):
+            rows = []
+        rows = rows if isinstance(rows, list) else []
+        dates = [str(r.get("fetched_at", ""))[:10] for r in rows if r.get("fetched_at")]
+        snap = max(dates) if dates else None
+        sd = _parse_date(snap or "")
+        stale = not sd or (as_of - sd).days > 7
+        for r in rows:
+            if r.get("consumption_type") != "reserved_short":
+                continue
+            tier = str(r.get("gpu_model", "")).upper()
+            if tier not in TIERS:
+                continue
+            try:
+                p = float(r["price_per_gpu_hour_usd"]); gc = int(float(r.get("gpu_count") or 0))
+            except (KeyError, TypeError, ValueError):
+                continue
+            prov = str(r.get("provider", ""))
+            out[tier].append({"provider": "Vast.ai" if prov.startswith("vast") else prov, "kind": "marketplace", "tenor": 3, "months": 3,
+                              "price": round(p, 4), "gpus": gc, "date": snap, "stale": stale, "cluster_class": gc >= 8,
+                              "note": f"cheapest marketplace reservation (1-6 months prepaid), {gc}-GPU host, {r.get('region', '')}"
+                                      + ("" if gc >= 8 else "; not cluster-class")})
+    return {t: sorted(v, key=lambda x: x["price"]) for t, v in out.items() if v}
+
+
 # ----------------------------------------------------------------------------- model
 def quarter_effects(obs: list[dict], as_of: date) -> dict:
     """Two-way fixed effects on log(p0): cell(tier,tenor) + quarter. Returns quarter -> log effect,
@@ -578,7 +725,8 @@ def aggregate_asks(asks: list[dict], min_deals: int = ASK_MIN_DEALS) -> list[dic
 
 
 def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
-          history=HISTORY_CSV, contracts=CONTRACTS_CSV, grid=GRID_JSON, segment=DEFAULT_SEGMENT) -> dict:
+          history=HISTORY_CSV, contracts=CONTRACTS_CSV, grid=GRID_JSON, segment=DEFAULT_SEGMENT,
+          crm_asks=CRM_ASKS_CSV, index=INDEX_QUOTES_CSV, snapshot=LATEST_SNAPSHOT_JSON) -> dict:
     as_of = as_of or date.today()
     raw = load_bid(intel) + load_ask(reserve) + load_contracts(contracts)
     grids = load_grid(grid)
@@ -787,6 +935,10 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         "on_demand": load_on_demand(history, od_quotes, as_of=as_of),
         "sa": load_sa_reference(as_of),
         "perf": load_perf_multiples(),
+        # other evidence classes: shown on the page with their own labels, never pooled into a mark
+        "index": load_index(index),
+        "crm_asks": load_crm_asks(crm_asks, as_of=as_of),
+        "short_term": load_short_term(history, snapshot, as_of=as_of),
     }
 
 
@@ -1047,6 +1199,9 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              'Offers without a stated prepayment never enter a mark; they are counted per cell, their median at a 0% assumption is shown for reference, and the interactive page can add them to a comparison only through an explicitly labelled switch.</li>'
              '<li><strong>Duplicates:</strong> a row is removed only as a confirmed repeat (same provider, price and term within 7 days, or a seed row repeating a retrieved row with the same or an anonymised provider or identical notes). '
              'Rows that only share a Slack message with another provider, or seed rows matching another provider, are kept and listed for review; one message can carry several providers\' offers at one price.</li>'
+             f'<li><strong>Other evidence classes (interactive page only, never pooled):</strong> Nebius asked prices on deals that closed lost and on open proposals (CRM deal reviews, aggregates of at least {CRM_ASK_MIN_DEALS} deals per GPU, term and class, thinner cells withheld); '
+             'the SemiAnalysis draft GB300 contract index (Aug-2026; source to be confirmed), moved out of the offer file because an index is not an offer; '
+             'short-term market prices (SF Compute H100 clearing price, Vast.ai marketplace reservations) against the PAYG and 3-month cells.</li>'
              f'<li><strong>Tenor buckets:</strong> ≤4 → 3m, ≤8 → 6m, ≤14 → 12m, ≤20 → 18m, ≤27 → 24m, ≤42 → 36m, longer → 60m. '
              f'Sanity band {_fmt(PRICE_MIN)}–{_fmt(PRICE_MAX)}.</li>'
              '<li><strong>Not modelled yet (v2):</strong> delivery-date axis (forward start vs immediate), cluster size, region/interconnect, '
@@ -1072,7 +1227,7 @@ def view_payload(result: dict) -> dict:
                  "bid_median", "bid_median_all", "bid_median_unstated", "ask_median", "public_median", "grid", "grid_100", "grid_50", "list_nebius",
                  "list_hyperscaler_min", "list_hyperscaler_provider", "list_hyperscalers", "list_peers", "cost_floor", "mark", "has_mark",
                  "range_lo", "range_hi", "range_recent", "confidence", "confidence_reason", "spread_pct", "reason")
-    out = {k: result.get(k) for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics", "on_demand", "sa")}
+    out = {k: result.get(k) for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics", "on_demand", "sa", "index", "crm_asks", "short_term")}
     perf = result.get("perf") or {}
     out["perf"] = {"_source": perf.get("_source"), "_method": perf.get("_method"), "_extracted": perf.get("_extracted"),
                    "pairs": [{"sku": p.get("sku"), "versus": p.get("versus"), "low": p.get("low"), "base": p.get("base"), "high": p.get("high"),

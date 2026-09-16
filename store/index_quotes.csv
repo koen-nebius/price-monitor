@@ -1,0 +1,4 @@
+source,as_of,gpu_model,tenor_months,prepay_pct,price_per_gpu_hour_usd,stat,notes
+"SemiAnalysis GPU Pricing Index (draft, Aug-2026)",2026-09-11,GB300,36,25,5.6,median,SemiAnalysis draft neocloud GB300 contract index Aug-2026 3y $5.60-6.00 @25% prepay; lower bound; via FR lab; source to confirm with Danila; moved out of intel.csv 2026-09-16 (an index is not an offer)
+"SemiAnalysis GPU Pricing Index (draft, Aug-2026)",2026-09-11,GB300,48,25,5.5,median,SemiAnalysis draft neocloud GB300 contract index Aug-2026 4y $5.50-5.80 @25% prepay; lower bound; via FR lab; source to confirm with Danila; moved out of intel.csv 2026-09-16 (an index is not an offer)
+"SemiAnalysis GPU Pricing Index (draft, Aug-2026)",2026-09-11,GB300,60,25,5.4,median,SemiAnalysis draft neocloud GB300 contract index Aug-2026 5y $5.40-5.70 @25% prepay; lower bound; via FR lab; source to confirm with Danila; moved out of intel.csv 2026-09-16 (an index is not an offer)
