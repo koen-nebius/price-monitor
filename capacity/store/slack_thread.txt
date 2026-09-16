@@ -1,40 +1,40 @@
-*Detail · Tuesday 15 Sep 2026*
+*Detail · Wednesday 16 Sep 2026*
 
-*H100* in stock (incl. 8x): Hyperstack · Scaleway · Together AI · Verda
-• Partial: Lambda (small sizes in 1 region, 8x sold out) · RunPod (1x only, stock Medium); Sold out: Voltage Park
+*H100* in stock (incl. 8x): Scaleway · Together AI
+• Partial: Hyperstack (~1 GPUs, 1 region) · Lambda (small sizes in 1 region, 8x sold out, 2nd day) · RunPod (1x only, stock High); Sold out: Verda · Voltage Park
 • Market: AWS spot pools in 12 regions (spot advisor, ~weekly)
 • Nebius: self-service in Finland
 
 *H200* in stock (incl. 8x): Together AI
-• Partial: RunPod (1x only, stock Low) · Verda (no 8x nodes, 2nd day); Sold out: Hyperstack (8th day)
-• Market: Vast 69 GPUs listed, cheapest $1.98 · AWS spot pools in 10 regions
+• Partial: RunPod (1x only, stock Low); Sold out: Hyperstack (9th day) · Verda
+• Market: Vast 63 GPUs listed, cheapest $1.98 · AWS spot pools in 10 regions
 • Nebius: self-service in Finland, Iceland, Paris, Kansas (US)
 
 *B200* in stock (incl. 8x): Together AI
-• Partial: RunPod (1x only, stock Low, 6th day); Sold out: Lambda · Verda (16th day)
-• Market: Vast 52 GPUs listed, cheapest $5.63 · AWS spot pools in 3 regions
+• Partial: RunPod (1x only, stock Low, 7th day); Sold out: Lambda · Verda (17th day)
+• Market: Vast 34 GPUs listed, cheapest $5.63 · AWS spot pools in 3 regions
 • Nebius: self-service in Israel, Kansas (US)
 
-*B300* in stock (incl. 8x): Together AI (6th day)
-• Partial: RunPod (1x only, stock Low, 4th day); Sold out: Hyperstack (24th day) · Scaleway · Verda (23rd day)
-• Market: AWS spot pools in 1 region
+*B300* in stock (incl. 8x): Together AI (7th day)
+• Partial: RunPod (1x only, stock Low, 5th day); Sold out: Hyperstack (25th day) · Scaleway · Verda (24th day)
+• Market: Vast 3 GPUs listed, cheapest $9.38 · AWS spot pools in 1 region
 • Nebius: self-service in eu-west2, London (UK), us-north1
 
-*GB300* in stock: Together AI (9th day)
+*GB300* in stock: Together AI (10th day)
 • Sold out: Verda
 
-*L40S* in stock at 3/4 live sources (0/4 at 8x) · *RTX6000* in stock at 2/3 live sources (1/3 at 8x)
+*L40S* in stock at 1/4 live sources (0/4 at 8x) · *RTX6000* in stock at 2/3 live sources (0/3 at 8x)
 
-*Changes (since previous run, 14 Sep 08:01 UTC; own APIs unless marked):*
-• RunPod H100: partial → sold out
-• Together AI H100: regions with capacity 3 → 7
-• Verda H100: partial → in stock (via aggregator ✱)
-• Verda H200: regions with capacity 1 → 2 (via aggregator ✱)
-• Vast.ai B200: listed depth 23 → 52 (marketplace)
-• Hyperstack L40S: stock 8 → 4
-• RunPod RTX6000: sold out → partial
-• Verda RTX6000: regions with capacity 2 → 3 (via aggregator ✱)
-_+31 datacenter-level changes on Confluence_
+*Changes (since previous run, 15 Sep 07:56 UTC; own APIs unless marked):*
+• RunPod H100: sold out → partial
+• Scaleway H100: regions with capacity 1 → 2
+• Vast.ai B200: listed depth 52 → 34 (marketplace)
+• Hyperstack L40S: stock 4 → 9
+• RunPod L40S: partial → sold out
+• Vast.ai L40S: listed depth 58 → 36 (marketplace)
+• Nebius RTX6000: listed_offering 2 → 3 (+50%) (footprint)
+• Verda RTX6000: in stock → partial (via aggregator ✱)
+_+33 datacenter-level changes on Confluence_
 
 *GB200 NVL72* footprint only (where it's offered, not whether in stock): CoreWeave 6 AZs · GCP 5 zones · Azure 19 priced regions · Crusoe 1 zone
 _GMI badges (self-reported, never counted): B200 'Limited Availability' (from $4.00) · GB200 NVL72 'AVAILABLE NOW' (from $8.00) · GB300 NVL72 'AVAILABLE NOW' but Pre order · H100 'AVAILABLE NOW' (from $2.00) · H200 'AVAILABLE NOW' (from $2.60)_
