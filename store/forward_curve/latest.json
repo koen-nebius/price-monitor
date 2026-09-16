@@ -9752,77 +9752,94 @@
    "B200": {
     "3": {
      "lost": {
-      "deals": 32,
-      "months": 9,
-      "gpus": 6428,
+      "deals": 35,
+      "months": 11,
+      "gpus": 6644,
       "first_month": "2025-10",
-      "latest_month": "2026-07",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
       "p0": 3.7,
       "lo": 2.5,
-      "hi": 5.51
+      "hi": 8.04
+     },
+     "proposal": {
+      "deals": 10,
+      "months": 2,
+      "gpus": 552,
+      "first_month": "2026-08",
+      "latest_month": "2026-09",
+      "withheld": false,
+      "sources": [
+       "salesforce_quotes"
+      ],
+      "p0": 5.03,
+      "lo": 2.5,
+      "hi": 5.94
      }
     },
     "6": {
      "lost": {
-      "deals": 18,
-      "months": 6,
-      "gpus": 5974,
+      "deals": 22,
+      "months": 9,
+      "gpus": 7142,
       "first_month": "2025-11",
-      "latest_month": "2026-06",
+      "latest_month": "2026-10",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
       "p0": 3.41,
       "lo": 2.91,
-      "hi": 5.51
+      "hi": 5.65
      },
      "proposal": {
-      "deals": 3,
-      "months": 1,
-      "gpus": 672,
+      "deals": 8,
+      "months": 2,
+      "gpus": 1432,
       "first_month": "2026-08",
-      "latest_month": "2026-08",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "salesforce_quotes"
       ],
-      "p0": 5.24,
+      "p0": 5.25,
       "lo": 4.99,
-      "hi": 5.7
+      "hi": 6.31
      }
     },
     "12": {
      "lost": {
-      "deals": 43,
-      "months": 11,
-      "gpus": 39929,
+      "deals": 58,
+      "months": 13,
+      "gpus": 45401,
       "first_month": "2025-10",
-      "latest_month": "2026-08",
+      "latest_month": "2026-10",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
-      "p0": 3.71,
+      "p0": 5.06,
       "lo": 2.5,
       "hi": 7.19
      },
      "proposal": {
-      "deals": 13,
-      "months": 4,
-      "gpus": 2776,
+      "deals": 21,
+      "months": 2,
+      "gpus": 4304,
       "first_month": "2026-08",
-      "latest_month": "2026-11",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "salesforce_quotes"
       ],
-      "p0": 5.53,
-      "lo": 3.02,
+      "p0": 5.33,
+      "lo": 3.0,
       "hi": 7.19
      }
     },
@@ -9840,148 +9857,170 @@
       "p0": 3.23,
       "lo": 2.82,
       "hi": 3.53
-     }
-    },
-    "24": {
-     "lost": {
-      "deals": 2,
-      "months": 2,
-      "gpus": 1072,
-      "first_month": "2026-01",
-      "latest_month": "2026-02",
-      "withheld": true,
-      "sources": [
-       "hubspot"
-      ]
      },
      "proposal": {
       "deals": 1,
       "months": 1,
-      "gpus": 256,
-      "first_month": "2026-07",
-      "latest_month": "2026-07",
+      "gpus": 8,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
       "withheld": true,
       "sources": [
-       "hubspot"
+       "salesforce_quotes"
+      ]
+     }
+    },
+    "24": {
+     "lost": {
+      "deals": 5,
+      "months": 4,
+      "gpus": 1472,
+      "first_month": "2026-01",
+      "latest_month": "2026-09",
+      "withheld": false,
+      "sources": [
+       "hubspot",
+       "salesforce_quotes"
+      ],
+      "p0": 4.7,
+      "lo": 3.23,
+      "hi": 5.96
+     },
+     "proposal": {
+      "deals": 1,
+      "months": 1,
+      "gpus": 128,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
       ]
      }
     },
     "36": {
      "lost": {
-      "deals": 1,
-      "months": 1,
-      "gpus": 640,
+      "deals": 7,
+      "months": 3,
+      "gpus": 5340,
       "first_month": "2026-06",
-      "latest_month": "2026-06",
-      "withheld": true,
+      "latest_month": "2026-09",
+      "withheld": false,
       "sources": [
-       "hubspot"
-      ]
+       "hubspot",
+       "salesforce_quotes"
+      ],
+      "p0": 4.78,
+      "lo": 4.37,
+      "hi": 5.93
      },
      "proposal": {
-      "deals": 4,
+      "deals": 3,
       "months": 1,
-      "gpus": 1664,
+      "gpus": 88,
       "first_month": "2026-08",
       "latest_month": "2026-08",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "salesforce_quotes"
       ],
-      "p0": 4.67,
-      "lo": 4.57,
-      "hi": 5.44
+      "p0": 5.08,
+      "lo": 4.88,
+      "hi": 5.93
      }
     }
    },
    "B300": {
     "3": {
      "lost": {
-      "deals": 3,
-      "months": 3,
-      "gpus": 2584,
+      "deals": 4,
+      "months": 4,
+      "gpus": 2600,
       "first_month": "2025-11",
-      "latest_month": "2026-07",
-      "withheld": false,
-      "sources": [
-       "hubspot"
-      ],
-      "p0": 4.51,
-      "lo": 4.0,
-      "hi": 5.57
-     },
-     "proposal": {
-      "deals": 3,
-      "months": 3,
-      "gpus": 320,
-      "first_month": "2026-07",
       "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
-      "p0": 5.65,
-      "lo": 3.5,
-      "hi": 6.91
+      "p0": 4.51,
+      "lo": 4.0,
+      "hi": 6.1
+     },
+     "proposal": {
+      "deals": 8,
+      "months": 2,
+      "gpus": 152,
+      "first_month": "2026-08",
+      "latest_month": "2026-09",
+      "withheld": false,
+      "sources": [
+       "salesforce_quotes"
+      ],
+      "p0": 7.1,
+      "lo": 5.32,
+      "hi": 7.85
      }
     },
     "6": {
      "lost": {
-      "deals": 19,
-      "months": 9,
-      "gpus": 5969,
+      "deals": 25,
+      "months": 10,
+      "gpus": 14857,
       "first_month": "2025-11",
+      "latest_month": "2026-09",
+      "withheld": false,
+      "sources": [
+       "hubspot",
+       "salesforce_quotes"
+      ],
+      "p0": 4.49,
+      "lo": 3.0,
+      "hi": 7.87
+     },
+     "proposal": {
+      "deals": 7,
+      "months": 1,
+      "gpus": 1472,
+      "first_month": "2026-08",
       "latest_month": "2026-08",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "salesforce_quotes"
       ],
-      "p0": 4.14,
-      "lo": 3.0,
-      "hi": 5.77
-     },
-     "proposal": {
-      "deals": 5,
-      "months": 3,
-      "gpus": 7608,
-      "first_month": "2026-08",
-      "latest_month": "2029-08",
-      "withheld": false,
-      "sources": [
-       "hubspot"
-      ],
-      "p0": 5.84,
-      "lo": 5.14,
-      "hi": 6.3
+      "p0": 5.68,
+      "lo": 3.71,
+      "hi": 7.87
      }
     },
     "12": {
      "lost": {
-      "deals": 57,
-      "months": 10,
-      "gpus": 43495,
+      "deals": 92,
+      "months": 12,
+      "gpus": 61239,
       "first_month": "2025-10",
-      "latest_month": "2026-08",
-      "withheld": false,
-      "sources": [
-       "hubspot"
-      ],
-      "p0": 5.51,
-      "lo": 3.22,
-      "hi": 7.14
-     },
-     "proposal": {
-      "deals": 19,
-      "months": 5,
-      "gpus": 4895,
-      "first_month": "2026-07",
       "latest_month": "2026-11",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
-      "p0": 5.78,
-      "lo": 5.0,
+      "p0": 5.53,
+      "lo": 3.22,
+      "hi": 7.85
+     },
+     "proposal": {
+      "deals": 54,
+      "months": 2,
+      "gpus": 31272,
+      "first_month": "2026-08",
+      "latest_month": "2026-09",
+      "withheld": false,
+      "sources": [
+       "salesforce_quotes"
+      ],
+      "p0": 5.59,
+      "lo": 3.02,
       "hi": 7.89
      }
     },
@@ -9996,79 +10035,96 @@
       "sources": [
        "hubspot"
       ]
+     },
+     "proposal": {
+      "deals": 2,
+      "months": 2,
+      "gpus": 352,
+      "first_month": "2026-08",
+      "latest_month": "2026-09",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
+      ]
      }
     },
     "24": {
      "lost": {
-      "deals": 12,
-      "months": 6,
-      "gpus": 28704,
+      "deals": 23,
+      "months": 9,
+      "gpus": 37328,
       "first_month": "2025-11",
-      "latest_month": "2026-06",
-      "withheld": false,
-      "sources": [
-       "hubspot"
-      ],
-      "p0": 4.34,
-      "lo": 3.03,
-      "hi": 5.1
-     },
-     "proposal": {
-      "deals": 8,
-      "months": 3,
-      "gpus": 5784,
-      "first_month": "2026-08",
       "latest_month": "2026-10",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
+      ],
+      "p0": 5.03,
+      "lo": 3.03,
+      "hi": 6.57
+     },
+     "proposal": {
+      "deals": 16,
+      "months": 2,
+      "gpus": 4620,
+      "first_month": "2026-08",
+      "latest_month": "2026-09",
+      "withheld": false,
+      "sources": [
+       "salesforce_quotes"
       ],
       "p0": 5.15,
-      "lo": 5.1,
-      "hi": 5.52
+      "lo": 3.89,
+      "hi": 7.23
      }
     },
     "36": {
      "lost": {
-      "deals": 13,
-      "months": 4,
-      "gpus": 30356,
+      "deals": 20,
+      "months": 6,
+      "gpus": 38364,
       "first_month": "2026-04",
-      "latest_month": "2026-07",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
       "p0": 4.69,
       "lo": 3.55,
-      "hi": 5.08
+      "hi": 5.76
      },
      "proposal": {
-      "deals": 5,
-      "months": 4,
-      "gpus": 4880,
-      "first_month": "2026-07",
-      "latest_month": "2026-11",
+      "deals": 12,
+      "months": 2,
+      "gpus": 18088,
+      "first_month": "2026-08",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "salesforce_quotes"
       ],
-      "p0": 4.57,
+      "p0": 5.15,
       "lo": 4.25,
-      "hi": 5.58
+      "hi": 6.28
      }
     },
     "60": {
      "lost": {
-      "deals": 2,
+      "deals": 3,
       "months": 2,
-      "gpus": 6000,
+      "gpus": 7000,
       "first_month": "2026-05",
       "latest_month": "2026-08",
-      "withheld": true,
+      "withheld": false,
       "sources": [
-       "hubspot"
-      ]
+       "hubspot",
+       "salesforce_quotes"
+      ],
+      "p0": 5.65,
+      "lo": 3.35,
+      "hi": 5.65
      }
     }
    },
@@ -10090,26 +10146,30 @@
    "GB300": {
     "3": {
      "lost": {
-      "deals": 1,
-      "months": 1,
-      "gpus": 6048,
-      "first_month": "2026-03",
-      "latest_month": "2026-03",
-      "withheld": true,
-      "sources": [
-       "hubspot"
-      ]
-     },
-     "proposal": {
       "deals": 2,
-      "months": 1,
-      "gpus": 9072,
-      "first_month": "2026-08",
+      "months": 2,
+      "gpus": 11088,
+      "first_month": "2026-03",
       "latest_month": "2026-08",
       "withheld": true,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ]
+     },
+     "proposal": {
+      "deals": 4,
+      "months": 1,
+      "gpus": 6336,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": false,
+      "sources": [
+       "salesforce_quotes"
+      ],
+      "p0": 8.07,
+      "lo": 6.42,
+      "hi": 9.2
      }
     },
     "6": {
@@ -10123,92 +10183,122 @@
       "sources": [
        "hubspot"
       ]
+     },
+     "proposal": {
+      "deals": 1,
+      "months": 1,
+      "gpus": 1008,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
+      ]
      }
     },
     "12": {
      "lost": {
-      "deals": 11,
-      "months": 6,
-      "gpus": 33480,
+      "deals": 17,
+      "months": 8,
+      "gpus": 43416,
       "first_month": "2025-11",
-      "latest_month": "2026-08",
+      "latest_month": "2026-12",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
-      "p0": 6.13,
+      "p0": 6.34,
       "lo": 3.35,
       "hi": 9.25
      },
      "proposal": {
-      "deals": 6,
-      "months": 2,
-      "gpus": 13608,
+      "deals": 21,
+      "months": 1,
+      "gpus": 77472,
       "first_month": "2026-08",
-      "latest_month": "2026-09",
+      "latest_month": "2026-08",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "salesforce_quotes"
       ],
       "p0": 6.13,
-      "lo": 5.82,
-      "hi": 6.13
+      "lo": 4.93,
+      "hi": 9.25
      }
     },
     "24": {
      "lost": {
-      "deals": 7,
-      "months": 5,
-      "gpus": 9936,
-      "first_month": "2025-11",
-      "latest_month": "2026-07",
-      "withheld": false,
-      "sources": [
-       "hubspot"
-      ],
-      "p0": 5.89,
-      "lo": 4.55,
-      "hi": 7.07
-     },
-     "proposal": {
-      "deals": 4,
-      "months": 2,
-      "gpus": 6264,
-      "first_month": "2026-08",
-      "latest_month": "2026-10",
-      "withheld": false,
-      "sources": [
-       "hubspot"
-      ],
-      "p0": 5.45,
-      "lo": 4.04,
-      "hi": 5.96
-     }
-    },
-    "36": {
-     "lost": {
-      "deals": 8,
+      "deals": 10,
       "months": 6,
-      "gpus": 47016,
+      "gpus": 23976,
       "first_month": "2025-11",
       "latest_month": "2026-08",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
-      "p0": 4.67,
+      "p0": 5.0,
+      "lo": 3.34,
+      "hi": 7.07
+     },
+     "proposal": {
+      "deals": 5,
+      "months": 1,
+      "gpus": 5112,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": false,
+      "sources": [
+       "salesforce_quotes"
+      ],
+      "p0": 6.49,
+      "lo": 5.6,
+      "hi": 9.3
+     }
+    },
+    "36": {
+     "lost": {
+      "deals": 13,
+      "months": 9,
+      "gpus": 54504,
+      "first_month": "2025-11",
+      "latest_month": "2026-12",
+      "withheld": false,
+      "sources": [
+       "hubspot",
+       "salesforce_quotes"
+      ],
+      "p0": 5.23,
       "lo": 3.61,
       "hi": 9.2
      },
      "proposal": {
-      "deals": 2,
+      "deals": 6,
       "months": 2,
-      "gpus": 10080,
+      "gpus": 6552,
       "first_month": "2026-08",
-      "latest_month": "2026-11",
+      "latest_month": "2026-09",
+      "withheld": false,
+      "sources": [
+       "salesforce_quotes"
+      ],
+      "p0": 5.08,
+      "lo": 4.06,
+      "hi": 8.37
+     }
+    },
+    "60": {
+     "proposal": {
+      "deals": 1,
+      "months": 1,
+      "gpus": 9936,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
       "withheld": true,
       "sources": [
-       "hubspot"
+       "salesforce_quotes"
       ]
      }
     }
@@ -10230,75 +10320,90 @@
       "hi": 2.95
      },
      "proposal": {
-      "deals": 1,
-      "months": 1,
-      "gpus": 16,
-      "first_month": "2026-10",
-      "latest_month": "2026-10",
-      "withheld": true,
+      "deals": 4,
+      "months": 2,
+      "gpus": 20048,
+      "first_month": "2026-08",
+      "latest_month": "2026-09",
+      "withheld": false,
       "sources": [
-       "hubspot"
-      ]
+       "salesforce_quotes"
+      ],
+      "p0": 2.48,
+      "lo": 2.0,
+      "hi": 3.09
      }
     },
     "6": {
      "lost": {
-      "deals": 39,
-      "months": 10,
-      "gpus": 6557,
+      "deals": 43,
+      "months": 12,
+      "gpus": 6773,
       "first_month": "2025-10",
-      "latest_month": "2026-07",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
-      "p0": 1.83,
+      "p0": 1.87,
       "lo": 1.5,
       "hi": 3.0
      },
      "proposal": {
-      "deals": 5,
-      "months": 2,
-      "gpus": 224,
-      "first_month": "2026-06",
+      "deals": 2,
+      "months": 1,
+      "gpus": 192,
+      "first_month": "2026-08",
       "latest_month": "2026-08",
-      "withheld": false,
+      "withheld": true,
       "sources": [
-       "hubspot"
-      ],
-      "p0": 2.78,
-      "lo": 2.01,
-      "hi": 2.78
+       "salesforce_quotes"
+      ]
      }
     },
     "12": {
      "lost": {
-      "deals": 51,
-      "months": 11,
-      "gpus": 13916,
+      "deals": 58,
+      "months": 12,
+      "gpus": 14244,
       "first_month": "2025-10",
-      "latest_month": "2026-08",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
       "p0": 2.31,
       "lo": 1.5,
-      "hi": 3.06
+      "hi": 3.11
      },
      "proposal": {
-      "deals": 4,
-      "months": 3,
-      "gpus": 224,
+      "deals": 17,
+      "months": 2,
+      "gpus": 4454,
       "first_month": "2026-08",
-      "latest_month": "2026-11",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "salesforce_quotes"
       ],
-      "p0": 2.56,
-      "lo": 2.45,
-      "hi": 2.75
+      "p0": 2.68,
+      "lo": 1.8,
+      "hi": 3.11
+     }
+    },
+    "24": {
+     "proposal": {
+      "deals": 1,
+      "months": 1,
+      "gpus": 8,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
+      ]
      }
     },
     "36": {
@@ -10315,138 +10420,154 @@
       "p0": 2.28,
       "lo": 1.78,
       "hi": 3.91
+     },
+     "proposal": {
+      "deals": 1,
+      "months": 1,
+      "gpus": 96,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
+      ]
      }
     }
    },
    "H200": {
     "3": {
      "lost": {
-      "deals": 15,
-      "months": 9,
-      "gpus": 1744,
+      "deals": 16,
+      "months": 10,
+      "gpus": 1760,
       "first_month": "2025-10",
-      "latest_month": "2026-08",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
       "p0": 2.15,
       "lo": 1.65,
       "hi": 3.5
      },
      "proposal": {
-      "deals": 4,
-      "months": 3,
-      "gpus": 444,
-      "first_month": "2026-05",
+      "deals": 2,
+      "months": 2,
+      "gpus": 336,
+      "first_month": "2026-08",
       "latest_month": "2026-09",
-      "withheld": false,
+      "withheld": true,
       "sources": [
-       "hubspot"
-      ],
-      "p0": 2.46,
-      "lo": 2.0,
-      "hi": 6.2
+       "salesforce_quotes"
+      ]
      }
     },
     "6": {
      "lost": {
-      "deals": 40,
-      "months": 10,
-      "gpus": 5668,
+      "deals": 42,
+      "months": 11,
+      "gpus": 6540,
       "first_month": "2025-10",
-      "latest_month": "2026-07",
+      "latest_month": "2026-08",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
       "p0": 2.01,
       "lo": 1.4,
       "hi": 3.51
      },
      "proposal": {
-      "deals": 2,
+      "deals": 3,
       "months": 1,
-      "gpus": 134,
+      "gpus": 104,
       "first_month": "2026-08",
       "latest_month": "2026-08",
-      "withheld": true,
+      "withheld": false,
       "sources": [
-       "hubspot"
-      ]
+       "salesforce_quotes"
+      ],
+      "p0": 3.2,
+      "lo": 1.8,
+      "hi": 3.5
      }
     },
     "12": {
      "lost": {
-      "deals": 69,
-      "months": 11,
-      "gpus": 20229,
+      "deals": 88,
+      "months": 15,
+      "gpus": 23781,
       "first_month": "2025-10",
-      "latest_month": "2026-08",
+      "latest_month": "2026-12",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
-      "p0": 2.34,
+      "p0": 2.6,
       "lo": 1.6,
-      "hi": 3.63
+      "hi": 3.75
      },
      "proposal": {
-      "deals": 10,
-      "months": 4,
-      "gpus": 1206,
+      "deals": 26,
+      "months": 2,
+      "gpus": 4616,
       "first_month": "2026-08",
-      "latest_month": "2026-11",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "salesforce_quotes"
       ],
-      "p0": 3.15,
-      "lo": 2.46,
-      "hi": 3.32
+      "p0": 3.07,
+      "lo": 1.8,
+      "hi": 4.04
      }
     },
     "18": {
      "lost": {
-      "deals": 3,
-      "months": 3,
-      "gpus": 2120,
+      "deals": 5,
+      "months": 4,
+      "gpus": 2440,
       "first_month": "2026-02",
-      "latest_month": "2026-08",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
-      "p0": 2.15,
+      "p0": 2.77,
       "lo": 1.92,
-      "hi": 2.77
-     },
-     "proposal": {
-      "deals": 1,
-      "months": 1,
-      "gpus": 256,
-      "first_month": "2026-09",
-      "latest_month": "2026-09",
-      "withheld": true,
-      "sources": [
-       "hubspot"
-      ]
+      "hi": 3.02
      }
     },
     "24": {
      "lost": {
-      "deals": 4,
-      "months": 3,
-      "gpus": 752,
+      "deals": 6,
+      "months": 4,
+      "gpus": 1904,
       "first_month": "2025-10",
-      "latest_month": "2026-08",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
-       "hubspot"
+       "hubspot",
+       "salesforce_quotes"
       ],
       "p0": 2.12,
       "lo": 1.9,
       "hi": 2.78
+     },
+     "proposal": {
+      "deals": 1,
+      "months": 1,
+      "gpus": 2000,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
+      ]
      }
     },
     "36": {
@@ -10467,8 +10588,21 @@
     }
    },
    "VR": {
-    "6": {
+    "3": {
      "proposal": {
+      "deals": 2,
+      "months": 1,
+      "gpus": 6040,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
+      ]
+     }
+    },
+    "6": {
+     "lost": {
       "deals": 1,
       "months": 1,
       "gpus": 2592,
@@ -10476,7 +10610,20 @@
       "latest_month": "2026-08",
       "withheld": true,
       "sources": [
-       "hubspot"
+       "salesforce_quotes"
+      ]
+     }
+    },
+    "12": {
+     "proposal": {
+      "deals": 1,
+      "months": 1,
+      "gpus": 72,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
       ]
      }
     },
@@ -10492,21 +10639,64 @@
        "hubspot"
       ]
      }
+    },
+    "24": {
+     "proposal": {
+      "deals": 1,
+      "months": 1,
+      "gpus": 5000,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
+      ]
+     }
+    },
+    "36": {
+     "proposal": {
+      "deals": 1,
+      "months": 1,
+      "gpus": 40176,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
+      ]
+     }
+    },
+    "60": {
+     "proposal": {
+      "deals": 5,
+      "months": 2,
+      "gpus": 27048,
+      "first_month": "2026-08",
+      "latest_month": "2026-09",
+      "withheld": false,
+      "sources": [
+       "salesforce_quotes"
+      ],
+      "p0": 8.22,
+      "lo": 6.27,
+      "hi": 9.53
+     }
     }
    }
   },
   "generated": "2026-09-16",
   "min_deals": 3,
   "window_days": 365,
-  "withheld_cells": 15,
+  "withheld_cells": 20,
   "deals": {
-   "lost": 474,
-   "proposal": 103
+   "lost": 619,
+   "proposal": 248
   },
   "sources": [
-   "hubspot"
+   "hubspot",
+   "salesforce_quotes"
   ],
-  "proposal_source": "hubspot"
+  "proposal_source": "salesforce_quotes"
  },
  "short_term": {
   "H100": [

@@ -103,7 +103,9 @@ PAYG_REALISED_CSV = STORE / "payg_realised.csv"
 SA_REFERENCE_JSON = STORE / "sa_reference.json"        # scripts/extract_sa_reference.py (local, from the SA TCO workbook)
 PERF_MULTIPLES_JSON = STORE / "perf_multiples.json"    # delivered-performance multiples between generations (sourced)
 INDEX_QUOTES_CSV = STORE / "index_quotes.csv"          # survey/index prices (SemiAnalysis draft index): class "index", never pooled
-CRM_ASKS_CSV = STORE / "crm_asks.csv"                  # scripts/refresh_crm_asks.py (local, weekly): Nebius lost and open asked prices, aggregates only
+CRM_ASKS_CSV = STORE / "crm_asks.csv"                  # scripts/refresh_crm_asks.py (local, weekly): Nebius lost and open asked prices, aggregates only (HubSpot mirror, frozen 2026-08-10)
+QUOTE_ASKS_CSV = STORE / "quote_asks.csv"              # scripts/refresh_quote_asks.py (local, daily): the same classes from live Salesforce quotes since the cutover
+ASK_TO_CLOSE_CSV = STORE / "ask_to_close.csv"          # scripts/backfill_hubspot_ask_paths.py (one-off): first ask -> final price paths per GPU x tenor x outcome
 LATEST_SNAPSHOT_JSON = STORE / "latest.json"           # main.py daily provider snapshot; marketplace short reservations live only here
 NODE_SPECS_JSON = STORE / "node_specs.json"            # scripts/merge_node_specs.py: node configuration behind each priced SKU
 CRM_ASK_MIN_DEALS = 3                                  # a lost/open aggregate under this many deals is counted, its price withheld
@@ -421,6 +423,29 @@ def load_cohorts(path: Path = DEAL_COHORTS_CSV) -> list[dict]:
     return out
 
 
+def load_ask_paths(path: Path = ASK_TO_CLOSE_CSV) -> list[dict]:
+    """HubSpot-era ask-to-close price paths per GPU x tenor x outcome (first asked price at a deal
+    review -> final price, share revised), aggregates only, from
+    scripts/backfill_hubspot_ask_paths.py. Reference class: rendered, never pooled."""
+    out = []
+    if not path.exists():
+        return out
+    with open(path, newline="") as f:
+        for r in csv.DictReader(f):
+            if r.get("gpu") not in TIERS:
+                continue
+            try:
+                out.append({"gpu": r["gpu"], "tenor_months": int(float(r["tenor_months"])), "outcome": r["outcome"],
+                            "line_items": int(float(r["line_items"])), "deals": int(float(r["deals"])), "gpus": int(float(r["gpus"] or 0)),
+                            "first_ask_med": float(r["first_ask_med"]), "final_med": float(r["final_med"]), "ratio_med": float(r["ratio_med"]),
+                            "share_revised": float(r["share_revised"]), "revision_med_pct": float(r["revision_med_pct"]) if r.get("revision_med_pct") else None,
+                            "days_med": float(r["days_med"]), "window_from": r.get("window_from", ""), "window_to": r.get("window_to", ""),
+                            "generated": r.get("generated_date", "")})
+            except (KeyError, ValueError, TypeError):
+                continue
+    return out
+
+
 def load_grid(path: Path = GRID_JSON) -> dict:
     """Nebius Finance reserve grid(s): {version: {segments: {seg: {tier: {months: {prepay: price}}}}}}."""
     if not path.exists():
@@ -564,29 +589,47 @@ def load_index(path: Path = INDEX_QUOTES_CSV) -> dict:
     return out
 
 
-def load_crm_asks(path: Path = CRM_ASKS_CSV, as_of: date | None = None, min_deals: int = CRM_ASK_MIN_DEALS) -> dict:
+def load_crm_asks(path: Path = CRM_ASKS_CSV, as_of: date | None = None, min_deals: int = CRM_ASK_MIN_DEALS,
+                  quote_path: Path | None = QUOTE_ASKS_CSV) -> dict:
     """Nebius' own asked prices that did not (yet) sign, from the CRM deal-review table through
     scripts/refresh_crm_asks.py, per tier x tenor x class:
       lost      deals in stage Closed lost: an upper bound on what those customers would pay;
                 loss reasons are not recorded in a usable way, so no competitor price is implied
       proposal  deals in Commercial Proposal or Agreement signing: what we are asking now
-    The file holds one row per close month x payment type (deal count, GPU sum, lo/median/hi).
+    Two files in one schema: the HubSpot deal-review aggregates (path; that mirror froze at the
+    2026-08-10 cutover) and the live Salesforce quote aggregates (quote_path, daily). Once the quote
+    file has rows, the HubSpot 'proposal' rows are dropped: they are frozen open asks that would
+    otherwise look current. 'lost' rows from both eras are kept (they are disjoint in time).
+    Each file holds one row per month x payment bucket (deal count, GPU sum, lo/median/hi).
     Each class cell merges its rows over the last CRM_ASK_WINDOW_DAYS; the price is the
-    deal-weighted median of the monthly medians re-based to 0% prepayment through the payment-type
-    proxy (no quote-date adjustment, stated on the page). Cells under min_deals are counted and
-    their prices withheld. Never pooled into a mark."""
+    deal-weighted median of the monthly medians re-based to 0% prepayment through the stated
+    prepay_pct where the row has one (Salesforce), else the payment-type proxy (HubSpot); no
+    quote-date adjustment, stated on the page. Cells under min_deals are counted and their prices
+    withheld. Never pooled into a mark."""
     as_of = as_of or date.today()
     out: dict = {"cells": {}, "generated": None, "min_deals": min_deals, "window_days": CRM_ASK_WINDOW_DAYS,
-                 "withheld_cells": 0, "deals": {"lost": 0, "proposal": 0}}
-    if not path.exists():
+                 "withheld_cells": 0, "deals": {"lost": 0, "proposal": 0}, "sources": [], "proposal_source": None}
+    files = []
+    for fp, src in ((path, "hubspot"), (quote_path, "salesforce_quotes")):
+        if fp is None or not fp.exists():
+            continue
+        with open(fp, newline="") as f:
+            rows = list(csv.DictReader(f))
+        if rows:
+            files.append((src, rows)); out["sources"].append(src)
+    live_quotes = any(src == "salesforce_quotes" for src, _ in files)
+    out["proposal_source"] = "salesforce_quotes" if live_quotes else ("hubspot" if files else None)
+    if not files:
         return out
     grp: dict = defaultdict(list)
-    with open(path, newline="") as f:
-        for r in csv.DictReader(f):
-            out["generated"] = out["generated"] or r.get("generated_date")
+    for src, rows in files:
+        for r in rows:
+            out["generated"] = max(out["generated"] or "", r.get("generated_date") or "") or None
             tier = (r.get("gpu") or "").strip().upper(); cls = (r.get("stage_class") or "").strip()
             if tier not in TIERS or cls not in ("lost", "proposal"):
                 continue
+            if src == "hubspot" and cls == "proposal" and live_quotes:
+                continue   # frozen open asks, superseded by the live quote file
             d = _parse_date(r.get("close_month", ""))
             tenor = bucket_months(r.get("tenor_months"))
             if not d or tenor is None or (as_of - d).days > CRM_ASK_WINDOW_DAYS:
@@ -600,15 +643,20 @@ def load_crm_asks(path: Path = CRM_ASKS_CSV, as_of: date | None = None, min_deal
                 continue
             if not math.isfinite(gpus):
                 gpus = 0.0   # rack-priced lines without a known GPUs-per-rack sum to NaN in the export
-            pp = float(PREPAY_BUCKET_PCT.get((r.get("prepay_bucket") or "postpaid").strip(), 0))
+            try:
+                pp = float(r.get("prepay_pct"))              # stated percentage (Salesforce quotes)
+                if not math.isfinite(pp):
+                    raise ValueError
+            except (TypeError, ValueError):
+                pp = float(PREPAY_BUCKET_PCT.get((r.get("prepay_bucket") or "postpaid").strip(), 0))
             grp[(tier, tenor, cls)].append({"p0": prepay_normalise(med, pp, tenor), "lo0": prepay_normalise(lo, pp, tenor),
-                                            "hi0": prepay_normalise(hi, pp, tenor), "deals": deals, "gpus": gpus, "month": d})
+                                            "hi0": prepay_normalise(hi, pp, tenor), "deals": deals, "gpus": gpus, "month": d, "src": src})
     for (tier, tenor, cls), rows in sorted(grp.items()):
         deals = sum(x["deals"] for x in rows)
         out["deals"][cls] += deals
         entry = {"deals": deals, "months": len({x["month"] for x in rows}), "gpus": round(sum(x["gpus"] for x in rows)),
                  "first_month": min(x["month"] for x in rows).isoformat()[:7], "latest_month": max(x["month"] for x in rows).isoformat()[:7],
-                 "withheld": deals < min_deals}
+                 "withheld": deals < min_deals, "sources": sorted({x["src"] for x in rows})}
         if deals >= min_deals:
             entry.update({"p0": round(weighted_median([x["p0"] for x in rows], [x["deals"] for x in rows]), 2),
                           "lo": round(min(x["lo0"] for x in rows), 2), "hi": round(max(x["hi0"] for x in rows), 2)})
@@ -984,6 +1032,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         "economics": (json.loads(ECONOMICS_JSON.read_text()) if ECONOMICS_JSON.exists() else {}),
         "on_demand": load_on_demand(history, od_quotes, as_of=as_of),
         "cohorts": load_cohorts(),
+        "ask_paths": load_ask_paths(),
         "sa": load_sa_reference(as_of),
         "perf": load_perf_multiples(),
         # other evidence classes: shown on the page with their own labels, never pooled into a mark
@@ -1204,6 +1253,31 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
         h.append('</tbody></table>')
         h.append(f'<p><em>Generated {coh[0]["generated"]} by scripts/refresh_deal_cohorts.py (weekly, local). Internal only: derived from CRM.</em></p>')
 
+    # ask-to-close paths (HubSpot era, reference class, never pooled)
+    ap = [a for a in (result.get("ask_paths") or []) if a["outcome"] in ("won", "lost")]
+    if ap:
+        h.append('<h2>Ask-to-close price paths — HubSpot deal reviews (reference, never pooled)</h2>')
+        h.append(f'<p><em>Every GPU deal line priced at a twice-weekly deal review between {ap[0]["window_from"]} and {ap[0]["window_to"]} (the HubSpot mirror froze at the CRM cutover), '
+                 'followed from its first review to its final state. Cell = median first asked price → median final price (deals; share of lines whose price was revised). '
+                 'For won deals the final price is the signed price; for lost deals it is the last ask before the loss. Salesforce keeps no such history; '
+                 'scripts/refresh_quote_asks.py rebuilds it from daily quote snapshots.</em></p>')
+        h.append('<table data-layout="wide"><thead><tr><th>GPU</th><th>Outcome</th>' +
+                 "".join(f'<th>{TENOR_LABEL[t]}</th>' for t in TENORS) + '</tr></thead><tbody>')
+        for tier in TIERS:
+            for outcome in ("won", "lost"):
+                cells = []
+                for t in TENORS:
+                    cs = [a for a in ap if a["gpu"] == tier and a["tenor_months"] == t and a["outcome"] == outcome]
+                    if not cs:
+                        cells.append("—"); continue
+                    a = cs[0]
+                    cells.append(f'${a["first_ask_med"]:.2f} → ${a["final_med"]:.2f} <span style="color:#6b6b76">({a["deals"]}, {round(100 * a["share_revised"])}% revised)</span>')
+                if all(x == "—" for x in cells):
+                    continue
+                h.append(f'<tr><td><strong>{tier}</strong></td><td>{outcome}</td>' + "".join(f'<td>{x}</td>' for x in cells) + '</tr>')
+        h.append('</tbody></table>')
+        h.append(f'<p><em>Generated {ap[0]["generated"]} by scripts/backfill_hubspot_ask_paths.py (one-off, the source is frozen). Internal only: derived from CRM.</em></p>')
+
     # shape + references
     h.append('<h2>Curve shape and references</h2>')
     h.append('<table><thead><tr><th>GPU</th><th>3m</th><th>12m</th><th>36m</th><th>60m</th>'
@@ -1281,7 +1355,8 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              'Offers without a stated prepayment never enter a mark; they are counted per cell, their median at a 0% assumption is shown for reference, and the interactive page can add them to a comparison only through an explicitly labelled switch.</li>'
              '<li><strong>Duplicates:</strong> a row is removed only as a confirmed repeat (same provider, price and term within 7 days, or a seed row repeating a retrieved row with the same or an anonymised provider or identical notes). '
              'Rows that only share a Slack message with another provider, or seed rows matching another provider, are kept and listed for review; one message can carry several providers\' offers at one price.</li>'
-             f'<li><strong>Other evidence classes (interactive page only, never pooled):</strong> Nebius asked prices on deals that closed lost and on open proposals (CRM deal reviews, aggregates of at least {CRM_ASK_MIN_DEALS} deals per GPU, term and class, thinner cells withheld); '
+             f'<li><strong>Other evidence classes (interactive page only, never pooled):</strong> Nebius asked prices on deals that closed lost and on open proposals (HubSpot deal reviews until the 2026-08-10 cutover, live Salesforce quotes in review or approved since; aggregates of at least {CRM_ASK_MIN_DEALS} deals per GPU, term and class, thinner cells withheld); '
+             'Nebius deal outcomes and ask-to-close paths (tables above); '
              'the SemiAnalysis draft GB300 contract index (Aug-2026; source to be confirmed), moved out of the offer file because an index is not an offer; '
              'short-term market prices (SF Compute H100 clearing price, Vast.ai marketplace reservations) against the PAYG and 3-month cells.</li>'
              f'<li><strong>Tenor buckets:</strong> ≤4 → 3m, ≤8 → 6m, ≤14 → 12m, ≤20 → 18m, ≤27 → 24m, ≤42 → 36m, longer → 60m. '
@@ -1309,7 +1384,7 @@ def view_payload(result: dict) -> dict:
                  "bid_median", "bid_median_all", "bid_median_unstated", "ask_median", "public_median", "grid", "grid_100", "grid_50", "list_nebius",
                  "list_hyperscaler_min", "list_hyperscaler_provider", "list_hyperscalers", "list_peers", "cost_floor", "mark", "has_mark",
                  "range_lo", "range_hi", "range_recent", "confidence", "confidence_reason", "spread_pct", "reason")
-    out = {k: result.get(k) for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics", "on_demand", "sa", "index", "crm_asks", "short_term")}
+    out = {k: result.get(k) for k in ("as_of", "method_version", "params", "quarter_effects_log", "n_observations", "sources", "grid", "shape", "economics", "on_demand", "sa", "index", "crm_asks", "short_term", "cohorts", "ask_paths")}
     perf = result.get("perf") or {}
     out["perf"] = {"_source": perf.get("_source"), "_method": perf.get("_method"), "_extracted": perf.get("_extracted"),
                    "pairs": [{"sku": p.get("sku"), "versus": p.get("versus"), "low": p.get("low"), "base": p.get("base"), "high": p.get("high"),

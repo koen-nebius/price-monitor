@@ -247,7 +247,7 @@ class OtherEvidenceClasses(unittest.TestCase):
                 w.writerow(["2026-09-16", "B300", "36", "lost", "2026-08-01", "upfront", "2", "2", "256", "4.0", "4.2", "4.4"])
                 w.writerow(["2026-09-16", "B300", "36", "proposal", "2026-09-01", "postpaid", "2", "2", "128", "5.4", "5.5", "5.6"])
                 w.writerow(["2026-09-16", "B300", "36", "lost", "2025-01-01", "postpaid", "9", "9", "999", "1.0", "1.0", "1.0"])   # outside the window
-            res = fc.load_crm_asks(p, as_of=date(2026, 9, 16))
+            res = fc.load_crm_asks(p, quote_path=None, as_of=date(2026, 9, 16))
         cell = res["cells"]["B300"][36]
         self.assertEqual(cell["lost"]["deals"], 4)
         self.assertFalse(cell["lost"]["withheld"])
@@ -300,6 +300,54 @@ class OtherEvidenceClasses(unittest.TestCase):
             p = Path(td) / "node_specs.json"
             p.write_text(json.dumps({"_generated": "2026-09-16", "providers": {"aws": {"H100": [{"instance_type": "p5.48xlarge", "node_gpus": 8, "vcpu": 192, "ram_gb": 2048}]}}}))
             self.assertEqual(fc.load_node_specs(p)["providers"]["aws"]["H100"][0]["vcpu"], 192)
+
+
+
+class CrmAskFilesTests(unittest.TestCase):
+    HEAD = "generated_date,gpu,tenor_months,stage_class,close_month,prepay_bucket,deals,lines,gpus,price_lo,price_med,price_hi"
+
+    def _write(self, d, name, header, rows):
+        p = d / name
+        p.write_text(header + "\n" + "\n".join(rows) + "\n")
+        return p
+
+    def test_live_quotes_supersede_frozen_hubspot_proposals_and_use_stated_prepay(self):
+        import tempfile
+        from datetime import date as _date
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            hs = self._write(d, "crm_asks.csv", self.HEAD, [
+                "2026-09-16,B300,12,proposal,2026-08-01,postpaid,4,4,512,5.0,5.5,6.0",     # frozen open asks
+                "2026-09-16,B300,12,lost,2026-07-01,postpaid,3,3,300,5.2,5.6,5.9"])        # pre-cutover losses stay
+            sf = self._write(d, "quote_asks.csv", self.HEAD + ",prepay_pct,list_ref_med,share_at_list,disc_med_pct,source", [
+                "2026-09-17,B300,12,proposal,2026-09-01,upfront,3,3,900,5.0,5.2,5.4,100,6.10,0.0,14.8,salesforce_quotes",
+                "2026-09-17,B300,12,signed,2026-09-01,postpaid,2,2,64,3.9,3.97,4.0,,3.73,0,0,salesforce_quotes"])
+            out = fc.load_crm_asks(hs, as_of=_date(2026, 9, 17), quote_path=sf)
+            self.assertEqual(out["proposal_source"], "salesforce_quotes")
+            cell = out["cells"]["B300"][12]
+            self.assertEqual(cell["proposal"]["deals"], 3)                       # HubSpot proposal rows dropped
+            self.assertEqual(cell["proposal"]["sources"], ["salesforce_quotes"])
+            self.assertEqual(cell["lost"]["deals"], 3)                           # HubSpot lost rows kept
+            self.assertGreater(cell["proposal"]["p0"], 5.2)                     # 100% stated prepay re-based upward to 0%
+            self.assertEqual(out["generated"], "2026-09-17")
+            # without the quote file the frozen proposals are still shown
+            out2 = fc.load_crm_asks(hs, as_of=_date(2026, 9, 17), quote_path=d / "missing.csv")
+            self.assertEqual(out2["proposal_source"], "hubspot")
+            self.assertEqual(out2["cells"]["B300"][12]["proposal"]["deals"], 4)
+
+    def test_ask_paths_loader_keeps_tracked_tiers_only(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "ask_to_close.csv"
+            p.write_text("generated_date,window_from,window_to,gpu,tenor_months,outcome,line_items,deals,gpus,first_ask_med,final_med,ratio_med,share_revised,revision_med_pct,days_med\n"
+                         "2026-09-16,2025-01-13,2026-08-10,B300,12,won,10,8,4000,5.25,5.03,0.96,0.4,-4.2,60\n"
+                         "2026-09-16,2025-01-13,2026-08-10,L40S,12,won,3,2,40,1.0,0.9,0.9,0.3,,10\n"
+                         "2026-09-16,2025-01-13,2026-08-10,H100,12,lost,5,4,1000,2.95,2.75,0.93,0.6,-6.8,45\n")
+            rows = fc.load_ask_paths(p)
+            self.assertEqual([r["gpu"] for r in rows], ["B300", "H100"])
+            self.assertEqual(rows[0]["deals"], 8)
+            self.assertEqual(rows[0]["revision_med_pct"], -4.2)
+            self.assertEqual(rows[1]["outcome"], "lost")
 
 
 if __name__ == "__main__":
