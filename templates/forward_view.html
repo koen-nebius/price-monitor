@@ -157,7 +157,7 @@ tr[data-ts]{cursor:pointer}
   <div class="split single" id="ps-split">
     <div><div class="chart-wrap"><svg class="chart" id="ps-chart" viewBox="0 0 900 230" role="img" aria-label="Comparable offers and your price"></svg></div>
       <div class="legend" id="ps-prov"></div>
-      <div class="legend"><span><i class="med"></i>median of comparables</span><span><i class="acc"></i>your price</span><span id="lg-ach" hidden><i class="ach"></i>Nebius achieved</span><span id="lg-list" hidden><i style="border-radius:1px;background:var(--dim)"></i>published list price, shown but not counted</span><span id="lg-st" hidden><i style="border-radius:1px;background:var(--dim)"></i>short-term market price, shown but not counted</span><span id="lg-lost" hidden><i class="lost"></i>Nebius prices that lost</span><span id="lg-open" hidden><i class="open"></i>Nebius open proposals</span><span id="ps-hint">click a dot to see that quote</span></div>
+      <div class="legend"><span><i class="med"></i>median of comparables</span><span><i class="acc"></i>your price</span><span id="lg-ach" hidden><i class="ach"></i>Nebius achieved</span><span id="lg-list" hidden><i style="border-radius:1px;background:var(--dim)"></i>published list price, shown but not counted; beyond the axis only hyperscalers are marked</span><span id="lg-st" hidden><i style="border-radius:1px;background:var(--dim)"></i>short-term market price, shown but not counted</span><span id="lg-lost" hidden><i class="lost"></i>Nebius prices that lost</span><span id="lg-open" hidden><i class="open"></i>Nebius open proposals</span><span id="ps-hint">click a dot to see that quote</span></div>
       <details class="disc" id="ps-lines" style="margin-top:4px"><summary>What the lines and markers mean</summary><div class="body" id="ps-guide"></div></details></div>
     <aside class="side" id="ps-side" hidden></aside>
   </div>
@@ -555,6 +555,10 @@ const DATA = /*__DATA__*/null;
         const seg = Object.keys(lab).map(o => { const x = cs.filter(c => c.outcome === o); if (!x.length) return null; const opps = x.reduce((s, c) => s + c.opps, 0); const med = x.reduce((s, c) => s + c.med * c.opps, 0) / opps; return `${lab[o]} ${fmt(med)} (${opps})`; }).filter(Boolean);
         return seg.length ? `${t}m: ${seg.join(", ")}` : null; }).filter(Boolean);
       if (parts.length) rows.push(`<p><b>Nebius deal outcomes</b> (CRM aggregates since ${esc(coh[0].window_from)}, opportunities in brackets; accepted = the customer took our price and we had no capacity; never pooled into marks): ${parts.join(" · ")}.</p>`); }
+    const ap = (DATA.ask_paths || []).filter(a => a.gpu === S.tier && (a.outcome === "won" || a.outcome === "lost"));
+    if (ap.length) { const parts = TENORS.map(t => { const cs = ap.filter(a => a.tenor_months === t); if (!cs.length) return null;
+        return `${t}m: ` + cs.map(a => `${a.outcome} ${fmt(a.first_ask_med)} → ${fmt(a.final_med)} (${a.deals}, ${Math.round(a.share_revised * 100)}% revised)`).join(", "); }).filter(Boolean);
+      if (parts.length) rows.push(`<p><b>Ask-to-close paths</b> (HubSpot deal reviews ${esc(ap[0].window_from)} to ${esc(ap[0].window_to)}: median first asked price → median final price, deals in brackets; won = signed price, lost = last ask; never pooled into marks): ${parts.join(" · ")}.</p>`); }
     const gl = TENORS.map(t => { const a = gridCell("ai_native_above_512", S.tier, t, S.pp), e = gridCell("enterprise_above_512", S.tier, t, S.pp); return (a || e) ? `${t}m: AI Native ${a ? a.columns : "–"}; Enterprise ${e ? e.columns : "–"}` : null; }).filter(Boolean);
     rows.push(`<p><b>Finance rate card ${GRIDV}</b> (policy, shown only in the prepayment columns Finance publishes): ${gl.length ? gl.join(" · ") : "no published rates for " + S.tier}.</p>`);
     const hl = TENORS.map(t => { const x = refTier[S.tier] && refTier[S.tier][t]; return x && x.list_hyperscaler_min != null ? `${t}m ${fmt(x.list_hyperscaler_min)} (${x.list_hyperscaler_provider})` : null; }).filter(Boolean);
@@ -631,10 +635,12 @@ const DATA = /*__DATA__*/null;
     const anchorV = cs.med != null ? cs.med : S.price;
     lists.forEach(o => { if (o.price <= anchorV * 2) vals.push(o.price); });
     let xmin = Math.min(...vals), xmax = Math.max(...vals); const pad = Math.max(0.3, (xmax - xmin) * 0.12); xmin = Math.max(0, xmin - pad); xmax += pad;
+    const inRange = lists.filter(o => o.price <= xmax), beyond = lists.filter(o => o.price > xmax);
+    const hyBeyond = beyond.filter(o => o.tag === "hyperscaler"), otherBeyond = beyond.filter(o => o.tag !== "hyperscaler");
     // provider colours: most frequent providers in this comparable set first, then list-price providers; beyond the palette, grey "other"
     const provCount = {}; shown.forEach(o => { provCount[o.provider] = (provCount[o.provider] || 0) + 1; });
     const provOrder = Object.keys(provCount).sort((a, b) => provCount[b] - provCount[a] || a.localeCompare(b));
-    lists.forEach(o => { if (!provOrder.includes(o.provider)) provOrder.push(o.provider); });
+    inRange.forEach(o => { if (!provOrder.includes(o.provider)) provOrder.push(o.provider); });   // outliers beyond the axis are not drawn, so not in the legend
     const provColor = {}; provOrder.forEach((p, i) => { provColor[p] = i < PALETTE.length ? PALETTE[i] : "#8b8b98"; });
     const isListOnly = p => !provCount[p]; const listTag = {}; lists.forEach(o => { listTag[o.provider] = o.tag; });
     $("ps-prov").innerHTML = provOrder.map((p, i) => `<span><i style="background:${provColor[p]}${isListOnly(p) ? ";border-radius:1px" : ""}"></i>${esc(p)}${provCount[p] > 1 ? " ×" + provCount[p] : ""}${isListOnly(p) ? (listTag[p] === "short-term" ? " (short-term market)" : " (list price)") : ""}${i >= PALETTE.length ? " (other)" : ""}</span>`).join("") || `<span>no comparable offers</span>`;
@@ -651,9 +657,16 @@ const DATA = /*__DATA__*/null;
     guideLines.forEach((l, i) => { const x = X(l.price), col = "#d6d6dc", dash = l.kind === "ceiling" ? "2 3" : l.kind === "sa" ? "8 4" : l.kind === "index" ? "1 3" : "4 4", ly = 40 + i * 13, right = x > PS.W - 190;
       g.push(`<line x1="${x.toFixed(1)}" x2="${x.toFixed(1)}" y1="${ly + 4}" y2="${PS.base}" stroke="${col}" stroke-width="1.2" stroke-dasharray="${dash}"><title>${esc(l.label)}</title></line>`);
       g.push(`<text x="${(x + (right ? -6 : 6)).toFixed(1)}" y="${ly}" fill="${col}" font-size="11" text-anchor="${right ? "end" : "start"}">${esc(l.short)}</text>`); });
-    lists.forEach((o, k) => { const pinned = o.price > xmax, cx = pinned ? PS.W - PS.R - 8 : X(o.price), cy = PS.base - DOT - 2 - (k % 3) * (DOT * 2 + 2) - 38;
-      g.push(`<rect data-l="${k}" x="${(cx - DOT).toFixed(1)}" y="${(cy - DOT).toFixed(1)}" width="${2 * DOT}" height="${2 * DOT}" fill="${provColor[o.provider] || "#8b8b98"}" stroke="#0b0b0d" stroke-width="1" style="cursor:pointer"><title>${esc(o.provider)} ${o.tag === "short-term" ? "short-term market price" : "list price"} ${fmt(o.price)}${pinned ? " (beyond the axis)" : ""} · ${esc(o.notes || "")} · shown, not counted</title></rect>`);
-      if (pinned) g.push(`<text x="${(cx - DOT - 4).toFixed(1)}" y="${(cy + 4).toFixed(1)}" fill="#b4b4bd" font-size="11" text-anchor="end">${esc(o.provider)} ${fmt(o.price)} →</text>`); });
+    // list prices within the axis: squares, never counted. Beyond the axis (more than twice the median): hyperscalers collapse into
+    // one edge marker because they are the ceiling reference; platform and marketplace outliers are only counted, they carry no information here
+    inRange.forEach((o, k) => { const cx = X(o.price), cy = PS.base - DOT - 2 - (k % 3) * (DOT * 2 + 2) - 38;
+      g.push(`<rect data-l="${k}" x="${(cx - DOT).toFixed(1)}" y="${(cy - DOT).toFixed(1)}" width="${2 * DOT}" height="${2 * DOT}" fill="${provColor[o.provider] || "#8b8b98"}" stroke="#0b0b0d" stroke-width="1" style="cursor:pointer"><title>${esc(o.provider)} ${o.tag === "short-term" ? "short-term market price" : "list price"} ${fmt(o.price)} · ${esc(o.notes || "")} · shown, not counted</title></rect>`); });
+    // edge marker and notes sit above the three square rows so they never run over a drawn square
+    const topRow = PS.base - DOT - 2 - 38 - 2 * (DOT * 2 + 2);
+    if (hyBeyond.length) { const cx = PS.W - PS.R - 8, cy = topRow, lo = Math.min(...hyBeyond.map(o => o.price)), hi = Math.max(...hyBeyond.map(o => o.price));
+      g.push(`<rect data-l="hy" x="${(cx - DOT).toFixed(1)}" y="${(cy - DOT).toFixed(1)}" width="${2 * DOT}" height="${2 * DOT}" fill="#8b8b98" stroke="#0b0b0d" stroke-width="1"><title>hyperscaler list prices beyond the axis: ${hyBeyond.map(o => `${esc(o.provider)} ${fmt(o.price)}`).join(", ")} · rack rates, shown, not counted</title></rect>`);
+      g.push(`<text x="${(PS.W - PS.R).toFixed(1)}" y="${(cy - DOT - 5).toFixed(1)}" fill="#b4b4bd" font-size="11" text-anchor="end">${hyBeyond.length === 1 ? `${esc(hyBeyond[0].provider)} ${fmt(hyBeyond[0].price)}` : `${hyBeyond.length} hyperscaler list prices ${fmt(lo)} to ${fmt(hi)}`} →</text>`); }
+    if (otherBeyond.length) g.push(`<text x="${(PS.W - PS.R).toFixed(1)}" y="${(topRow - DOT - 5 - (hyBeyond.length ? 14 : 0)).toFixed(1)}" fill="#7c7c88" font-size="11" text-anchor="end">${otherBeyond.length} platform list price${otherBeyond.length > 1 ? "s" : ""} above ${fmt(xmax)} not drawn</text>`);
     shown.forEach((o, k) => { const cx = X(val(o)), cy = PS.base - DOT - 2 - slots[k] * (DOT * 2 + 2), sel = S.pick === o.ts + "|" + o.provider;
       g.push(`<circle data-k="${k}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${DOT}" fill="${provColor[o.provider] || "#a3a3ae"}" stroke="${sel ? "#ffffff" : "#0b0b0d"}" stroke-width="${sel ? 2.5 : 1}" style="cursor:pointer"><title>${esc(o.provider)} · ${o.date} · ${Math.round(o.months || o.tenor)}m · ${o.known ? o.prepay + "% prepay" : "prepay not stated"} · reported ${fmt(o.price)} · here ${fmt(val(o))}</title></circle>`); });
     // CRM markers: triangle down = lost, triangle up = open proposal; hollow, one colour, labelled
@@ -676,7 +689,7 @@ const DATA = /*__DATA__*/null;
     idxHere.forEach(e => gparts.push(`<b>SemiAnalysis index (draft)</b> (dotted line): ${esc(e.source)}, ${e.stat} ${fmt(e.price)} at ${e.prepay}% prepayment for ${e.months} months, as of ${esc(e.as_of)}, re-based to ${S.pp}%. A survey statistic over a market, not an offer, so it is never pooled; ${esc((e.notes || "").split(";").slice(0, 2).join(";"))}.`));
     if (S.tenor !== 0) ["lost", "proposal"].forEach(c => { if (!(c === "lost" ? S.crmLost : S.crmOpen)) return; const e = crmCell[c];
       const what = c === "lost" ? "<b>Nebius prices that lost</b> (triangle pointing down): the median price Nebius asked on reserve deals for this GPU and term that closed lost in the last 12 months, re-based to this prepayment through the payment type. A lost ask is an upper bound on what those customers would pay; the CRM does not record why a deal was lost, so no competitor price is implied."
-                                : "<b>Nebius open proposals</b> (triangle pointing up): the median price Nebius is asking on deals in Commercial Proposal or Agreement signing for this GPU and term, re-based the same way. What we ask now, not yet accepted.";
+                                : `<b>Nebius open proposals</b> (triangle pointing up): the median price Nebius is asking for this GPU and term on ${CRM.proposal_source === "salesforce_quotes" ? "Salesforce quotes in review or approved but not yet signed (daily snapshot since the Aug-2026 CRM cutover)" : "deals in Commercial Proposal or Agreement signing (HubSpot deal reviews)"}, re-based the same way. What we ask now, not yet accepted.`;
       const val = !e ? "No such deals on file for this GPU and term." : e.withheld ? `${e.deals} deal${e.deals > 1 ? "s" : ""} on file, fewer than ${CRM.min_deals || 3}: price withheld.` : `${fmt(e.p0 * (1 - disc(S.tenor, S.pp)))} over ${e.deals} deals (${n0(e.gpus)} GPUs, ${e.first_month === e.latest_month ? e.first_month : e.first_month + " to " + e.latest_month}); asked range ${fmt(e.lo)} to ${fmt(e.hi)} at 0% prepayment.`;
       gparts.push(`${what} ${val}`); });
     $("ps-lines").hidden = !gparts.length;

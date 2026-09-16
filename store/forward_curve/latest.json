@@ -9387,6 +9387,7 @@
    "generated": "2026-09-16"
   }
  ],
+ "ask_paths": [],
  "sa": {
   "_source": "SemiAnalysis AI-Cloud TCO model, file AI-Cloud-TCO-Model-Update-August-10-2026-SKU-1 (1).xlsx",
   "_version": "August-10-2026",
@@ -9757,6 +9758,9 @@
       "first_month": "2025-10",
       "latest_month": "2026-07",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 3.7,
       "lo": 2.5,
       "hi": 5.51
@@ -9770,6 +9774,9 @@
       "first_month": "2025-11",
       "latest_month": "2026-06",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 3.41,
       "lo": 2.91,
       "hi": 5.51
@@ -9781,6 +9788,9 @@
       "first_month": "2026-08",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 5.24,
       "lo": 4.99,
       "hi": 5.7
@@ -9794,6 +9804,9 @@
       "first_month": "2025-10",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 3.71,
       "lo": 2.5,
       "hi": 7.19
@@ -9805,6 +9818,9 @@
       "first_month": "2026-08",
       "latest_month": "2026-11",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 5.53,
       "lo": 3.02,
       "hi": 7.19
@@ -9818,6 +9834,9 @@
       "first_month": "2026-02",
       "latest_month": "2026-06",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 3.23,
       "lo": 2.82,
       "hi": 3.53
@@ -9830,7 +9849,10 @@
       "gpus": 1072,
       "first_month": "2026-01",
       "latest_month": "2026-02",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      },
      "proposal": {
       "deals": 1,
@@ -9838,7 +9860,10 @@
       "gpus": 256,
       "first_month": "2026-07",
       "latest_month": "2026-07",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     },
     "36": {
@@ -9848,7 +9873,10 @@
       "gpus": 640,
       "first_month": "2026-06",
       "latest_month": "2026-06",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      },
      "proposal": {
       "deals": 4,
@@ -9857,6 +9885,9 @@
       "first_month": "2026-08",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 4.67,
       "lo": 4.57,
       "hi": 5.44
@@ -9872,6 +9903,9 @@
       "first_month": "2025-11",
       "latest_month": "2026-07",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 4.51,
       "lo": 4.0,
       "hi": 5.57
@@ -9883,6 +9917,9 @@
       "first_month": "2026-07",
       "latest_month": "2026-09",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 5.65,
       "lo": 3.5,
       "hi": 6.91
@@ -9896,6 +9933,9 @@
       "first_month": "2025-11",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 4.14,
       "lo": 3.0,
       "hi": 5.77
@@ -9907,6 +9947,9 @@
       "first_month": "2026-08",
       "latest_month": "2029-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 5.84,
       "lo": 5.14,
       "hi": 6.3
@@ -9920,6 +9963,9 @@
       "first_month": "2025-10",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 5.51,
       "lo": 3.22,
       "hi": 7.14
@@ -9931,6 +9977,9 @@
       "first_month": "2026-07",
       "latest_month": "2026-11",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 5.78,
       "lo": 5.0,
       "hi": 7.89
@@ -9943,7 +9992,10 @@
       "gpus": 2080,
       "first_month": "2026-03",
       "latest_month": "2026-05",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     },
     "24": {
@@ -9954,6 +10006,9 @@
       "first_month": "2025-11",
       "latest_month": "2026-06",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 4.34,
       "lo": 3.03,
       "hi": 5.1
@@ -9965,6 +10020,9 @@
       "first_month": "2026-08",
       "latest_month": "2026-10",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 5.15,
       "lo": 5.1,
       "hi": 5.52
@@ -9978,6 +10036,9 @@
       "first_month": "2026-04",
       "latest_month": "2026-07",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 4.69,
       "lo": 3.55,
       "hi": 5.08
@@ -9989,6 +10050,9 @@
       "first_month": "2026-07",
       "latest_month": "2026-11",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 4.57,
       "lo": 4.25,
       "hi": 5.58
@@ -10001,7 +10065,10 @@
       "gpus": 6000,
       "first_month": "2026-05",
       "latest_month": "2026-08",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     }
    },
@@ -10013,7 +10080,10 @@
       "gpus": 72,
       "first_month": "2025-12",
       "latest_month": "2025-12",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     }
    },
@@ -10025,7 +10095,10 @@
       "gpus": 6048,
       "first_month": "2026-03",
       "latest_month": "2026-03",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      },
      "proposal": {
       "deals": 2,
@@ -10033,7 +10106,10 @@
       "gpus": 9072,
       "first_month": "2026-08",
       "latest_month": "2026-08",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     },
     "6": {
@@ -10043,7 +10119,10 @@
       "gpus": 72,
       "first_month": "2026-07",
       "latest_month": "2026-07",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     },
     "12": {
@@ -10054,6 +10133,9 @@
       "first_month": "2025-11",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 6.13,
       "lo": 3.35,
       "hi": 9.25
@@ -10065,6 +10147,9 @@
       "first_month": "2026-08",
       "latest_month": "2026-09",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 6.13,
       "lo": 5.82,
       "hi": 6.13
@@ -10078,6 +10163,9 @@
       "first_month": "2025-11",
       "latest_month": "2026-07",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 5.89,
       "lo": 4.55,
       "hi": 7.07
@@ -10089,6 +10177,9 @@
       "first_month": "2026-08",
       "latest_month": "2026-10",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 5.45,
       "lo": 4.04,
       "hi": 5.96
@@ -10102,6 +10193,9 @@
       "first_month": "2025-11",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 4.67,
       "lo": 3.61,
       "hi": 9.2
@@ -10112,7 +10206,10 @@
       "gpus": 10080,
       "first_month": "2026-08",
       "latest_month": "2026-11",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     }
    },
@@ -10125,6 +10222,9 @@
       "first_month": "2025-10",
       "latest_month": "2026-07",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 2.35,
       "lo": 1.65,
       "hi": 2.95
@@ -10135,7 +10235,10 @@
       "gpus": 16,
       "first_month": "2026-10",
       "latest_month": "2026-10",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     },
     "6": {
@@ -10146,6 +10249,9 @@
       "first_month": "2025-10",
       "latest_month": "2026-07",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 1.83,
       "lo": 1.5,
       "hi": 3.0
@@ -10157,6 +10263,9 @@
       "first_month": "2026-06",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 2.78,
       "lo": 2.01,
       "hi": 2.78
@@ -10170,6 +10279,9 @@
       "first_month": "2025-10",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 2.31,
       "lo": 1.5,
       "hi": 3.06
@@ -10181,6 +10293,9 @@
       "first_month": "2026-08",
       "latest_month": "2026-11",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 2.56,
       "lo": 2.45,
       "hi": 2.75
@@ -10194,6 +10309,9 @@
       "first_month": "2025-12",
       "latest_month": "2026-07",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 2.28,
       "lo": 1.78,
       "hi": 3.91
@@ -10209,6 +10327,9 @@
       "first_month": "2025-10",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 2.15,
       "lo": 1.65,
       "hi": 3.5
@@ -10220,6 +10341,9 @@
       "first_month": "2026-05",
       "latest_month": "2026-09",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 2.46,
       "lo": 2.0,
       "hi": 6.2
@@ -10233,6 +10357,9 @@
       "first_month": "2025-10",
       "latest_month": "2026-07",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 2.01,
       "lo": 1.4,
       "hi": 3.51
@@ -10243,7 +10370,10 @@
       "gpus": 134,
       "first_month": "2026-08",
       "latest_month": "2026-08",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     },
     "12": {
@@ -10254,6 +10384,9 @@
       "first_month": "2025-10",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 2.34,
       "lo": 1.6,
       "hi": 3.63
@@ -10265,6 +10398,9 @@
       "first_month": "2026-08",
       "latest_month": "2026-11",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 3.15,
       "lo": 2.46,
       "hi": 3.32
@@ -10278,6 +10414,9 @@
       "first_month": "2026-02",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 2.15,
       "lo": 1.92,
       "hi": 2.77
@@ -10288,7 +10427,10 @@
       "gpus": 256,
       "first_month": "2026-09",
       "latest_month": "2026-09",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     },
     "24": {
@@ -10299,6 +10441,9 @@
       "first_month": "2025-10",
       "latest_month": "2026-08",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 2.12,
       "lo": 1.9,
       "hi": 2.78
@@ -10312,6 +10457,9 @@
       "first_month": "2026-04",
       "latest_month": "2026-06",
       "withheld": false,
+      "sources": [
+       "hubspot"
+      ],
       "p0": 1.93,
       "lo": 1.84,
       "hi": 1.98
@@ -10326,7 +10474,10 @@
       "gpus": 2592,
       "first_month": "2026-08",
       "latest_month": "2026-08",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     },
     "18": {
@@ -10336,7 +10487,10 @@
       "gpus": 1000,
       "first_month": "2026-07",
       "latest_month": "2026-07",
-      "withheld": true
+      "withheld": true,
+      "sources": [
+       "hubspot"
+      ]
      }
     }
    }
@@ -10348,7 +10502,11 @@
   "deals": {
    "lost": 474,
    "proposal": 103
-  }
+  },
+  "sources": [
+   "hubspot"
+  ],
+  "proposal_source": "hubspot"
  },
  "short_term": {
   "H100": [
