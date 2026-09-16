@@ -60,6 +60,43 @@ INSTANCE_GPU_MAP = {
 
 ONE_CLICK_URL = "https://lambda.ai/pricing"
 
+# ── SKU spec fields (vcpu / ram_gb), read from the payloads already fetched ─────
+# API: specs.vcpus / specs.memory_gib; /instances page: the vCPUs and RAM cells;
+# SkyPilot CSV: vCPUs / MemoryGiB. All three are whole-SKU totals (the 8x H100
+# row reads 208 vCPUs / 1800 GiB, the 1x row 26 / 225 GiB), so no per-GPU scaling.
+# ram_gb keeps the GiB figure as published (TiB is folded to GiB x1024, TB x1000).
+# node_gpus is never set here: none of these sources state the host's GPU count,
+# only the priced SKU's own count, so the schema default (gpu_count) stands.
+_RAM_RE = re.compile(r"([\d.]+)\s*(GiB|GB|TiB|TB)\b", re.I)
+
+
+def _opt_int(v) -> Optional[int]:
+    try:
+        n = int(float(v))
+    except (TypeError, ValueError):
+        return None
+    return n if n > 0 else None
+
+
+def _opt_float(v) -> Optional[float]:
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return f if f > 0 else None
+
+
+def _ram_gb_from_text(text: str) -> Optional[float]:
+    """'1800 GiB' -> 1800.0 (GiB as published); '1.8 TiB' -> 1843.2; junk -> None."""
+    m = _RAM_RE.search(text or "")
+    if not m:
+        return None
+    n = _opt_float(m.group(1))
+    if n is None:
+        return None
+    unit = m.group(2).lower()
+    return n * (1024 if unit == "tib" else 1000 if unit == "tb" else 1)
+
 def _fetch_one_click_clusters(now: str):
     """
     Lambda 1-Click Clusters — their SHORT-TERM RESERVED product (2 weeks to
@@ -97,6 +134,8 @@ def _fetch_one_click_clusters(now: str):
             best[gpu] = (n, px)
     records = []
     for gpu, (n, px) in best.items():
+        # The 1CC table has only Plan | DURATION | GPU COUNT | PRICE/GPU/HR — no
+        # vCPU, RAM or node-size columns — so vcpu / ram_gb / node_gpus stay None.
         records.append(PriceRecord(
             provider="lambda",
             gpu_model=gpu,
@@ -225,6 +264,9 @@ def _fetch_skypilot_catalog(now: str) -> List[PriceRecord]:
 
         instance_type = row.get("InstanceType", "").strip()
         region = row.get("Region", "us-east").strip() or "us-east"
+        # Same CSV row: vCPUs / MemoryGiB are per-instance totals (GiB as published).
+        vcpu = _opt_int(row.get("vCPUs"))
+        ram_gb = _opt_float(row.get("MemoryGiB"))
 
         for ct, price_field in [("on_demand", "Price"), ("spot", "SpotPrice")]:
             raw = row.get(price_field, "").strip()
@@ -254,6 +296,8 @@ def _fetch_skypilot_catalog(now: str) -> List[PriceRecord]:
                 consumption_type=ct,
                 price_per_hour_usd=price_total,
                 price_per_gpu_hour_usd=price_per_gpu,
+                vcpu=vcpu,
+                ram_gb=ram_gb,
                 fetched_at=now,
                 source_url=SOURCE_URL,
                 data_source="aggregator",
@@ -320,6 +364,8 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
 
         # ~26 vCPU per GPU on standard Lambda nodes
         gpu_count = max(1, round(vcpus / 26))
+        # vCPUs (already parsed) and the RAM cell are whole-SKU totals, e.g. '1800 GiB'.
+        ram_gb = _ram_gb_from_text(clean[2])
 
         # Build a variant slug from the plan name to distinguish SXM vs PCIe etc.
         variant = plan.upper().replace("NVIDIA ", "").replace(" ", "-")
@@ -341,6 +387,8 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
             consumption_type="on_demand",
             price_per_hour_usd=price_per_gpu * gpu_count,
             price_per_gpu_hour_usd=price_per_gpu,
+            vcpu=vcpus,
+            ram_gb=ram_gb,
             fetched_at=now,
             source_url=SOURCE_URL,
             data_source="web_scrape",
@@ -394,6 +442,14 @@ def _parse_api_data(data: dict, now: str) -> List[PriceRecord]:
             continue
         price = price_cents / 100.0
 
+        # Same response: instance_type.specs.{vcpus, memory_gib} (OpenAPI example
+        # 208 / 1800 for gpu_8x_h100_sxm5) — per-instance totals, GiB as published.
+        sp = specs if isinstance(specs, dict) else {}
+        nested = sp.get("specs")
+        sp = nested if isinstance(nested, dict) else sp
+        vcpu = _opt_int(sp.get("vcpus"))
+        ram_gb = _opt_float(sp.get("memory_gib"))
+
         # Per-GPU plausibility ceiling: no current-gen GPU rents anywhere near
         # $30/GPU-hr, so a higher reading means the count is wrong (a multi-GPU
         # node price about to be published as per-GPU — the exact 22-day B200
@@ -426,6 +482,8 @@ def _parse_api_data(data: dict, now: str) -> List[PriceRecord]:
                 consumption_type="on_demand",
                 price_per_hour_usd=price,
                 price_per_gpu_hour_usd=price / mapping["gpu_count"],
+                vcpu=vcpu,
+                ram_gb=ram_gb,
                 fetched_at=now,
                 source_url=SOURCE_URL,
                 data_source="official_api",

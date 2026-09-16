@@ -2,7 +2,7 @@
 CoreWeave pricing fetcher.
 Scrapes https://www.coreweave.com/gpu-cloud-pricing
 Page structure: table rows with h3[data-product], instance-price/spot-price spans,
-and data cells for GPU count.
+and spec cells rendered "<value> <label>" (GPU Count, VRAM, vCPUs, System RAM).
 """
 import json
 import logging
@@ -76,6 +76,16 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
         if gpu_model is None:
             continue
 
+        # Spec cells of the same row, e.g. "128 vCPUs 2,048 System RAM 8 GPU Count".
+        # vCPUs are published as threads (no conversion). Header says "System RAM
+        # (GB)" but CoreWeave defines GB as binary 2^30 and values are power-of-two
+        # DIMM totals → GiB as published, number kept. CoreWeave GPU instances are
+        # whole bare-metal nodes (8-GPU HGX host; "4^1" = 2-Superchip GB200/GB300
+        # tray per footnote 1), so the row's GPU Count is also the node GPU count.
+        vcpu = _spec(text, "vCPUs")
+        ram_gb = _spec(text, "System RAM", float)
+        node_gpus = _spec(text, "GPU Count")
+
         od_m = re.search(r'On-Demand Price:\s*\$([0-9.]+)', text)
         spot_m = re.search(r'Spot Price:\s*\$([0-9.]+)', text)
 
@@ -96,6 +106,9 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
                     consumption_type="on_demand",
                     price_per_hour_usd=price,
                     price_per_gpu_hour_usd=price / gpu_count,
+                    vcpu=vcpu,
+                    ram_gb=ram_gb,
+                    node_gpus=node_gpus,
                     fetched_at=now,
                     source_url=SOURCE_URL,
                     data_source="web_scrape",
@@ -115,6 +128,9 @@ def _parse_html(html: str, now: str) -> List[PriceRecord]:
                     consumption_type="spot",
                     price_per_hour_usd=price,
                     price_per_gpu_hour_usd=price / gpu_count,
+                    vcpu=vcpu,
+                    ram_gb=ram_gb,
+                    node_gpus=node_gpus,
                     fetched_at=now,
                     source_url=SOURCE_URL,
                     data_source="web_scrape",
@@ -133,3 +149,17 @@ def _match_product(product_id: str) -> tuple:
         if pid.startswith(key) or key in pid:
             return val
     return None, None
+
+
+def _spec(text: str, label: str, cast=int):
+    """Value of a spec cell rendered '<value> <label>' in the row text, e.g.
+    '144 vCPUs', '2,048 System RAM', '4^1 GPU Count' (^1 = footnote marker).
+    None when the row has no such cell."""
+    m = re.search(r'(\d[\d,]*(?:\.\d+)?)(?:\^\d+)?\s+' + re.escape(label), text)
+    if not m:
+        return None
+    try:
+        val = cast(float(m.group(1).replace(",", "")))
+    except (ValueError, OverflowError):
+        return None
+    return val if val > 0 else None  # a 0/garbage cell is "unknown", not a spec

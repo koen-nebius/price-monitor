@@ -282,6 +282,20 @@ def _fetch_slug(
         # Region: ComputePrices doesn't expose region per-record, use provider slug as proxy
         region = "global"
 
+        # Node size comes from the row's own max_gpus_per_node — GPUs in the physical
+        # node this SKU is carved from (a 1-GPU slice of an 8-GPU host carries 8; a
+        # whole host carries its own count). The payload has NO vCPU or system-RAM
+        # field (vram_gb is per-GPU memory, not RAM), so vcpu/ram_gb stay None.
+        try:
+            node_gpus = int(item.get("max_gpus_per_node") or 0)
+        except (TypeError, ValueError):
+            node_gpus = 0
+        node_gpus = node_gpus if node_gpus > 0 else None
+        # A node can't be smaller than the slice priced from it; treat an
+        # upstream contradiction as unknown so schema falls back to gpu_count.
+        if node_gpus is not None and isinstance(gpu_count, (int, float)) and node_gpus < gpu_count:
+            node_gpus = None
+
         key = (provider_slug, gpu_model, gpu_count, ct)
         if key in seen:
             # Keep cheapest when same provider/gpu/count/type appears twice
@@ -300,6 +314,7 @@ def _fetch_slug(
             fetched_at=now,
             source_url=source,
             data_source=DATA_SOURCE,
+            node_gpus=node_gpus,
         ))
 
     return records

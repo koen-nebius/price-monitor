@@ -1319,8 +1319,10 @@ def view_payload(result: dict) -> dict:
     # node configuration: the page needs the figures and provenance, not the research notes
     ns = result.get("node_specs") or {}
     keep_spec = ("instance_type", "node_gpus", "vcpu", "cpu_model", "ram_gb", "local_storage_tb", "form_factor", "source_url", "as_of", "confidence", "verified")
+    disagree = lambda e: any("mismatch" in str(e.get(k, "")) for k in ("api_check", "catalog_check"))   # a machine source contradicts the documentation
     out["node_specs"] = {"_generated": ns.get("_generated"),
-                         "providers": {prov: {tier: [{**{k: e.get(k) for k in keep_spec}, "network": (e.get("network") or "")[:90]} for e in entries]
+                         "providers": {prov: {tier: [{**{k: e.get(k) for k in keep_spec}, "network": (e.get("network") or "")[:90], "disagree": disagree(e),
+                                                       "source": (e.get("source") or "")[:60]} for e in entries]
                                               for tier, entries in tiers.items() if tier in TIERS}
                                        for prov, tiers in (ns.get("providers") or {}).items()}}
     out["observations"] = [{"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),

@@ -30,7 +30,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 from schema import PriceRecord
 
@@ -82,15 +82,27 @@ def _get(url: str, max_redirects: int = 3) -> str:
     raise RuntimeError(f"too many redirects for {url}")
 
 
-def _parse_docs_table(page: str) -> Dict[str, Tuple[float, int, str]]:
-    """model → (per_gpu_hr, gpu_count, sku).
+class _Sku(NamedTuple):
+    """One kept SKU per family. vcpu/ram_gb/node_gpus come from the docs-table
+    row itself; the marketing-page fallback lists only VRAM, so they stay None."""
+    per_gpu: float
+    gpu_count: int
+    sku: str
+    vcpu: Optional[int] = None       # table "vCPU" column — already threads
+    ram_gb: Optional[float] = None   # table "RAM" column — GiB as published
+    node_gpus: Optional[int] = None  # Baseten states no host size → always None;
+                                     # schema.__post_init__ falls back to gpu_count
+
+
+def _parse_docs_table(page: str) -> Dict[str, _Sku]:
+    """model → _Sku for the largest config in the family.
 
     Docs table columns (verified 2026-09-02): Instance | $/min | vCPU | RAM |
     GPU | VRAM, where the GPU cell reads "1 NVIDIA H200" / "8 NVIDIA B200s" /
     "Fractional NVIDIA H100" (MIG — skipped). Per-GPU rate is linear across
     sizes; keep the LARGEST config per family to represent node scale (same
     convention as verda.py)."""
-    best: Dict[str, Tuple[float, int, str]] = {}
+    best: Dict[str, _Sku] = {}
     for row in re.findall(r"<tr[^>]*>(.*?)</tr>", page, re.S):
         cells = [_html.unescape(re.sub(r"<[^>]+>", "", c)).strip()
                  for c in re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)]
@@ -110,14 +122,21 @@ def _parse_docs_table(page: str) -> Dict[str, Tuple[float, int, str]]:
             logger.warning(f"Baseten: implausible ${per_gpu:.2f}/GPU-hr for "
                            f"{sku} — skipped")
             continue
-        if model not in best or count > best[model][1]:
-            best[model] = (round(per_gpu, 4), count, sku)
+        # Same row, columns 3-4: whole-instance vCPU (threads) and system RAM
+        # ("944 GiB" — GiB as published; VRAM is a separate column, ignored).
+        m_vcpu = re.fullmatch(r"\d+", cells[2])
+        m_ram = re.match(r"([0-9]*\.?[0-9]+)\s*Gi?B\b", cells[3])
+        if model not in best or count > best[model].gpu_count:
+            best[model] = _Sku(round(per_gpu, 4), count, sku,
+                               vcpu=int(m_vcpu.group()) if m_vcpu else None,
+                               ram_gb=float(m_ram.group(1)) if m_ram else None)
     return best
 
 
-def _parse_pricing_rsc(page: str) -> Dict[str, Tuple[float, int, str]]:
-    """Fallback: base single-GPU configs from the marketing page RSC payload."""
-    best: Dict[str, Tuple[float, int, str]] = {}
+def _parse_pricing_rsc(page: str) -> Dict[str, _Sku]:
+    """Fallback: base single-GPU configs from the marketing page RSC payload.
+    Its records carry only "specs":"180 GiB VRAM" — no vCPU/RAM/node size."""
+    best: Dict[str, _Sku] = {}
     pat = re.compile(
         r'\\"instanceType\\":\\"gpu\\",\\"name\\":\\"([^"\\\\]+?)\\",'
         r'[^{}]*?\\"pricePerHour\\":([0-9]*\.?[0-9]+)')
@@ -129,13 +148,13 @@ def _parse_pricing_rsc(page: str) -> Dict[str, Tuple[float, int, str]]:
         if per_gpu < 0.10 or per_gpu > 30:
             continue
         if model not in best or per_gpu < best[model][0]:
-            best[model] = (round(per_gpu, 4), 1, name)
+            best[model] = _Sku(round(per_gpu, 4), 1, name)
     return best
 
 
 def fetch(regions: List[str] = None) -> List[PriceRecord]:
     now = datetime.now(timezone.utc).isoformat()
-    best: Dict[str, Tuple[float, int, str]] = {}
+    best: Dict[str, _Sku] = {}
     try:
         best = _parse_docs_table(_get(DOCS_URL))
     except Exception as e:
@@ -149,7 +168,7 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
             logger.error(f"Baseten fallback fetch failed: {e}")
 
     records = []
-    for model, (per_gpu, count, sku) in best.items():
+    for model, (per_gpu, count, sku, vcpu, ram_gb, node_gpus) in best.items():
         records.append(PriceRecord(
             provider="baseten",
             gpu_model=model,
@@ -159,6 +178,9 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
             consumption_type="on_demand",
             price_per_hour_usd=round(per_gpu * count, 4),
             price_per_gpu_hour_usd=per_gpu,
+            vcpu=vcpu,
+            ram_gb=ram_gb,
+            node_gpus=node_gpus,   # None on fallback → schema defaults to gpu_count
             fetched_at=now,
             source_url=PRICING_URL,
             data_source="web_scrape",

@@ -159,6 +159,14 @@ def _parse_table_rows(rows: list, now: str) -> List[PriceRecord]:
         except (ValueError, IndexError):
             gpu_count = 1
 
+        # Specs come from the same row as the price: cells[1] = "vCPUs" (taken as
+        # threads, as published), cells[2] = "RAM, GB" (GB as published). Both describe
+        # the priced preset as a whole (gpu_count is derived from that same vCPU cell),
+        # so no per-GPU multiplication. Range cells (L40S "16-192") stay None, not guessed.
+        vcpu_spec = _parse_spec(cells[1])
+        vcpu = int(vcpu_spec) if vcpu_spec is not None else None
+        ram_gb = _parse_spec(cells[2])
+
         for ct, price in [("preemptible", preempt_price), ("on_demand", od_price)]:
             if price is None or price <= 0:
                 continue
@@ -175,6 +183,8 @@ def _parse_table_rows(rows: list, now: str) -> List[PriceRecord]:
                 consumption_type=ct,
                 price_per_hour_usd=price * gpu_count,
                 price_per_gpu_hour_usd=price,
+                vcpu=vcpu,
+                ram_gb=ram_gb,
                 fetched_at=now,
                 source_url=SOURCE_URL,
                 data_source="web_scrape",
@@ -211,6 +221,17 @@ def _parse_price(text: str) -> Optional[float]:
         except ValueError:
             pass
     return None
+
+
+def _parse_spec(text: str) -> Optional[float]:
+    """Single number from a spec cell like '16' or '200'. Ranges ('16-192') -> None."""
+    m = re.fullmatch(r'([\d,]+(?:\.\d+)?)\s*(?:GB|GiB|vCPUs?)?', (text or "").strip(), re.IGNORECASE)
+    if not m:
+        return None
+    try:
+        return float(m.group(1).replace(",", ""))
+    except ValueError:
+        return None
 
 
 def _regex_fallback(html: str, now: str) -> List[PriceRecord]:

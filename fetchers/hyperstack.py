@@ -13,7 +13,7 @@ The public /gpu-pricing page contains prices in rendered HTML text.
 
 Three pricing sections parsed from stripped page text:
   On-demand: "NVIDIA H200 SXM 141 22 225 $3.50"
-             (GPU name | VRAM | vCPUs | RAM | $/GPU-hr)
+             (GPU name | VRAM GB | Max pCPUs per GPU | Max RAM GB per GPU | $/GPU-hr)
   Reserved:  "NVIDIA H200 SXM $2.45 Reserve here"
              (GPU name | starting-from $/GPU-hr | "Reserve here")
   Spot VM:   "NVIDIA H100 PCIe $1.52" (under "Spot VM Pricing" header)
@@ -89,32 +89,38 @@ def _parse_pricing(raw: str, now: str) -> List[PriceRecord]:
     text = text.replace('&nbsp;', ' ').replace('|', ' ')
     text = re.sub(r'\s+', ' ', text).strip()
 
-    # (gpu_model, consumption_type) -> cheapest price seen. Multiple H100 form
-    # factors collapse to one model; keep the lowest, matching how ComputePrices
-    # and main.py's cross-check normalize variants (see module docstring).
+    # (gpu_model, consumption_type) -> (cheapest price seen, SKU name as printed).
+    # Multiple H100 form factors collapse to one model; keep the lowest, matching how
+    # ComputePrices and main.py's cross-check normalize variants (see module docstring).
     best: dict = {}
+    # SKU name as printed -> (Max pCPUs per GPU, Max RAM GB per GPU) from the on-demand
+    # table. Reserved/spot rows print only a price, so they look up the same-named SKU.
+    specs: dict = {}
 
-    def _offer(gpu_model: str, ct: str, price: float) -> None:
+    def _offer(gpu_model: str, ct: str, price: float, sku: str) -> None:
         if not (0.5 <= price <= 20):
             return
         key = (gpu_model, ct)
-        if key not in best or price < best[key]:
-            best[key] = price
+        if key not in best or price < best[key][0]:
+            best[key] = (price, sku)
 
     # ── On-demand: distinctive pattern "NVIDIA <GPU> <vram> <vcpu> <ram> $<price>" ──
     # Three numbers between GPU name and price distinguish on-demand rows from
     # reservation rows which have only "$price Reserve here"
     for m in re.finditer(
-        r'NVIDIA\s+((?:H100|H200|B200|B300)(?:\s+\w+)?)\s+\d[\d.]+\s+\d+\s+\d+\s+\$?\s*([\d.]+)',
+        r'NVIDIA\s+((?:H100|H200|B200|B300)(?:\s+\w+)?)\s+\d[\d.]+\s+(\d+)\s+(\d+)\s+\$?\s*([\d.]+)',
         text, re.IGNORECASE
     ):
         gpu_model = _match_gpu(m.group(1))
         if not gpu_model:
             continue
         try:
-            _offer(gpu_model, "on_demand", float(m.group(2)))
+            price = float(m.group(4))
         except ValueError:
             continue
+        sku = m.group(1).upper()
+        specs[sku] = (int(m.group(2)), float(m.group(3)))   # pCPUs/GPU, RAM GB/GPU
+        _offer(gpu_model, "on_demand", price, sku)
 
     # ── Reserved: "NVIDIA <GPU> $<price> Reserve here" (starting-from price) ──
     for m in re.finditer(
@@ -125,7 +131,7 @@ def _parse_pricing(raw: str, now: str) -> List[PriceRecord]:
         if not gpu_model:
             continue
         try:
-            _offer(gpu_model, "reserved_1yr", float(m.group(2)))
+            _offer(gpu_model, "reserved_1yr", float(m.group(2)), m.group(1).upper())
         except ValueError:
             continue
 
@@ -144,13 +150,13 @@ def _parse_pricing(raw: str, now: str) -> List[PriceRecord]:
             if not gpu_model:
                 continue
             try:
-                _offer(gpu_model, "spot", float(m.group(2)))
+                _offer(gpu_model, "spot", float(m.group(2)), m.group(1).upper())
             except ValueError:
                 continue
 
     return [
-        _make_record(gpu_model, ct, price, now)
-        for (gpu_model, ct), price in best.items()
+        _make_record(gpu_model, ct, price, now, *specs.get(sku, (None, None)))
+        for (gpu_model, ct), (price, sku) in best.items()
     ]
 
 
@@ -163,7 +169,9 @@ def _parse_pricing(raw: str, now: str) -> List[PriceRecord]:
 _MAX_NODE_GPUS = {"H100": 8, "H200": 8, "B200": 8, "B300": 8}
 
 
-def _make_record(gpu_model: str, ct: str, price: float, now: str) -> PriceRecord:
+def _make_record(gpu_model: str, ct: str, price: float, now: str,
+                 pcpu_per_gpu: Optional[int] = None,
+                 ram_gb_per_gpu: Optional[float] = None) -> PriceRecord:
     count = _MAX_NODE_GPUS.get(gpu_model, 1)
     return PriceRecord(
         provider="hyperstack",
@@ -176,6 +184,17 @@ def _make_record(gpu_model: str, ct: str, price: float, now: str) -> PriceRecord
         consumption_type=ct,
         price_per_hour_usd=round(price * count, 4),
         price_per_gpu_hour_usd=price,
+        # vcpu/ram_gb come from the on-demand table's "Max pCPUs per GPU" / "Max RAM
+        # (GB) per GPU" columns × this record's gpu_count (the page quotes per-GPU
+        # figures; the record is the 8-GPU flavor). A Hyperstack pCPU is a dedicated
+        # host CPU pinned to the VM = one guest vCPU (docs flavors list the same
+        # numbers as the flavor's CPU count, e.g. n3-H100x1 = 28), so it is counted
+        # as a thread with no ×2. RAM is GB as published. Rows whose SKU name has no
+        # on-demand row (e.g. spot "H100 PCIe") stay None.
+        vcpu=pcpu_per_gpu * count if pcpu_per_gpu else None,
+        ram_gb=ram_gb_per_gpu * count if ram_gb_per_gpu else None,
+        # Full physical node = the largest public flavor (8× for every tracked model).
+        node_gpus=_MAX_NODE_GPUS.get(gpu_model),
         fetched_at=now,
         source_url=SOURCE_URL,
         data_source="web_scrape",

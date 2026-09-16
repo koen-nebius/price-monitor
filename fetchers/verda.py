@@ -54,6 +54,7 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
     items = data if isinstance(data, list) else data.get("data", [])
     # Largest config per (gpu_model, ct) — per-GPU rate is linear across sizes.
     best: dict = {}
+    node_size: dict = {}   # gpu_model → largest dedicated config in the payload
     for it in items:
         gpu_model = GPU_NAME_MAP.get(it.get("name") or "")
         if not gpu_model:
@@ -69,6 +70,16 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
             continue
         if n <= 0:
             continue
+        # Specs from the same row: cpu.number_of_cores is Verda's vCPU count (equals
+        # the ".NV" suffix of instance_type, e.g. 8B300.240V → 240; Shadeform lists
+        # the same SKU as vcpus=240), so no ×2. memory.size_in_gigabytes = system
+        # RAM of this SKU, GB as published. Missing/invalid → None, never inferred.
+        try:
+            vcpu = int((it.get("cpu") or {}).get("number_of_cores") or 0) or None
+            ram_gb = float((it.get("memory") or {}).get("size_in_gigabytes") or 0) or None
+        except (ValueError, TypeError, AttributeError):   # AttributeError: cpu/memory not a dict
+            vcpu = ram_gb = None
+        node_size[gpu_model] = max(node_size.get(gpu_model, 0), n)
         for ct, price in (("on_demand", od), ("spot", sp)):
             if price <= 0:
                 continue
@@ -79,10 +90,10 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
                 continue
             key = (gpu_model, ct)
             if key not in best or n > best[key][0]:
-                best[key] = (n, per_gpu, price, it.get("instance_type", ""))
+                best[key] = (n, per_gpu, price, it.get("instance_type", ""), vcpu, ram_gb)
 
     records = []
-    for (gpu_model, ct), (n, per_gpu, total, itype) in best.items():
+    for (gpu_model, ct), (n, per_gpu, total, itype, vcpu, ram_gb) in best.items():
         records.append(PriceRecord(
             provider="verda",
             gpu_model=gpu_model,
@@ -92,6 +103,12 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
             consumption_type=ct,
             price_per_hour_usd=total,
             price_per_gpu_hour_usd=round(per_gpu, 4),
+            vcpu=vcpu,
+            ram_gb=ram_gb,
+            # Verda sells dedicated hosts; the largest size it lists for this GPU in
+            # the payload (8x HGX, 4x GB300 tray) is the node — same premise as the
+            # largest-config rule above. Not an explicit node-size field.
+            node_gpus=node_size.get(gpu_model) or None,
             fetched_at=now,
             source_url=SOURCE_URL,
             data_source="official_api",

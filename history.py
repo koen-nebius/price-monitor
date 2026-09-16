@@ -43,6 +43,10 @@ COLUMNS = [
     "confidence",       # high | med | low
     "interconnect",     # IB | RoCE | Ethernet | NVLink | unknown
     "form_factor",      # SXM | PCIe | NVL | unknown
+    # ── node configuration behind the price (2026-09-16; blank when the source does not publish it) ──
+    "vcpu",             # threads of the priced SKU
+    "ram_gb",           # system RAM of the priced SKU, GB as published
+    "node_gpus",        # GPUs in the full physical node (the priced SKU may be a slice)
 ]
 
 # Consumption types to include — exclude noisy sub-variants (50pct/30pct upfront)
@@ -103,6 +107,9 @@ def _rows_for_date(day: date) -> List[dict]:
             "confidence":             getattr(r, "confidence", ""),
             "interconnect":           getattr(r, "interconnect", ""),
             "form_factor":            getattr(r, "form_factor", ""),
+            "vcpu":                   getattr(r, "vcpu", None) if getattr(r, "vcpu", None) is not None else "",
+            "ram_gb":                 getattr(r, "ram_gb", None) if getattr(r, "ram_gb", None) is not None else "",
+            "node_gpus":              getattr(r, "node_gpus", None) if getattr(r, "node_gpus", None) is not None else "",
         })
     return rows
 
@@ -217,6 +224,9 @@ def append_records(records: List[PriceRecord], day: date = None) -> Path:
             "confidence":             getattr(r, "confidence", ""),
             "interconnect":           getattr(r, "interconnect", ""),
             "form_factor":            getattr(r, "form_factor", ""),
+            "vcpu":                   getattr(r, "vcpu", None) if getattr(r, "vcpu", None) is not None else "",
+            "ram_gb":                 getattr(r, "ram_gb", None) if getattr(r, "ram_gb", None) is not None else "",
+            "node_gpus":              getattr(r, "node_gpus", None) if getattr(r, "node_gpus", None) is not None else "",
         })
 
     if not new_rows:

@@ -129,3 +129,61 @@ def fetch_crosscheck(providers: Optional[Dict[str, str]] = None) -> Dict[tuple, 
     logger.info(f"gpuhunt cross-check: {len(result)} (provider, gpu) prices from "
                 f"{len(LAST_VERSIONS)} catalogs {sorted(set(LAST_VERSIONS.values()))}")
     return result
+
+# ── node configuration side-channel (2026-09-16) ─────────────────────────────
+# The same catalogs carry cpu, memory (GB) and disk_size (GB) per instance. Used by
+# scripts/merge_node_specs.py to refresh store/node_specs.json daily (cross-check of
+# the researched provider-doc entries; fallback where a provider publishes no spec).
+# Prices from these rows are NOT used for the tables (see PROVIDERS above); GCP is
+# included here for its configuration only.
+SPEC_PROVIDERS = {
+    **PROVIDERS,
+    "gcp": "gcp",       # prices excluded above; configuration is fine
+    # vastai, datacrunch, cudo, vultr, crusoe, digitalocean, tensordock, hotaisle: no public catalog object (HTTP 403, 2026-09-16)
+}
+
+
+def parse_specs(rows: List[dict], provider_key: str, slug: str = "") -> List[dict]:
+    """One entry per (gpu_model, gpu_count): the cheapest non-spot instance's name, CPU
+    threads, memory GB, disk (TB) and location. Same row filters as parse_min_on_demand."""
+    best: Dict[tuple, dict] = {}
+    for r in rows:
+        gpu = GPU_MAP.get((r.get("gpu_name") or "").strip())
+        if not gpu:
+            continue
+        if str(r.get("spot", "")).strip().lower() == "true":
+            continue
+        if "dws" in str(r.get("flags", "")).lower() or "edgegpu" in str(r.get("instance_name", "")).lower():
+            continue
+        try:
+            count = int(float(r.get("gpu_count") or 0))
+            price = float(r.get("price") or 0)
+            cpu = float(r.get("cpu") or 0)
+            mem = float(r.get("memory") or 0)
+            disk = float(r.get("disk_size") or 0)
+        except (TypeError, ValueError):
+            continue
+        if count <= 0 or price <= 0:
+            continue
+        per_gpu = price / count
+        if not (0.10 <= per_gpu <= 100):
+            continue
+        k = (gpu, count)
+        if k not in best or per_gpu < best[k]["price_per_gpu_hour_usd"]:
+            best[k] = {"provider": provider_key, "gpu_model": gpu, "instance_type": (r.get("instance_name") or "").strip(),
+                       "node_gpus": count, "vcpu": int(cpu) if cpu > 0 else None, "ram_gb": mem if mem > 0 else None,
+                       "local_storage_tb": round(disk / 1000.0, 2) if disk > 0 else None,
+                       "location": (r.get("location") or "").strip(), "price_per_gpu_hour_usd": round(per_gpu, 4),
+                       "catalog": slug, "catalog_version": LAST_VERSIONS.get(slug, "")}
+    return list(best.values())
+
+
+def fetch_specs(providers: Optional[Dict[str, str]] = None) -> List[dict]:
+    """Node configurations per (our provider key, gpu_model, gpu_count) from the gpuhunt catalogs."""
+    out: List[dict] = []
+    for slug, key in (providers or SPEC_PROVIDERS).items():
+        rows = load_catalog(slug)
+        if rows:
+            out.extend(parse_specs(rows, key, slug))
+    logger.info(f"gpuhunt specs: {len(out)} (provider, gpu, count) configurations from {len(LAST_VERSIONS)} catalogs")
+    return out

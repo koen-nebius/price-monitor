@@ -800,11 +800,11 @@ const DATA = /*__DATA__*/null;
       + `<td class="num">${e ? cell(e.ram_gb) : "–"}${per(e, "ram_gb") != null ? ` <span style="color:var(--dim);font-weight:400">${cell(per(e, "ram_gb"))}/GPU</span>` : ""}</td>`
       + `<td class="num">${e ? cell(e.local_storage_tb, 1) : "–"}</td><td title="${e && e.network ? esc(e.network) : ""}">${e && e.network ? esc(netShort(e.network)) : "–"}</td>`
       + `<td class="num">${fmt(r.price)}</td><td class="num">${e && e.node_gpus && r.price != null ? fmt(r.price * e.node_gpus) : "–"}</td>`
-      + `<td>${e && e.verified === false ? `<span style="color:var(--dim)">unverified</span> ` : ""}${esc(flag(r))}</td></tr>`; }).join("");
+      + `<td>${e && e.verified === false ? `<span style="color:var(--dim)">unverified</span> ` : ""}${e && e.disagree ? `<span style="color:var(--dim)" title="the provider API or the dstack gpuhunt catalog reports a different figure; see store/node_specs.json">sources disagree</span> ` : ""}${esc(flag(r))}</td></tr>`; }).join("");
     const onFile = rows.filter(r => r.spec).length;
     $("ps-spec-body").innerHTML = `<p>Prices on this view are per GPU-hour, but the node behind each price differs in CPU, memory, storage and network. The table puts each priced SKU's published configuration beside its price; prices are not adjusted. "vs Nebius node" flags configurations at least 25% lighter or heavier per GPU than the Nebius node.</p>`
       + `<div class="table-wrap"><table class="spec"><thead><tr><th>Provider</th><th>SKU</th><th class="num">GPUs</th><th class="num">vCPU</th><th class="num">RAM GB</th><th class="num">NVMe TB</th><th>Network</th><th class="num">$/GPU-hr</th><th class="num">$/node-hr</th><th>vs Nebius node</th></tr></thead><tbody>${body}</tbody></table></div>`
-      + `<p style="color:var(--dim)">${onFile} of ${rows.length} configurations on file, from the providers' own documentation or API snapshots (${esc(SPECV._generated || "–")}). "Not on file" means no published configuration was found yet; "unverified" means a figure could not be confirmed against its source. Quotes from #price-intelligence carry no configuration and are not listed.</p>`;
+      + `<p style="color:var(--dim)">${onFile} of ${rows.length} configurations on file, from the providers' own documentation or API snapshots (${esc(SPECV._generated || "–")}). "Not on file" means no published configuration was found yet; "unverified" means a figure could not be confirmed against its source; "sources disagree" means the provider API or the dstack gpuhunt catalog reports a different figure than the documentation. Quotes from #price-intelligence carry no configuration and are not listed.</p>`;
   }
   function renderMethod(){
     const n = DATA.n_observations, s = DATA.sources;

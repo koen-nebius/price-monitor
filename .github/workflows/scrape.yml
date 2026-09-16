@@ -118,6 +118,13 @@ jobs:
           CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
         run: python3 scripts/publish_confluence_pages.py
 
+      - name: Refresh node configurations behind list prices (soft-fail)
+        # Merges the researched provider-doc entries (store/node_spec_research.json) with
+        # today's snapshot (vcpu/ram/node_gpus recorded by the fetchers) and the dstack
+        # gpuhunt catalogs into store/node_specs.json; field changes go to
+        # store/node_spec_changes.csv so a price change can be read next to a node change.
+        run: python3 scripts/merge_node_specs.py --research store/node_spec_research.json --catalog || true
+
       - name: Build internal GPU forward curve
         # 2026-09-15: marks a price-by-tenor curve per GPU tier from store/intel.csv (bid),
         # store/reserve_tenor.csv (ask; weekly local CRM refresh) and store/history.csv (list
@@ -162,7 +169,8 @@ jobs:
                   store/provider_baseline.json store/position_history.csv \
                   store/aiven_prices.csv store/storage_body.html \
                   store/storage_prices_prev.json store/confluence_publish.json \
-                  store/reserve_tenor.csv store/forward_curve_body.html store/forward_curve
+                  store/reserve_tenor.csv store/forward_curve_body.html store/forward_curve \
+                  store/node_specs.json store/node_spec_changes.csv
           if git diff --cached --quiet; then
             echo "No changes — no commit needed"
           else
