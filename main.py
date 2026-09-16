@@ -569,6 +569,10 @@ def run(providers=None, test=False):
                 else:
                     slack_summary += f"\n\n{_sl}"
                 logger.info(f"Supply line: {_sl}")
+            from supply import supply_alerts
+            for _w in supply_alerts(today):
+                warnings.append(_w)          # internal manifest warning, not exec-facing
+                logger.warning(_w)
         except Exception as _e:
             logger.debug(f"supply line skipped: {_e}")
         from storage_page import format_storage_page

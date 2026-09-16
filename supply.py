@@ -111,5 +111,29 @@ def supply_line(today: Optional[date] = None) -> str:
     return "*Supply:* " + " · ".join(parts) + tag
 
 
+def supply_alerts(today: Optional[date] = None) -> List[str]:
+    """Internal warnings when supply tightens sharply: a GPU's sold-out provider count rises
+    by >= 2 week-over-week, or at least half of >= 4 live-stock providers are sold out."""
+    snap_path, man_path = CAP_DIR / "last_snapshot.json", CAP_DIR / "run_manifest.json"
+    if not snap_path.exists():
+        return []
+    try:
+        rows = json.loads(snap_path.read_text())
+        run_date = json.loads(man_path.read_text()).get("run_date") if man_path.exists() else None
+    except Exception:
+        return []
+    rd = datetime.strptime(run_date, "%Y-%m-%d").date() if run_date else (today or date.today())
+    cur = _counts(_provider_states(rows))
+    prev = _counts(_provider_states(_history_rows_for(rd - timedelta(days=7))))
+    out = []
+    for gpu, (so, n, names) in cur.items():
+        d = so - prev[gpu][0] if gpu in prev else 0
+        if d >= 2:
+            out.append(f"supply: {gpu} sold out at {so}/{n} live-stock providers, +{d} WoW ({', '.join(names)}) — tightening")
+        elif n >= 4 and so * 2 >= n:
+            out.append(f"supply: {gpu} sold out at {so}/{n} live-stock providers ({', '.join(names)})")
+    return out
+
+
 if __name__ == "__main__":
     print(supply_line() or "(no supply line)")

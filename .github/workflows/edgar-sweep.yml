@@ -1,0 +1,34 @@
+name: EDGAR GPU-hour sweep (monthly)
+# Monthly full-text sweep of SEC filings for explicit per-GPU-hour prices
+# (scripts/edgar_gpu_hour_sweep.py). Appends candidates to
+# store/edgar_candidates.csv for MANUAL curation into store/public_contracts.csv,
+# the forward curve's public-contracts leg. Filings are quarterly/event-driven,
+# so monthly is the right cadence; ~10-15 documents a year carry a rate.
+# Respects sec.gov access rules (declared User-Agent, <=10 req/s, backoff).
+
+on:
+  schedule:
+    - cron: "17 6 2 * *"    # 06:17 UTC on the 2nd of each month
+  workflow_dispatch:
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Sweep the last 45 days
+        run: python3 scripts/edgar_gpu_hour_sweep.py --days 45 --max-docs 40
+      - name: Commit candidates if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add store/edgar_candidates.csv
+          if git diff --cached --quiet; then echo "no new candidates"; else
+            git commit -m "chore: EDGAR GPU-hour candidates (monthly sweep) [skip ci]" && git push; fi
