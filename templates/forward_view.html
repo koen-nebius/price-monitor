@@ -86,6 +86,7 @@ details.disc .body{padding:4px 0 12px;max-width:100ch}
 details.disc p{margin:0 0 8px}
 details.disc b{color:var(--text);font-weight:500}
 .table-wrap{overflow-x:auto;margin-top:8px}
+.spec{width:100%;border-collapse:collapse;font-size:12.5px}.spec th,.spec td{padding:5px 8px;border-bottom:1px solid #2a2a31;text-align:left;white-space:nowrap;vertical-align:top}.spec th{color:var(--dim);font-weight:500}.spec td.num,.spec th.num{text-align:right;font-variant-numeric:tabular-nums}.spec tr.selrow td{color:var(--text);font-weight:600}#ps-spec .body{max-width:none}.spec td.sku{white-space:normal;max-width:200px;color:var(--dim)}.spec td:last-child{white-space:normal;max-width:150px}.spec tr.selrow td.sku{color:var(--text)}
 table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
 th,td{padding:7px 10px;border-bottom:1px solid var(--line-soft);text-align:right;white-space:nowrap}
 th{color:var(--dim);font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
@@ -162,6 +163,7 @@ tr[data-ts]{cursor:pointer}
   </div>
   <div class="fin" id="ps-fin"></div>
   <details class="disc" id="ps-ratecard"><summary>View rate card</summary><div class="body" id="ps-rc"></div></details>
+  <details class="disc" id="ps-spec"><summary>Node configuration behind these prices</summary><div class="body" id="ps-spec-body"></div></details>
   <details class="disc" id="ps-obs"><summary id="ps-obs-sum">All offers on file for this term</summary><div class="body" id="ps-obs-t"></div></details>
 </section>
 
@@ -198,6 +200,7 @@ const DATA = /*__DATA__*/null;
   const OD = DATA.on_demand || {};
   const IDX = DATA.index || {}, CRM = DATA.crm_asks || {}, CRMC = CRM.cells || {}, ST = DATA.short_term || {};   // other evidence classes: labelled, never pooled
   const CRM_LABEL = { lost: "Nebius prices that lost", proposal: "Nebius open proposals" };
+  const SPECS = (DATA.node_specs && DATA.node_specs.providers) || {}, SPECV = DATA.node_specs || {};   // node configuration behind each priced SKU (display only)
   const AS_OF = new Date(DATA.as_of + "T00:00:00Z");
   const MONEY_RATE = 0.069;   // Finance money-cost convention behind the prepay factors
   const refTier = {}; DATA.marks.forEach(m => { (refTier[m.tier] = refTier[m.tier] || {})[m.tenor_months] = m; });
@@ -273,9 +276,15 @@ const DATA = /*__DATA__*/null;
   // ---------- comparable set for the position view
   // ---------- PAYG term (0): today's on-demand list prices and term-0 quotes; a separate class, never pooled into marks
   const nice = k => ({ hyperstack: "Hyperstack", coreweave: "CoreWeave", lambda: "Lambda", crusoe: "Crusoe", verda: "Verda", together: "Together", runpod: "RunPod", aws: "AWS", gcp: "GCP", azure: "Azure", oracle: "Oracle", nebius: "Nebius" }[k] || String(k).replace(/^(cp|sf|gh)_/, "").replace(/-com$/, "").replace(/[-_]/g, " ").replace(/\b\w/g, c => c.toUpperCase()));   // provider display names
+  // node configuration behind a priced SKU: the provider's entry for this GPU whose GPU count matches the priced node, else its largest node
+  const specKey = k => String(k || "").toLowerCase().replace(/^cp_/, "").replace(/-com$/, "").replace(/^vast_reserved$/, "vast");
+  function specFor(providerKey, tier, gpus, sku){ const l = (SPECS[specKey(providerKey)] || {})[tier] || []; if (!l.length) return null;
+    const k = String(sku || "").toLowerCase().replace(/[^a-z0-9]/g, ""), bySku = k.length >= 4 ? l.find(e => { const s = String(e.instance_type || "").toLowerCase().replace(/[^a-z0-9]/g, ""); return s.includes(k) || k.includes(s.slice(0, 12)); }) : null;
+    return bySku || (gpus ? l.find(e => e.node_gpus === gpus) : null) || l[0]; }
+  const specLine = e => e ? [e.node_gpus ? e.node_gpus + " GPUs" : null, e.vcpu ? n0(e.vcpu) + " vCPU" : null, e.ram_gb ? n0(Math.round(e.ram_gb)) + " GB RAM" : null, e.local_storage_tb ? e.local_storage_tb + " TB NVMe" : null, e.network || null].filter(Boolean).join(", ") + (e.verified === false ? " (unverified)" : "") : "";
   function odObs(tier){
     const od = OD[tier] || {}, snap = od.list_snapshot || DATA.as_of;
-    const mk = (l, tag) => (l || []).map(x => ({ tier, tenor: 0, months: 0, provider: nice(x.provider), tag, side: "list", price: x.price, p0: x.price, pa: x.price, q: "", prepay: 0, known: true, date: snap, ts: "list:" + x.provider, notes: "on-demand list price, 8-GPU node, snapshot " + snap }));
+    const mk = (l, tag) => (l || []).map(x => { const spec = specFor(x.provider, tier, 8, x.instance_type); return { tier, tenor: 0, months: 0, provider: nice(x.provider), key: x.provider, spec, tag, side: "list", price: x.price, p0: x.price, pa: x.price, q: "", prepay: 0, known: true, date: snap, ts: "list:" + x.provider, notes: "on-demand list price, 8-GPU node, snapshot " + snap + (spec ? "; " + specLine(spec) : "; node configuration not on file") }; });
     const quotes = (od.quotes || []).map(x => ({ tier, tenor: 0, months: 0, provider: x.provider || "undisclosed", tag: "quote", side: "bid", price: x.price, p0: x.price, pa: x.price, q: "", prepay: 0, known: true, date: x.date, ts: x.ts || ("quote:" + x.date), notes: "on-demand quote, #price-intelligence" }));
     return { peers: mk(od.peer_list, "peer"), hypers: mk(od.hyper_list, "hyperscaler"), others: mk(od.other_list, "pricefighter"), quotes };
   }
@@ -290,7 +299,7 @@ const DATA = /*__DATA__*/null;
              askAt: od.realised_payg != null ? od.realised_payg : null, askDeals: 0, withheld: [], pubs: [], latest, n90: all.length, lists: s.hypers.concat(s.others).concat(shortTerm(tier, 0)) };
   }
   // short-term market prices (exchange clearing, marketplace reservations) as uncounted squares: cluster-class and fresh only
-  const shortTerm = (tier, tenor) => (ST[tier] || []).filter(e => e.tenor === tenor && !e.stale && e.cluster_class).map(e => ({ tier, tenor, months: tenor, provider: e.provider, tag: "short-term", side: "list", price: e.price, p0: e.price, pa: e.price, q: "", prepay: 0, known: true, date: e.date, ts: "st:" + e.provider, notes: `${e.note}; snapshot ${e.date}` }));
+  const shortTerm = (tier, tenor) => (ST[tier] || []).filter(e => e.tenor === tenor && !e.stale && e.cluster_class).map(e => { const spec = specFor(e.key, tier, e.gpus); return { tier, tenor, months: tenor, provider: e.provider, key: e.key, spec, tag: "short-term", side: "list", price: e.price, p0: e.price, pa: e.price, q: "", prepay: 0, known: true, date: e.date, ts: "st:" + e.provider, notes: `${e.note}; snapshot ${e.date}` + (spec ? "; " + specLine(spec) : "") }; });
   function cellStats(tier, tenor){
     if (tenor === 0) return cellStatsOD(tier);
     const all = offersFor(tier).filter(o => o.tenor === tenor && age(o) <= P.max_age_days);
@@ -308,7 +317,7 @@ const DATA = /*__DATA__*/null;
     const latest = all.length ? all.map(o => o.date).sort().slice(-1)[0] : null;
     const withheld = WITHHELD.filter(o => o.tier === tier && o.tenor === tenor);
     const refCell = refTier[tier] && refTier[tier][tenor] || {}, snap = DATA.sources.list_snapshot || DATA.as_of;
-    const lists = (refCell.list_hyperscalers || []).map(h => ({ tier, tenor, months: tenor, provider: nice(h.provider), tag: "hyperscaler", side: "list", price: h.price, p0: h.price, pa: h.price, q: "", prepay: 0, known: true, date: snap, ts: "list:" + h.provider, notes: `hyperscaler reserved list price, ${tenor}-month tier, snapshot ${snap}; a rack rate, enterprise customers pay less` }));
+    const lists = (refCell.list_hyperscalers || []).map(h => { const spec = specFor(h.provider, tier, 8, h.instance_type); return { tier, tenor, months: tenor, provider: nice(h.provider), key: h.provider, spec, tag: "hyperscaler", side: "list", price: h.price, p0: h.price, pa: h.price, q: "", prepay: 0, known: true, date: snap, ts: "list:" + h.provider, notes: `hyperscaler reserved list price, ${tenor}-month tier, snapshot ${snap}; a rack rate, enterprise customers pay less` + (spec ? "; " + specLine(spec) : "") }; });
     return { all, known, unknown, comp, compVal, vals, med, basisLabel, excluded, unstatedIn, asks, askAt, askDeals: asks.reduce((s, o) => s + (o.deals || 0), 0), withheld, pubs, latest, n90: all.filter(o => age(o) <= 90).length, lists: lists.concat(shortTerm(tier, tenor)) };
   }
   function rank(cs, price){ const n = cs.vals.length, above = cs.vals.filter(v => v > price).length; return { n, above, below: n - above, equal: cs.vals.filter(v => Math.abs(v - price) < 0.005).length }; }
@@ -408,7 +417,7 @@ const DATA = /*__DATA__*/null;
     $("m-asof").textContent = "as of " + DATA.as_of;
 
     if (S.view === "market") renderMarket();
-    if (S.view === "position") renderPosition();
+    if (S.view === "position") { renderPosition(); renderSpecTable(); }
     if (S.view === "return") renderReturn();
     renderMethod();
   }
@@ -768,6 +777,35 @@ const DATA = /*__DATA__*/null;
   }
 
   // ===================== Data & method =====================
+  // ---------- node configuration behind the prices on the position view (display only: prices are never adjusted for configuration)
+  function renderSpecTable(){
+    const tier = S.tier, tenor = S.tenor, od = OD[tier] || {}, nebSpec = specFor("nebius", tier, 8);
+    let rows;
+    if (tenor === 0) { const s = odObs(tier); rows = s.peers.concat(s.hypers, s.others, shortTerm(tier, 0)); rows.unshift({ provider: "Nebius", key: "nebius", price: od.nebius_list, spec: nebSpec, tag: "nebius", notes: od.nebius_list != null ? "Nebius on-demand list" : "no Nebius on-demand list price on file" }); }
+    else { const cs = cellStats(tier, tenor), ref = refTier[tier] && refTier[tier][tenor]; rows = cs.lists.slice(); rows.unshift({ provider: "Nebius", key: "nebius", price: ref && ref.list_nebius != null ? ref.list_nebius : null, spec: nebSpec, tag: "nebius", notes: ref && ref.list_nebius != null ? `Nebius published ${tenor}-month price` : "no Nebius list price for this term" }); }
+    rows = [rows[0]].concat(rows.slice(1).sort((a, b) => (a.price == null) - (b.price == null) || a.price - b.price));
+    const per = (e, f) => e && e[f] != null && e.node_gpus ? e[f] / e.node_gpus : null;
+    const cmp = (e, f) => { const a = per(e, f), b = per(nebSpec, f); return a != null && b != null ? a / b - 1 : null; };
+    const flag = r => { const e = r.spec; if (!e || !nebSpec || r.key === "nebius") return ""; const parts = [], c = cmp(e, "vcpu"), m = cmp(e, "ram_gb"); if (c != null && Math.abs(c) >= 0.25) parts.push(`vCPU ${pct(c)}`); if (m != null && Math.abs(m) >= 0.25) parts.push(`RAM ${pct(m)}`); return parts.length ? parts.join(", ") + " per GPU" : (c != null || m != null ? "similar" : ""); };
+    const cell = (v, d = 0) => v == null ? "–" : Number(v).toLocaleString("en-US", { maximumFractionDigits: d });
+    // network: fabric and headline bandwidth only; the full published wording sits in the cell tooltip
+    const skuShort = t => { const s = String(t || "–").split(" (")[0].split(" / ").pop().trim(); return s.length > 30 ? s.slice(0, 29).trimEnd() + "…" : s; };   // SKU id only; the full published label sits in the tooltip
+    const netShort = t => { const s = String(t || ""); const fabRaw = (s.match(/\b(?:InfiniBand|EFA|RoCE|Spectrum-X|GPUDirect|Ethernet|NVLink|RDMA)\b/i) || [])[0], fab = fabRaw ? ({ infiniband: "InfiniBand", efa: "EFA", roce: "RoCE", "spectrum-x": "Spectrum-X", gpudirect: "GPUDirect", ethernet: "Ethernet", nvlink: "NVLink", rdma: "RDMA" }[fabRaw.toLowerCase()] || fabRaw) : null; const bws = [...s.matchAll(/(\d[\d,]*(?:\.\d+)?)\s*(Tb\/s|Tbps|Gb\/s|Gbps)/gi)].map(m => Number(m[1].replace(/,/g, "")) * (/^t/i.test(m[2]) ? 1000 : 1)).filter(v => isFinite(v) && v > 0);
+      const top = bws.length ? Math.max(...bws) : null, bw = top == null ? null : top >= 1000 ? (top / 1000).toFixed(1).replace(/\.0$/, "") + " Tb/s" : Math.round(top) + " Gbps";   // the largest published figure: the GPU fabric, not the front-end NIC
+      if (fab || bw) return [fab, bw].filter(Boolean).join(" · "); const c = s.split(/[;(]/)[0].replace(/\s+/g, " ").trim(); return c.length > 34 ? c.slice(0, 33).trimEnd() + "…" : c; };
+    const tagName = { hyperscaler: "hyperscaler", pricefighter: "platform", "short-term": "short-term market", peer: "" };
+    const body = rows.map(r => { const e = r.spec; return `<tr class="${r.key === "nebius" ? "selrow" : ""}"><td>${esc(r.provider)}${tagName[r.tag] ? ` <span style="color:var(--dim);font-weight:400">${tagName[r.tag]}</span>` : ""}</td>`
+      + `<td class="sku" title="${e ? esc(e.instance_type || "") : ""}">${e ? esc(skuShort(e.instance_type)) : `<span style="color:var(--dim)">not on file</span>`}</td><td class="num">${e ? cell(e.node_gpus) : "–"}</td>`
+      + `<td class="num">${e ? cell(e.vcpu) : "–"}${per(e, "vcpu") != null ? ` <span style="color:var(--dim);font-weight:400">${cell(per(e, "vcpu"))}/GPU</span>` : ""}</td>`
+      + `<td class="num">${e ? cell(e.ram_gb) : "–"}${per(e, "ram_gb") != null ? ` <span style="color:var(--dim);font-weight:400">${cell(per(e, "ram_gb"))}/GPU</span>` : ""}</td>`
+      + `<td class="num">${e ? cell(e.local_storage_tb, 1) : "–"}</td><td title="${e && e.network ? esc(e.network) : ""}">${e && e.network ? esc(netShort(e.network)) : "–"}</td>`
+      + `<td class="num">${fmt(r.price)}</td><td class="num">${e && e.node_gpus && r.price != null ? fmt(r.price * e.node_gpus) : "–"}</td>`
+      + `<td>${e && e.verified === false ? `<span style="color:var(--dim)">unverified</span> ` : ""}${esc(flag(r))}</td></tr>`; }).join("");
+    const onFile = rows.filter(r => r.spec).length;
+    $("ps-spec-body").innerHTML = `<p>Prices on this view are per GPU-hour, but the node behind each price differs in CPU, memory, storage and network. The table puts each priced SKU's published configuration beside its price; prices are not adjusted. "vs Nebius node" flags configurations at least 25% lighter or heavier per GPU than the Nebius node.</p>`
+      + `<div class="table-wrap"><table class="spec"><thead><tr><th>Provider</th><th>SKU</th><th class="num">GPUs</th><th class="num">vCPU</th><th class="num">RAM GB</th><th class="num">NVMe TB</th><th>Network</th><th class="num">$/GPU-hr</th><th class="num">$/node-hr</th><th>vs Nebius node</th></tr></thead><tbody>${body}</tbody></table></div>`
+      + `<p style="color:var(--dim)">${onFile} of ${rows.length} configurations on file, from the providers' own documentation or API snapshots (${esc(SPECV._generated || "–")}). "Not on file" means no published configuration was found yet; "unverified" means a figure could not be confirmed against its source. Quotes from #price-intelligence carry no configuration and are not listed.</p>`;
+  }
   function renderMethod(){
     const n = DATA.n_observations, s = DATA.sources;
     const qe = Object.entries(QE).map(([k, v]) => k + " ×" + Math.exp(-v).toFixed(2)).join(", ");
@@ -778,6 +816,7 @@ const DATA = /*__DATA__*/null;
       <p><b>Normalisation.</b> Prepayment to 0% with Finance's money-cost convention (${(P.prepay_a * 100).toFixed(2)}% a year of term at full prepayment, concave in the share, capped at ${Math.round(P.prepay_cap * 100)}%). Quote date to today with two-way fixed effects on log price (cell + quarter), fitted on the stated-prepay offers and Nebius achieved only and pooled across GPUs: ${qe}. Observations up to ${P.recent_days} days old count 1, up to ${P.max_age_days} days count ½, older are dropped; Nebius achieved aggregates carry the summed weight of their months (min(deals, 3) each).</p>
       <p><b>Guidance and references (hypothetical, never pooled).</b> The Market position graph can show three dashed lines. <i>Floors</i>: Finance's Tier-2 GM-approval floor from the rate card (the published column for the chosen prepayment, or the nearest one, labelled) and, where computed, SemiAnalysis' cost-based floor (the price at which a 5-year contract with 15% prepaid earns about 15.6% project IRR on SemiAnalysis' Neocloud Giant cost inputs). <i>Ceiling</i>: parity with the previous generation, its current mark at the same term and prepayment times a delivered-performance multiple${PERF.pairs ? " (MLPerf-based, customer-realisable; sources in the multiple's tooltip; editable)" : " (no sourced multiple loaded yet; type one in Comparison settings)"}. <i>SemiAnalysis path average</i>: the base-case monthly market rental path from the ${esc(SAV._version || "")} TCO model averaged over the term from today; SemiAnalysis is a subscription source and this page is internal only.</p>
       <p><b>Other evidence classes (shown, never pooled).</b> <i>Nebius prices that lost</i> and <i>Nebius open proposals</i>: our own asked prices from CRM deal reviews (stage Closed lost; Commercial Proposal or Agreement signing), per GPU and term over the last 12 months, published only as aggregates of at least ${CRM.min_deals || 3} deals (${CRM.deals ? `${n0(CRM.deals.lost)} lost and ${n0(CRM.deals.proposal)} open deal-months on file, ${CRM.withheld_cells || 0} thin cells withheld` : "no file loaded"}; generated ${CRM.generated || "–"}), re-based to 0% through the payment type, no date adjustment; a lost ask is an upper bound for that customer and implies no competitor price. <i>SemiAnalysis index (draft)</i>: survey medians for GB300 contract terms, moved out of the offer file because an index is not an offer; source to be confirmed. <i>Short-term market</i>: SF Compute's H100 clearing price (a spot exchange, 8-GPU nodes) at the PAYG term and Vast.ai's cheapest marketplace reservation (1 to 6 months, usually 1 to 2 GPU hosts, flagged not cluster-class) at the 3-month term.</p>
+      <p><b>Node configuration.</b> Market position lists the published configuration behind each list price (GPUs per node, vCPU, RAM, local NVMe, network) from the providers' own documentation, each figure checked against its source, or from the provider API where the daily monitor records it. Prices are shown as published and never adjusted for configuration; the table only makes the like-for-like question visible. Reported offers carry no configuration.</p>
       <p><b>Freshness.</b> Latest offer ${s.intel_latest_quote || "–"}; CRM aggregates generated ${s.reserve_tenor_generated || "–"} (weekly); Finance rate card ${s.grid_version || "–"}; list-price snapshot ${s.list_snapshot || "–"}; SemiAnalysis model ${esc(SAV._version || "–")} extracted ${esc(SAV._extracted || "–")}. Method v${DATA.method_version}.</p>
       <p><b>Limitations.</b> Offers are sales-reported and skew to lost deals; cluster size, region, interconnect and credit quality are not controlled for; quarter effects are pooled across GPUs; the term axis is commitment length at quote date, not a delivery-date curve; Nebius achieved is thin beyond 24 months and absent for GB200 and VR.</p>
       <p>Tables and history: <a href="https://nebius.atlassian.net/wiki/spaces/PR/pages/2285044257" target="_blank" rel="noopener">GPU Committed-Price Benchmarks, internal marks</a>. Code: forward_curve.py in the price-monitor repo.</p>`;

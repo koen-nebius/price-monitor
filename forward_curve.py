@@ -105,6 +105,7 @@ PERF_MULTIPLES_JSON = STORE / "perf_multiples.json"    # delivered-performance m
 INDEX_QUOTES_CSV = STORE / "index_quotes.csv"          # survey/index prices (SemiAnalysis draft index): class "index", never pooled
 CRM_ASKS_CSV = STORE / "crm_asks.csv"                  # scripts/refresh_crm_asks.py (local, weekly): Nebius lost and open asked prices, aggregates only
 LATEST_SNAPSHOT_JSON = STORE / "latest.json"           # main.py daily provider snapshot; marketplace short reservations live only here
+NODE_SPECS_JSON = STORE / "node_specs.json"            # scripts/merge_node_specs.py: node configuration behind each priced SKU
 CRM_ASK_MIN_DEALS = 3                                  # a lost/open aggregate under this many deals is counted, its price withheld
 CRM_ASK_WINDOW_DAYS = 365
 DEFAULT_SEGMENT = "ai_native_above_512"
@@ -342,34 +343,35 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
                 if ct != "on_demand" or (gc and gc < 8):
                     continue
                 tag = provider_tag(prov)
+                inst = r.get("instance_type") or ""
                 if tag == "peer":
-                    per[tier]["peer"].append((p, prov))
+                    per[tier]["peer"].append((p, prov, inst))
                 elif tag == "hyperscaler":
-                    per[tier]["hyper"].append((p, prov))
+                    per[tier]["hyper"].append((p, prov, inst))
                 else:
-                    per[tier]["other"].append((p, prov))   # price fighters / platforms, PAYG term only
+                    per[tier]["other"].append((p, prov, inst))   # price fighters / platforms, PAYG term only
             for tier, d in per.items():
-                if d["peer"]:
+                def cheapest(rows):   # cheapest SKU per provider: {provider: (price, instance_type)}
                     best = {}
-                    for p, prov in d["peer"]:
-                        best[prov] = min(p, best.get(prov, 99))
-                    vals = sorted(best.values())
+                    for p, prov, inst in rows:
+                        if prov not in best or p < best[prov][0]:
+                            best[prov] = (p, inst)
+                    return best
+                def as_list(best):
+                    return [{"provider": k, "price": round(v[0], 4), "instance_type": v[1]} for k, v in sorted(best.items(), key=lambda kv: kv[1][0])]
+                if d["peer"]:
+                    best = cheapest(d["peer"])
+                    vals = sorted(v[0] for v in best.values())
                     out[tier]["peer_od_median"] = round(statistics.median(vals), 2)
                     out[tier]["peer_od_n"] = len(vals)
                     out[tier]["peer_od_min"] = round(vals[0], 2)
-                    out[tier]["peer_list"] = [{"provider": k, "price": round(v, 4)} for k, v in sorted(best.items(), key=lambda kv: kv[1])]
+                    out[tier]["peer_list"] = as_list(best)
                 if d["hyper"]:
-                    p, prov = min(d["hyper"])
+                    p, prov, _ = min(d["hyper"])
                     out[tier]["hyperscaler_od_min"] = round(p, 2); out[tier]["hyperscaler_od_provider"] = prov
-                    hb = {}
-                    for hp, hprov in d["hyper"]:
-                        hb[hprov] = min(hp, hb.get(hprov, 99))
-                    out[tier]["hyper_list"] = [{"provider": k, "price": round(v, 4)} for k, v in sorted(hb.items(), key=lambda kv: kv[1])]
+                    out[tier]["hyper_list"] = as_list(cheapest(d["hyper"]))
                 if d["other"]:
-                    ob = {}
-                    for op, oprov in d["other"]:
-                        ob[oprov] = min(op, ob.get(oprov, 99))
-                    out[tier]["other_list"] = [{"provider": k, "price": round(v, 4)} for k, v in sorted(ob.items(), key=lambda kv: kv[1])]
+                    out[tier]["other_list"] = as_list(cheapest(d["other"]))
             for tier in out:
                 out[tier]["list_snapshot"] = latest
     if intel_obs:
@@ -515,20 +517,22 @@ def load_list(path: Path = HISTORY_CSV) -> dict:
         except (ValueError, TypeError):
             continue
         cell = out[(tier, tenor)]
-        prov = r["provider"]
+        prov, inst = r["provider"], r.get("instance_type") or ""
         if prov == "nebius":
             cell["nebius"] = p if cell["nebius"] is None else min(cell["nebius"], p)
         elif prov in HYPERSCALERS:
             if cell["hyperscaler_min"] is None or p < cell["hyperscaler_min"]:
                 cell["hyperscaler_min"], cell["hyperscaler_min_provider"] = p, prov
-            cell["hyper_list"][prov] = min(p, cell["hyper_list"].get(prov, 99.0))
+            if prov not in cell["hyper_list"] or p < cell["hyper_list"][prov][0]:
+                cell["hyper_list"][prov] = (p, inst)
         else:
             if cell["peer_min"] is None or p < cell["peer_min"]:
                 cell["peer_min"], cell["peer_min_provider"] = p, prov
-            cell["peer_list"][prov] = min(p, cell["peer_list"].get(prov, 99.0))
-    for cell in out.values():   # every published reserved/committed list price per provider, cheapest tier per provider
-        cell["hyper_list"] = [{"provider": k, "price": round(v, 4)} for k, v in sorted(cell["hyper_list"].items(), key=lambda kv: kv[1])]
-        cell["peer_list"] = [{"provider": k, "price": round(v, 4)} for k, v in sorted(cell["peer_list"].items(), key=lambda kv: kv[1])]
+            if prov not in cell["peer_list"] or p < cell["peer_list"][prov][0]:
+                cell["peer_list"][prov] = (p, inst)
+    for cell in out.values():   # every published reserved/committed list price per provider, cheapest SKU per provider
+        cell["hyper_list"] = [{"provider": k, "price": round(v[0], 4), "instance_type": v[1]} for k, v in sorted(cell["hyper_list"].items(), key=lambda kv: kv[1][0])]
+        cell["peer_list"] = [{"provider": k, "price": round(v[0], 4), "instance_type": v[1]} for k, v in sorted(cell["peer_list"].items(), key=lambda kv: kv[1][0])]
     return dict(out)
 
 
@@ -614,6 +618,29 @@ def load_crm_asks(path: Path = CRM_ASKS_CSV, as_of: date | None = None, min_deal
     return out
 
 
+def load_node_specs(path: Path = NODE_SPECS_JSON) -> dict:
+    """Node configuration behind each provider's priced GPU SKU (GPUs per node, vCPU, RAM,
+    local NVMe, network), keyed by normalised provider key then tier; see
+    scripts/merge_node_specs.py. Display-only: prices are never adjusted for configuration,
+    the page shows the configuration beside the price so the reader can judge like for like."""
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+def provider_key(p: str) -> str:
+    """History provider id -> node_specs key (drop the computeprices 'cp_' prefix and '-com' suffix)."""
+    p = (p or "").strip().lower()
+    if p.startswith("cp_"):
+        p = p[3:]
+    if p.endswith("-com"):
+        p = p[:-4]
+    return {"vast_reserved": "vast", "lambda_labs": "lambda"}.get(p, p)
+
+
 _EXCHANGES = {"sfcompute": "SF Compute"}
 
 
@@ -643,7 +670,7 @@ def load_short_term(history: Path = HISTORY_CSV, snapshot: Path = LATEST_SNAPSHO
                 except (KeyError, TypeError, ValueError):
                     continue
                 d = _parse_date(latest)
-                out[tier].append({"provider": _EXCHANGES[r["provider"]], "kind": "clearing", "tenor": 0, "months": 0, "price": round(p, 4),
+                out[tier].append({"provider": _EXCHANGES[r["provider"]], "key": provider_key(r["provider"]), "kind": "clearing", "tenor": 0, "months": 0, "price": round(p, 4),
                                   "gpus": gc, "date": latest, "stale": bool(d and (as_of - d).days > 7), "cluster_class": gc >= 8,
                                   "note": "exchange clearing price for short bookings (hours to weeks) on 8-GPU InfiniBand nodes; a spot market, not a committed contract"})
     if snapshot.exists():
@@ -667,7 +694,7 @@ def load_short_term(history: Path = HISTORY_CSV, snapshot: Path = LATEST_SNAPSHO
             except (KeyError, TypeError, ValueError):
                 continue
             prov = str(r.get("provider", ""))
-            out[tier].append({"provider": "Vast.ai" if prov.startswith("vast") else prov, "kind": "marketplace", "tenor": 3, "months": 3,
+            out[tier].append({"provider": "Vast.ai" if prov.startswith("vast") else prov, "key": provider_key(prov), "kind": "marketplace", "tenor": 3, "months": 3,
                               "price": round(p, 4), "gpus": gc, "date": snap, "stale": stale, "cluster_class": gc >= 8,
                               "note": f"cheapest marketplace reservation (1-6 months prepaid), {gc}-GPU host, {r.get('region', '')}"
                                       + ("" if gc >= 8 else "; not cluster-class")})
@@ -963,6 +990,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         "index": load_index(index),
         "crm_asks": load_crm_asks(crm_asks, as_of=as_of),
         "short_term": load_short_term(history, snapshot, as_of=as_of),
+        "node_specs": load_node_specs(),
     }
 
 
@@ -1288,6 +1316,13 @@ def view_payload(result: dict) -> dict:
                               "basis": (p.get("basis") or "")[:260], "sources": [s[:160] for s in (p.get("sources") or [])[:3]]}
                              for p in perf.get("pairs", [])]}
     out["marks"] = [{k: m.get(k) for k in keep_mark} for m in result["marks"]]
+    # node configuration: the page needs the figures and provenance, not the research notes
+    ns = result.get("node_specs") or {}
+    keep_spec = ("instance_type", "node_gpus", "vcpu", "cpu_model", "ram_gb", "local_storage_tb", "form_factor", "source_url", "as_of", "confidence", "verified")
+    out["node_specs"] = {"_generated": ns.get("_generated"),
+                         "providers": {prov: {tier: [{**{k: e.get(k) for k in keep_spec}, "network": (e.get("network") or "")[:90]} for e in entries]
+                                              for tier, entries in tiers.items() if tier in TIERS}
+                                       for prov, tiers in (ns.get("providers") or {}).items()}}
     out["observations"] = [{"side": o["side"], "tier": o["tier"], "tenor": o["tenor"], "months": o.get("months"),
                             "date": o["date"], "price": o["price"], "p0": o["p0"], "pa": o.get("pa"), "q": o["q"], "prepay": o["prepay"], "known": o.get("known", False), "w": o["w"],
                             "ptype": o.get("ptype", ""), "provider": o.get("provider", ""), "ts": o.get("ts", ""),

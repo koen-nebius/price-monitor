@@ -290,6 +290,17 @@ class OtherEvidenceClasses(unittest.TestCase):
         self.assertEqual((kinds["clearing"]["price"], kinds["clearing"]["tenor"], kinds["clearing"]["stale"]), (1.9, 0, False))
         self.assertEqual((kinds["marketplace"]["tenor"], kinds["marketplace"]["cluster_class"]), (3, False))
 
+    def test_node_specs_loader_and_provider_key(self):
+        self.assertEqual(fc.provider_key("cp_digitalocean"), "digitalocean")
+        self.assertEqual(fc.provider_key("cp_thundercompute-com"), "thundercompute")
+        self.assertEqual(fc.provider_key("vast_reserved"), "vast")
+        self.assertEqual(fc.provider_key("AWS"), "aws")
+        with tempfile.TemporaryDirectory() as td:
+            self.assertEqual(fc.load_node_specs(Path(td) / "none.json"), {})
+            p = Path(td) / "node_specs.json"
+            p.write_text(json.dumps({"_generated": "2026-09-16", "providers": {"aws": {"H100": [{"instance_type": "p5.48xlarge", "node_gpus": 8, "vcpu": 192, "ram_gb": 2048}]}}}))
+            self.assertEqual(fc.load_node_specs(p)["providers"]["aws"]["H100"][0]["vcpu"], 192)
+
 
 if __name__ == "__main__":
     unittest.main()
