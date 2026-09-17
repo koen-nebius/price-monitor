@@ -26,7 +26,7 @@ jobs:
           python-version: '3.11'
       - name: Offline regression tests
         run: python3 -m unittest discover -p 'test_crusoe*.py'
-      - name: Verify secrets and live capacity
+      - name: Check pause status and verify capacity only when enabled
         env:
           CRUSOE_ACCESS_KEY_ID: ${{ secrets.CRUSOE_ACCESS_KEY_ID }}
           CRUSOE_SECRET_KEY: ${{ secrets.CRUSOE_SECRET_KEY }}

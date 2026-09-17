@@ -46,11 +46,13 @@ PROVIDER_LABELS = {
 #                   to raw-GPU rental prices.
 #   instance      — launchability of an exact on-demand VM shape in named
 #                   regions; not inventory quantities or multi-node stock.
+#   instance_stock — provider stock label for an exact GPU VM SKU and zone;
+#                    not multi-node stock or GPU-level bookability.
 # A record with data_source="aggregator" (Shadeform) is treated as live but
 # marked "via aggregator" and flagged non-independent (✱) in counts.
 # ---------------------------------------------------------------------------
 SIGNAL_CLASS = {
-    "lambda": "instance", "scaleway": "live", "runpod": "live",
+    "lambda": "instance", "scaleway": "instance_stock", "runpod": "live",
     "voltage_park": "live", "hyperstack": "live", "verda": "live",
     "together": "inference", "massedcompute": "live",
     "aws": "spot",            # becomes lead-time (live) once CB IAM lands
@@ -84,6 +86,7 @@ FOOTPRINT_ONLY_GPUS = ["GB200", "GB300"]
 # Together's inference replicas are a different product from GPU clusters.
 # Lambda remains eligible for listed prices, but exact-instance launchability
 # cannot qualify a different shape's GPU-level price as bookable.
+# The same boundary applies to Scaleway's exact-SKU stock labels.
 PRICE_JOIN_PEERS = {
     "coreweave": "coreweave", "lambda": "lambda",
     "hyperstack": "hyperstack", "cp_hyperstack": "hyperstack",
@@ -101,10 +104,10 @@ PROVIDERS = [
     "azure_regions",     # retail prices API — offering footprint (emits provider=azure)
     "aws_spot_advisor",  # public S3 JSON — spot pools + interruption pressure (emits provider=aws)
     "aws_capacity_blocks",  # boto3; activates when ec2:DescribeCapacityBlockOfferings IAM lands
-    "crusoe",            # authenticated exact-SKU quantities; no keys -> docs footprint
+    "crusoe",            # access paused; explicit status, no authenticated checks/cache
     "runpod",            # public GraphQL — live stock labels + per-DC availability
     "vast",              # public marketplace search — live offer depth
-    "scaleway",          # PUBLIC availability API — live ternary per zone
+    "scaleway",          # public availability API — exact GPU VM SKU/zone stock label
     "voltage_park",      # public locations API — live GPU counts
     "gmi",               # pricing-page badges — provider-declared state
     "sfcompute",         # homepage ticker (keyless) + availability API (SFCOMPUTE_TOKEN)

@@ -59,6 +59,8 @@ def signal_class(r: AvailabilityRecord) -> str:
         return "inference" if is_together_inference(r) else "unverified_scope"
     if r.provider == "lambda":
         return "instance" if is_lambda_instance(r) else "unverified_scope"
+    if r.provider == "scaleway":
+        return "instance_stock" if is_scaleway_instance(r) else "unverified_scope"
     # The provider has two independent evidence types. Cached documentation
     # never becomes live capacity merely because credentials were later added.
     if r.provider == "crusoe":
@@ -106,6 +108,21 @@ def lambda_instance_records(records: List[AvailabilityRecord]) -> List[Availabil
     """Retain individual shapes and regions without summing overlapping offers."""
     return sorted((r for r in records if is_lambda_instance(r)),
                   key=lambda r: (r.gpu_model, r.instance_type, r.fetched_at, r.region))
+
+
+def is_scaleway_instance(r: AvailabilityRecord) -> bool:
+    """Exact GPU VM stock label; never provider-wide or multi-node stock."""
+    return (r.provider == "scaleway" and r.data_source == "official_api"
+            and r.product_scope == "gpu_instance"
+            and r.consumption_type == "on_demand" and bool(r.instance_type)
+            and bool(r.region) and r.region != "global"
+            and type(r.gpu_count) is int and r.gpu_count > 0
+            and r.metric_type == "instance_stock_status")
+
+
+def scaleway_instance_records(records: List[AvailabilityRecord]) -> List[AvailabilityRecord]:
+    return sorted((r for r in records if is_scaleway_instance(r)),
+                  key=lambda r: (r.gpu_model, r.instance_type, r.region, r.fetched_at))
 
 
 def plural(n: int, word: str) -> str:
@@ -433,7 +450,8 @@ def freshness(manifest: dict) -> dict:
     pending = [p for p, s in status.items()
                if s.get("status") == "failed" and p in PENDING_ACTIVATION]
     stale = [p for p, s in status.items() if s.get("status") == "cached"]
-    activated = [p for p in status if p not in pending]
+    paused = [p for p, s in status.items() if s.get("status") == "paused"]
+    activated = [p for p in status if p not in pending and p not in paused]
     live = [p for p, s in status.items() if s.get("status") == "live"]
     return {"live": live, "failed": failed, "stale": stale,
-            "pending": pending, "activated": activated}
+            "pending": pending, "paused": paused, "activated": activated}

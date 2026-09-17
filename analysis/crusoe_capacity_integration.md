@@ -1,5 +1,13 @@
 # Crusoe authenticated capacity
 
+**Paused since 17 September 2026:** the organization was suspended.
+`crusoe_api.CAPACITY_ACCESS_PAUSED` is true. The API client, fetcher,
+pipeline and verification command make no authenticated capacity requests.
+The pipeline marks this source paused, reports availability unknown, and
+does not reuse cached direct observations or manufacture a removal/sold-out
+event. Public pricing remains separate and unchanged. Resume requires an
+explicit reviewed change after access and intended use are cleared.
+
 The capacity monitor uses `GET https://api.cloud.crusoe.ai/v1/capacities`
 when both `CRUSOE_ACCESS_KEY_ID` and `CRUSOE_SECRET_KEY` are configured.
 Credentials belong in GitHub Actions repository secrets. They are injected

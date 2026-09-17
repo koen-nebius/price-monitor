@@ -26,9 +26,11 @@ STATES = ["available", "limited", "sold_out", "not_offered", "unknown"]
 #                           VM SKU; not an instance/GPU inventory quantity
 #   instance_launchability — exact VM SKU is listed as launchable in this region;
 #                           not quota, simultaneous deployments or cluster stock
+#   instance_stock_status — stock enum for one exact GPU VM SKU and zone;
+#                           ordinal label, not a count or multi-node stock
 #   stock_level           — provider-reported stock label or count (Hyperstack)
 #   offer_depth_gpus      — marketplace GPUs listed right now (Vast)
-#   stock_status_label    — provider enum e.g. High/Low/None (RunPod, Scaleway)
+#   stock_status_label    — provider enum e.g. High/Low/None (RunPod)
 #   lead_time_days        — days until earliest reservable block (AWS CB)
 #   clearing_price_usd    — market-clearing $/GPU-hr on an exchange (SFCompute)
 #   binary                — available true/false (Verda, DataCrunch-style)

@@ -38,6 +38,7 @@ jobs:
           python3 -m unittest discover -p 'test_crusoe*.py'
           python3 -m unittest discover -p 'test_together_capacity*.py'
           python3 -m unittest discover -p 'test_lambda_capacity*.py'
+          python3 -m unittest discover -p 'test_scaleway*.py'
 
       - name: Bootstrap Confluence page (idempotent, soft-fail)
         # Creates "GPU Competitor Capacity — Live Overview" under the pricing

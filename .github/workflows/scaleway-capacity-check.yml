@@ -1,0 +1,36 @@
+name: Check Scaleway capacity scope (read only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, codex/scaleway-scope-crusoe-pause]
+    paths:
+      - crusoe_api.py
+      - capacity/**.py
+      - scripts/check_scaleway_capacity.py
+      - scripts/check_crusoe.py
+      - test_scaleway*.py
+      - test_crusoe*.py
+      - .github/workflows/scaleway-capacity-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline scope and pause regressions
+        run: |
+          python3 -m unittest discover -p 'test_scaleway*.py'
+          python3 -m unittest discover -p 'test_crusoe*.py'
+          python3 -m unittest discover -p 'test_lambda_capacity*.py'
+      - name: Verify Crusoe is paused without a provider request
+        run: python3 scripts/check_crusoe.py
+      - name: Verify public exact-SKU Scaleway availability
+        run: python3 scripts/check_scaleway_capacity.py

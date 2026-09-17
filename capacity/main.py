@@ -48,21 +48,35 @@ def run(providers=None, test=False):
 
     all_records = []
     provider_status = {}
-    failed, stale = [], []
+    failed, stale, paused = [], [], []
 
     for provider in selected:
+        if provider == "crusoe":
+            from crusoe_api import CAPACITY_ACCESS_PAUSED, CAPACITY_PAUSE_REASON
+            if CAPACITY_ACCESS_PAUSED:
+                paused.append(provider)
+                provider_status[provider] = {
+                    "status": "paused", "reason": CAPACITY_PAUSE_REASON, "record_count": 0,
+                }
+                logger.info("Crusoe: authenticated capacity access paused; no fetch or cache fallback")
+                continue
         try:
             records = _fetch_provider(provider)
         except Exception as e:
             logger.error(f"{provider}: fetch raised {e}")
             records = []
 
+        if provider == "scaleway":
+            from capacity.insights import is_scaleway_instance
+            records = [r for r in records if is_scaleway_instance(r)]
         if records:
             store.update_peer_cache(provider, records)
             provider_status[provider] = {"status": "live", "record_count": len(records)}
             logger.info(f"{provider}: {len(records)} records (live)")
         else:
             cached, age_h = store.get_cached_records(provider)
+            if provider == "scaleway":
+                cached = [r for r in cached if is_scaleway_instance(r)]
             if provider == "lambda":
                 from capacity.insights import is_lambda_instance
                 # Old rows combined shapes and cannot substitute for an exact
@@ -104,6 +118,13 @@ def run(providers=None, test=False):
     # Diff vs the COMMITTED last_snapshot.json — in GHA the checkout has no
     # daily snapshot files (gitignored), so the previous-day file may not exist.
     old_records = store.load_last_snapshot()
+    # Access suspension is not a capacity disappearance. Other sources can
+    # retain explicitly labelled aggregator observations, never the paused
+    # provider's old authoritative data as today's available/zero stock.
+    def usable_during_pause(record):
+        return record.provider not in paused or record.data_source == "aggregator"
+    all_records = [r for r in all_records if usable_during_pause(r)]
+    old_records = [r for r in old_records if usable_during_pause(r)]
 
     diff = compute_diff(all_records, old_records)
 
@@ -127,6 +148,7 @@ def run(providers=None, test=False):
         "live_provider_count": live_count,
         "failed_providers": failed,
         "stale_providers": stale,
+        "paused_providers": paused,
         "provider_status": provider_status,
         "post_thread": True,
     }

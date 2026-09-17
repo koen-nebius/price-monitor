@@ -21,6 +21,14 @@ ACCESS_KEY_ENV = "CRUSOE_ACCESS_KEY_ID"
 SECRET_KEY_ENV = "CRUSOE_SECRET_KEY"
 _MAX_RESPONSE_BYTES = 4 * 1024 * 1024
 
+# Explicit operational hold after the organization's 2026-09-17 suspension.
+# Resume only after access/use has been reviewed and a deliberate code change.
+# Keep this guard in the client so ad-hoc checks cannot bypass the pipeline hold.
+CAPACITY_ACCESS_PAUSED = True
+CAPACITY_PAUSE_REASON = (
+    "Organization suspended; authenticated capacity checks paused pending access review"
+)
+
 
 class CrusoeAPIError(RuntimeError):
     """Sanitized error: never contains keys, auth headers or remote content."""
@@ -64,6 +72,8 @@ def _signed_headers(access_key: str, secret_key: str, timestamp: str) -> dict:
 
 def fetch_capacities() -> dict:
     """Fetch only the fixed capacity endpoint; no redirects or fallback host."""
+    if CAPACITY_ACCESS_PAUSED:
+        raise CrusoeAPIError(CAPACITY_PAUSE_REASON)
     access_key = os.environ.get(ACCESS_KEY_ENV, "").strip()
     secret_key = os.environ.get(SECRET_KEY_ENV, "").strip()
     if not access_key or not secret_key:

@@ -27,6 +27,12 @@ class Response(io.BytesIO):
 
 
 class CrusoeCapacityTests(unittest.TestCase):
+    def setUp(self):
+        # Exercise the unpaused client contract using synthetic credentials.
+        pause = patch.object(api, "CAPACITY_ACCESS_PAUSED", False)
+        pause.start()
+        self.addCleanup(pause.stop)
+
     def test_exact_types_locations_and_raw_quantity_not_gpu_math(self):
         rows = crusoe.parse({"items": [item(), item("h100-80gb-sxm-ib.1x", quantity=24),
                                     item("h100-80gb-sxm-ib.8x", "eu-iceland1-a", 0)]}, NOW)

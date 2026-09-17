@@ -28,6 +28,7 @@ class CrusoePipelineTests(unittest.TestCase):
     def setUp(self):
         self.stack = ExitStack()
         self.addCleanup(self.stack.close)
+        self.stack.enter_context(patch("crusoe_api.CAPACITY_ACCESS_PAUSED", False))
         directory = self.stack.enter_context(tempfile.TemporaryDirectory())
         self.directory = Path(directory)
         self.stack.enter_context(patch.object(store, "STORE_DIR", self.directory))
