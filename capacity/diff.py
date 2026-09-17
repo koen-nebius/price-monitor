@@ -61,6 +61,13 @@ def compute_diff(new: List[AvailabilityRecord],
                 ))
             continue
 
+        # A source upgrade is not a stock transition. Crusoe's historical
+        # docs footprint and authenticated per-configuration quantities are
+        # different observations, even if their identity happens to match.
+        if n.provider == "crusoe" and (
+                n.metric_type != o.metric_type or n.data_source != o.data_source):
+            continue
+
         if n.state != o.state and (n.state in _MEANINGFUL or o.state in _MEANINGFUL):
             # unknown<->anything churn is fetcher noise, skip unless it involves
             # two meaningful states (e.g. available -> sold_out).

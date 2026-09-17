@@ -32,7 +32,9 @@ PROVIDER_LABELS = {
 # Signal classes — the epistemic backbone of every artifact (STORM redesign
 # 2026-08-12). A cell's glyph, wording, and whether it counts toward the
 # tightness read all key off the CLASS, never off raw provider identity:
-#   live          — provider's own real-time stock API. Counts toward k/n.
+#   live          — provider's own current capacity API. Only global records
+#                   with an established stock unit count toward k/n; exact
+#                   SKU/location quantities remain separate observations.
 #   spot          — AWS spot advisor pools (~weekly). Own context line only.
 #   marketplace   — commodity depth (Vast) / exchange clearing (SF Compute).
 #                   Numbers, never peer states; never counted in k/n.
@@ -66,8 +68,10 @@ SECONDARY_GPUS = ["L40S", "RTX6000"]
 FOOTPRINT_ONLY_GPUS = ["GB200", "GB300"]
 
 # Enterprise peers for the price join (pricing monitor provider keys).
+# Crusoe is excluded until pricing and capacity share an exact SKU/location:
+# its API quantity must not make a different shape's price look bookable.
 PRICE_JOIN_PEERS = {
-    "coreweave": "coreweave", "lambda": "lambda", "crusoe": "crusoe",
+    "coreweave": "coreweave", "lambda": "lambda",
     "hyperstack": "hyperstack", "cp_hyperstack": "hyperstack",
     "cp_voltage": "voltage_park", "cp_gmi-cloud": "gmi",
     "cp_scaleway": "scaleway", "verda": "verda", "together": "together",
@@ -83,7 +87,7 @@ PROVIDERS = [
     "azure_regions",     # retail prices API — offering footprint (emits provider=azure)
     "aws_spot_advisor",  # public S3 JSON — spot pools + interruption pressure (emits provider=aws)
     "aws_capacity_blocks",  # boto3; activates when ec2:DescribeCapacityBlockOfferings IAM lands
-    "crusoe",            # docs matrix — footprint per zone
+    "crusoe",            # authenticated exact-SKU quantities; no keys -> docs footprint
     "runpod",            # public GraphQL — live stock labels + per-DC availability
     "vast",              # public marketplace search — live offer depth
     "scaleway",          # PUBLIC availability API — live ternary per zone
