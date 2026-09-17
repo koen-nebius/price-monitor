@@ -1,0 +1,31 @@
+name: Check Together capacity scope (read only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, codex/together-capacity-scope]
+    paths:
+      - together_capacity_api.py
+      - capacity/**.py
+      - scripts/check_together_capacity.py
+      - test_together_capacity*.py
+      - .github/workflows/together-capacity-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline regression tests
+        run: python3 -m unittest discover -p 'test_together_capacity*.py'
+      - name: Verify inference scope and probe cluster regions
+        env:
+          TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
+        run: python3 scripts/check_together_capacity.py

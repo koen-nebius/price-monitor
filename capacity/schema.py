@@ -31,6 +31,8 @@ STATES = ["available", "limited", "sold_out", "not_offered", "unknown"]
 #   listed_offering       — GPU is listed for sale, no live stock signal (docs)
 #   provider_quantity     — raw capacity quantity for one SKU/location (Crusoe);
 #                           provider units, not GPUs; alternate shapes can overlap
+#   inference_replicas    — dedicated-inference headroom for one configuration;
+#                           never a GPU-rental or cluster-stock observation
 
 
 @dataclass
@@ -48,6 +50,9 @@ class AvailabilityRecord:
     source_url: str = ""
     data_source: str = ""    # official_api | web_scrape | aggregator | manual
     parser_version: str = ""
+    product_scope: str = ""  # e.g. dedicated_inference; blank = legacy/unspecified
+    gpu_count: Optional[int] = None  # explicit GPUs per instance/replica, not stock
+    quantity_relation: str = ""  # exact vs lower bound, e.g. RELATION_EQ / RELATION_GTE
 
     def __post_init__(self):
         if self.state not in STATES:

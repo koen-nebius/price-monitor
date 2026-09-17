@@ -53,6 +53,10 @@ def geo(region: str) -> str:
 
 
 def signal_class(r: AvailabilityRecord) -> str:
+    # Old snapshots collapsed dedicated-inference replicas into a global GPU
+    # stock signal. Unscoped caches/aggregator rows must fail closed as well.
+    if r.provider == "together":
+        return "inference" if is_together_inference(r) else "unverified_scope"
     # The provider has two independent evidence types. Cached documentation
     # never becomes live capacity merely because credentials were later added.
     if r.provider == "crusoe":
@@ -72,6 +76,18 @@ def crusoe_quantity_records(records: List[AvailabilityRecord]) -> List[Availabil
     """Preserve alternative shapes/slices individually; quantities may overlap."""
     return sorted((r for r in records if is_crusoe_api_quantity(r)),
                   key=lambda r: (r.gpu_model, r.instance_type, r.region, r.consumption_type))
+
+
+def is_together_inference(r: AvailabilityRecord) -> bool:
+    return (r.provider == "together" and r.metric_type == "inference_replicas"
+            and r.data_source == "official_api"
+            and getattr(r, "product_scope", "") == "dedicated_inference")
+
+
+def together_inference_records(records: List[AvailabilityRecord]) -> List[AvailabilityRecord]:
+    """Keep every inference configuration separate; never roll into GPU stock."""
+    return sorted((r for r in records if is_together_inference(r)),
+                  key=lambda r: (r.gpu_model, r.instance_type, r.region))
 
 
 def plural(n: int, word: str) -> str:

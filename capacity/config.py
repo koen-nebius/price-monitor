@@ -41,13 +41,16 @@ PROVIDER_LABELS = {
 #   self_reported — provider marketing badges (GMI). Shown as claims only.
 #   footprint     — static "where it is SOLD" (docs/price lists). Never
 #                   renders as available; only add/remove diffs are signal.
+#   inference     — dedicated-inference replica headroom, separate from raw
+#                   GPU/cluster stock. Never counted in cluster k/n or joined
+#                   to raw-GPU rental prices.
 # A record with data_source="aggregator" (Shadeform) is treated as live but
 # marked "via aggregator" and flagged non-independent (✱) in counts.
 # ---------------------------------------------------------------------------
 SIGNAL_CLASS = {
     "lambda": "live", "scaleway": "live", "runpod": "live",
     "voltage_park": "live", "hyperstack": "live", "verda": "live",
-    "together": "live", "massedcompute": "live",
+    "together": "inference", "massedcompute": "live",
     "aws": "spot",            # becomes lead-time (live) once CB IAM lands
     "vast": "marketplace", "sfcompute": "marketplace",
     "gmi": "self_reported",
@@ -55,9 +58,13 @@ SIGNAL_CLASS = {
     "azure": "footprint", "nebius": "footprint",  # nebius renders as own reference block
 }
 
+import os as _os
+
 # Fetchers registered but awaiting a credential — counted as "pending", not
 # "failed", in freshness lines so the day a REAL source breaks stands out.
 PENDING_ACTIVATION = {"aws_capacity_blocks", "hyperstack", "together", "verda"}
+if _os.environ.get("TOGETHER_API_KEY", "").strip():
+    PENDING_ACTIVATION.discard("together")
 
 # GPUs whose tightness moves Nebius pricing/capacity decisions — the digest
 # strip and thread blocks cover exactly these, in this order.
@@ -70,11 +77,12 @@ FOOTPRINT_ONLY_GPUS = ["GB200", "GB300"]
 # Enterprise peers for the price join (pricing monitor provider keys).
 # Crusoe is excluded until pricing and capacity share an exact SKU/location:
 # its API quantity must not make a different shape's price look bookable.
+# Together's inference replicas are a different product from GPU clusters.
 PRICE_JOIN_PEERS = {
     "coreweave": "coreweave", "lambda": "lambda",
     "hyperstack": "hyperstack", "cp_hyperstack": "hyperstack",
     "cp_voltage": "voltage_park", "cp_gmi-cloud": "gmi",
-    "cp_scaleway": "scaleway", "verda": "verda", "together": "together",
+    "cp_scaleway": "scaleway", "verda": "verda",
 }
 
 # Fetcher registry — provider key; module of the same name under
@@ -97,12 +105,11 @@ PROVIDERS = [
     "shadeform",         # keyless aggregator — live booleans for 19 clouds (gap-filler)
     "nebius",            # outside-in footprint (docs + prices page)
     "hyperstack",        # activates when HYPERSTACK_API_KEY (free account) lands
-    "together",          # activates when TOGETHER_API_KEY (free account) lands
+    "together",          # dedicated-inference replica headroom; never raw cluster stock
     "verda",             # activates when VERDA_CLIENT_ID/SECRET (free account) land
 ]
 
 # Optional authenticated inventory: a missing key is not a failed source.
-import os as _os
 if _os.environ.get("MASSED_COMPUTE_API_KEY", "").strip():
     PROVIDERS.append("massedcompute")  # exact SKU/region stock only
 
