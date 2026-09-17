@@ -24,6 +24,26 @@ URL = "https://docs.crusoecloud.com/compute/virtual-machines/overview/index.html
 SOURCE_URL = URL
 PARSER_VERSION = "crusoe-capacity-2.0"
 
+_PARSE_ERROR_REASONS = {
+    "Crusoe capacity response has no items array",
+    "Crusoe capacity returned unsupported pagination",
+    "Crusoe capacity contains an invalid item",
+    "Crusoe capacity has an invalid instance type",
+    "Crusoe capacity has an invalid location",
+    "Crusoe capacity repeats an exact resource/location",
+    "Crusoe capacity has an invalid quota_type",
+    "Crusoe capacity has invalid quantity",
+    "Crusoe capacity has invalid num_slices",
+}
+
+
+class CrusoeParseError(ValueError):
+    """Only allowlisted static diagnostics may cross the logging boundary."""
+
+    def __init__(self, reason):
+        super().__init__(reason if reason in _PARSE_ERROR_REASONS
+                         else "Crusoe capacity schema validation failed")
+
 _TYPE_GPU = [
     ("gb300", "GB300"), ("gb200", "GB200"), ("b300", "B300"), ("b200", "B200"),
     ("h200", "H200"), ("h100", "H100"), ("l40s", "L40S"),
@@ -102,7 +122,7 @@ def _gpu_model(instance_type):
 
 def _uint32(value, field):
     if type(value) is not int or not 0 <= value <= 2 ** 32 - 1:
-        raise ValueError(f"Crusoe capacity has invalid {field}")
+        raise CrusoeParseError(f"Crusoe capacity has invalid {field}")
     return value
 
 
@@ -110,28 +130,28 @@ def parse(payload: dict, fetched_at: str = "") -> List[AvailabilityRecord]:
     """Preserve one exact resource/location observation, never sum shapes."""
     items = payload.get("items") if isinstance(payload, dict) else None
     if not isinstance(items, list):
-        raise ValueError("Crusoe capacity response has no items array")
+        raise CrusoeParseError("Crusoe capacity response has no items array")
     if payload.get("next_page_token") or payload.get("next_token"):
-        raise ValueError("Crusoe capacity returned unsupported pagination")
+        raise CrusoeParseError("Crusoe capacity returned unsupported pagination")
     records, seen = [], set()
     for item in items:
         if not isinstance(item, dict):
-            raise ValueError("Crusoe capacity contains an invalid item")
+            raise CrusoeParseError("Crusoe capacity contains an invalid item")
         sku = item.get("type")
         # Type is optional in CapacityV1; no hardware identity means no GPU row.
         if sku is None:
             continue
         if not isinstance(sku, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,159}", sku):
-            raise ValueError("Crusoe capacity has an invalid instance type")
+            raise CrusoeParseError("Crusoe capacity has an invalid instance type")
         model = _gpu_model(sku)
         if not model:
             continue
         location = item.get("location")
         if not isinstance(location, str) or not re.fullmatch(r"[a-z][a-z0-9-]{1,79}", location):
-            raise ValueError("Crusoe capacity has an invalid location")
+            raise CrusoeParseError("Crusoe capacity has an invalid location")
         key = (sku, location)
         if key in seen:
-            raise ValueError("Crusoe capacity repeats an exact resource/location")
+            raise CrusoeParseError("Crusoe capacity repeats an exact resource/location")
         seen.add(key)
         quantity = _uint32(item.get("quantity"), "quantity")
         parts = [f"API quantity {quantity} (provider units)"]
@@ -141,7 +161,7 @@ def parse(payload: dict, fetched_at: str = "") -> List[AvailabilityRecord]:
         if "quota_type" in item:
             quota = item["quota_type"]
             if not isinstance(quota, str) or (quota and not re.fullmatch(r"[A-Z0-9_]{1,256}", quota)):
-                raise ValueError("Crusoe capacity has an invalid quota_type")
+                raise CrusoeParseError("Crusoe capacity has an invalid quota_type")
             if quota:
                 parts.append(f"quota_type={quota}")
         # Reservation context is not part of today's CapacityV1. If introduced,
@@ -171,6 +191,9 @@ def fetch() -> List[AvailabilityRecord]:
         return _fetch_docs()
     try:
         return parse(fetch_capacities(), datetime.now(timezone.utc).isoformat())
+    except CrusoeParseError as exc:
+        logger.error("Crusoe API capacity fetch failed (%s)", str(exc))
+        return []
     except Exception as exc:
         status = getattr(exc, "http_status", None)
         if type(status) is int and 100 <= status <= 599:

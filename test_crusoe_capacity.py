@@ -113,6 +113,16 @@ class CrusoeCapacityTests(unittest.TestCase):
             self.assertIn("HTTP 403", " ".join(logs.output))
             self.assertNotIn("private error", " ".join(logs.output))
 
+    def test_parser_logs_static_reason_without_raw_values(self):
+        with patch.dict(os.environ, ENV, clear=True), patch.object(crusoe, "fetch_capacities", return_value={"items": [item(quantity="private raw value")]}):
+            with self.assertLogs(crusoe.logger, level="ERROR") as logs:
+                self.assertEqual(crusoe.fetch(), [])
+            self.assertIn("Crusoe capacity has invalid quantity", " ".join(logs.output))
+            self.assertNotIn("private raw value", " ".join(logs.output))
+        error = crusoe.CrusoeParseError("private unrecognized diagnostic")
+        self.assertIsInstance(error, ValueError)
+        self.assertEqual(str(error), "Crusoe capacity schema validation failed")
+
     def test_signature_empty_query_final_newline_and_get_only(self):
         expected = base64.urlsafe_b64encode(hmac.new(b"synthetic-test-secret", b"/v1/capacities\n\nGET\n2026-09-17T16:00:00+00:00\n", hashlib.sha256).digest()).decode().rstrip("=")
         headers = api._signed_headers(ENV[api.ACCESS_KEY_ENV], ENV[api.SECRET_KEY_ENV], NOW)

@@ -5,9 +5,11 @@ import os
 import sys
 from collections import Counter
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from capacity.main import _fetch_provider
+from crusoe_api import fetch_capacities
 
 
 def main():
@@ -16,7 +18,20 @@ def main():
         if not all(os.environ.get(key, "").strip() for key in
                    ("CRUSOE_ACCESS_KEY_ID", "CRUSOE_SECRET_KEY")):
             raise ValueError("Both Crusoe credentials are required")
-        records = _fetch_provider("crusoe")
+        payload = fetch_capacities()
+        # Schema-only diagnostics, never raw values or response content.
+        structure = {
+            "api_items": len(payload["items"]),
+            "field_types": {field: dict(Counter(type(item.get(field)).__name__
+                                                for item in payload["items"]
+                                                if isinstance(item, dict)))
+                            for field in ("type", "location", "quantity", "num_slices", "quota_type")},
+        }
+        print(json.dumps(structure, indent=2))
+        # Exercise the real production dispatcher/parser with this live response
+        # without issuing a duplicate authenticated request.
+        with patch("capacity.fetchers.crusoe.fetch_capacities", return_value=payload):
+            records = _fetch_provider("crusoe")
         if not records or any(r.data_source != "official_api" or
                               r.metric_type != "provider_quantity" for r in records):
             raise ValueError("No authenticated capacity records")
