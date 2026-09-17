@@ -257,13 +257,20 @@ def run(providers=None, test=False):
                               # ComputePrices (one provider, one vote; 2026-09-15). Net-new sf_
                               # clouds (boostrun, imwt, horizon, phyntec, amaya) stay.
                               "sf_lambdalabs", "sf_hyperstack", "sf_verda", "sf_nebius", "sf_crusoe",
-                              "sf_scaleway", "sf_massedcompute", "sf_paperspace", "sf_latitude",
+                              "sf_scaleway", "sf_paperspace", "sf_latitude",
                               "sf_denvr", "sf_vultr", "sf_digitalocean", "sf_voltagepark"}
     _before = len(all_records)
     all_records = [r for r in all_records if r.provider not in SUPERSEDED_AGGREGATORS]
     if len(all_records) < _before:
         logger.info(f"Dropped {_before - len(all_records)} superseded aggregator records "
                     f"(direct fetchers exist): {sorted(SUPERSEDED_AGGREGATORS)}")
+
+    # Prefer live direct Massed observations only for the GPU/tier actually
+    # covered. On a failed direct fetch, retain the aggregator fallback.
+    from source_priority import prefer_massed_direct
+    all_records = prefer_massed_direct(
+        all_records, provider_status.get("massedcompute", {}).get("status") == "live"
+    )
 
     logger.info(f"Fetched {len(all_records)} total records for {today}")
 
@@ -706,6 +713,7 @@ PROVIDER_MODULES = {
     "modal": "modal",
     "baseten": "baseten",
     "shadeform": "shadeform",   # key-gated marketplace aggregator (2026-09-15)
+    "massedcompute": "massedcompute",
 }
 
 
