@@ -95,6 +95,12 @@ def _classify(r: PriceRecord) -> Tuple[str, str]:
     it = (r.instance_type or "").lower()
     model = (r.gpu_model or "").upper()
 
+    # Massed's authenticated inventory has generic H100 SKUs alongside explicit
+    # SXM/NVL/PCIe variants. Missing form-factor evidence must stay unknown;
+    # the broad H100 -> SXM default would silently promote an entry VM.
+    if base == "massedcompute":
+        return "unknown", "unknown"
+
     for p, rx, ff, ic in _RULES:
         if base.startswith(p) and re.search(rx, it):
             return ff, ic

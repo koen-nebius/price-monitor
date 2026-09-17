@@ -43,6 +43,9 @@ jobs:
         # matplotlib only renders the forward-curve PNG (forward_curve.py falls back to SVG without it)
         run: pip install "boto3>=1.34.0" matplotlib
 
+      - name: Check inventory integration
+        run: python3 -m unittest discover -p 'test_massedcompute*.py'
+
       - name: Merge field-intel inbox (Confluence -> intel.csv)
         # Plan-2 migration (2026-07-10): the posting routine parks extracted
         # intel on the Confluence "Field Intel Inbox" page (2054817562) because
@@ -82,6 +85,7 @@ jobs:
           # itself only when this secret exists; obtain the key by asking support@shadeform.ai
           # (their ToS s.4.2 wants permission for systematic retrieval).
           SHADEFORM_API_KEY: ${{ secrets.SHADEFORM_API_KEY }}
+          MASSED_COMPUTE_API_KEY: ${{ secrets.MASSED_COMPUTE_API_KEY }}
         run: |
           # All-live run from non-blocked GitHub IPs. main.py writes the daily
           # snapshot, diff, run_manifest, AND the ready-to-post artifacts

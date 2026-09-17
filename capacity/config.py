@@ -13,7 +13,7 @@ CAPACITY_GPUS = ["H100", "H200", "B200", "B300", "GB200", "GB300", "L40S", "RTX6
 # then footprint-only providers; the renderer skips providers with no records).
 PROVIDER_ORDER = [
     "nebius", "coreweave", "lambda", "crusoe", "hyperstack", "verda",
-    "scaleway", "voltage_park", "gmi", "together", "runpod", "vast",
+    "scaleway", "voltage_park", "gmi", "together", "massedcompute", "runpod", "vast",
     "sfcompute", "aws", "gcp", "azure", "oracle",
 ]
 
@@ -22,7 +22,8 @@ PROVIDER_LABELS = {
     "nebius": "Nebius", "coreweave": "CoreWeave", "lambda": "Lambda",
     "crusoe": "Crusoe", "hyperstack": "Hyperstack", "verda": "Verda",
     "scaleway": "Scaleway", "voltage_park": "Voltage Park", "gmi": "GMI Cloud",
-    "together": "Together AI", "runpod": "RunPod", "vast": "Vast.ai",
+    "together": "Together AI", "massedcompute": "Massed Compute",
+    "runpod": "RunPod", "vast": "Vast.ai",
     "sfcompute": "SF Compute", "aws": "AWS", "gcp": "GCP",
     "azure": "Azure", "oracle": "Oracle",
 }
@@ -44,7 +45,7 @@ PROVIDER_LABELS = {
 SIGNAL_CLASS = {
     "lambda": "live", "scaleway": "live", "runpod": "live",
     "voltage_park": "live", "hyperstack": "live", "verda": "live",
-    "together": "live",
+    "together": "live", "massedcompute": "live",
     "aws": "spot",            # becomes lead-time (live) once CB IAM lands
     "vast": "marketplace", "sfcompute": "marketplace",
     "gmi": "self_reported",
@@ -95,6 +96,11 @@ PROVIDERS = [
     "together",          # activates when TOGETHER_API_KEY (free account) lands
     "verda",             # activates when VERDA_CLIENT_ID/SECRET (free account) land
 ]
+
+# Optional authenticated inventory: a missing key is not a failed source.
+import os as _os
+if _os.environ.get("MASSED_COMPUTE_API_KEY", "").strip():
+    PROVIDERS.append("massedcompute")  # exact SKU/region stock only
 
 # Consumption-type display labels
 CT_LABELS = {

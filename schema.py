@@ -57,6 +57,8 @@ class PriceRecord:
     interconnect: str = ""          # IB | RoCE | Ethernet | NVLink | unknown
     form_factor: str = ""           # SXM | PCIe | NVL | unknown
     node_gpus: Optional[int] = None # GPUs in the full physical node (defaults to gpu_count)
+    price_basis: str = ""           # e.g. account_catalog; blank means not established
+    storage_gb: Optional[float] = None # SKU storage as published in GB; not per-GPU
 
     def __post_init__(self):
         # Derive provenance fields from data_source so existing fetchers and old

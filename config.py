@@ -125,6 +125,8 @@ if _os.environ.get("SFCOMPUTE_TOKEN"):
 # so the key doubles as the permission record. Ask support@shadeform.ai.
 if _os.environ.get("SHADEFORM_API_KEY"):
     PROVIDERS.append("shadeform")
+if _os.environ.get("MASSED_COMPUTE_API_KEY", "").strip():
+    PROVIDERS.append("massedcompute")
 # Note: set LAMBDA_API_KEY in the routine's environment variables for reliable Lambda Labs
 # API-based pricing. Without it, the scrape fallback is used.
 # Get a free key at: https://cloud.lambdalabs.com/api-keys
@@ -158,7 +160,7 @@ PROVIDER_TIERS = {
         "nebius", "coreweave", "lambda", "crusoe",
         "runpod",  # direct fetcher via runpod.py; cp_runpod from ComputePrices kept as cross-ref
         "hyperstack", "cp_hyperstack", "cp_voltage", "cp_runpod", "cp_digitalocean",
-        "cp_genesis", "cp_denvr-dataworks", "cp_massedcompute",
+        "cp_genesis", "cp_denvr-dataworks", "cp_massedcompute", "massedcompute",
         "cp_oblivus", "cp_gmi-cloud", "cp_atlas-cloud", "cp_seeweb",
         "cp_civo", "cp_tensordock", "cp_latitude", "cp_acecloud",
         "cp_scaleway", "cp_paperspace", "cp_jarvis", "cp_sesterce",

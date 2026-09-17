@@ -34,6 +34,8 @@ def _tag_cell(provider: str) -> str:
 def _prov_display(p: str) -> str:
     """Module-level provider display name (same rules as the nested _pname
     helpers used by the Slack renderers)."""
+    if p == "massedcompute":
+        return "Massed Compute (account catalogue)"
     _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi", "ai"}
     name = p.replace("cp_", "").replace("-", " ")
     return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
@@ -105,6 +107,7 @@ DIRECT_PROVIDERS = ["nebius", "aws", "gcp", "azure", "coreweave", "lambda", "cru
 
 # Canonical display names for provider codes — used throughout Confluence tables
 _PROVIDER_DISPLAY: Dict[str, str] = {
+    "massedcompute":  "Massed Compute (account catalogue)",
     "aws":            "AWS",
     "gcp":            "GCP",
     "azure":          "Azure",
@@ -929,7 +932,10 @@ def _rtx_market_stats(records: List[PriceRecord]):
     Nebius OD/spot/committed vs the full RTX market. Returns None when Nebius or
     competitor RTX prices are absent.
     """
-    rtx = [r for r in records if r.gpu_model == "RTX6000"]
+    # Account-specific catalogues remain visible as labelled observations in
+    # the market sweep, but cannot silently enter the public-market statistic.
+    rtx = [r for r in records if r.gpu_model == "RTX6000"
+           and r.price_basis != "account_catalog"]
     if not rtx:
         return None
     neb_od = min((r.price_per_gpu_hour_usd for r in rtx
@@ -1055,10 +1061,7 @@ def format_slack_summary(diffs: List[DiffEntry], run_date: str,
       the daily post never repeats it.
     """
     def _pname(p: str) -> str:
-        _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi", "ai"}
-        name = p.replace("cp_", "").replace("-", " ")
-        return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
-                        for w in name.split())
+        return _prov_display(p)
 
     lines = [f"*GPU Pricing Daily — {run_date}*"]
 
@@ -1367,10 +1370,7 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
         lines.append(self_move)
 
     def _pname(p: str) -> str:
-        _KEEP_UPPER = {"aws", "gcp", "gpu", "gmi", "ai"}
-        name = p.replace("cp_", "").replace("-", " ")
-        return " ".join(w.upper() if w.lower() in _KEEP_UPPER else w.title()
-                        for w in name.split())
+        return _prov_display(p)
 
     if records:
         enrich_comparability(records)  # ensure form_factor tags for cluster-class filtering

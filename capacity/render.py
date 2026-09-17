@@ -49,6 +49,7 @@ METHOD = {
     "hyperstack":   ("live",          "stock API: per-region counts + restock forecast (pending free key)"),
     "verda":        ("live",          "instance-availability API per location (pending free key)"),
     "together":     ("live",          "per-region capacity headroom API (pending free key)"),
+    "massedcompute": ("live",         "account inventory: exact SKU and reported region; quantity unit unverified; no multi-node or cluster assertion"),
     "aws":          ("spot",          "spot advisor pools (~weekly) now; Capacity Blocks lead time once IAM lands"),
     "vast":         ("marketplace",   "commodity marketplace depth: GPUs listed + floor price, not DC inventory"),
     "sfcompute":    ("marketplace",   "exchange clearing price (short-term reserve); price level = scarcity"),

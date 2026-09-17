@@ -1,0 +1,32 @@
+name: Check Massed inventory (read only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, codex/massed-compute-monitor]
+    paths:
+      - massedcompute_api.py
+      - fetchers/massedcompute.py
+      - capacity/fetchers/massedcompute.py
+      - scripts/check_massedcompute.py
+      - test_massedcompute*.py
+      - .github/workflows/massed-inventory-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline regression tests
+        run: python3 -m unittest discover -p 'test_massedcompute*.py'
+      - name: Verify secret and live inventory
+        env:
+          MASSED_COMPUTE_API_KEY: ${{ secrets.MASSED_COMPUTE_API_KEY }}
+        run: python3 scripts/check_massedcompute.py
