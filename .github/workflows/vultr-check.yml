@@ -1,0 +1,31 @@
+name: Check Vultr catalogue (read only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, codex/vultr-direct-api]
+    paths:
+      - fetchers/vultr.py
+      - scripts/check_vultr.py
+      - test_vultr*.py
+      - comparability.py
+      - source_priority.py
+      - diff.py
+      - .github/workflows/vultr-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline integration and comparison tests
+        run: python3 -m unittest discover -p 'test_vultr*.py'
+      - name: Verify public catalogue through daily dispatcher
+        run: python3 scripts/check_vultr.py

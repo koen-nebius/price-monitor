@@ -46,6 +46,9 @@ jobs:
       - name: Check inventory integration
         run: python3 -m unittest discover -p 'test_massedcompute*.py'
 
+      - name: Check Vultr catalogue qualification
+        run: python3 -m unittest discover -p 'test_vultr*.py'
+
       - name: Merge field-intel inbox (Confluence -> intel.csv)
         # Plan-2 migration (2026-07-10): the posting routine parks extracted
         # intel on the Confluence "Field Intel Inbox" page (2054817562) because

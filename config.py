@@ -114,7 +114,8 @@ PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "
              "modal",           # serverless platform, direct fetcher (2026-09-02 Koen ask);
                                 # cp_modal stays SKIPPED in computeprices.py — the aggregator
                                 # misreads Modal's per-second rates as $/hr (H100 "$0.07")
-             "baseten"]         # managed inference platform, direct fetcher (2026-09-02 Koen ask)
+             "baseten",         # managed inference platform, direct fetcher (2026-09-02 Koen ask)
+             "vultr"]           # public bare-metal API; deployment-qualified catalogue
 # SF Compute transacted fills need a free bearer token; only register the
 # provider when the token is present so quiet skips don't read as failures.
 import os as _os
@@ -165,7 +166,7 @@ PROVIDER_TIERS = {
         "cp_civo", "cp_tensordock", "cp_latitude", "cp_acecloud",
         "cp_scaleway", "cp_paperspace", "cp_jarvis", "cp_sesterce",
         "cp_upcloud", "cp_beyond-pl", "cp_koyeb", "cp_ionet",
-        "cp_vast", "cp_vultr", "cp_verda", "verda", "cp_akamai",   # verda = direct API fetcher (verda.py); cp_verda kept as cross-ref
+        "cp_vast", "cp_vultr", "vultr", "cp_verda", "verda", "cp_akamai",   # verda = direct API fetcher (verda.py); cp_verda kept as cross-ref
         "cp_packet-ai", "cp_gcore", "together",  # Together = direct fetcher (together.py); also enterprise tier
         "sfcompute",  # spot-market exchange (H100 clearing price) — distinct pricing mechanism
         "sf_boostrun", "sf_imwt", "sf_horizon", "sf_phyntec", "sf_amaya",  # Shadeform long tail (shadeform.py)

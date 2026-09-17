@@ -46,6 +46,7 @@ from diff import (compute_diff, format_slack_message, format_slack_summary,
 from history import append_records as append_history_records
 from config import PROVIDERS
 from schema import PriceRecord
+from comparability import is_qualified_catalogue_reference
 
 logging.basicConfig(
     level=logging.INFO,
@@ -267,7 +268,8 @@ def run(providers=None, test=False):
 
     # Prefer live direct Massed observations only for the GPU/tier actually
     # covered. On a failed direct fetch, retain the aggregator fallback.
-    from source_priority import prefer_massed_direct
+    from source_priority import prefer_massed_direct, exclude_superseded_vultr
+    all_records = exclude_superseded_vultr(all_records)
     all_records = prefer_massed_direct(
         all_records, provider_status.get("massedcompute", {}).get("status") == "live"
     )
@@ -347,7 +349,7 @@ def run(providers=None, test=False):
             # an aggregator's third-hand Nebius data isn't a valid check on us.
             ours: Dict[tuple, tuple] = {}
             for r in accepted_records:
-                if r.provider == "nebius":
+                if r.provider == "nebius" or is_qualified_catalogue_reference(r):
                     continue
                 if r.consumption_type == "on_demand" and r.data_source in ("official_api", "web_scrape"):
                     k = (r.provider, r.gpu_model)
@@ -426,7 +428,7 @@ def run(providers=None, test=False):
         if gh:
             ours_gh: Dict[tuple, tuple] = {}
             for r in accepted_records:
-                if r.provider == "nebius":
+                if r.provider == "nebius" or is_qualified_catalogue_reference(r):
                     continue
                 if r.consumption_type == "on_demand" and r.data_source in ("official_api", "web_scrape"):
                     k = (r.provider, r.gpu_model)
@@ -714,6 +716,7 @@ PROVIDER_MODULES = {
     "baseten": "baseten",
     "shadeform": "shadeform",   # key-gated marketplace aggregator (2026-09-15)
     "massedcompute": "massedcompute",
+    "vultr": "vultr",
 }
 
 

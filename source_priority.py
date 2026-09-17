@@ -2,6 +2,17 @@
 import math
 
 MASSED_ALIASES = {"cp_massedcompute", "cp_massed-compute", "sf_massedcompute"}
+VULTR_ALIASES = {"cp_vultr", "cp_vultr-cloud", "cp_vultr_cloud", "sf_vultr"}
+
+
+def exclude_superseded_vultr(records):
+    """Do not revive unqualified Vultr starting-at prices on API/cache failure.
+
+    The public bare-metal API qualifies deployment rights and full-node hourly
+    prices. Historical aggregator observations do neither, so they cannot act
+    as PAYG fallbacks. Preserve direct catalogue rows and unrelated providers.
+    """
+    return [r for r in records if r.provider not in VULTR_ALIASES]
 
 
 def prefer_massed_direct(records, direct_live):
