@@ -19,6 +19,9 @@ kept in the provider's units. `num_slices` describes the resource, while
 Alternative configurations may share capacity; their quantities must not
 be added together. These records establish neither multi-node cluster
 availability nor this account's ability to purchase a resource.
+Identical duplicate observations are deduplicated. Conflicting quantities
+or slice/quota contexts for the same configuration/location are marked
+unconfirmed; the monitor does not choose the most favorable quantity.
 
 Exact rows appear in a separate capacity table. They do not enter global
 cluster tightness or a price/capacity join without a matching commercial

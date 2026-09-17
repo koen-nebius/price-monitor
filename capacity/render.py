@@ -486,7 +486,7 @@ def _render_thread(records, diff, manifest, old_records) -> str:
             lines.append(f"_Observed: {common_observation}_")
         for row in quantity_rows[:8]:
             value = f"{row.metric_value:g}" if row.metric_value is not None else "unreported"
-            qualifier = " (eligibility unconfirmed)" if row.state == "unknown" else ""
+            qualifier = " (observation unconfirmed)" if row.state == "unknown" else ""
             observed = "" if common_observation else f" · observed {_observed_time(row.fetched_at)}"
             lines.append(f"• {row.instance_type} · {row.region}: quantity {value}{qualifier}{observed}")
         if len(quantity_rows) > 8:
@@ -618,7 +618,7 @@ def _crusoe_quantity_table(records: List[AvailabilityRecord], manifest: dict = N
          "<th>Observed at</th><th>Evidence</th></tr>"]
     for row in rows:
         value = f"{row.metric_value:g}" if row.metric_value is not None else "Unreported"
-        state = {"available": "Positive quantity", "sold_out": "Zero reported", "unknown": "Eligibility unconfirmed"}.get(row.state, row.state)
+        state = {"available": "Positive quantity", "sold_out": "Zero reported", "unknown": "Observation unconfirmed"}.get(row.state, row.state)
         source = f'<a href="{_esc(row.source_url)}">Source</a>' if row.source_url else ""
         h.append(f"<tr><td>{_esc(row.gpu_model)}</td><td>{_esc(row.instance_type)}</td>"
                  f"<td>{_esc(row.region)}</td><td>{_esc(value)}</td><td>{_esc(state)}</td>"

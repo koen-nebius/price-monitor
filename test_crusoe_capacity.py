@@ -41,7 +41,7 @@ class CrusoeCapacityTests(unittest.TestCase):
         self.assertIn("quota_type=PROJECT_QUOTA_TYPE_H100", rows[0].detail)
         self.assertIn("quota, reservation eligibility and multi-node stock not established", rows[0].detail)
         self.assertEqual((rows[0].source_url, rows[0].fetched_at, rows[0].parser_version),
-                         (api.API_URL, NOW, "crusoe-capacity-2.0"))
+                         (api.API_URL, NOW, "crusoe-capacity-2.1"))
 
     def test_supported_models_and_no_substring_confusion(self):
         skus = ["h100.1x", "h200.8x", "b200.8x", "b300.8x", "gb200.4x", "gb300.4x", "l40s.1x",
@@ -59,14 +59,35 @@ class CrusoeCapacityTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             crusoe.parse({"items": [record]})
 
-    def test_invalid_identity_slices_quota_and_duplicate_rows_fail(self):
+    def test_invalid_identity_slices_and_quota_fail(self):
         for record in [item(location=""), item(location=None), item(sku="h100\nsecret"),
                        item(num_slices=-1), item(num_slices=True), item(quota_type={}),
                        item(quota_type="bad\nvalue"), None]:
             with self.subTest(record=record), self.assertRaises(ValueError):
                 crusoe.parse({"items": [record]})
-        with self.assertRaises(ValueError):
-            crusoe.parse({"items": [item(), item()]})
+
+    def test_identical_duplicate_rows_are_one_observation(self):
+        rows = crusoe.parse({"items": [item(), item(), item()]}, NOW)
+        self.assertEqual(rows, crusoe.parse({"items": [item()]}, NOW))
+        self.assertEqual((rows[0].state, rows[0].metric_value), ("available", 3.0))
+
+    def test_conflicting_duplicates_are_unknown_and_order_independent(self):
+        left = item(quantity=0, num_slices=1, quota_type="QUOTA_ONE")
+        right = item(quantity=8, num_slices=8, quota_type="QUOTA_TWO")
+        rows = crusoe.parse({"items": [left, right, right]}, NOW)
+        reverse = crusoe.parse({"items": [right, left, left]}, NOW)
+        self.assertEqual(rows, reverse)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual((rows[0].state, rows[0].metric_value), ("unknown", None))
+        self.assertEqual((rows[0].instance_type, rows[0].region), (left["type"], left["location"]))
+        for evidence in ["Ambiguous duplicate", "API quantity 0", "API quantity 8", "num_slices=1", "num_slices=8", "QUOTA_ONE", "QUOTA_TWO", "no aggregate quantity or stock verdict"]:
+            self.assertIn(evidence, rows[0].detail)
+
+    def test_same_quantity_with_conflicting_slice_or_quota_context_is_unknown(self):
+        for changed in [item(num_slices=1), item(quota_type="DIFFERENT_QUOTA"), item(reservation_id="private-id")]:
+            rows = crusoe.parse({"items": [item(), changed]})
+            self.assertEqual((rows[0].state, rows[0].metric_value), ("unknown", None))
+            self.assertNotIn("private-id", rows[0].detail)
 
     def test_reservation_context_never_becomes_open_availability(self):
         for field in ["reservation_id", "reservation", "reservation_specification", "reserved", "is_reserved", "requires_reservation"]:

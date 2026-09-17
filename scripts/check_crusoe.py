@@ -3,7 +3,7 @@ import json
 import logging
 import os
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 from unittest.mock import patch
 
@@ -20,8 +20,14 @@ def main():
             raise ValueError("Both Crusoe credentials are required")
         payload = fetch_capacities()
         # Schema-only diagnostics, never raw values or response content.
+        groups = defaultdict(list)
+        for item in payload["items"]:
+            if isinstance(item, dict) and isinstance(item.get("type"), str) and isinstance(item.get("location"), str):
+                groups[(item["type"], item["location"])].append(json.dumps(item, sort_keys=True))
         structure = {
             "api_items": len(payload["items"]),
+            "repeated_resource_locations": sum(len(rows) > 1 for rows in groups.values()),
+            "conflicting_resource_locations": sum(len(set(rows)) > 1 for rows in groups.values()),
             "field_types": {field: dict(Counter(type(item.get(field)).__name__
                                                 for item in payload["items"]
                                                 if isinstance(item, dict)))
@@ -54,7 +60,9 @@ def main():
         return 0
     except Exception as exc:
         # Exception text, headers and bodies can contain sensitive values.
-        print(f"Crusoe capacity check failed ({type(exc).__name__}); check secrets and API access.",
+        status = getattr(exc, "http_status", None)
+        reason = f"HTTP {status}" if type(status) is int and 100 <= status <= 599 else type(exc).__name__
+        print(f"Crusoe capacity check failed ({reason}); check secrets and API access.",
               file=sys.stderr)
         return 1
 

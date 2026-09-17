@@ -12,6 +12,7 @@ inferred. API errors and partial credentials never fall back to docs.
 """
 import logging
 import re
+from dataclasses import replace
 from datetime import datetime, timezone
 from typing import List
 
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 URL = "https://docs.crusoecloud.com/compute/virtual-machines/overview/index.html"
 SOURCE_URL = URL
-PARSER_VERSION = "crusoe-capacity-2.0"
+PARSER_VERSION = "crusoe-capacity-2.1"
 
 _PARSE_ERROR_REASONS = {
     "Crusoe capacity response has no items array",
@@ -30,7 +31,6 @@ _PARSE_ERROR_REASONS = {
     "Crusoe capacity contains an invalid item",
     "Crusoe capacity has an invalid instance type",
     "Crusoe capacity has an invalid location",
-    "Crusoe capacity repeats an exact resource/location",
     "Crusoe capacity has an invalid quota_type",
     "Crusoe capacity has invalid quantity",
     "Crusoe capacity has invalid num_slices",
@@ -133,7 +133,7 @@ def parse(payload: dict, fetched_at: str = "") -> List[AvailabilityRecord]:
         raise CrusoeParseError("Crusoe capacity response has no items array")
     if payload.get("next_page_token") or payload.get("next_token"):
         raise CrusoeParseError("Crusoe capacity returned unsupported pagination")
-    records, seen = [], set()
+    by_identity = {}
     for item in items:
         if not isinstance(item, dict):
             raise CrusoeParseError("Crusoe capacity contains an invalid item")
@@ -150,9 +150,6 @@ def parse(payload: dict, fetched_at: str = "") -> List[AvailabilityRecord]:
         if not isinstance(location, str) or not re.fullmatch(r"[a-z][a-z0-9-]{1,79}", location):
             raise CrusoeParseError("Crusoe capacity has an invalid location")
         key = (sku, location)
-        if key in seen:
-            raise CrusoeParseError("Crusoe capacity repeats an exact resource/location")
-        seen.add(key)
         quantity = _uint32(item.get("quantity"), "quantity")
         parts = [f"API quantity {quantity} (provider units)"]
         if "num_slices" in item:
@@ -176,12 +173,29 @@ def parse(payload: dict, fetched_at: str = "") -> List[AvailabilityRecord]:
         parts.append("account quota, reservation eligibility and multi-node stock not established")
         # 'global' is a special aggregation sentinel in the existing renderer.
         region = "global (reported location)" if location == "global" else location
-        records.append(AvailabilityRecord(
+        record = AvailabilityRecord(
             provider="crusoe", gpu_model=model, region=region,
             consumption_type="on_demand", state=state,
             metric_type="provider_quantity", metric_value=float(quantity),
             detail="; ".join(parts), instance_type=sku, fetched_at=fetched_at,
             source_url=API_URL, data_source="official_api", parser_version=PARSER_VERSION,
+        )
+        # The live API can repeat a type/location. Identical normalized evidence
+        # is one observation; conflicting quantities, slices, quota categories
+        # or reservation context must not be summed or resolved optimistically.
+        by_identity.setdefault(key, {})[record.detail] = record
+    records = []
+    suffix = "; account quota, reservation eligibility and multi-node stock not established"
+    for variants in by_identity.values():
+        if len(variants) == 1:
+            records.append(next(iter(variants.values())))
+            continue
+        details = sorted(variants)
+        candidates = " | ".join("[" + detail.removesuffix(suffix) + "]" for detail in details)
+        records.append(replace(
+            variants[details[0]], state="unknown", metric_value=None,
+            detail="Ambiguous duplicate API observations; candidates: " + candidates
+                   + "; no aggregate quantity or stock verdict assigned" + suffix,
         ))
     return records
 
