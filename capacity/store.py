@@ -30,6 +30,7 @@ HISTORY_COLUMNS = [
     "date", "provider", "gpu_model", "region", "consumption_type",
     "state", "metric_type", "metric_value",
     "instance_type", "data_source", "fetched_at", "source_url", "parser_version", "detail",
+    "product_scope", "gpu_count", "quantity_relation",
 ]
 
 
