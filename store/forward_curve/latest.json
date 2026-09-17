@@ -1,5 +1,5 @@
 {
- "as_of": "2026-09-16",
+ "as_of": "2026-09-17",
  "method_version": "1.4 (2026-09-16)",
  "params": {
   "prepay_a": 0.0345,
@@ -39,9 +39,9 @@
   ]
  },
  "quarter_effects_log": {
-  "2025Q4": -0.444,
-  "2026Q1": -0.4033,
-  "2026Q2": -0.199,
+  "2025Q4": -0.445,
+  "2026Q1": -0.4034,
+  "2026Q2": -0.1951,
   "2026Q3": 0.0
  },
  "n_observations": {
@@ -55,7 +55,7 @@
   "bid_review": 7,
   "bid_in_window_review": 6,
   "ask": 55,
-  "public": 17,
+  "public": 16,
   "ask_deals": 229
  },
  "sources": {
@@ -63,7 +63,7 @@
   "reserve_tenor_generated": "2026-09-15",
   "public_contracts": 20,
   "grid_version": "2026-09-07",
-  "list_snapshot": "2026-09-16",
+  "list_snapshot": "2026-09-17",
   "cost_floor": "SemiAnalysis AI-Cloud TCO model (Aug-10-2026), Full TCO row 147, Neocloud Giant profile; VR = NVL72 2300W variant"
  },
  "grid": {
@@ -350,8 +350,8 @@
    "recent_raw_median": 2.0,
    "n_recent90": 1,
    "mark_recent": null,
-   "mark_known": 2.44,
-   "mark_all": 2.44,
+   "mark_known": 2.43,
+   "mark_all": 2.43,
    "public_median": null,
    "grid": null,
    "grid_100": null,
@@ -359,7 +359,7 @@
    "bid_median": null,
    "bid_median_all": null,
    "bid_median_unstated": null,
-   "ask_median": 2.44,
+   "ask_median": 2.43,
    "list_nebius": null,
    "list_hyperscaler_min": 3.933,
    "list_hyperscaler_provider": "aws",
@@ -372,23 +372,18 @@
    ],
    "list_peers": [
     {
-     "provider": "together",
-     "price": 1.99,
-     "instance_type": "together-hgx-h100"
-    },
-    {
      "provider": "cp_civo",
      "price": 2.79,
      "instance_type": "civo-h100-1x"
     }
    ],
-   "list_peer_min": 1.99,
-   "list_peer_provider": "together",
+   "list_peer_min": 2.79,
+   "list_peer_provider": "cp_civo",
    "cost_floor": 1.55,
-   "mark": 2.44,
+   "mark": 2.43,
    "has_mark": true,
-   "range_lo": 2.44,
-   "range_hi": 2.44,
+   "range_lo": 2.43,
+   "range_hi": 2.43,
    "range_recent": true,
    "confidence": "thin",
    "confidence_reason": "one provider only",
@@ -436,8 +431,8 @@
    "cost_floor": 1.55,
    "mark": 2.62,
    "has_mark": true,
-   "range_lo": 3.06,
-   "range_hi": 3.06,
+   "range_lo": 3.05,
+   "range_hi": 3.05,
    "range_recent": true,
    "confidence": "thin",
    "confidence_reason": "one provider only",
@@ -449,7 +444,7 @@
    "tenor_months": 12,
    "label": "12m",
    "n_obs": 26,
-   "n_recent": 4,
+   "n_recent": 3,
    "n_bid": 4,
    "n_ask": 5,
    "n_public": 0,
@@ -461,7 +456,7 @@
    "n_ask_withheld": 1,
    "ask_deals_withheld": 2,
    "achieved_only": false,
-   "n_old": 22,
+   "n_old": 23,
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
@@ -480,9 +475,9 @@
    },
    "grid_100": 3.05,
    "grid_50": 3.21,
-   "bid_median": 3.13,
-   "bid_median_all": 2.87,
-   "bid_median_unstated": 2.44,
+   "bid_median": 3.14,
+   "bid_median_all": 2.86,
+   "bid_median_unstated": 2.43,
    "ask_median": 2.56,
    "list_nebius": 2.3,
    "list_hyperscaler_min": 5.0568,
@@ -526,12 +521,12 @@
    "cost_floor": 1.55,
    "mark": 2.56,
    "has_mark": true,
-   "range_lo": 2.2,
-   "range_hi": 2.49,
+   "range_lo": 2.48,
+   "range_hi": 2.48,
    "range_recent": true,
    "confidence": "good",
    "confidence_reason": null,
-   "spread_pct": -0.182,
+   "spread_pct": -0.185,
    "reason": null
   },
   {
@@ -613,7 +608,7 @@
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
-   "mark_known": 2.28,
+   "mark_known": 2.27,
    "mark_all": null,
    "public_median": null,
    "grid": {
@@ -631,7 +626,7 @@
    "bid_median": null,
    "bid_median_all": null,
    "bid_median_unstated": null,
-   "ask_median": 2.28,
+   "ask_median": 2.27,
    "list_nebius": 2.05,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
@@ -651,10 +646,10 @@
    "list_peer_min": 2.2,
    "list_peer_provider": "cp_1legion-com",
    "cost_floor": 1.55,
-   "mark": 2.28,
+   "mark": 2.27,
    "has_mark": true,
-   "range_lo": 2.28,
-   "range_hi": 2.28,
+   "range_lo": 2.27,
+   "range_hi": 2.27,
    "range_recent": true,
    "confidence": "thin",
    "confidence_reason": "fewer than 6 observations",
@@ -684,7 +679,7 @@
    "mark_recent": null,
    "mark_known": null,
    "mark_all": null,
-   "public_median": 2.49,
+   "public_median": 2.5,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
@@ -802,8 +797,8 @@
    "recent_raw_median": 2.5,
    "n_recent90": 1,
    "mark_recent": null,
-   "mark_known": 3.05,
-   "mark_all": 3.05,
+   "mark_known": 3.04,
+   "mark_all": 3.04,
    "public_median": null,
    "grid": null,
    "grid_100": null,
@@ -811,7 +806,7 @@
    "bid_median": null,
    "bid_median_all": 2.1,
    "bid_median_unstated": 2.1,
-   "ask_median": 3.05,
+   "ask_median": 3.04,
    "list_nebius": null,
    "list_hyperscaler_min": 4.975,
    "list_hyperscaler_provider": "aws",
@@ -824,11 +819,6 @@
    ],
    "list_peers": [
     {
-     "provider": "together",
-     "price": 2.99,
-     "instance_type": "together-hgx-h200"
-    },
-    {
      "provider": "cp_civo",
      "price": 3.29,
      "instance_type": "civo-h200-1x"
@@ -839,13 +829,13 @@
      "instance_type": "cloud-theai-h200-1x"
     }
    ],
-   "list_peer_min": 2.99,
-   "list_peer_provider": "together",
+   "list_peer_min": 3.29,
+   "list_peer_provider": "cp_civo",
    "cost_floor": 1.59,
-   "mark": 3.05,
+   "mark": 3.04,
    "has_mark": true,
-   "range_lo": 3.05,
-   "range_hi": 3.05,
+   "range_lo": 3.04,
+   "range_hi": 3.04,
    "range_recent": true,
    "confidence": "thin",
    "confidence_reason": "one provider only",
@@ -893,8 +883,8 @@
    "cost_floor": 1.59,
    "mark": 2.99,
    "has_mark": true,
-   "range_lo": 2.85,
-   "range_hi": 2.85,
+   "range_lo": 2.84,
+   "range_hi": 2.84,
    "range_recent": true,
    "confidence": "thin",
    "confidence_reason": "one provider only",
@@ -983,7 +973,7 @@
    "cost_floor": 1.59,
    "mark": 2.95,
    "has_mark": true,
-   "range_lo": 2.75,
+   "range_lo": 2.74,
    "range_hi": 3.19,
    "range_recent": true,
    "confidence": "good",
@@ -1274,19 +1264,13 @@
      "instance_type": "p6-b200.48xlarge"
     }
    ],
-   "list_peers": [
-    {
-     "provider": "together",
-     "price": 4.09,
-     "instance_type": "together-hgx-b200"
-    }
-   ],
-   "list_peer_min": 4.09,
-   "list_peer_provider": "together",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 2.07,
    "mark": 4.56,
    "has_mark": true,
-   "range_lo": 2.99,
+   "range_lo": 2.98,
    "range_hi": 4.95,
    "range_recent": true,
    "confidence": "thin",
@@ -1348,7 +1332,7 @@
    "tenor_months": 12,
    "label": "12m",
    "n_obs": 33,
-   "n_recent": 9,
+   "n_recent": 8,
    "n_bid": 14,
    "n_ask": 6,
    "n_public": 0,
@@ -1360,18 +1344,18 @@
    "n_ask_withheld": 0,
    "ask_deals_withheld": 0,
    "achieved_only": false,
-   "n_old": 24,
+   "n_old": 25,
    "recent_raw_median": 5.15,
    "n_recent90": 3,
    "mark_recent": 5.18,
-   "mark_known": 5.14,
-   "mark_all": 4.79,
+   "mark_known": 5.18,
+   "mark_all": 5.04,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 4.65,
-   "bid_median_all": 4.49,
+   "bid_median": 4.71,
+   "bid_median_all": 4.5,
    "bid_median_unstated": 4.19,
    "ask_median": 5.18,
    "list_nebius": 4.89,
@@ -1404,14 +1388,14 @@
    "list_peer_min": 4.49,
    "list_peer_provider": "cp_civo",
    "cost_floor": 2.07,
-   "mark": 5.14,
+   "mark": 5.18,
    "has_mark": true,
-   "range_lo": 4.15,
+   "range_lo": 4.41,
    "range_hi": 5.9,
    "range_recent": true,
    "confidence": "good",
    "confidence_reason": null,
-   "spread_pct": 0.114,
+   "spread_pct": 0.1,
    "reason": null
   },
   {
@@ -1484,9 +1468,9 @@
    "recent_raw_median": 3.69,
    "n_recent90": 1,
    "mark_recent": null,
-   "mark_known": 4.75,
+   "mark_known": 4.73,
    "mark_all": 4.27,
-   "public_median": 3.54,
+   "public_median": 3.52,
    "grid": {
     "version": "2026-09-07",
     "segment": "ai_native_above_512",
@@ -1499,7 +1483,7 @@
    },
    "grid_100": 6.44,
    "grid_50": 6.9,
-   "bid_median": 4.75,
+   "bid_median": 4.73,
    "bid_median_all": 4.27,
    "bid_median_unstated": 4.19,
    "ask_median": null,
@@ -1522,10 +1506,10 @@
    "list_peer_min": 3.99,
    "list_peer_provider": "cp_civo",
    "cost_floor": 2.07,
-   "mark": 4.75,
+   "mark": 4.73,
    "has_mark": true,
-   "range_lo": 4.75,
-   "range_hi": 4.75,
+   "range_lo": 4.73,
+   "range_hi": 4.73,
    "range_recent": true,
    "confidence": "thin",
    "confidence_reason": "fewer than 6 observations",
@@ -1553,9 +1537,9 @@
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
-   "mark_known": 4.49,
-   "mark_all": 4.49,
-   "public_median": 5.14,
+   "mark_known": 4.47,
+   "mark_all": 4.47,
+   "public_median": 5.15,
    "grid": {
     "version": "2026-09-07",
     "segment": "ai_native_above_512",
@@ -1568,9 +1552,9 @@
    },
    "grid_100": 5.15,
    "grid_50": 5.93,
-   "bid_median": 4.49,
-   "bid_median_all": 4.49,
-   "bid_median_unstated": 4.88,
+   "bid_median": 4.47,
+   "bid_median_all": 4.47,
+   "bid_median_unstated": 4.86,
    "ask_median": null,
    "list_nebius": 4.15,
    "list_hyperscaler_min": 7.0884,
@@ -1592,10 +1576,10 @@
    "list_peer_min": 3.79,
    "list_peer_provider": "cp_civo",
    "cost_floor": 2.07,
-   "mark": 4.49,
+   "mark": 4.47,
    "has_mark": true,
-   "range_lo": 4.49,
-   "range_hi": 4.49,
+   "range_lo": 4.47,
+   "range_hi": 4.47,
    "range_recent": true,
    "confidence": "thin",
    "confidence_reason": "fewer than 6 observations",
@@ -1673,7 +1657,7 @@
    "n_recent90": 0,
    "mark_recent": null,
    "mark_known": 5.09,
-   "mark_all": 6.4,
+   "mark_all": 6.41,
    "public_median": null,
    "grid": null,
    "grid_100": null,
@@ -1705,7 +1689,7 @@
    "mark": 5.09,
    "has_mark": true,
    "range_lo": 5.09,
-   "range_hi": 6.4,
+   "range_hi": 6.41,
    "range_recent": false,
    "confidence": "thin",
    "confidence_reason": "one provider only",
@@ -1783,15 +1767,15 @@
    "n_recent90": 4,
    "mark_recent": 5.48,
    "mark_known": 5.48,
-   "mark_all": 6.05,
+   "mark_all": 6.03,
    "public_median": 5.24,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 4.76,
+   "bid_median": 4.74,
    "bid_median_all": 5.14,
    "bid_median_unstated": 7.94,
-   "ask_median": 6.05,
+   "ask_median": 6.03,
    "list_nebius": 5.29,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
@@ -1819,11 +1803,11 @@
    "mark": 5.48,
    "has_mark": true,
    "range_lo": 4.3,
-   "range_hi": 6.78,
+   "range_hi": 6.76,
    "range_recent": true,
    "confidence": "good",
    "confidence_reason": null,
-   "spread_pct": 0.271,
+   "spread_pct": 0.272,
    "reason": null
   },
   {
@@ -1853,8 +1837,8 @@
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 5.46,
-   "bid_median_all": 5.46,
+   "bid_median": 5.44,
+   "bid_median_all": 5.44,
    "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
@@ -1896,8 +1880,8 @@
    "recent_raw_median": 5.39,
    "n_recent90": 3,
    "mark_recent": 4.67,
-   "mark_known": 5.7,
-   "mark_all": 5.57,
+   "mark_known": 5.68,
+   "mark_all": 5.56,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -1911,10 +1895,10 @@
    },
    "grid_100": 6.69,
    "grid_50": 7.15,
-   "bid_median": 5.56,
-   "bid_median_all": 5.56,
+   "bid_median": 5.55,
+   "bid_median_all": 5.55,
    "bid_median_unstated": 4.57,
-   "ask_median": 5.7,
+   "ask_median": 5.68,
    "list_nebius": 4.95,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
@@ -1939,14 +1923,14 @@
    "list_peer_min": 4.9,
    "list_peer_provider": "cp_cloud-theai",
    "cost_floor": 2.43,
-   "mark": 5.7,
+   "mark": 5.68,
    "has_mark": true,
-   "range_lo": 5.0,
-   "range_hi": 6.47,
+   "range_lo": 4.99,
+   "range_hi": 6.44,
    "range_recent": true,
    "confidence": "good",
    "confidence_reason": null,
-   "spread_pct": 0.025,
+   "spread_pct": 0.023,
    "reason": null
   },
   {
@@ -1972,7 +1956,7 @@
    "mark_recent": 4.36,
    "mark_known": 4.86,
    "mark_all": 4.86,
-   "public_median": 4.06,
+   "public_median": 4.05,
    "grid": {
     "version": "2026-09-07",
     "segment": "ai_native_above_512",
@@ -1987,7 +1971,7 @@
    "grid_50": 6.18,
    "bid_median": 4.9,
    "bid_median_all": 4.9,
-   "bid_median_unstated": 4.65,
+   "bid_median_unstated": 4.63,
    "ask_median": 4.86,
    "list_nebius": 4.55,
    "list_hyperscaler_min": null,
@@ -2006,7 +1990,7 @@
    "mark": 4.86,
    "has_mark": true,
    "range_lo": 3.2,
-   "range_hi": 6.55,
+   "range_hi": 6.52,
    "range_recent": true,
    "confidence": "good",
    "confidence_reason": null,
@@ -2036,12 +2020,12 @@
    "mark_recent": null,
    "mark_known": null,
    "mark_all": null,
-   "public_median": 3.69,
+   "public_median": 3.68,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 4.75,
-   "bid_median_all": 4.75,
+   "bid_median": 4.73,
+   "bid_median_all": 4.73,
    "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
@@ -2450,8 +2434,8 @@
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 7.38,
-   "bid_median_all": 7.38,
+   "bid_median": 7.36,
+   "bid_median_all": 7.36,
    "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
@@ -2542,16 +2526,16 @@
    "recent_raw_median": 5.5,
    "n_recent90": 1,
    "mark_recent": null,
-   "mark_known": 7.24,
-   "mark_all": 7.24,
+   "mark_known": 7.21,
+   "mark_all": 7.21,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 6.83,
-   "bid_median_all": 6.83,
+   "bid_median": 6.8,
+   "bid_median_all": 6.8,
    "bid_median_unstated": null,
-   "ask_median": 7.24,
+   "ask_median": 7.21,
    "list_nebius": 5.88,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
@@ -2560,10 +2544,10 @@
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
-   "mark": 7.24,
+   "mark": 7.21,
    "has_mark": true,
-   "range_lo": 6.83,
-   "range_hi": 7.24,
+   "range_lo": 6.8,
+   "range_hi": 7.21,
    "range_recent": true,
    "confidence": "good",
    "confidence_reason": null,
@@ -2655,9 +2639,9 @@
    },
    "grid_100": 8.91,
    "grid_50": 9.52,
-   "bid_median": 6.38,
-   "bid_median_all": 5.49,
-   "bid_median_unstated": 5.49,
+   "bid_median": 6.36,
+   "bid_median_all": 5.47,
+   "bid_median_unstated": 5.47,
    "ask_median": null,
    "list_nebius": 5.62,
    "list_hyperscaler_min": null,
@@ -2698,8 +2682,8 @@
    "recent_raw_median": 5.0,
    "n_recent90": 1,
    "mark_recent": 5.62,
-   "mark_known": 5.29,
-   "mark_all": 5.25,
+   "mark_known": 5.28,
+   "mark_all": 5.23,
    "public_median": null,
    "grid": {
     "version": "2026-09-07",
@@ -2713,10 +2697,10 @@
    },
    "grid_100": 7.21,
    "grid_50": 8.24,
-   "bid_median": 4.88,
-   "bid_median_all": 4.64,
-   "bid_median_unstated": 4.64,
-   "ask_median": 6.86,
+   "bid_median": 4.86,
+   "bid_median_all": 4.62,
+   "bid_median_unstated": 4.62,
+   "ask_median": 6.83,
    "list_nebius": 5.19,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
@@ -2725,14 +2709,14 @@
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 2.79,
-   "mark": 5.29,
+   "mark": 5.28,
    "has_mark": true,
-   "range_lo": 4.27,
-   "range_hi": 6.86,
+   "range_lo": 4.25,
+   "range_hi": 6.83,
    "range_recent": true,
    "confidence": "good",
    "confidence_reason": null,
-   "spread_pct": 0.406,
+   "spread_pct": 0.405,
    "reason": null
   },
   {
@@ -2743,7 +2727,7 @@
    "n_recent": 0,
    "n_bid": 1,
    "n_ask": 0,
-   "n_public": 7,
+   "n_public": 6,
    "n_known": 1,
    "n_bid_unstated": 1,
    "n_all": 2,
@@ -2758,11 +2742,11 @@
    "mark_recent": null,
    "mark_known": null,
    "mark_all": null,
-   "public_median": 3.09,
+   "public_median": 3.59,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 4.56,
+   "bid_median": 4.54,
    "bid_median_all": 3.7,
    "bid_median_unstated": 3.7,
    "ask_median": null,
@@ -3050,14 +3034,14 @@
    "recent_raw_median": null,
    "n_recent90": 0,
    "mark_recent": null,
-   "mark_known": 7.1,
-   "mark_all": 6.07,
+   "mark_known": 7.07,
+   "mark_all": 6.05,
    "public_median": null,
    "grid": null,
    "grid_100": null,
    "grid_50": null,
-   "bid_median": 7.1,
-   "bid_median_all": 6.07,
+   "bid_median": 7.07,
+   "bid_median_all": 6.05,
    "bid_median_unstated": 5.5,
    "ask_median": null,
    "list_nebius": null,
@@ -3068,10 +3052,10 @@
    "list_peer_min": null,
    "list_peer_provider": "",
    "cost_floor": 4.02,
-   "mark": 7.1,
+   "mark": 7.07,
    "has_mark": true,
-   "range_lo": 7.1,
-   "range_hi": 7.1,
+   "range_lo": 7.07,
+   "range_hi": 7.07,
    "range_recent": true,
    "confidence": "thin",
    "confidence_reason": "fewer than 6 observations",
@@ -3140,34 +3124,34 @@
  "shape": [
   {
    "tier": "H100",
-   "mark_3m": 2.44,
+   "mark_3m": 2.43,
    "mark_12m": 2.56,
    "mark_36m": null,
    "mark_60m": null,
    "slope_12_36_pct": null,
-   "short_end_premium_pct": -0.047,
+   "short_end_premium_pct": -0.051,
    "structure": null,
    "cost_floor": 1.55
   },
   {
    "tier": "H200",
-   "mark_3m": 3.05,
+   "mark_3m": 3.04,
    "mark_12m": 2.95,
    "mark_36m": null,
    "mark_60m": null,
    "slope_12_36_pct": null,
-   "short_end_premium_pct": 0.034,
+   "short_end_premium_pct": 0.031,
    "structure": null,
    "cost_floor": 1.59
   },
   {
    "tier": "B200",
    "mark_3m": 4.56,
-   "mark_12m": 5.14,
-   "mark_36m": 4.49,
+   "mark_12m": 5.18,
+   "mark_36m": 4.47,
    "mark_60m": null,
-   "slope_12_36_pct": -0.126,
-   "short_end_premium_pct": -0.113,
+   "slope_12_36_pct": -0.137,
+   "short_end_premium_pct": -0.12,
    "structure": "backwardation",
    "cost_floor": 2.07
   },
@@ -3196,10 +3180,10 @@
   {
    "tier": "GB300",
    "mark_3m": null,
-   "mark_12m": 7.24,
-   "mark_36m": 5.29,
+   "mark_12m": 7.21,
+   "mark_36m": 5.28,
    "mark_60m": null,
-   "slope_12_36_pct": -0.269,
+   "slope_12_36_pct": -0.268,
    "short_end_premium_pct": null,
    "structure": "backwardation",
    "cost_floor": 2.79
@@ -3208,7 +3192,7 @@
    "tier": "VR",
    "mark_3m": null,
    "mark_12m": null,
-   "mark_36m": 7.1,
+   "mark_36m": 7.07,
    "mark_60m": 7.18,
    "slope_12_36_pct": null,
    "short_end_premium_pct": null,
@@ -3225,7 +3209,7 @@
    "date": "2025-10-03",
    "price": 2.8,
    "p0": 2.84291,
-   "pa": 4.43197,
+   "pa": 4.4362,
    "q": "2025Q4",
    "prepay": 25.0,
    "known": true,
@@ -3244,7 +3228,7 @@
    "date": "2025-10-03",
    "price": 3.3,
    "p0": 3.3,
-   "pa": 5.14455,
+   "pa": 5.14946,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": true,
@@ -3263,7 +3247,7 @@
    "date": "2025-10-09",
    "price": 2.7,
    "p0": 2.7,
-   "pa": 4.20918,
+   "pa": 4.2132,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": false,
@@ -3282,7 +3266,7 @@
    "date": "2025-10-09",
    "price": 2.96,
    "p0": 2.96,
-   "pa": 4.61451,
+   "pa": 4.61891,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": false,
@@ -3301,7 +3285,7 @@
    "date": "2025-10-09",
    "price": 2.6,
    "p0": 2.66623,
-   "pa": 4.15653,
+   "pa": 4.1605,
    "q": "2025Q4",
    "prepay": 20.0,
    "known": true,
@@ -3320,7 +3304,7 @@
    "date": "2025-10-09",
    "price": 3.12,
    "p0": 3.19947,
-   "pa": 4.98784,
+   "pa": 4.9926,
    "q": "2025Q4",
    "prepay": 20.0,
    "known": true,
@@ -3339,7 +3323,7 @@
    "date": "2025-10-16",
    "price": 2.03,
    "p0": 2.06111,
-   "pa": 3.21318,
+   "pa": 3.21624,
    "q": "2025Q4",
    "prepay": 25.0,
    "known": true,
@@ -3358,7 +3342,7 @@
    "date": "2025-10-16",
    "price": 3.02,
    "p0": 3.06628,
-   "pa": 4.7802,
+   "pa": 4.78476,
    "q": "2025Q4",
    "prepay": 25.0,
    "known": true,
@@ -3377,7 +3361,7 @@
    "date": "2025-10-16",
    "price": 1.97,
    "p0": 2.03585,
-   "pa": 3.17379,
+   "pa": 3.17682,
    "q": "2025Q4",
    "prepay": 75.0,
    "known": true,
@@ -3396,7 +3380,7 @@
    "date": "2025-10-16",
    "price": 1.94,
    "p0": 2.00932,
-   "pa": 3.13244,
+   "pa": 3.13543,
    "q": "2025Q4",
    "prepay": 100.0,
    "known": true,
@@ -3415,7 +3399,7 @@
    "date": "2025-10-16",
    "price": 2.92,
    "p0": 3.0176,
-   "pa": 4.7043,
+   "pa": 4.70879,
    "q": "2025Q4",
    "prepay": 75.0,
    "known": true,
@@ -3434,7 +3418,7 @@
    "date": "2025-10-16",
    "price": 2.88,
    "p0": 2.98291,
-   "pa": 4.65022,
+   "pa": 4.65466,
    "q": "2025Q4",
    "prepay": 100.0,
    "known": true,
@@ -3453,7 +3437,7 @@
    "date": "2025-10-16",
    "price": 2.72,
    "p0": 2.72,
-   "pa": 4.24036,
+   "pa": 4.2444,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": true,
@@ -3472,7 +3456,7 @@
    "date": "2025-12-09",
    "price": 1.3,
    "p0": 1.3,
-   "pa": 2.02664,
+   "pa": 2.02858,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": false,
@@ -3491,7 +3475,7 @@
    "date": "2026-01-15",
    "price": 3.05,
    "p0": 3.05,
-   "pa": 4.5652,
+   "pa": 4.56553,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": false,
@@ -3510,7 +3494,7 @@
    "date": "2026-01-26",
    "price": 2.75,
    "p0": 2.75,
-   "pa": 4.11616,
+   "pa": 4.11646,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": false,
@@ -3529,7 +3513,7 @@
    "date": "2026-01-26",
    "price": 2.8,
    "p0": 2.8,
-   "pa": 4.191,
+   "pa": 4.19131,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": false,
@@ -3548,7 +3532,7 @@
    "date": "2026-01-26",
    "price": 3.0,
    "p0": 3.0,
-   "pa": 4.49036,
+   "pa": 4.49069,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": false,
@@ -3567,7 +3551,7 @@
    "date": "2026-02-10",
    "price": 4.74,
    "p0": 4.74,
-   "pa": 7.09477,
+   "pa": 7.09528,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": false,
@@ -3586,7 +3570,7 @@
    "date": "2026-02-23",
    "price": 4.26,
    "p0": 4.26,
-   "pa": 6.37631,
+   "pa": 6.37677,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": false,
@@ -3605,7 +3589,7 @@
    "date": "2026-02-27",
    "price": 3.85,
    "p0": 3.89842,
-   "pa": 5.8351,
+   "pa": 5.83552,
    "q": "2026Q1",
    "prepay": 20.0,
    "known": true,
@@ -3624,7 +3608,7 @@
    "date": "2026-03-05",
    "price": 3.42,
    "p0": 3.42,
-   "pa": 5.11901,
+   "pa": 5.11938,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": false,
@@ -3643,7 +3627,7 @@
    "date": "2026-03-05",
    "price": 3.2,
    "p0": 3.2,
-   "pa": 4.78972,
+   "pa": 4.79007,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": false,
@@ -3662,7 +3646,7 @@
    "date": "2026-03-11",
    "price": 3.5,
    "p0": 3.5,
-   "pa": 5.23875,
+   "pa": 5.23913,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": true,
@@ -3681,7 +3665,7 @@
    "date": "2026-03-13",
    "price": 2.8,
    "p0": 2.8,
-   "pa": 4.191,
+   "pa": 4.19131,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": false,
@@ -3700,7 +3684,7 @@
    "date": "2026-03-15",
    "price": 2.6,
    "p0": 2.70063,
-   "pa": 4.04226,
+   "pa": 4.04255,
    "q": "2026Q1",
    "prepay": 20.0,
    "known": true,
@@ -3719,7 +3703,7 @@
    "date": "2026-03-17",
    "price": 3.4,
    "p0": 3.56126,
-   "pa": 5.33044,
+   "pa": 5.33083,
    "q": "2026Q1",
    "prepay": 25.0,
    "known": true,
@@ -3738,7 +3722,7 @@
    "date": "2026-04-02",
    "price": 2.0,
    "p0": 2.0,
-   "pa": 2.44028,
+   "pa": 2.43095,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": false,
@@ -3757,7 +3741,7 @@
    "date": "2026-04-02",
    "price": 4.0,
    "p0": 4.0,
-   "pa": 4.88056,
+   "pa": 4.86191,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -3776,7 +3760,7 @@
    "date": "2026-04-09",
    "price": 5.0,
    "p0": 5.42079,
-   "pa": 6.61412,
+   "pa": 6.58885,
    "q": "2026Q2",
    "prepay": 50.0,
    "known": true,
@@ -3795,7 +3779,7 @@
    "date": "2026-04-09",
    "price": 6.0,
    "p0": 6.50495,
-   "pa": 7.93694,
+   "pa": 7.90661,
    "q": "2026Q2",
    "prepay": 50.0,
    "known": true,
@@ -3814,7 +3798,7 @@
    "date": "2026-04-09",
    "price": 3.98,
    "p0": 4.16877,
-   "pa": 5.08648,
+   "pa": 5.06704,
    "q": "2026Q2",
    "prepay": 25.0,
    "known": true,
@@ -3833,7 +3817,7 @@
    "date": "2026-04-13",
    "price": 3.95,
    "p0": 3.95,
-   "pa": 4.81955,
+   "pa": 4.80113,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -3852,7 +3836,7 @@
    "date": "2026-04-13",
    "price": 4.75,
    "p0": 4.97529,
-   "pa": 6.07054,
+   "pa": 6.04735,
    "q": "2026Q2",
    "prepay": 25.0,
    "known": true,
@@ -3871,7 +3855,7 @@
    "date": "2026-04-28",
    "price": 5.0,
    "p0": 5.08955,
-   "pa": 6.20996,
+   "pa": 6.18623,
    "q": "2026Q2",
    "prepay": 30.0,
    "known": true,
@@ -3890,7 +3874,7 @@
    "date": "2026-04-28",
    "price": 5.0,
    "p0": 5.08955,
-   "pa": 6.20996,
+   "pa": 6.18623,
    "q": "2026Q2",
    "prepay": 30.0,
    "known": true,
@@ -3909,7 +3893,7 @@
    "date": "2026-05-01",
    "price": 3.09,
    "p0": 3.73414,
-   "pa": 4.55617,
+   "pa": 4.53876,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -3928,7 +3912,7 @@
    "date": "2026-05-01",
    "price": 3.5,
    "p0": 3.90407,
-   "pa": 4.76351,
+   "pa": 4.74531,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -3947,7 +3931,7 @@
    "date": "2026-05-01",
    "price": 4.0,
    "p0": 4.33663,
-   "pa": 5.29129,
+   "pa": 5.27108,
    "q": "2026Q2",
    "prepay": 50.0,
    "known": true,
@@ -3966,7 +3950,7 @@
    "date": "2026-05-05",
    "price": 4.75,
    "p0": 4.89785,
-   "pa": 5.97606,
+   "pa": 5.95323,
    "q": "2026Q2",
    "prepay": 25.0,
    "known": true,
@@ -3985,7 +3969,7 @@
    "date": "2026-05-05",
    "price": 4.25,
    "p0": 4.34596,
-   "pa": 5.30268,
+   "pa": 5.28241,
    "q": "2026Q2",
    "prepay": 40.0,
    "known": true,
@@ -4004,7 +3988,7 @@
    "date": "2026-05-14",
    "price": 4.0,
    "p0": 4.15481,
-   "pa": 5.06945,
+   "pa": 5.05007,
    "q": "2026Q2",
    "prepay": 20.0,
    "known": true,
@@ -4023,7 +4007,7 @@
    "date": "2026-05-08",
    "price": 3.5,
    "p0": 3.5,
-   "pa": 4.27049,
+   "pa": 4.25417,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": false,
@@ -4042,7 +4026,7 @@
    "date": "2026-05-08",
    "price": 3.7,
    "p0": 3.7,
-   "pa": 4.51452,
+   "pa": 4.49727,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -4061,7 +4045,7 @@
    "date": "2026-05-08",
    "price": 3.8,
    "p0": 3.8,
-   "pa": 4.63653,
+   "pa": 4.61881,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -4080,7 +4064,7 @@
    "date": "2026-05-08",
    "price": 3.2,
    "p0": 3.2,
-   "pa": 3.90445,
+   "pa": 3.88953,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -4099,7 +4083,7 @@
    "date": "2026-05-08",
    "price": 3.7,
    "p0": 3.7,
-   "pa": 4.51452,
+   "pa": 4.49727,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -4118,7 +4102,7 @@
    "date": "2026-05-08",
    "price": 2.0,
    "p0": 2.0,
-   "pa": 2.44028,
+   "pa": 2.43095,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -4137,7 +4121,7 @@
    "date": "2026-05-11",
    "price": 4.0,
    "p0": 4.14293,
-   "pa": 5.05495,
+   "pa": 5.03564,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -4156,7 +4140,7 @@
    "date": "2026-05-11",
    "price": 4.2,
    "p0": 4.35008,
-   "pa": 5.3077,
+   "pa": 5.28742,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -4175,7 +4159,7 @@
    "date": "2026-05-13",
    "price": 4.3,
    "p0": 4.47363,
-   "pa": 5.45846,
+   "pa": 5.4376,
    "q": "2026Q2",
    "prepay": 50.0,
    "known": true,
@@ -4194,7 +4178,7 @@
    "date": "2026-05-14",
    "price": 4.3,
    "p0": 4.3,
-   "pa": 5.2466,
+   "pa": 5.22655,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": false,
@@ -4213,7 +4197,7 @@
    "date": "2026-05-14",
    "price": 4.5,
    "p0": 4.5,
-   "pa": 5.49063,
+   "pa": 5.46965,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": false,
@@ -4232,7 +4216,7 @@
    "date": "2026-05-14",
    "price": 5.0,
    "p0": 5.231,
-   "pa": 6.38255,
+   "pa": 6.35816,
    "q": "2026Q2",
    "prepay": 40.0,
    "known": true,
@@ -4251,7 +4235,7 @@
    "date": "2026-05-15",
    "price": 4.46,
    "p0": 4.57847,
-   "pa": 5.58637,
+   "pa": 5.56502,
    "q": "2026Q2",
    "prepay": 50.0,
    "known": true,
@@ -4270,7 +4254,7 @@
    "date": "2026-05-15",
    "price": 4.46,
    "p0": 4.59883,
-   "pa": 5.61121,
+   "pa": 5.58977,
    "q": "2026Q2",
    "prepay": 25.0,
    "known": true,
@@ -4289,7 +4273,7 @@
    "date": "2026-05-15",
    "price": 4.36,
    "p0": 4.51579,
-   "pa": 5.5099,
+   "pa": 5.48885,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -4308,7 +4292,7 @@
    "date": "2026-05-18",
    "price": 3.68,
    "p0": 3.68,
-   "pa": 4.49011,
+   "pa": 4.47296,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -4327,11 +4311,11 @@
    "date": "2026-05-19",
    "price": 3.4,
    "p0": 3.4,
-   "pa": 4.14847,
+   "pa": 4.13262,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
-   "w": 1.0,
+   "w": 0.5,
    "ptype": "neocloud",
    "provider": "Lambda",
    "ts": "1779198885.778519",
@@ -4346,11 +4330,11 @@
    "date": "2026-05-19",
    "price": 1.8,
    "p0": 1.8,
-   "pa": 2.19625,
+   "pa": 2.18786,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
-   "w": 1.0,
+   "w": 0.5,
    "ptype": "hyperscaler",
    "provider": "AWS",
    "ts": "1779206116.969039",
@@ -4365,7 +4349,7 @@
    "date": "2026-05-22",
    "price": 3.6,
    "p0": 3.89387,
-   "pa": 4.75106,
+   "pa": 4.7329,
    "q": "2026Q2",
    "prepay": 25.0,
    "known": true,
@@ -4384,7 +4368,7 @@
    "date": "2026-05-28",
    "price": 3.68,
    "p0": 3.68,
-   "pa": 4.49011,
+   "pa": 4.47296,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -4403,7 +4387,7 @@
    "date": "2026-06-02",
    "price": 4.25,
    "p0": 4.56498,
-   "pa": 5.56992,
+   "pa": 5.54863,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -4422,7 +4406,7 @@
    "date": "2026-06-02",
    "price": 4.25,
    "p0": 4.56498,
-   "pa": 5.56992,
+   "pa": 5.54863,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -4441,7 +4425,7 @@
    "date": "2026-06-04",
    "price": 3.8,
    "p0": 3.8,
-   "pa": 4.63653,
+   "pa": 4.61881,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": false,
@@ -4460,7 +4444,7 @@
    "date": "2026-06-04",
    "price": 3.8,
    "p0": 3.8,
-   "pa": 4.63653,
+   "pa": 4.61881,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": false,
@@ -4479,7 +4463,7 @@
    "date": "2026-06-04",
    "price": 3.5,
    "p0": 3.5,
-   "pa": 4.27049,
+   "pa": 4.25417,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -4498,7 +4482,7 @@
    "date": "2026-06-05",
    "price": 3.85,
    "p0": 3.89842,
-   "pa": 4.75661,
+   "pa": 4.73844,
    "q": "2026Q2",
    "prepay": 20.0,
    "known": true,
@@ -4517,7 +4501,7 @@
    "date": "2026-06-09",
    "price": 3.81,
    "p0": 3.81,
-   "pa": 4.64873,
+   "pa": 4.63097,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": false,
@@ -4536,7 +4520,7 @@
    "date": "2026-06-12",
    "price": 3.8,
    "p0": 3.8,
-   "pa": 4.63653,
+   "pa": 4.61881,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -4555,7 +4539,7 @@
    "date": "2026-06-15",
    "price": 5.6,
    "p0": 5.81673,
-   "pa": 7.09722,
+   "pa": 7.0701,
    "q": "2026Q2",
    "prepay": 20.0,
    "known": true,
@@ -4574,7 +4558,7 @@
    "date": "2026-06-18",
    "price": 1.95,
    "p0": 1.95,
-   "pa": 2.37927,
+   "pa": 2.37018,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": false,
@@ -4593,7 +4577,7 @@
    "date": "2026-06-21",
    "price": 3.69,
    "p0": 3.89138,
-   "pa": 4.74802,
+   "pa": 4.72988,
    "q": "2026Q2",
    "prepay": 50.0,
    "known": true,
@@ -4612,7 +4596,7 @@
    "date": "2026-06-21",
    "price": 4.0,
    "p0": 4.10189,
-   "pa": 5.00488,
+   "pa": 4.98576,
    "q": "2026Q2",
    "prepay": 20.0,
    "known": true,
@@ -4631,7 +4615,7 @@
    "date": "2026-06-21",
    "price": 4.95,
    "p0": 5.36658,
-   "pa": 6.54798,
+   "pa": 6.52296,
    "q": "2026Q2",
    "prepay": 50.0,
    "known": true,
@@ -4650,7 +4634,7 @@
    "date": "2026-06-22",
    "price": 3.5,
    "p0": 3.62506,
-   "pa": 4.42308,
+   "pa": 4.40618,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -4669,7 +4653,7 @@
    "date": "2026-06-22",
    "price": 6.0,
    "p0": 6.0522,
-   "pa": 7.38453,
+   "pa": 7.35631,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -4688,7 +4672,7 @@
    "date": "2026-06-25",
    "price": 4.0,
    "p0": 4.0,
-   "pa": 4.88056,
+   "pa": 4.86191,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": false,
@@ -4707,7 +4691,7 @@
    "date": "2026-06-28",
    "price": 5.05,
    "p0": 5.14045,
-   "pa": 6.27206,
+   "pa": 6.2481,
    "q": "2026Q2",
    "prepay": 30.0,
    "known": true,
@@ -4726,7 +4710,7 @@
    "date": "2026-06-28",
    "price": 5.5,
    "p0": 5.59851,
-   "pa": 6.83096,
+   "pa": 6.80486,
    "q": "2026Q2",
    "prepay": 30.0,
    "known": true,
@@ -5486,7 +5470,7 @@
    "date": "2026-03-13",
    "price": 2.85,
    "p0": 2.85,
-   "pa": 4.26584,
+   "pa": 4.26615,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": false,
@@ -5505,7 +5489,7 @@
    "date": "2026-04-02",
    "price": 2.35,
    "p0": 2.35,
-   "pa": 2.86733,
+   "pa": 2.85637,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": false,
@@ -5524,7 +5508,7 @@
    "date": "2026-04-28",
    "price": 6.18,
    "p0": 6.29068,
-   "pa": 7.67551,
+   "pa": 7.64618,
    "q": "2026Q2",
    "prepay": 30.0,
    "known": true,
@@ -5543,7 +5527,7 @@
    "date": "2025-11-03",
    "price": 2.904,
    "p0": 3.09628,
-   "pa": 4.82696,
+   "pa": 4.83157,
    "q": "2025Q4",
    "prepay": 20.0,
    "known": true,
@@ -5597,29 +5581,10 @@
    "tier": "GB300",
    "tenor": 60,
    "months": 60.0,
-   "date": "2025-09-16",
-   "price": 2.722,
-   "p0": 2.81444,
-   "pa": 2.81444,
-   "q": "2025Q3",
-   "prepay": 10.0,
-   "known": true,
-   "w": 0.0,
-   "ptype": "public_contract",
-   "provider": "Nscale",
-   "ts": "",
-   "review": false,
-   "similar": ""
-  },
-  {
-   "side": "public",
-   "tier": "GB300",
-   "tenor": 60,
-   "months": 60.0,
    "date": "2025-10-15",
    "price": 2.756,
    "p0": 2.84887,
-   "pa": 4.44126,
+   "pa": 4.4455,
    "q": "2025Q4",
    "prepay": 10.0,
    "known": true,
@@ -5638,7 +5603,7 @@
    "date": "2026-05-07",
    "price": 2.454,
    "p0": 2.4539,
-   "pa": 2.9941,
+   "pa": 2.98266,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -5657,7 +5622,7 @@
    "date": "2026-05-21",
    "price": 3.59,
    "p0": 3.66181,
-   "pa": 4.46792,
+   "pa": 4.45085,
    "q": "2026Q2",
    "prepay": 10.0,
    "known": true,
@@ -5676,7 +5641,7 @@
    "date": "2026-06-12",
    "price": 2.283,
    "p0": 2.37657,
-   "pa": 2.89975,
+   "pa": 2.88867,
    "q": "2026Q2",
    "prepay": 10.0,
    "known": true,
@@ -5695,7 +5660,7 @@
    "date": "2026-04-01",
    "price": 3.48,
    "p0": 3.59823,
-   "pa": 4.39034,
+   "pa": 4.37357,
    "q": "2026Q2",
    "prepay": 10.0,
    "known": true,
@@ -5714,7 +5679,7 @@
    "date": "2026-06-02",
    "price": 2.9,
    "p0": 2.9,
-   "pa": 3.5384,
+   "pa": 3.52488,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -5790,7 +5755,7 @@
    "date": "2026-03-31",
    "price": 3.5,
    "p0": 3.5,
-   "pa": 5.23875,
+   "pa": 5.23913,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": true,
@@ -5809,7 +5774,7 @@
    "date": "2025-11-06",
    "price": 1.6,
    "p0": 1.6,
-   "pa": 2.49433,
+   "pa": 2.49671,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": true,
@@ -5828,7 +5793,7 @@
    "date": "2025-11-06",
    "price": 3.3,
    "p0": 3.3,
-   "pa": 5.14455,
+   "pa": 5.14946,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": true,
@@ -5847,7 +5812,7 @@
    "date": "2025-11-06",
    "price": 2.2,
    "p0": 2.2,
-   "pa": 3.4297,
+   "pa": 3.43297,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": true,
@@ -5866,7 +5831,7 @@
    "date": "2025-12-15",
    "price": 3.42,
    "p0": 3.42,
-   "pa": 5.33163,
+   "pa": 5.33671,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": true,
@@ -5890,7 +5855,7 @@
    "date": "2026-03-15",
    "price": 3.5,
    "p0": 3.5,
-   "pa": 5.23875,
+   "pa": 5.23913,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": true,
@@ -5914,7 +5879,7 @@
    "date": "2026-03-15",
    "price": 3.02,
    "p0": 3.04627,
-   "pa": 4.55962,
+   "pa": 4.55995,
    "q": "2026Q1",
    "prepay": 100.0,
    "known": true,
@@ -5938,7 +5903,7 @@
    "date": "2026-05-15",
    "price": 3.51,
    "p0": 3.54054,
-   "pa": 4.31995,
+   "pa": 4.30344,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -5962,7 +5927,7 @@
    "date": "2026-06-15",
    "price": 2.45,
    "p0": 2.45,
-   "pa": 2.98934,
+   "pa": 2.97792,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -5986,7 +5951,7 @@
    "date": "2026-07-15",
    "price": 3.3,
    "p0": 3.30438,
-   "pa": 4.94595,
+   "pa": 4.94631,
    "q": "2026Q3",
    "prepay": 8.0,
    "known": true,
@@ -6010,7 +5975,7 @@
    "date": "2025-12-15",
    "price": 3.25,
    "p0": 3.25863,
-   "pa": 5.08006,
+   "pa": 5.08491,
    "q": "2025Q4",
    "prepay": 8.0,
    "known": true,
@@ -6058,7 +6023,7 @@
    "date": "2026-03-15",
    "price": 3.35,
    "p0": 3.35,
-   "pa": 5.01423,
+   "pa": 5.0146,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": true,
@@ -6106,7 +6071,7 @@
    "date": "2025-11-15",
    "price": 3.02,
    "p0": 3.03609,
-   "pa": 4.73313,
+   "pa": 4.73764,
    "q": "2025Q4",
    "prepay": null,
    "known": true,
@@ -6130,7 +6095,7 @@
    "date": "2025-12-15",
    "price": 2.91,
    "p0": 2.91,
-   "pa": 4.53656,
+   "pa": 4.54089,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": true,
@@ -6154,7 +6119,7 @@
    "date": "2026-03-15",
    "price": 3.2,
    "p0": 3.2,
-   "pa": 4.78972,
+   "pa": 4.79007,
    "q": "2026Q1",
    "prepay": null,
    "known": true,
@@ -6178,7 +6143,7 @@
    "date": "2026-05-15",
    "price": 5.0,
    "p0": 5.02664,
-   "pa": 6.1332,
+   "pa": 6.10976,
    "q": "2026Q2",
    "prepay": null,
    "known": true,
@@ -6322,7 +6287,7 @@
    "date": "2025-12-15",
    "price": 4.1,
    "p0": 4.10544,
-   "pa": 6.40019,
+   "pa": 6.4063,
    "q": "2025Q4",
    "prepay": null,
    "known": true,
@@ -6346,7 +6311,7 @@
    "date": "2026-03-15",
    "price": 3.4,
    "p0": 3.4,
-   "pa": 5.08907,
+   "pa": 5.08944,
    "q": "2026Q1",
    "prepay": null,
    "known": true,
@@ -6418,7 +6383,7 @@
    "date": "2026-03-15",
    "price": 3.45,
    "p0": 3.45,
-   "pa": 5.16391,
+   "pa": 5.16429,
    "q": "2026Q1",
    "prepay": null,
    "known": true,
@@ -6442,7 +6407,7 @@
    "date": "2026-06-15",
    "price": 4.79,
    "p0": 4.96116,
-   "pa": 6.05331,
+   "pa": 6.03018,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -6466,7 +6431,7 @@
    "date": "2026-06-15",
    "price": 5.56,
    "p0": 5.56,
-   "pa": 6.78398,
+   "pa": 6.75805,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -6490,7 +6455,7 @@
    "date": "2026-06-15",
    "price": 5.53,
    "p0": 5.55946,
-   "pa": 6.78332,
+   "pa": 6.7574,
    "q": "2026Q2",
    "prepay": 8.0,
    "known": true,
@@ -6562,7 +6527,7 @@
    "date": "2026-06-15",
    "price": 4.62,
    "p0": 4.66949,
-   "pa": 5.69743,
+   "pa": 5.67566,
    "q": "2026Q2",
    "prepay": 8.0,
    "known": true,
@@ -6586,7 +6551,7 @@
    "date": "2026-06-15",
    "price": 5.1,
    "p0": 5.3,
-   "pa": 6.46674,
+   "pa": 6.44203,
    "q": "2026Q2",
    "prepay": null,
    "known": true,
@@ -6610,7 +6575,7 @@
    "date": "2026-07-15",
    "price": 3.25,
    "p0": 3.25,
-   "pa": 4.86456,
+   "pa": 4.86491,
    "q": "2026Q3",
    "prepay": null,
    "known": true,
@@ -6658,7 +6623,7 @@
    "date": "2026-06-15",
    "price": 5.9,
    "p0": 5.93143,
-   "pa": 7.23717,
+   "pa": 7.20952,
    "q": "2026Q2",
    "prepay": null,
    "known": true,
@@ -6706,7 +6671,7 @@
    "date": "2026-06-15",
    "price": 5.53,
    "p0": 5.61933,
-   "pa": 6.85637,
+   "pa": 6.83017,
    "q": "2026Q2",
    "prepay": null,
    "known": true,
@@ -6778,7 +6743,7 @@
    "date": "2025-12-15",
    "price": 1.5,
    "p0": 1.5,
-   "pa": 2.33843,
+   "pa": 2.34066,
    "q": "2025Q4",
    "prepay": null,
    "known": true,
@@ -6802,7 +6767,7 @@
    "date": "2026-03-15",
    "price": 2.23,
    "p0": 2.23,
-   "pa": 3.33783,
+   "pa": 3.33808,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": true,
@@ -6826,7 +6791,7 @@
    "date": "2026-07-15",
    "price": 2.0,
    "p0": 2.0,
-   "pa": 2.44028,
+   "pa": 2.43095,
    "q": "2026Q3",
    "prepay": null,
    "known": true,
@@ -6850,7 +6815,7 @@
    "date": "2025-11-15",
    "price": 2.05,
    "p0": 2.05,
-   "pa": 3.19586,
+   "pa": 3.19891,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": true,
@@ -6874,7 +6839,7 @@
    "date": "2026-02-15",
    "price": 1.75,
    "p0": 1.75,
-   "pa": 2.61938,
+   "pa": 2.61957,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": true,
@@ -6898,7 +6863,7 @@
    "date": "2026-03-15",
    "price": 1.48,
    "p0": 1.48393,
-   "pa": 2.31338,
+   "pa": 2.31559,
    "q": "2026Q1",
    "prepay": 8.0,
    "known": true,
@@ -6922,7 +6887,7 @@
    "date": "2026-06-15",
    "price": 2.5,
    "p0": 2.50664,
-   "pa": 3.05845,
+   "pa": 3.04677,
    "q": "2026Q2",
    "prepay": 8.0,
    "known": true,
@@ -6946,7 +6911,7 @@
    "date": "2025-12-15",
    "price": 1.66,
    "p0": 1.6789,
-   "pa": 2.61732,
+   "pa": 2.61982,
    "q": "2025Q4",
    "prepay": null,
    "known": true,
@@ -6970,7 +6935,7 @@
    "date": "2026-03-15",
    "price": 1.7,
    "p0": 1.70906,
-   "pa": 2.55809,
+   "pa": 2.55828,
    "q": "2026Q1",
    "prepay": 8.0,
    "known": true,
@@ -6994,7 +6959,7 @@
    "date": "2026-03-15",
    "price": 1.73,
    "p0": 1.73,
-   "pa": 2.58944,
+   "pa": 2.58963,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": true,
@@ -7018,7 +6983,7 @@
    "date": "2026-04-15",
    "price": 2.0,
    "p0": 2.0,
-   "pa": 2.44028,
+   "pa": 2.43095,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -7042,7 +7007,7 @@
    "date": "2026-06-15",
    "price": 2.03,
    "p0": 2.04081,
-   "pa": 2.49008,
+   "pa": 2.48056,
    "q": "2026Q2",
    "prepay": null,
    "known": true,
@@ -7114,7 +7079,7 @@
    "date": "2026-06-15",
    "price": 1.85,
    "p0": 1.86982,
-   "pa": 2.28144,
+   "pa": 2.27272,
    "q": "2026Q2",
    "prepay": null,
    "known": true,
@@ -7138,7 +7103,7 @@
    "date": "2025-12-15",
    "price": 1.95,
    "p0": 1.95,
-   "pa": 3.03996,
+   "pa": 3.04286,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": true,
@@ -7162,7 +7127,7 @@
    "date": "2026-03-15",
    "price": 2.5,
    "p0": 2.5,
-   "pa": 3.74197,
+   "pa": 3.74224,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": true,
@@ -7186,7 +7151,7 @@
    "date": "2026-07-15",
    "price": 2.5,
    "p0": 2.5,
-   "pa": 3.05035,
+   "pa": 3.03869,
    "q": "2026Q3",
    "prepay": null,
    "known": true,
@@ -7234,7 +7199,7 @@
    "date": "2025-12-15",
    "price": 1.92,
    "p0": 1.9251,
-   "pa": 3.00115,
+   "pa": 3.00401,
    "q": "2025Q4",
    "prepay": 8.0,
    "known": true,
@@ -7258,7 +7223,7 @@
    "date": "2026-02-15",
    "price": 2.0,
    "p0": 2.0,
-   "pa": 2.99357,
+   "pa": 2.99379,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": true,
@@ -7282,7 +7247,7 @@
    "date": "2026-03-15",
    "price": 1.95,
    "p0": 1.95518,
-   "pa": 2.92649,
+   "pa": 2.9267,
    "q": "2026Q1",
    "prepay": 8.0,
    "known": true,
@@ -7306,7 +7271,7 @@
    "date": "2026-06-15",
    "price": 2.33,
    "p0": 2.33619,
-   "pa": 2.85048,
+   "pa": 2.83959,
    "q": "2026Q2",
    "prepay": null,
    "known": true,
@@ -7330,7 +7295,7 @@
    "date": "2025-12-15",
    "price": 2.15,
    "p0": 2.15,
-   "pa": 3.35175,
+   "pa": 3.35495,
    "q": "2025Q4",
    "prepay": 0.0,
    "known": true,
@@ -7354,7 +7319,7 @@
    "date": "2026-03-15",
    "price": 2.1,
    "p0": 2.1,
-   "pa": 3.14325,
+   "pa": 3.14348,
    "q": "2026Q1",
    "prepay": 0.0,
    "known": true,
@@ -7378,7 +7343,7 @@
    "date": "2026-03-15",
    "price": 1.75,
    "p0": 1.75932,
-   "pa": 2.63333,
+   "pa": 2.63352,
    "q": "2026Q1",
    "prepay": 8.0,
    "known": true,
@@ -7402,7 +7367,7 @@
    "date": "2026-05-15",
    "price": 2.15,
    "p0": 2.15,
-   "pa": 2.6233,
+   "pa": 2.61328,
    "q": "2026Q2",
    "prepay": 0.0,
    "known": true,
@@ -7426,7 +7391,7 @@
    "date": "2026-06-15",
    "price": 2.18,
    "p0": 2.2579,
-   "pa": 2.75495,
+   "pa": 2.74442,
    "q": "2026Q2",
    "prepay": 100.0,
    "known": true,
@@ -7450,7 +7415,7 @@
    "date": "2026-06-15",
    "price": 1.9,
    "p0": 1.96789,
-   "pa": 2.94551,
+   "pa": 2.94573,
    "q": "2026Q2",
    "prepay": null,
    "known": true,
@@ -7498,7 +7463,7 @@
    "date": "2026-08-15",
    "price": 2.65,
    "p0": 2.67123,
-   "pa": 2.67146,
+   "pa": 2.67401,
    "q": "2026Q3",
    "prepay": 8.0,
    "known": true,
@@ -7648,19 +7613,19 @@
   "H100": {
    "nebius_list": 3.85,
    "nebius_preemptible": 2.15,
-   "peer_od_median": 2.5,
+   "peer_od_median": 3.99,
    "peer_od_n": 3,
-   "peer_od_min": 1.99,
+   "peer_od_min": 2.5,
    "peer_list": [
-    {
-     "provider": "together",
-     "price": 1.99,
-     "instance_type": "together-hgx-h100"
-    },
     {
      "provider": "hyperstack",
      "price": 2.5,
      "instance_type": "hyperstack-h100"
+    },
+    {
+     "provider": "together",
+     "price": 3.99,
+     "instance_type": "together-hgx-h100"
     },
     {
      "provider": "coreweave",
@@ -7709,17 +7674,12 @@
      "instance_type": "8H100.80S.176V"
     },
     {
-     "provider": "cp_ionet",
-     "price": 3.5015,
-     "instance_type": "ionet-h100-8x"
-    },
-    {
      "provider": "baseten",
      "price": 6.4998,
      "instance_type": "H100:8"
     }
    ],
-   "list_snapshot": "2026-09-16",
+   "list_snapshot": "2026-09-17",
    "quotes_od_median": 3.2,
    "quotes_od_n": 5,
    "quotes": [
@@ -7769,19 +7729,19 @@
   "H200": {
    "nebius_list": 4.5,
    "nebius_preemptible": 2.45,
-   "peer_od_median": 3.99,
+   "peer_od_median": 5.99,
    "peer_od_n": 3,
-   "peer_od_min": 2.99,
+   "peer_od_min": 3.99,
    "peer_list": [
-    {
-     "provider": "together",
-     "price": 2.99,
-     "instance_type": "together-hgx-h200"
-    },
     {
      "provider": "hyperstack",
      "price": 3.99,
      "instance_type": "hyperstack-h200"
+    },
+    {
+     "provider": "together",
+     "price": 5.99,
+     "instance_type": "together-hgx-h200"
     },
     {
      "provider": "coreweave",
@@ -7816,7 +7776,7 @@
    "other_list": [
     {
      "provider": "cp_gcore",
-     "price": 3.1501,
+     "price": 3.1496,
      "instance_type": "gcore-h200-8x"
     },
     {
@@ -7855,7 +7815,7 @@
      "instance_type": "H200:8"
     }
    ],
-   "list_snapshot": "2026-09-16",
+   "list_snapshot": "2026-09-17",
    "quotes_od_median": 4.23,
    "quotes_od_n": 2,
    "quotes": [
@@ -7884,15 +7844,10 @@
   "B200": {
    "nebius_list": 7.15,
    "nebius_preemptible": 3.95,
-   "peer_od_median": 6.35,
+   "peer_od_median": 7.44,
    "peer_od_n": 4,
-   "peer_od_min": 4.09,
+   "peer_od_min": 6.0,
    "peer_list": [
-    {
-     "provider": "together",
-     "price": 4.09,
-     "instance_type": "together-hgx-b200"
-    },
     {
      "provider": "hyperstack",
      "price": 6.0,
@@ -7902,6 +7857,11 @@
      "provider": "lambda",
      "price": 6.69,
      "instance_type": "gpu_8x_b200_sxm6"
+    },
+    {
+     "provider": "together",
+     "price": 8.19,
+     "instance_type": "together-hgx-b200"
     },
     {
      "provider": "coreweave",
@@ -7960,7 +7920,7 @@
      "instance_type": "B200:8"
     }
    ],
-   "list_snapshot": "2026-09-16",
+   "list_snapshot": "2026-09-17",
    "quotes_od_median": 6.0,
    "quotes_od_n": 1,
    "quotes": [
@@ -7993,7 +7953,7 @@
     },
     {
      "provider": "cp_scaleway",
-     "price": 8.6543,
+     "price": 8.6528,
      "instance_type": "scaleway-b300-8x"
     }
    ],
@@ -8029,8 +7989,13 @@
     },
     {
      "provider": "cp_gcore",
-     "price": 6.9234,
+     "price": 6.9222,
      "instance_type": "gcore-b300-8x"
+    },
+    {
+     "provider": "cp_lium",
+     "price": 7.0,
+     "instance_type": "lium-b300-8x"
     },
     {
      "provider": "cp_civo",
@@ -8068,7 +8033,7 @@
      "instance_type": "sesterce-b300-8x"
     }
    ],
-   "list_snapshot": "2026-09-16",
+   "list_snapshot": "2026-09-17",
    "realised_payg": 7.62,
    "realised_payg_hours": 129538,
    "realised_window_days": 30,
@@ -8077,10 +8042,10 @@
    "realised_preemptible_hours": 117120
   },
   "GB200": {
-   "list_snapshot": "2026-09-16"
+   "list_snapshot": "2026-09-17"
   },
   "GB300": {
-   "list_snapshot": "2026-09-16",
+   "list_snapshot": "2026-09-17",
    "quotes_od_median": 4.75,
    "quotes_od_n": 1,
    "quotes": [
@@ -8094,7 +8059,7 @@
    ]
   },
   "VR": {
-   "list_snapshot": "2026-09-16"
+   "list_snapshot": "2026-09-17"
   }
  },
  "cohorts": [
@@ -12917,12 +12882,12 @@
     "kind": "marketplace",
     "tenor": 3,
     "months": 3,
-    "price": 1.0451,
+    "price": 1.4678,
     "gpus": 2,
-    "date": "2026-07-14",
-    "stale": true,
+    "date": "2026-09-17",
+    "stale": false,
     "cluster_class": false,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 2-GPU host, Montana, US; not cluster-class"
+    "note": "cheapest marketplace reservation (1-6 months prepaid), 2-GPU host, France, FR; not cluster-class"
    },
    {
     "provider": "SF Compute",
@@ -12932,10 +12897,36 @@
     "months": 0,
     "price": 1.9,
     "gpus": 8,
-    "date": "2026-09-16",
+    "date": "2026-09-17",
     "stale": false,
     "cluster_class": true,
     "note": "exchange clearing price for short bookings (hours to weeks) on 8-GPU InfiniBand nodes; a spot market, not a committed contract"
+   },
+   {
+    "provider": "aws",
+    "key": "aws",
+    "kind": "marketplace",
+    "tenor": 3,
+    "months": 3,
+    "price": 4.72,
+    "gpus": 8,
+    "date": "2026-09-17",
+    "stale": false,
+    "cluster_class": true,
+    "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, us"
+   },
+   {
+    "provider": "lambda",
+    "key": "lambda",
+    "kind": "marketplace",
+    "tenor": 3,
+    "months": 3,
+    "price": 5.54,
+    "gpus": 256,
+    "date": "2026-09-17",
+    "stale": false,
+    "cluster_class": true,
+    "note": "cheapest marketplace reservation (1-6 months prepaid), 256-GPU host, us"
    }
   ],
   "H200": [
@@ -12945,17 +12936,88 @@
     "kind": "marketplace",
     "tenor": 3,
     "months": 3,
-    "price": 3.2908,
+    "price": 1.9751,
     "gpus": 1,
-    "date": "2026-07-14",
-    "stale": true,
+    "date": "2026-09-17",
+    "stale": false,
     "cluster_class": false,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 1-GPU host, France, FR; not cluster-class"
+    "note": "cheapest marketplace reservation (1-6 months prepaid), 1-GPU host, New Jersey, US; not cluster-class"
+   },
+   {
+    "provider": "aws",
+    "key": "aws",
+    "kind": "marketplace",
+    "tenor": 3,
+    "months": 3,
+    "price": 5.97,
+    "gpus": 8,
+    "date": "2026-09-17",
+    "stale": false,
+    "cluster_class": true,
+    "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, us"
+   }
+  ],
+  "B200": [
+   {
+    "provider": "lambda",
+    "key": "lambda",
+    "kind": "marketplace",
+    "tenor": 3,
+    "months": 3,
+    "price": 8.87,
+    "gpus": 256,
+    "date": "2026-09-17",
+    "stale": false,
+    "cluster_class": true,
+    "note": "cheapest marketplace reservation (1-6 months prepaid), 256-GPU host, us"
+   },
+   {
+    "provider": "aws",
+    "key": "aws",
+    "kind": "marketplace",
+    "tenor": 3,
+    "months": 3,
+    "price": 12.355,
+    "gpus": 8,
+    "date": "2026-09-17",
+    "stale": false,
+    "cluster_class": true,
+    "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, US East (Ohio)"
+   }
+  ],
+  "B300": [
+   {
+    "provider": "aws",
+    "key": "aws",
+    "kind": "marketplace",
+    "tenor": 3,
+    "months": 3,
+    "price": 14.04,
+    "gpus": 8,
+    "date": "2026-09-17",
+    "stale": false,
+    "cluster_class": true,
+    "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, Asia Pacific (Jakarta)"
+   }
+  ],
+  "GB200": [
+   {
+    "provider": "aws",
+    "key": "aws",
+    "kind": "marketplace",
+    "tenor": 3,
+    "months": 3,
+    "price": 10.582,
+    "gpus": 72,
+    "date": "2026-09-17",
+    "stale": false,
+    "cluster_class": true,
+    "note": "cheapest marketplace reservation (1-6 months prepaid), 72-GPU host, US East (Dallas) Local Zone"
    }
   ]
  },
  "node_specs": {
-  "_generated": "2026-09-16",
+  "_generated": "2026-09-17",
   "_method": "One entry per priced SKU. Figures come from the provider's own documentation (research + independent verification of each figure against its source URL; 'verified' false = a figure could not be confirmed) or, where the provider API reports them, from the daily monitor snapshot. vCPU = threads (physical cores x2 where the page lists cores); RAM in GB as published (GiB accepted). Nothing is estimated from a typical HGX configuration.",
   "providers": {
    "1legion": {
@@ -13031,8 +13093,8 @@
       "verified": true,
       "notes": "Docs spec table: 2048.00 GiB memory (GiB, not GB), AMD EPYC 7R13, 192 vCPU = 96 cores x 2 threads, 8 x NVIDIA H100 GPU 640 GiB (8 x 80 GiB), instance store 8 x 3800 GB NVMe SSD (= 30.4 TB; marketing page rounds to 8 x 3.84 TB), network 3200 Gigabit with EFA/ENA Express, EBS 80 Gbps. Marketing page (aws.amazon.com/ec2/instance-types/p5) adds GPU peer-to-peer 900 GB/s NVSwitch and GPUDirect RDMA yes. SXM/PCIe form factor not printed on either page, so left null; NVSwitch peer-to-peer is the only interconnect statement. Nitro v4 per docs family summary. | verifier: Opened docs page (performance, network, EBS, instance-store tables) and marketing p5 page. Confirmed verbatim: 2048.00 GiB | AMD EPYC 7R13 | 192 vCPU | 96 cores | 2 threads | 8 x NVIDIA H100 GPU 640 GiB; network '3200 Gigabit', EFA Yes; instance store '8 x 3800 GB NVMe SSD'; EBS 80000 Mbps. Marketing: 192 vCPU, 2 TiB, 8 H100, 3200 Gbps EFA, 900 GB/s NVSwitch, 8 x 3.84 NVMe, 80 Gbps EBS. Unit flag: ram_gb value is GiB as printed (2048 GiB = ~2199 GB decimal). 'EFAv2' label is inferred from the marketing sentence that P5en uses third-generation EFA 'compared to P5 that uses the previous generation'; the literal string 'EFAv2' was not in my fetch, so I removed it from the network string. No corrections to figures.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-07-14",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "p5.4xlarge",
@@ -13049,7 +13111,7 @@
       "verified": true,
       "notes": "1-GPU H100 SKU published alongside p5.48xlarge. Docs table: 256.00 GiB memory, AMD EPYC 7R13, 16 vCPU = 8 cores x 2 threads, 1 x NVIDIA H100 GPU 80 GiB, instance store 1 x 3800 GB NVMe SSD, network 100 Gigabit EFA, EBS 10 Gbps. Marketing page: GPUDirect RDMA 'No' and GPU peer-to-peer N/A for this size. Form factor not printed. Only P5 size that supports Windows per docs family summary. | verifier: Confirmed verbatim on docs page: 256.00 GiB | AMD EPYC 7R13 | 16 | 8 | 2 | 1 x NVIDIA H100 GPU 80 GiB; network '100 Gigabit' EFA Yes; instance store '1 x 3800 GB NVMe SSD'; EBS 10000 Mbps. Marketing: 16 vCPU, 256 GiB, 1 H100, 100 Gbps EFA, GPUDirect RDMA No, 3.84 NVMe SSD, EBS 10. ram_gb is GiB as printed. No corrections.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "H200": [
@@ -13084,8 +13146,8 @@
       "verified": true,
       "notes": "Docs table: 2048.00 GiB memory (GiB), Intel Xeon Sapphire Rapids, 192 vCPU = 96 cores x 2 threads, 8 x NVIDIA H200 GPU 1128 GiB (8 x 141 GiB), instance store 8 x 3800 GB NVMe SSD (marketing: 8 x 3.84 TB), network 3200 Gigabit EFA, EBS 100 Gbps (vs 80 on p5e). Marketing page: 'P5en instances pair NVIDIA H200 Tensor Core GPUs with high performance Intel Sapphire Rapids CPU'; 'third generation of EFA using Nitro v5'; 900 GB/s NVSwitch peer-to-peer. Docs family summary: Nitro v5, Intel (x86_64). Form factor not printed. | verifier: Confirmed verbatim on docs page: 2048.00 GiB | Intel Xeon Sapphire Rapids | 192 | 96 | 2 | 8 x NVIDIA H200 GPU 1128 GiB; network '3200 Gigabit' EFA Yes; '8 x 3800 GB NVMe SSD'; EBS 100000 Mbps. Marketing: 192 vCPU, 2 TiB, 8 H200, 3200 Gbps EFA, 900 GB/s NVSwitch, 8 x 3.84 NVMe, EBS 100; Sapphire Rapids and third-gen EFA / Nitro v5 sentences present. ram_gb is GiB as printed. No corrections.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-07-14",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "B200": [
@@ -13104,8 +13166,8 @@
       "verified": true,
       "notes": "Docs table: 2048.00 GiB memory (GiB), Intel Xeon Emerald Rapids, 192 vCPU = 96 cores x 2 threads, 8 x NVIDIA B200 GPU 1432 GiB (8 x 179 GiB), instance store 8 x 3800 GB NVMe SSD (marketing: 8 x 3.84 TB), network 3200 Gigabit EFA, EBS 100 Gbps. Marketing page (aws.amazon.com/ec2/instance-types/p6): '5th Generation Intel Xeon Scalable processors (Emerald Rapids)', 'up to 14.4 TBp/s of total bidirectional NVLink bandwidth', 'fourth-generation Elastic Fabric Adapter networking (EFAv4)'; 1,432 GB GPU memory. Docs family summary: Nitro v6. SXM/HGX not printed; form factor null. | verifier: Confirmed verbatim on docs page: 2048.00 GiB | Intel Xeon Emerald Rapids | 192 | 96 | 2 | 8 x NVIDIA B200 GPU 1432 GiB (8 x 179 GiB); network '3200 Gigabit' EFA Yes; '8 x 3800 GB NVMe SSD'; EBS 100000 Mbps. Marketing p6 page: 8 GPUs, 192 vCPUs, 2,048 GiB, 1,432 GB GPU memory, 8 x 3.84 TB, 3.2 Tbps, 100 Gbps EBS; Emerald Rapids / 5th Gen and EFAv4 sentences present. ram_gb is GiB as printed. No corrections.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-07-14",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "B300": [
@@ -13124,8 +13186,8 @@
       "verified": true,
       "notes": "Docs table: 4096.00 GiB memory (GiB; double the B200 node), Intel Xeon Emerald Rapids (docs page only; the marketing page does not name the B300 CPU), 192 vCPU = 96 cores x 2 threads, 8 x NVIDIA B300 GPU 2148 GiB (8 x 268 GiB; marketing table says 2,144 GB HBM3e), instance store 8 x 3800 GB NVMe SSD (marketing: 8 x 3.84 TB), network 6400 Gigabit EFA, EBS 100 Gbps. Marketing page: '8 Ultra' Blackwell Ultra GPUs, 6.4 Tbps, EFAv4. Docs family summary: Nitro v6. Form factor not printed. | verifier: Confirmed verbatim on docs page: 4096.00 GiB | Intel Xeon Emerald Rapids | 192 | 96 | 2 | 8 x NVIDIA B300 GPU 2148 GiB (8 x 268 GiB); network '6400 Gigabit' EFA Yes; '8 x 3800 GB NVMe SSD'; EBS 100000 Mbps. Marketing p6 page: 8 Ultra, 192 vCPUs, 4,096 GiB, 2,144 GB GPU memory, 8 x 3.84 TB, 6.4 Tbps, 100 Gbps EBS. GPU-memory discrepancy docs 2148 GiB vs marketing 2,144 GB is on the pages, not a researcher error. ram_gb is GiB as printed. No corrections.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-07-14",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "GB200": [
@@ -13176,7 +13238,7 @@
       "network": "none",
       "form_factor": "NVL",
       "source_url": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/",
-      "as_of": "2026-07-14",
+      "as_of": "2026-09-17",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -13200,7 +13262,7 @@
       "notes": "Host spec table: 96 vCPUs, Intel Xeon (Sapphire Rapids) [x86-64], 1,850 GiB memory (GiB), local storage 1 disk 1,024 GiB temp + 'Max NVMe Disks 8 / NVMe Disk Size (TiB) 28' (28 TiB = 30.8 TB entered), 16 remote disks, 8 NICs 80,000 Mbps, 8 x Nvidia H200 GPU (141GB) = 1,128 GB. Prose: 'eight NVIDIA H200 ... interconnected with 900 GB/s NVLink', '3.2Tb/s of interconnect bandwidth per VM', 'dedicated ... 400 Gbps NVIDIA Quantum-2 CX7 InfiniBand connection' per GPU, GPUDirect RDMA. Page lists vCPUs only (no cores/threads split). SXM not printed; form factor null. | verifier: Opened page; confirmed verbatim: 96 vCPUs Intel Xeon (Sapphire Rapids) [x86-64]; 1,850 GiB; 1 Disk 1,024 GiB; NVMe 8 disks / 28 TiB; 16 remote disks; 8 NICs 80,000 Mbps; 8 GPUs Nvidia H200 GPU (141GB), 1,128 GB; prose 900 GB/s NVLink, 3.2Tb/s per VM, 400 Gbps per GPU. local_storage_tb 30.8 is derived from printed 28 TiB. ram_gb is GiB as printed. No corrections.",
       "source": "provider documentation",
       "api_check": "mismatch: ram_gb doc 1850 vs 1100.0",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "GB200": [
@@ -13219,7 +13281,7 @@
       "verified": true,
       "notes": "Host spec table: 128 vCPUs 'Nvidia Grace CPU', 900 GiB LPDDR5X (GiB), local storage '4 Disks 16 TiB (NVMe)' (size table says 'Temp Disk Size (TB) 16' -- page mixes TB/TiB; 16 entered as printed, would be 17.6 TB if TiB), remote 16 disks 80,000 IOPS / 1,200 MBps, 1 NIC 160 Gbps Ethernet, 4 x Nvidia Blackwell GPU (192 GiB each; accelerator table prints 192 GB). Prose: 'two NVIDIA Grace CPUs and four NVIDIA Blackwell GPUs', '4x 1.8 TB/s NVLink bandwidth per VM', scale-out '4x 400 GB/s NVIDIA Quantum-2 CX7 InfiniBand connections per VM' (prose unit typo GB/s vs Gbps elsewhere), 'NVL72 connects up to 72 GPUs per rack ... groups of 18 ND GB200 v6 VMs ... 28.8Tb/s scale-out networking'. Page lists vCPUs only; no cores/threads split, no 2x conversion applied. | verifier: Opened page; confirmed verbatim: 128 vCPUs Nvidia Grace CPU; 900 GiB LPDDR5X; 4 Disks 16 TiB (NVMe) / sizes table 'Temp Disk Size (TB) 16'; 1 NICs 160 Gbps Ethernet; 4 GPUs Nvidia Blackwell GPU (192 GiB); prose two Grace CPUs, 4x 1.8 TB/s NVLink, 4x 400 GB/s IB (sic), 18 VMs / 72 GPUs per rack, 28.8Tb/s. Page-internal inconsistencies to flag: (a) sizes network table prints 'Max Front-end Bandwidth (Mbps) 160' vs host table '160 Gbps Ethernet'; (b) network table lists Scale-up 4 NICs 400 Gbps and Scale-out 4 NICs 1.8 TBps, which is the reverse of the prose (NVLink 1.8 TB/s is scale-up, IB 400 Gb/s is scale-out) -- researcher's reading follows the prose and is the physically sensible one; (c) the 1.6 Tb/s IB total is not printed anywhere, it is 4 x 400 Gbps (and 28.8 Tb/s / 18 VMs), so I relabelled it 'derived' in the network string. local_storage_tb 16 is as-printed with ambiguous unit. No figure corrections.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-07-14"
+      "api_check": "matches provider snapshot 2026-09-17"
      }
     ],
     "GB300": [
@@ -13257,7 +13319,8 @@
       "confidence": "high",
       "verified": true,
       "notes": "Docs table row: 'H100:8 | $0.86664/min | 128 vCPU | 944 GiB | 8 NVIDIA H100s | 640 GiB' = $52.00/hr = $6.50/GPU-hr. UNIT: RAM is published in GiB; 944 GiB = ~1,014 GB decimal - the ram_gb field carries the page-literal GiB number. Pricing page https://www.baseten.co/pricing/ lists per-GPU H100 at $0.10833/min ($6.50/hr), consistent with 8x. Form factor, CPU model, local storage and network are not published by Baseten. | verifier: Opened docs table 2026-09-16: 128 vCPU, 944 GiB, 8 GPUs, $0.86664/min all confirmed. Pricing page cross-check confirmed. Flagged GiB-vs-GB unit: figure is GiB as published, not converted.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "matches provider snapshot 2026-09-17"
      },
      {
       "instance_type": "H100 (1x H100 dedicated deployment instance)",
@@ -13291,7 +13354,8 @@
       "confidence": "high",
       "verified": true,
       "notes": "Docs table row: 'H200:8 | $1.00000/min | 128 vCPU | 1600 GiB | 8 NVIDIA H200s | 1128 GiB' = $60.00/hr = $7.50/GPU-hr. UNIT: 1600 GiB = ~1,718 GB decimal; ram_gb carries GiB as published. Single-GPU H200 row: 16 vCPU, 200 GiB, $0.12500/min ($7.50/hr); H200:2 32 vCPU/400 GiB; H200:4 64 vCPU/800 GiB. H200 does not appear on the public pricing page (only in docs). Form factor, CPU model, storage, network not published. | verifier: Added from the same docs table the researcher cited (they mentioned H200:8 in notes but did not list it). All figures read directly from the table 2026-09-16.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "matches provider snapshot 2026-09-17"
      }
     ],
     "B200": [
@@ -13309,7 +13373,8 @@
       "confidence": "high",
       "verified": true,
       "notes": "Docs table row: 'B200:8 | $1.33064/min | 128 vCPU | 1792 GiB | 8 NVIDIA B200s | 1440 GiB' = $79.84/hr = $9.98/GPU-hr. UNIT: 1792 GiB = ~1,924 GB decimal; ram_gb carries GiB as published. Single-GPU B200 row: 16 vCPU, 224 GiB, $0.16633/min ($9.98/hr) - matches pricing page https://www.baseten.co/pricing/ 'B200 | 180 GiB | $0.16633/min'. B200:2 32 vCPU/448 GiB; B200:4 64 vCPU/896 GiB. Form factor, CPU model, storage, network not published. | verifier: Added from the same docs table (researcher mentioned B200:8 in notes only). Figures read from the table 2026-09-16; per-GPU price cross-checked on pricing page.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "matches provider snapshot 2026-09-17"
      }
     ]
    },
@@ -13329,7 +13394,8 @@
       "confidence": "high",
       "verified": true,
       "notes": "Docs spec table: 8x NVIDIA H100 80 GB, CPU Intel Sapphire Rapids 8462Y+, vCPUs 128 (page uses 'vCPUs'), RAM 2048 GB, usable storage 30.72 TB from 8x 7.68 TB RAID 10 (raw 61.44 TB, which is the 'Local Storage' figure shown on www.coreweave.com/pricing), NIC dual-port 100GbE, GPU connectivity 'InfiniBand & NVLink'; prose: 'Nodes are linked with a 400G NDR InfiniBand fabric'. HCA count / per-node IB total is not stated on this page (unlike B200). On-demand list price on https://www.coreweave.com/pricing (North America, 2026-09-16): $49.24 per node-hour (= $6.155/GPU-hr computed), spot $19.71/node-hr. Default GPU driver 595. | verifier: Opened docs page 2026-09-16: 8x H100 80 GB, 'Intel Sapphire Rapids 8462Y+ (2.80 GHz)', 128 vCPUs, 2048 GB RAM, '8x 7.68 TB RAID 10' -> 30.72 TB usable, 'Dual-port 100GbE', '400G NDR InfiniBand fabric' all present verbatim. Pricing page opened: HGX H100 row 8 GPUs / 128 vCPU / 2,048 GB / 61.44 TB / $49.24 / spot $19.71 confirmed; 61.44 is raw, docs 30.72 is usable (RAID 10), so the two pages are consistent, not conflicting. RAM unit on CoreWeave is GB as displayed. No correction needed.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "matches provider snapshot 2026-09-17"
      }
     ],
     "H200": [
@@ -13347,7 +13413,8 @@
       "confidence": "high",
       "verified": true,
       "notes": "Docs spec table: 8x NVIDIA H200 141 GB, CPU Intel Emerald Rapids 8562Y+, vCPUs 128 (page uses 'vCPUs'), RAM 2048 GB, usable storage 30.72 TB from 8x 7.68 TB RAID 10 (raw 61.44 TB shown on pricing page), NIC dual-port 100GbE; prose: 'NVIDIA ConnectX-7 adapters providing a 400G NDR InfiniBand fabric'. Per-node IB total is not printed on the docs page; CoreWeave's own blog https://www.coreweave.com/blog/coreweave-is-the-first-cloud-provider-to-deploy-nvidia-h200-tensor-core-gpus states '3200Gbps of NVIDIA Quantum-2 InfiniBand networking', Intel 5th-gen Xeon (Emerald Rapids) and BlueField-3 DPUs for H200 instances. On-demand list price on https://www.coreweave.com/pricing (2026-09-16): $50.44 per node-hour (= $6.305/GPU-hr computed), spot $20.93/node-hr. | verifier: Opened docs page: 8x H200 141 GB, 'Intel Emerald Rapids 8562Y+ (2.80 GHz)', 128 vCPUs, 2048 GB, '8x 7.68 TB RAID 10' -> 30.72 TB usable, 'Dual-port 100GbE', 'NVIDIA ConnectX-7 adapters providing a 400G NDR InfiniBand fabric' all present. Blog opened: '3200Gbps of NVIDIA Quantum-2 InfiniBand networking', 'fifth-generation Xeon CPUs (Emerald Rapids)', 'Bluefield-3 DPUs' confirmed verbatim (the blog is a launch announcement, so 3200 Gbps is a stated per-node figure but is not on the current spec page). Pricing page row 8 / 128 / 2,048 / 61.44 / $50.44 / $20.93 confirmed. No correction needed.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "matches provider snapshot 2026-09-17"
      }
     ],
     "B200": [
@@ -13365,7 +13432,8 @@
       "confidence": "high",
       "verified": true,
       "notes": "Docs spec table: 8x NVIDIA B200 180 GB HBM3e, CPU Intel Emerald Rapids 8562Y+, vCPUs 128 (page uses 'vCPUs'), RAM 2048 GB, usable storage 30.72 TB from 8x 7.68 TB RAID 10 (raw 61.44 TB shown on pricing page), NIC dual-port 100GbE; prose names 'eight NVIDIA ConnectX-7 InfiniBand host channel adapters' on a '400G NDR non-blocking NVIDIA Quantum-2 InfiniBand fabric' and a BlueField-3 DPU. The page does not print an aggregate figure; 8 HCAs x 400G = 3.2 Tb/s is arithmetic, not a stated value. Regions listed: EU-SOUTH-04A, US-CENTRAL-07A, US-EAST-13A, US-EAST-15A, US-WEST-09B. On-demand list price on https://www.coreweave.com/pricing (2026-09-16): $68.80 per node-hour (= $8.60/GPU-hr computed), spot $34.11/node-hr. | verifier: Opened docs page: 8x B200 180 GB, 'Intel Emerald Rapids 8562Y+ (2.80 GHz)', 128 vCPUs, 2048 GB, '8x 7.68 TB RAID 10' -> 30.72 TB usable, 'Dual-port 100GbE', 'eight NVIDIA ConnectX-7 InfiniBand host channel adapters (HCAs)', '400G NDR non-blocking NVIDIA Quantum-2 InfiniBand fabric', 'NVIDIA BlueField-3 DPU', 'NVLink and NVLink Switch', regions EU-SOUTH-04A/US-CENTRAL-07A/US-EAST-13A/US-EAST-15A/US-WEST-09B all confirmed. Pricing row 8 / 128 / 2,048 / 61.44 / $68.80 / $34.11 confirmed. Researcher correctly flagged 3.2 Tb/s as derived, not stated. No correction needed.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "matches provider snapshot 2026-09-17"
      }
     ],
     "GB200": [
@@ -13383,7 +13451,8 @@
       "confidence": "high",
       "verified": true,
       "notes": "Docs spec table: 4x NVIDIA GB200, GPU RAM 186 GB, CPU '2x NVIDIA Grace Arm v9 (3.10 GHz)', vCPUs 144 (page uses 'vCPUs'; Grace core count is not printed on the page), RAM 960 GB, usable storage 15.36 TB from 4x 7.68 TB RAID 10 (raw 30.72 TB, which is the figure shown on www.coreweave.com/pricing), NIC dual-port 100GbE. The 400 Gb/s NDR / Quantum-2 InfiniBand statement and the 18-node full-rack deployment rule come from https://docs.coreweave.com/platform/instances/nvl72 ('powered by 4x NVIDIA GB200 GPUs and connected with 400 Gb/s NDR InfiniBand'); a per-node IB aggregate is not published. Pricing footnote: each instance = 2 GB200 Superchips, each with 1 Grace CPU and 2 Blackwell GPUs. On-demand list price on https://www.coreweave.com/pricing (2026-09-16): $42.00 per 4-GPU instance-hour (= $10.50/GPU-hr computed); no spot. | verifier: Opened docs page: 4x GB200, 186 GB GPU RAM, '2x NVIDIA Grace Arm v9 (3.10 GHz)', 144 vCPUs, 960 GB, '4x 7.68 TB RAID 10' -> 15.36 TB usable, 'Dual-port 100GbE', 'InfiniBand & NVLink' confirmed; page also cites 'fifth-generation NVLink with up to 130 TB/s total bandwidth' rack-wide. NVL72 overview page opened: 'powered by 4x NVIDIA GB200 GPUs', 'connected with 400 Gb/s NDR InfiniBand, built on the NVIDIA Quantum-2', 'must be deployed as full racks of 18 Nodes', 'CKS enforces full-rack deployment' confirmed. Pricing row 4 / 144 / 960 / 30.72 / $42.00 / N/A and the Superchip footnote confirmed. No correction needed.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "matches provider snapshot 2026-09-17"
      }
     ],
     "B300": [
@@ -13401,7 +13470,8 @@
       "confidence": "high",
       "verified": true,
       "notes": "ADDED BY VERIFIER (missed by researcher). Docs spec table: 8x NVIDIA B300, GPU RAM 270 GB, CPU '2 x Intel Granite Rapids (6747P) (2.70 GHz)', vCPUs 192, RAM 4096 GB, storage '8x 7.68 TB RAID 10' with 30.72 TB usable (raw 61.44 TB, which is the figure shown on www.coreweave.com/pricing), NIC 'Dual-port 200GbE', GPU connectivity 'Quantum-X800 InfiniBand & NVLink'. Regions: US-CENTRAL-06A, US-EAST-13A, US-WEST-01A, US-WEST-10A. Default driver 595. Pricing page (2026-09-16): on-demand 'Contact sales', spot $35.84/node-hr; row shows 8 GPUs / 192 vCPUs / 4,096 GB / 61.44 TB. | verifier: New entry. Every figure taken verbatim from the docs page opened 2026-09-16 and cross-checked against the pricing page row (8 / 192 / 4,096 / 61.44 raw). No aggregate IB figure or HCA count is printed on this page, so network is qualitative only. No on-demand list price published.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "matches provider snapshot 2026-09-17"
      }
     ],
     "GB300": [
@@ -13670,7 +13740,7 @@
       "verified": true,
       "notes": "Table row verbatim: 208 vCPU | 1,872 GB instance memory | 6,000 GiB attached Local SSD (= 6.44 TB decimal) | 5 physical NICs | 1,000 Gbps | 8 GPUs | 640 GB HBM3 (80 GB per GPU). GCP defines a vCPU as a single hardware hyper-thread. Page states 'A3 High machine types have NVIDIA H100 SXM GPUs' and 'only available on the Sapphire Rapids CPU platform'. Original URL cloud.google.com/compute/docs/accelerator-optimized-machines 301-redirects to this docs.cloud.google.com URL; same figures also on docs.cloud.google.com/compute/docs/gpus. | verifier: Parsed the raw HTML table on 2026-09-16: a3-highgpu-8g | 208 | 1,872 | 6,000 | 5 | 1,000 | 8 | 640 matches exactly. Footnote 'A vCPU is implemented as a single hardware hyper-thread' present. 'A3 High machine types have NVIDIA H100 SXM GPUs', 'only available on the Sapphire Rapids CPU platform', '4th Generation Intel Xeon Scalable processor (Sapphire Rapids) ... up to 3.3 GHz sustained single-core max turbo', and GPUDirect-TCPX for a3-highgpu-8g all present. 6,000 GiB x 1.0737 = 6,442 GB = 6.44 TB, conversion correct. No corrections.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "a3-megagpu-8g",
@@ -13842,7 +13912,8 @@
       "confidence": "medium",
       "verified": true,
       "notes": "Flavor row: H100-80G-SXM5 | n3-H100-SXM5x8 | 8 | SXM5 | CPUs 192 | RAM (GB) 1800 | Root disk 100 GB | Ephemeral disk 32000 GB | CANADA-1 | Network optimized Yes | Spot version No. 'CPUs' is undefined as thread vs core on the docs (pricing page 'Max pCPUs' 24/GPU x 8 = 192 agrees); reported as published, not doubled. CPU model not named on any Hyperstack page. local_storage_tb = 32 TB ephemeral (non-persistent) plus 100 GB root. Network sentences verbatim: \"Every flavor includes virtual NICs with up to 16 Gbps of inter-VM bandwidth by default\"; \"Flavors marked 350 Gbps in the catalog can be deployed into network-optimized environments that raise inter-VM bandwidth to 350 Gbps via SR-IOV.\" UNIT/SOURCE SLIP TO WATCH: hyperstack.cloud/gpu-pricing lists H100 SXM RAM/GPU as 240 GB (x8 = 1920 GB), which disagrees with the flavor catalog's 1800 GB; catalog used as canonical. Price (gpu-pricing): $3.20/GPU-hr on-demand, $2.72 reserved, no spot. | verifier: Opened source_url: row confirmed exactly (192 CPUs, 1800 GB RAM, 100 GB root, 32000 GB ephemeral, CANADA-1, network optimized Yes, spot No). Both 16 Gbps and 350 Gbps SR-IOV sentences present. Docs do not define CPUs as threads or cores and name no CPU model, so cpu_model=null is right. Added the pricing-page 240 GB/GPU (=1920 GB) discrepancy to notes. Prices confirmed on gpu-pricing. No figure corrected.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "mismatch: vcpu doc 192 vs 224; ram_gb doc 1800 vs 1440.0"
      },
      {
       "instance_type": "n3-H100-SXM5x8 (US-1)",
@@ -13892,7 +13963,8 @@
       "confidence": "medium",
       "verified": true,
       "notes": "Flavor row: H200-141G-SXM5 | n3-H200-SXM5x8 | 8 | SXM5 | CPUs 176 | RAM (GB) 1800 | Root disk 100 GB | Ephemeral disk 48000 GB | CANADA-1 | Network optimized Yes | Spot version No. Pricing page 'Max pCPUs' 22/GPU x 8 = 176 and RAM/GPU 225 GB x 8 = 1800 GB both agree with the catalog. CPU thread/core undefined; CPU model not named. local_storage_tb = 48 TB ephemeral plus 100 GB root. DISCREPANCY: marketing page hyperstack.cloud/nvidia-h200-sxm and the H200 SXM blog quote 192 CPU cores / 1920 GB RAM / 32000 GB ephemeral for the 8x H200 VM; the docs flavor catalog is canonical here. Price (gpu-pricing): $3.99/GPU-hr on-demand, $2.79 reserved, no spot. Only the x8 flavor exists for H200. | verifier: Opened source_url: row confirmed exactly (176 CPUs, 1800 GB, 100 GB root, 48000 GB ephemeral, CANADA-1, network optimized Yes, spot No). Pricing page cross-check (22 pCPU/GPU, 225 GB/GPU, $3.99/$2.79) consistent. No corrections.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "matches provider snapshot 2026-09-17"
      }
     ],
     "B200": [
@@ -13910,7 +13982,26 @@
       "confidence": "medium",
       "verified": true,
       "notes": "ADDED BY VERIFIER (missed by researcher). Flavor row: B200-SXM | n3-B200-SXM6x8 | GPUs 8 | Interconnect SXM6 | CPUs 252 | RAM (GB) 2048 | Root disk (GB) 1000 | Ephemeral disk (GB) 40000 | Region CANADA-1 | Network optimized No | Hibernation No | Snapshots No | Boot from volume Yes | Hard reboot No | Spot version No. local_storage_tb = 40 TB ephemeral plus a 1000 GB root disk (larger root than the H100/H200 flavors). 'CPUs' undefined as thread vs core; pricing page 'Max pCPUs' 31/GPU x 8 = 248, a minor mismatch with the catalog's 252; RAM/GPU 256 GB x 8 = 2048 agrees. CPU model not named. Price (hyperstack.cloud/gpu-pricing): NVIDIA B200 $6.00/GPU-hr on-demand, $5.10 reserved, no spot; marketing page hyperstack.cloud/nvidia-blackwell-b200 quotes '192 GB HBM3e' per GPU and $6.00/hr but no VM-level specs. Hyperstack also lists a B300 at $7.40 on-demand (no flavor row seen; out of scope). | verifier: Found on the researcher's own source page during verification. All figures (8 GPUs, 252 CPUs, 2048 GB, 1000 GB root, 40000 GB ephemeral, CANADA-1, Network optimized No) read directly from the flavor table with column headers confirmed in order. Prices confirmed on gpu-pricing page.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "mismatch: vcpu doc 252 vs 248"
+     }
+    ],
+    "B300": [
+     {
+      "instance_type": "hyperstack-b300",
+      "node_gpus": 8,
+      "vcpu": 224,
+      "cpu_model": null,
+      "ram_gb": 1920.0,
+      "local_storage_tb": null,
+      "network": "unknown",
+      "form_factor": "SXM",
+      "source_url": "https://www.hyperstack.cloud/gpu-pricing",
+      "as_of": "2026-09-17",
+      "confidence": "snapshot",
+      "verified": true,
+      "source": "provider API snapshot",
+      "notes": "vCPU and RAM from the provider API as recorded by the daily monitor; storage and network bandwidth not captured"
      }
     ]
    },
@@ -13985,7 +14076,8 @@
       "verified": true,
       "notes": "Pricing page 8-GPU row: NVIDIA H100 SXM, 80 GB VRAM, 208 vCPUs, 1800 GiB RAM (GiB as displayed; ~1933 GB), 22 TiB SSD (TiB as displayed; ~24.2 TB), $3.99/GPU-hr on-demand. CPU model not published on any Lambda page found; Lambda's 1-Click Clusters blog (https://lambda.ai/blog/introducing-lambda-1-click-clusters-a-new-way-to-train-large-ai-models) describes the HGX H100 worker node as '208 vCPUs (104 cores)', '1.9TB RAM', '24TB local NVMe', 1:1 ConnectX-7 per GPU, Quantum-2 400 Gb/s IB with '3200 Gb/s node-to-node' and up to 200 Gb/s Ethernet, but that is the cluster product, not the on-demand SKU; the pricing page and docs.lambda.ai/public-cloud/on-demand/ state no network figure for on-demand instances, so network is null. API name: the string gpu_8x_h100_sxm5 was not found on a Lambda-owned page (only third-party); Lambda's OpenAPI spec (https://docs-api.lambda.ai/api/cloud/spec.json) uses the example name 'gpu_8x_h100_sxm5gdr' with description '8x H100 (80 GB SXM5)' and example specs vcpus 208 / memory_gib 1800 / storage_gib 24780 / gpus 8; console label per docs is '8x H100 (80 GB SXM5)'. | verifier: Opened lambda.ai/pricing 2026-09-16: 8x 'NVIDIA H100 SXM, 80 GB VRAM, 208 vCPUs, 1800 GiB RAM, 22 TiB SSD, $3.99/GPU/hr' confirmed. Also confirmed on docs.lambda.ai/public-cloud/on-demand/ (table 'Last Updated December 2025') and lambda.ai/instances. Downloaded the OpenAPI spec and grepped: InstanceType.name example 'gpu_8x_h100_sxm5gdr', description '8x H100 (80 GB SXM5)', vcpus example 208, storage_gib example 24780 are all present as schema examples, not an enumerated list. Unit caution: ram_gb=1800 and local_storage_tb=22 are the GiB/TiB values as displayed, not converted (1800 GiB = 1933 GB; 22 TiB = 24.2 TB) \u2014 the notes disclose this. Note the 2023 launch blog quoted 220 vCPUs / 1.8 TB / 24.3 TiB for the original 8x H100 SXM instance; the current page says 208 vCPUs, so the researcher's figure reflects the current spec. CPU model and per-instance network remain unpublished for on-demand; nulls are appropriate.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "4x NVIDIA H100 SXM 80 GB (pricing page row; API name not shown)",
@@ -14002,7 +14094,8 @@
       "verified": true,
       "notes": "Pricing page 4-GPU row: H100 SXM 80 GB, 104 vCPUs, 900 GiB RAM (GiB), 11 TiB SSD (TiB), $4.09/GPU-hr on-demand. Sub-node slice of the 8x host. CPU model and network not published for on-demand instances. | verifier: Opened lambda.ai/pricing: 4x 'NVIDIA H100 SXM: 80 GB, 104 vCPUs, 900 GiB RAM, 11 TiB SSD, $4.09/GPU/hr' confirmed; same row on docs.lambda.ai/public-cloud/on-demand/. Values are GiB/TiB as displayed (not converted to GB/TB). No correction needed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "2x NVIDIA H100 SXM 80 GB (pricing page row; API name not shown)",
@@ -14019,7 +14112,8 @@
       "verified": true,
       "notes": "Pricing page 2-GPU row: H100 SXM 80 GB, 52 vCPUs, 450 GiB RAM (GiB), 5.5 TiB SSD (TiB), $4.19/GPU-hr on-demand. CPU model and network not published for on-demand instances. | verifier: Opened lambda.ai/pricing: 2x 'NVIDIA H100 SXM: 80 GB, 52 vCPUs, 450 GiB RAM, 5.5 TiB SSD, $4.19/GPU/hr' confirmed; same row on docs on-demand page. GiB/TiB as displayed. No correction needed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "1x NVIDIA H100 SXM 80 GB (pricing page row; console label '1x H100 (80 GB SXM5)')",
@@ -14036,6 +14130,7 @@
       "verified": true,
       "notes": "Pricing page 1-GPU row: H100 SXM 80 GB, 26 vCPUs, 225 GiB RAM (GiB), 2.75 TiB SSD (TiB), $4.29/GPU-hr on-demand. Console label '1x H100 (80 GB SXM5)' per https://docs.lambda.ai/education/large-language-models/deploying-nemotron-3-nano/. CPU model and network not published. | verifier: Opened lambda.ai/pricing: 1x 'NVIDIA H100 SXM: 80 GB, 26 vCPUs, 225 GiB RAM, 2.75 TiB SSD, $4.29/GPU/hr' confirmed; same row on docs on-demand page. GiB/TiB as displayed. The console-label citation page was not re-opened (not a figure source). No correction needed.",
       "source": "provider documentation",
+      "api_check": "mismatch: ram_gb doc 225 vs 200.0",
       "catalog_check": "mismatch: local_storage_tb doc 2.75 vs 1.1"
      },
      {
@@ -14071,7 +14166,8 @@
       "verified": true,
       "notes": "Pricing page 8-GPU row: NVIDIA B200 SXM6, 180 GB VRAM, 208 vCPUs, 2900 GiB RAM (GiB as displayed; ~3114 GB), 22 TiB SSD (TiB as displayed; ~24.2 TB), $6.69/GPU-hr on-demand. API name gpu_8x_b200_sxm6 is confirmed on Lambda's own bare-metal blog (https://lambda.ai/blog/lambda-bare-metal-instances, 2026-05-21: 'Instead of selecting an instance type like gpu_8x_b200_sxm6...'); console label '8x B200 (180 GB SXM6)'. CPU model not published; network not stated for on-demand (1-Click Cluster B200 nodes are described with Quantum-2 IB up to 3200 Gb/s and 2x100 Gb/s Ethernet at https://docs.lambda.ai/public-cloud/1-click-clusters/, cluster product only). Lambda's B200 launch blog gives '2900 GiB of system memory' and 'Starting at $4.99/GPU-hr' (launch promo, superseded by the $6.69 list). | verifier: Opened lambda.ai/pricing: 8x 'NVIDIA B200 SXM6: 180 GB VRAM, 208 vCPUs, 2900 GiB RAM, 22 TiB SSD, $6.69/GPU/hr' confirmed; same on docs on-demand page and lambda.ai/instances. Bare-metal blog opened: sentence 'Instead of selecting an instance type like gpu_8x_b200_sxm6, you select a bare metal type' present (dated May 21, 2026, updated June 5, 2026). Unit caution: ram_gb=2900 is GiB as displayed (~3114 GB); local_storage_tb=22 is TiB (~24.2 TB). No correction needed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "4x NVIDIA B200 SXM6 180 GB (pricing page row; API name not shown)",
@@ -14104,7 +14200,8 @@
       "verified": true,
       "notes": "Pricing page 2-GPU row: B200 SXM6 180 GB, 52 vCPUs, 720 GiB RAM (GiB), 5.5 TiB SSD (TiB), $6.89/GPU-hr on-demand. CPU model and network not published. | verifier: Opened lambda.ai/pricing: 2x 'NVIDIA B200 SXM6: 180 GB, 52 vCPUs, 720 GiB RAM, 5.5 TiB SSD, $6.89/GPU/hr' confirmed; same on docs on-demand page. GiB/TiB as displayed. No correction needed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "1x NVIDIA B200 SXM6 180 GB (pricing page row; console label '1x B200 (180 GB SXM6)')",
@@ -14121,7 +14218,8 @@
       "verified": true,
       "notes": "Pricing page 1-GPU row: B200 SXM6 180 GB, 26 vCPUs, 360 GiB RAM (GiB), 2.75 TiB SSD (TiB), $6.99/GPU-hr on-demand. Console label per https://docs.lambda.ai/education/large-language-models/deploying-nemotron-3-nano/. CPU model and network not published. | verifier: Opened lambda.ai/pricing: 1x 'NVIDIA B200 SXM6: 180 GB, 26 vCPUs, 360 GiB RAM, 2.75 TiB SSD, $6.99/GPU/hr' confirmed; same on docs on-demand page. GiB/TiB as displayed. No correction needed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ]
    },
@@ -14142,7 +14240,7 @@
       "verified": true,
       "notes": "Docs preset table: 8 GPUs, 128 vCPUs, 1600 GiB RAM (RAM is GiB in docs; nebius.com/prices labels it GB). GPU table row: H100 SXM 80 GB HBM3, 'InfiniBand interconnect 400 Gbps (8x ConnectX-7)', 'Network adapter ConnectX-6 100 Gbps', CPU Intel Xeon Platinum 8468. Per-node 3.2 Tbps is stated on https://docs.nebius.com/compute/clusters/gpu. Only this 8-GPU preset is cluster (InfiniBand) compatible. Local NVMe = 0: https://docs.nebius.com/compute/storage/local-disks states local SSD disks are available only on gpu-b300-sxm 8gpu preset. Region eu-north1. Price (nebius.com/prices, 2026-09-16): $3.85/GPU-hr on-demand, $2.15 preemptible; commitment discounts 'up to 35%' for multi-month cluster reservations, no figures published. | verifier: Opened docs types page: 8gpu-128vcpu-1600gb = 8 GPUs / 128 vCPUs / 1600 GiB confirmed; CPU Xeon Platinum 8468, IB '400 Gbps (8x ConnectX-7)', adapter 'ConnectX-6 100 Gbps' confirmed; 'Sapphire Rapids' confirmed via clusters/gpu fabric table ('H100 NVLink with Intel Sapphire Rapids'). clusters/gpu confirms 400 Gbps per GPU NIC and 'total bandwidth for a node is 3.2 Tbps'. local-disks page confirms local SSD only on B300 8-GPU preset, so 0 is a documented absence. Unit note: ram_gb=1600 is 1600 GiB (~1718 GB decimal). Caveat: the marketing page nebius.com/compute/h100 spec table prints 'Networking bandwidth: 0.4 Tb/s' (NVIDIA HGX datasheet row), which conflicts with the docs' 3.2 Tbps; docs treated as authoritative for Nebius's actual config.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "gpu-h100-sxm / 1gpu-16vcpu-200gb",
@@ -14159,7 +14257,8 @@
       "verified": true,
       "notes": "Docs preset table: 1 GPU, 16 vCPUs, 200 GiB RAM. This is the row shown on nebius.com/prices (16 vCPU / 200 GB) priced at $3.85/GPU-hr on-demand, $2.15 preemptible (2026-09-16). Docs: 'Other presets and platforms are not compatible with GPU clusters' - only the 8-GPU preset joins InfiniBand clusters. Local NVMe = 0 per https://docs.nebius.com/compute/storage/local-disks (local SSD only on B300 8-GPU preset). Region eu-north1. | verifier: Docs types page confirms 1gpu-16vcpu-200gb = 1 GPU / 16 vCPUs / 200 GiB, CPU 8468, adapter ConnectX-6 100 Gbps, and the statement that only the 8-GPU presets are GPU-cluster compatible. nebius.com/prices row 'NVIDIA HGX H100 | 16 | 200 GB | $2.15 | $3.85' confirmed. RAM unit: docs say GiB, prices page says GB (same number).",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "H200": [
@@ -14178,7 +14277,7 @@
       "verified": true,
       "notes": "Docs preset table: 8 GPUs, 128 vCPUs, 1600 GiB RAM. GPU table row: H200 SXM 141 GB HBM3e, 'InfiniBand interconnect 400 Gbps (8x ConnectX-7)', 'Network adapter BlueField-3 200 Gbps', CPU Intel Xeon Platinum 8468. Per-node 3.2 Tbps stated on https://docs.nebius.com/compute/clusters/gpu. nebius.com/compute/h200 adds 'NVIDIA Quantum-2 InfiniBand at 400 Gb/s per GPU'. Local NVMe = 0 per https://docs.nebius.com/compute/storage/local-disks. Regions eu-north1, eu-north2 (private), eu-west1, us-central1. Price (nebius.com/prices, 2026-09-16): $4.50/GPU-hr on-demand, $2.45 preemptible. | verifier: Docs types page confirms 8/128/1600 GiB, CPU 8468, IB 400 Gbps (8x ConnectX-7), adapter BlueField-3 200 Gbps, regions. clusters/gpu confirms 3.2 Tbps per node and 'H200 NVLink with Intel Sapphire Rapids'. nebius.com/compute/h200 confirms 'NVIDIA Quantum-2 InfiniBand at 400 Gb/s per GPU'. local-disks confirms no local SSD on this platform. Price row confirmed. Caveat: nebius.com/compute/h200 spec table prints 'Networking bandwidth: 0.4 Tb/s' (NVIDIA datasheet figure) - conflicts with docs 3.2 Tbps; docs used.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "gpu-h200-sxm / 1gpu-16vcpu-200gb",
@@ -14195,7 +14294,8 @@
       "verified": true,
       "notes": "Docs preset table: 1 GPU, 16 vCPUs, 200 GiB RAM; matches the nebius.com/prices row (16 vCPU / 200 GB) at $4.50/GPU-hr on-demand, $2.45 preemptible (2026-09-16). Only the 8-GPU preset is cluster compatible. Local NVMe = 0 per https://docs.nebius.com/compute/storage/local-disks. | verifier: Docs types page confirms 1/16/200 GiB, CPU 8468, BlueField-3 200 Gbps, cluster-incompatibility of non-8-GPU presets. Prices row 'HGX H200 | 16 | 200 GB | $2.45 | $4.50' confirmed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "B200": [
@@ -14214,7 +14314,7 @@
       "verified": true,
       "notes": "Docs preset table: 8 GPUs, 160 vCPUs, 1792 GiB RAM (same preset on both B200 platform IDs). GPU table row: B200 SXM 180 GB HBM3e, 'InfiniBand interconnect 400 Gbps (8x ConnectX-7)', 'Network adapter BlueField-3 400 Gbps', CPUs Xeon Platinum 8580 / 8570. Per-node 3.2 Tbps stated on https://docs.nebius.com/compute/clusters/gpu; nebius.com/compute/b200 adds 'Quantum-2 InfiniBand at 400 Gb/s per GPU'. Local NVMe = 0 per https://docs.nebius.com/compute/storage/local-disks. Price (nebius.com/prices, 2026-09-16): $7.15/GPU-hr on-demand, $3.95 preemptible, same for both platform IDs (docs.nebius.com/compute/resources/pricing). | verifier: Docs types page confirms 8/160/1792 GiB on both gpu-b200-sxm (Xeon Platinum 8580, us-central1) and gpu-b200-sxm-a (Xeon Platinum 8570, me-west1); IB 400 Gbps (8x ConnectX-7); adapter BlueField-3 400 Gbps. 'Emerald Rapids' confirmed in clusters/gpu fabric table ('B200 NVLink with Intel Emerald Rapids'). 3.2 Tbps per node: clusters/gpu states 400 Gbps per GPU and 3.2 Tbps per 8-GPU node as a general statement, not B200-specific, but consistent with the B200 IB row. nebius.com/compute/b200 confirms 'NVIDIA Quantum-2 InfiniBand at 400 Gb/s per GPU'. docs pricing page confirms $7.15/$3.95 for both IDs. Caveat: nebius.com/compute/b200 prints 'Networking bandwidth 0.8 Tb/s' (NVIDIA datasheet row) - conflicts with docs; docs used.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "gpu-b200-sxm / gpu-b200-sxm-a / 1gpu-20vcpu-224gb",
@@ -14231,7 +14331,8 @@
       "verified": true,
       "notes": "Docs preset table: 1 GPU, 20 vCPUs, 224 GiB RAM; matches the nebius.com/prices row (20 vCPU / 224 GB) at $7.15/GPU-hr on-demand, $3.95 preemptible (2026-09-16). Only the 8-GPU preset is cluster compatible. Local NVMe = 0 per https://docs.nebius.com/compute/storage/local-disks. | verifier: Docs types page confirms 1gpu-20vcpu-224gb = 1/20/224 GiB on both B200 platform IDs, CPUs 8580/8570, BlueField-3 400 Gbps. Prices row 'HGX B200 | 20 | 224 GB | $3.95 | $7.15' confirmed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "B300": [
@@ -14250,7 +14351,7 @@
       "verified": true,
       "notes": "Docs preset table: 8 GPUs, 192 vCPUs, 2768 GiB RAM. GPU table row: B300 SXM 288 GB HBM3e, 'InfiniBand interconnect 800 Gbps (8x ConnectX-8)', 'Network adapter BlueField-3 400 Gbps', CPU Intel Xeon 6776P. nebius.com/compute/b300: 'NVIDIA Quantum-X800 InfiniBand at 800 Gb/s per GPU', 'air-cooled 8-GPU server node'. Local storage: https://docs.nebius.com/compute/storage/local-disks - local SSD (NVMe) available only on this platform+preset, '6 x 3.84 TB' = 23.04 TB, ephemeral, enabled at VM creation, regions uk-south1 (public), eu-west2 and us-north1 (private). Regions uk-south1, eu-west2 (private), us-north1 (private). Price (nebius.com/prices, 2026-09-16): $7.85/GPU-hr on-demand, $4.30 preemptible. | verifier: Docs types page confirms 8/192/2768 GiB, CPU Intel Xeon 6776P, IB '800 Gbps (8x ConnectX-8)', adapter BlueField-3 400 Gbps, regions. 'Granite Rapids' confirmed in clusters/gpu fabric table and local-disks page ('B300 NVLink with Intel Granite Rapids'). local-disks confirms '6 x 3.84 TB' only on gpu-b300-sxm 8gpu-192vcpu-2768gb, so 23.04 TB is correct arithmetic on printed figures. nebius.com/compute/b300 confirms 'Quantum-X800 InfiniBand at 800 Gb/s per GPU' and 'Air-cooled 8-GPU server node'. CORRECTION: the researcher's '6.4 Tb/s per node' is printed nowhere; the docs clusters/gpu per-node statement is the generic '400 Gbps ... 3.2 Tbps' text and the b300 marketing spec table prints 'Networking bandwidth: 1.6 Tb/s' - network field rewritten to label 6.4 as derived and record the conflicting printed figure. Also note the marketing page says 'Total memory: 2.1 TB HBM3e' (~270 GB/GPU) vs docs 288 GB HBM3e per GPU; not a verified field here. Confidence kept medium because of these marketing/docs inconsistencies.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "gpu-b300-sxm / 1gpu-24vcpu-346gb",
@@ -14267,7 +14368,8 @@
       "verified": true,
       "notes": "Docs preset table: 1 GPU, 24 vCPUs, 346 GiB RAM; matches the nebius.com/prices row (24 vCPU / 346 GB) at $7.85/GPU-hr on-demand, $4.30 preemptible (2026-09-16). Local NVMe = 0: local-disks doc restricts local SSD to the 8gpu-192vcpu-2768gb preset. Only the 8-GPU preset is cluster compatible. | verifier: Docs types page confirms 1gpu-24vcpu-346gb = 1/24/346 GiB, CPU 6776P, BlueField-3 400 Gbps; local-disks page explicitly restricts local SSD to the eight-GPU preset, so 0 is documented. Prices row 'HGX B300 | 24 | 346 GB | $4.30 | $7.85' confirmed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19578"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "GB200": [
@@ -14324,7 +14426,7 @@
       "verified": true,
       "notes": "Table row verbatim: OCPU 112 | GPU memory 640 GB | CPU memory 2048 GB | Local disk '16 x 3.84 TB NVMe' | Max network bandwidth '1 x 100 Gbps 8 x 2 x 200 Gbps RDMA' | Max VNICs 256 | Windows not supported. Series text: 'X10-based GPU compute. GPU: 8x H100 80 GB CPU: Intel Sapphire Rapids 8480+ 2x 56c. Base frequency 2 GHz, max boost frequency 3.8 GHz.' vCPU = 2 x OCPU = 224; the same page states 'one OCPU is the equal of two vCPUs for x86-based compute'. Local disk 16 x 3.84 = 61.44 TB (twice the NVMe of the H200/B200 shapes); oracle.com/cloud/compute/gpu states '61.4 TB with H100 GPUs' and the OCI H100 quick-start gives '16 x 3.5 TB NVMe (~54 TB usable)' (3.5 TiB = 3.84 TB, so the same drives; ~54 TB is usable after formatting). RDMA protocol: OCI H100 quick-start (docs.oracle.com/en-us/iaas/Content/Compute/gpu-quick-start/nvidia/H100/README-H100.htm) column 'RDMA (ROCe) NICs: 8 x 2 x 200 Gb/s = 3.2 Tb/s' and 'RoCE-capable scale-out networking'. GPU form factor (SXM/HGX) not stated on either page. | verifier: Raw HTML of the shapes page confirms OCPU 112, 640, 2048, '16 x 3.84 TB NVMe', '1 x 100 Gbps 8 x 2 x 200 Gbps RDMA', and the series text incl. 2 GHz base / 3.8 GHz boost. vCPU 224 is derived via the page's own stated rule (1 OCPU on x86 = 2 vCPUs). Added RoCE to network string from the official OCI H100 quick-start page, which also confirms 112 cores, 2 TB DDR5, 100 Gb/s host NIC. Unit note: quick-start's '3.5 TB' per drive is TiB (= 3.84 TB decimal); 61.44 TB is raw capacity, ~54 TB usable.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "H200": [
@@ -14343,7 +14445,7 @@
       "verified": true,
       "notes": "Table row verbatim: OCPU 112 | GPU memory 1128 GB | CPU memory 3072 GB | Local disk '8 x 3.84 TB NVMe' | Max network bandwidth '1 x 200 Gbps 8 x 400 Gbps RDMA' | Max VNICs 256 | Windows not supported. Series text: 'GPU: 8x NVIDIA H200 Tensor Core GPUs 141 GB CPU: 2 x 56-core Intel Sapphire Rapids 8480+'. vCPU = 2 x 112 OCPU = 224 (page defines OCPU = 2 vCPU for x86). Local disk 8 x 3.84 = 30.72 TB. OCI H200 quick-start (docs.oracle.com/.../gpu-quick-start/nvidia/H200/README-H200.htm) confirms 8 x 141 GB, 2 x Xeon 8480+ 112 cores, 3 TB DDR5, '8 x 3.5 TB NVMe = 28 TB' (TiB drives), 'RDMA (ROCe) NICs 8 x 1 x 400 Gb/s = 3.2 Tb/s' but lists the host NIC as 100 Gb/s where the shapes page says 1 x 200 Gbps; shapes page figure kept. Form factor not stated. | verifier: Raw HTML of the shapes page confirms OCPU 112, 1128, 3072, '8 x 3.84 TB NVMe', '1 x 200 Gbps 8 x 400 Gbps RDMA' and series text. vCPU 224 derived via the page's x86 rule. Added RoCE from the official H200 quick-start. Discrepancy flagged: quick-start says host NIC 100 Gb/s vs shapes page 1 x 200 Gbps; shapes page is the reference the quick-start itself points to.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "B200": [
@@ -14362,7 +14464,7 @@
       "verified": true,
       "notes": "Table row verbatim: OCPU 128 | GPU memory 1440 GB | CPU memory 4096 GB | Local disk '8 x 3.84 TB NVMe' | Max network bandwidth '2 x 200 Gbps 8 x 400 Gbps RDMA' | Max VNICs 256 | Windows not supported. Series text: 'GPU: 8x NVIDIA B200 Tensor Core GPUs 180 GB CPU: 2 x 64-core Intel Emerald Rapids 8592+'. vCPU = 2 x 128 OCPU = 256 (page defines OCPU = 2 vCPU for x86); the OCI B300 quick-start states the same 2 x 8592+ CPUs as '128 Cores (256 with HT)'. Local disk 8 x 3.84 = 30.72 TB. Caution: the OCI B200 quick-start (docs.oracle.com/.../gpu-quick-start/nvidia/B200/README-B200.htm) table says 'vCPU 128' and 'System Memory 2048 GB' and 'GPU Memory 192 GB' for this shape; those are inconsistent with the shapes page (128 is the OCPU/core count, 4096 GB, 180 GB per GPU) and the quick-start defers to the shapes page, so shapes-page figures are kept. Form factor not stated. | verifier: Raw HTML of the shapes page confirms OCPU 128, 1440, 4096, '8 x 3.84 TB NVMe', '2 x 200 Gbps 8 x 400 Gbps RDMA' and series text. vCPU 256 via the page's x86 rule, corroborated by '128 Cores (256 with HT)' on the official B300 quick-start for the identical CPU pair. Flagged the official B200 quick-start's conflicting 'vCPU 128 / 2048 GB' as a cores-vs-threads and memory slip on that secondary page.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "B300": [
@@ -14460,7 +14562,7 @@
       "node_gpus": 8,
       "vcpu": 224,
       "cpu_model": null,
-      "ram_gb": 2008.0,
+      "ram_gb": 1504.0,
       "local_storage_tb": null,
       "network": "3200 Gbps per node inter-node ('network speed', InfiniBand or RoCE v2 per product page)",
       "form_factor": null,
@@ -14470,40 +14572,24 @@
       "verified": true,
       "notes": "Docs table: 'H100 | 3200 Gbps | 2-8 nodes (16-64 GPUs)' => 8 GPUs per node; larger clusters up to 512 GPUs via sales. Product page https://www.runpod.io/product/instant-clusters: '1,600-3,200 Gbps east-west bandwidth via InfiniBand or RoCE v2', billed by the second, no minimum commitment; per-GPU price not shown on either page. vCPU, RAM, storage, CPU model not published. Network figure is per node (8 GPUs), i.e. 400 Gbps per GPU - do not read it as per-GPU. | verifier: Added: researcher listed no multi-GPU Runpod SKU. node_gpus (8) is derived from '2-8 nodes (16-64 GPUs)'; 3200 Gbps read verbatim from the docs table 2026-09-16. Fabric type (IB vs RoCE) not pinned per GPU type.",
       "source": "provider documentation",
-      "filled_from": "vcpu, ram_gb from dstack gpuhunt catalog 20260916-19577",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19577"
-     },
-     {
-      "instance_type": "NVIDIA H100 80GB HBM3",
-      "node_gpus": 4,
-      "vcpu": 112,
-      "cpu_model": null,
-      "ram_gb": 1004.0,
-      "local_storage_tb": null,
-      "network": null,
-      "form_factor": null,
-      "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
-      "confidence": "catalog",
-      "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19577",
-      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (AP-IN-1); network not carried"
+      "filled_from": "vcpu, ram_gb from dstack gpuhunt catalog 20260917-19595",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "NVIDIA H100 80GB HBM3",
       "node_gpus": 3,
-      "vcpu": 84,
+      "vcpu": 78,
       "cpu_model": null,
-      "ram_gb": 753.0,
+      "ram_gb": 375.0,
       "local_storage_tb": null,
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
+      "as_of": "2026-09-17",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19577",
-      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (AP-IN-1); network not carried"
+      "source": "dstack gpuhunt catalog 20260917-19595",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (CA-MTL-1); network not carried"
      },
      {
       "instance_type": "NVIDIA H100 80GB HBM3",
@@ -14515,10 +14601,10 @@
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
+      "as_of": "2026-09-17",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19577",
+      "source": "dstack gpuhunt catalog 20260917-19595",
       "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (AP-IN-1); network not carried"
      },
      {
@@ -14590,19 +14676,67 @@
      },
      {
       "instance_type": "NVIDIA H200",
+      "node_gpus": 5,
+      "vcpu": 120,
+      "cpu_model": null,
+      "ram_gb": 1885.0,
+      "local_storage_tb": null,
+      "network": null,
+      "form_factor": null,
+      "source_url": "https://github.com/dstackai/gpuhunt",
+      "as_of": "2026-09-17",
+      "confidence": "catalog",
+      "verified": true,
+      "source": "dstack gpuhunt catalog 20260917-19595",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (US-GA-2); network not carried"
+     },
+     {
+      "instance_type": "NVIDIA H200",
+      "node_gpus": 4,
+      "vcpu": 88,
+      "cpu_model": null,
+      "ram_gb": 884.0,
+      "local_storage_tb": null,
+      "network": null,
+      "form_factor": null,
+      "source_url": "https://github.com/dstackai/gpuhunt",
+      "as_of": "2026-09-17",
+      "confidence": "catalog",
+      "verified": true,
+      "source": "dstack gpuhunt catalog 20260917-19595",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (CA-MTL-3); network not carried"
+     },
+     {
+      "instance_type": "NVIDIA H200",
+      "node_gpus": 3,
+      "vcpu": 84,
+      "cpu_model": null,
+      "ram_gb": 753.0,
+      "local_storage_tb": null,
+      "network": null,
+      "form_factor": null,
+      "source_url": "https://github.com/dstackai/gpuhunt",
+      "as_of": "2026-09-17",
+      "confidence": "catalog",
+      "verified": true,
+      "source": "dstack gpuhunt catalog 20260917-19595",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (CA-MTL-4); network not carried"
+     },
+     {
+      "instance_type": "NVIDIA H200",
       "node_gpus": 2,
-      "vcpu": 56,
+      "vcpu": 40,
       "cpu_model": null,
       "ram_gb": 502.0,
       "local_storage_tb": null,
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
+      "as_of": "2026-09-17",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19577",
-      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (CA-MTL-4); network not carried"
+      "source": "dstack gpuhunt catalog 20260917-19595",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (AP-JP-1); network not carried"
      },
      {
       "instance_type": "H200 SXM 1-GPU pod (Secure Cloud)",
@@ -14619,7 +14753,7 @@
       "verified": true,
       "notes": "Pricing card: 'H200 - 141 GB VRAM, 276 GB RAM, 24 vCPUs, $4.59/hr' (Secure Cloud). Community Cloud $3.59/hr per https://www.runpod.io/gpu-models/h200-sxm (confirmed). Form factor SXM from docs display name 'H200 SXM' (GPU ID 'NVIDIA H200') at https://docs.runpod.io/references/gpu-types; docs also list a separate 'NVIDIA H200 NVL' 143 GB. CPU model, disk, network not published. | verifier: Opened pricing page 2026-09-16: 276 GB, 24 vCPUs, $4.59/hr confirmed. gpu-models page $3.59 Community confirmed. Docs gpu-types 'H200 SXM' confirmed. Nothing to correct.",
       "source": "provider documentation",
-      "catalog_check": "mismatch: vcpu doc 24 vs 16"
+      "catalog_check": "mismatch: vcpu doc 24 vs 20"
      }
     ],
     "B200": [
@@ -14640,6 +14774,22 @@
       "source": "provider documentation"
      },
      {
+      "instance_type": "NVIDIA B200",
+      "node_gpus": 2,
+      "vcpu": 48,
+      "cpu_model": null,
+      "ram_gb": 502.0,
+      "local_storage_tb": null,
+      "network": null,
+      "form_factor": null,
+      "source_url": "https://github.com/dstackai/gpuhunt",
+      "as_of": "2026-09-17",
+      "confidence": "catalog",
+      "verified": true,
+      "source": "dstack gpuhunt catalog 20260917-19595",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (US-NC-2); network not carried"
+     },
+     {
       "instance_type": "B200 1-GPU pod (Secure Cloud)",
       "node_gpus": 1,
       "vcpu": 28,
@@ -14653,7 +14803,8 @@
       "confidence": "high",
       "verified": true,
       "notes": "Pricing card: 'B200 - 180 GB VRAM, 283 GB RAM, 28 vCPUs, $6.79/hr' (Secure Cloud). Community Cloud $5.98/hr per https://www.runpod.io/gpu-models/b200 (confirmed). Form factor not stated on any Runpod page (docs GPU ID 'NVIDIA B200'), left null. CPU model, disk, network not published. | verifier: Opened pricing page 2026-09-16: 283 GB, 28 vCPUs, $6.79/hr confirmed. gpu-models page $5.98 Community confirmed. Nothing to correct.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "catalog_check": "mismatch: vcpu doc 28 vs 24; ram_gb doc 283 vs 251.0"
      }
     ],
     "B300": [
@@ -15078,7 +15229,8 @@
       "verified": true,
       "notes": "Public catalog endpoint (no auth). Row: gpu '8x H100 SXM5 80GB', cpu '176 CPU' (number_of_cores 176; verda.com/h100 calls the per-1x figure '30 CPU threads', so treated as threads/vCPU), memory '1360GB RAM', gpu_memory 640 GB, p2p '900 GB/s' (NVLink), price_per_hour $26.26 (= $3.28/GPU-h), spot $13.13. storage 'dynamic' = no bundled local NVMe; block NVMe attached separately at $0.20/GiB-month (verda.com/pricing). CPU model not in the live catalog for GPU SKUs. Node network bandwidth not published; InfiniBand offered only for Instant Clusters (16x-64x H100). | verifier: Fetched the JSON catalog (60 instance types). Row 8H100.80S.176V: '8x H100 SXM5 80GB', cpu number_of_cores 176, memory 1360 GB, storage 'dynamic', gpu_memory 640 GB, p2p '900 GB/s', price 26.26, spot 13.13. All non-null figures confirmed. Unit caution: the API field is named number_of_cores while verda.com/h100 says 'CPU threads'; treated as vCPU/threads.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "4H100.80S.176V",
@@ -15090,10 +15242,10 @@
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
+      "as_of": "2026-09-17",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19579",
+      "source": "dstack gpuhunt catalog 20260917-19595",
       "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (FIN-01); network not carried"
      },
      {
@@ -15106,10 +15258,10 @@
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
+      "as_of": "2026-09-17",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19579",
+      "source": "dstack gpuhunt catalog 20260917-19595",
       "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (FIN-01); network not carried"
      },
      {
@@ -15127,7 +15279,7 @@
       "verified": true,
       "notes": "Pricing page row '1x H100 SXM5 80GB: 30 CPUs, 120 GB RAM, 80 GB VRAM, $3.28/h' (catalog $3.282, spot $1.641). A second 1x variant 1H100.80S.32V (32 CPU, 170 GB RAM) is in the catalog at the same price. verda.com/h100 words the CPU figure as '30 CPU threads'. Storage is attached block NVMe ($0.20/GiB-month), not bundled; CPU model and network not published. | verifier: verda.com/pricing row '1x H100 SXM5 80GB | 30 | 120 GB | 80 GB | $3.28/h | $1.64/h' confirmed; catalog 1H100.80S.30V (30 cores, 120 GB, 3.282/1.641) and 1H100.80S.32V (32 cores, 170 GB, same price) confirmed; verda.com/h100 '30 CPU threads' confirmed. All non-null figures confirmed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "H200": [
@@ -15146,7 +15298,8 @@
       "verified": true,
       "notes": "Catalog row: gpu '8x H200 SXM5 141GB', cpu '176 CPU' (threads; per-1x figure is '44 CPU threads' on verda.com/h200), memory '1360GB RAM', gpu_memory 1128 GB, p2p '900 GB/s' NVLink, price_per_hour $34.27 (= $4.28/GPU-h), spot $17.14. storage 'dynamic' (block NVMe separate). CPU model and node network not published; InfiniBand only for Instant Clusters (16x-64x, $4.28/GPU-h). | verifier: Catalog row 8H200.141S.176V: '8x H200 SXM5 141GB', cores 176, memory 1360 GB, storage dynamic, gpu_memory 1128 GB, p2p '900 GB/s', price 34.27, spot 17.14. verda.com/h200 confirms '44 CPU threads', '170 GB', '141 GB', 16x-64x clusters. All non-null figures confirmed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "4H200.141S.176V",
@@ -15158,10 +15311,10 @@
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
+      "as_of": "2026-09-17",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19579",
+      "source": "dstack gpuhunt catalog 20260917-19595",
       "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (FIN-01); network not carried"
      },
      {
@@ -15174,10 +15327,10 @@
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
+      "as_of": "2026-09-17",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19579",
+      "source": "dstack gpuhunt catalog 20260917-19595",
       "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (FIN-01); network not carried"
      },
      {
@@ -15195,7 +15348,7 @@
       "verified": true,
       "notes": "Pricing page row '1x H200 SXM5 141GB: 44 CPUs, 170 GB RAM, 141 GB VRAM, $4.28/h' (catalog $4.284, spot $2.142). Storage attached separately; CPU model and network not published. | verifier: verda.com/pricing row '1x H200 SXM5 141GB | 44 | 170 GB | 141 GB | $4.28/h | $2.14/h' confirmed; catalog 1H200.141S.44V 44 cores / 170 GB / 4.284 / 2.142 confirmed; verda.com/h200 '44 CPU threads', '170 GB' confirmed. All non-null figures confirmed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "B200": [
@@ -15214,7 +15367,8 @@
       "verified": true,
       "notes": "Catalog row: gpu '8x B200 SXM6 180GB', cpu '240 CPU' (threads; per-1x '30 CPU threads' on verda.com/b200), memory '1360GB RAM', gpu_memory 1440 GB, p2p '1.8 TB/s' NVLink, price_per_hour $50.86 (= $6.36/GPU-h), spot $25.43. storage 'dynamic' (block NVMe separate). CPU model and node network not published; InfiniBand only for Instant Clusters (16x-128x, $6.36/GPU-h). Confidential-computing variant 8B200.240V.CC (same CPU/RAM) is $49.86/h. | verifier: Catalog row 8B200.240V: '8x B200 SXM6 180GB', cores 240, memory 1360 GB, storage dynamic, gpu_memory 1440 GB, p2p '1.8 TB/s', price 50.86, spot 25.43; 8B200.240V.CC price 49.86 also present. verda.com/b200 confirms '30 CPU threads', 16x-128x clusters. All non-null figures confirmed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "4B200.120V",
@@ -15226,10 +15380,10 @@
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
+      "as_of": "2026-09-17",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19579",
+      "source": "dstack gpuhunt catalog 20260917-19595",
       "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (FIN-01); network not carried"
      },
      {
@@ -15242,10 +15396,10 @@
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
+      "as_of": "2026-09-17",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19579",
+      "source": "dstack gpuhunt catalog 20260917-19595",
       "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (FIN-01); network not carried"
      },
      {
@@ -15263,7 +15417,7 @@
       "verified": true,
       "notes": "Pricing page row '1x B200 SXM6 180GB: 30 CPUs, 170 GB RAM, 180 GB VRAM, $6.36/h' (catalog $6.357, spot $3.179). Storage attached separately; CPU model and network not published. | verifier: verda.com/pricing row '1x B200 SXM6 180GB | 30 | 170 GB | 180 GB | $6.36/h | $3.18/h' confirmed; catalog 1B200.30V 30 cores / 170 GB / 6.357 / 3.179 confirmed; verda.com/b200 '30 CPU threads', '170 GB RAM' confirmed. All non-null figures confirmed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "B300": [
@@ -15282,7 +15436,8 @@
       "verified": true,
       "notes": "Catalog row: gpu '8x B300 SXM6 268GB' (Verda exposes 268 GB usable per GPU), cpu '240 CPU' (threads; per-1x '30 CPU threads' on verda.com/b300), memory '2040GB RAM', gpu_memory 2144 GB, p2p '1.8 TB/s' NVLink, price_per_hour $61.82 (= $7.73/GPU-h), spot $30.91. storage 'dynamic' (block NVMe separate). CPU model and node network not published; InfiniBand only for Instant Clusters (16x-144x, $7.72/GPU-h). CC variant 8B300.240V.CC is $61.20/h. | verifier: Catalog row 8B300.240V: '8x B300 SXM6 268GB', cores 240, memory 2040 GB, storage dynamic, gpu_memory 2144 GB, p2p '1.8 TB/s', price 61.82, spot 30.91; 8B300.240V.CC 61.20. verda.com/b300 confirms '30 CPU threads', '255 GB', '268 GB', 16x-144x at $7.72/h. All non-null figures confirmed. Note the Sesterce AZ_29 8x B300 VM offer (240 vCPU / 2040 GB, Helsinki, $67.80/h) is the same shape resold.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "api_check": "matches provider snapshot 2026-09-17",
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      },
      {
       "instance_type": "4B300.120V",
@@ -15294,10 +15449,10 @@
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
+      "as_of": "2026-09-17",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19579",
+      "source": "dstack gpuhunt catalog 20260917-19595",
       "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (FIN-01); network not carried"
      },
      {
@@ -15310,10 +15465,10 @@
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-16",
+      "as_of": "2026-09-17",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260916-19579",
+      "source": "dstack gpuhunt catalog 20260917-19595",
       "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (FIN-01); network not carried"
      },
      {
@@ -15331,7 +15486,7 @@
       "verified": true,
       "notes": "Pricing page row '1x B300 SXM6 268GB: 30 CPUs, 255 GB RAM, 268 GB VRAM, $7.73/h' (catalog $7.728, spot $3.864). Storage attached separately; CPU model and network not published. | verifier: verda.com/pricing row '1x B300 SXM6 268GB | 30 | 255 GB | 268 GB | $7.73/h | $3.86/h' confirmed; catalog 1B300.30V 30 cores / 255 GB / 7.728 / 3.864 confirmed; verda.com/b300 '30 CPU threads', '255 GB', '268 GB' confirmed. All non-null figures confirmed.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260916-19579"
+      "catalog_check": "matches dstack gpuhunt catalog 20260917-19595"
      }
     ],
     "GB300": [
@@ -15349,7 +15504,8 @@
       "confidence": "medium",
       "verified": true,
       "notes": "Largest on-demand GB300 SKU; no 8-GPU GB300 instance exists (1x/2x/4x only; 18-tray NVL72 racks via sales). Catalog row (api.verda.com/v1/instance-types): gpu '4x GB300 SXM6 288GB', cpu '128 CPU', memory '900GB RAM', gpu_memory 1152 GB, p2p '1.8 TB/s', price_per_hour $35.55 (= $8.89/GPU-h), spot $17.77. verda.com/gb300: 'Each tray contains 4x GB300 GPUs and 2x Grace CPUs', '1152 GB GPU VRAM', '900 GB GPU RAM', '128 2x Grace CPU cores', '1800 Gbit NVLink v5 bandwidth', 'Each GPU is equipped with 288GB of HBM3e memory'; Grace has no SMT so 128 cores = 128 threads. storage 'dynamic' (block NVMe separate). NVL72 rack = 18 trays on NVLink v5; '2+ NVL72 racks' connected via InfiniBand; per-tray external bandwidth not published. | verifier: Catalog row 4GB300.128V confirms 4 GPUs, 128 cores, 900 GB, price 35.55 / spot 17.77. The cpu_model 'NVIDIA Grace' is not in the API payload, so source_url switched to verda.com/gb300, which carries every non-null figure: '4x GB300 GPUs and 2x Grace CPUs' per tray, '128 2x Grace CPU cores', '900 GB GPU RAM'. Note Verda labels the 900 GB as 'GPU RAM' on that page although it is the tray's LPDDR5X system memory.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "api_check": "matches provider snapshot 2026-09-17"
      },
      {
       "instance_type": "1GB300.32V",

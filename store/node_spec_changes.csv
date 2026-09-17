@@ -1,0 +1,15 @@
+date,provider,gpu,instance_type,field,old,new,source
+2026-09-17,runpod,H100,"Instant Clusters H100 node (8 GPUs/node, 2-8 nodes on-demand) - added by verifier",ram_gb,2008.0,1504.0,"vcpu, ram_gb from dstack gpuhunt catalog 20260917-19595"
+2026-09-17,runpod,H100,NVIDIA H100 80GB HBM3,vcpu,56,78,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H100,NVIDIA H100 80GB HBM3,ram_gb,502.0,375.0,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H100,NVIDIA H100 80GB HBM3,node_gpus,2,3,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H200,NVIDIA H200,vcpu,56,40,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H200,NVIDIA H200,vcpu,56,84,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H200,NVIDIA H200,ram_gb,502.0,753.0,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H200,NVIDIA H200,node_gpus,2,3,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H200,NVIDIA H200,vcpu,56,88,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H200,NVIDIA H200,ram_gb,502.0,884.0,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H200,NVIDIA H200,node_gpus,2,4,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H200,NVIDIA H200,vcpu,56,120,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H200,NVIDIA H200,ram_gb,502.0,1885.0,dstack gpuhunt catalog 20260917-19595
+2026-09-17,runpod,H200,NVIDIA H200,node_gpus,2,5,dstack gpuhunt catalog 20260917-19595

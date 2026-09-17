@@ -1,7 +1,9 @@
-*GPU Pricing Daily — September 16, 2026*
+*GPU Pricing Daily — September 17, 2026*
 
-*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Upcloud L40S on-demand +35% · 3 small-provider moves in thread
+*Changed in 24h:* Azure raised RTX6000 on-demand +300% across 40 SKUs ($1.62→$6.46) · 6 more major-provider moves + 4 small-provider moves in thread
 
-*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 13w). RTX PRO 6000 -18% vs RTX market median (27 providers).
+*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 13w) and below cluster-peer median (H100, H200, B200). RTX PRO 6000 -18% vs RTX market median (27 providers).
 
 Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>
+
+*Supply:* H100 2/10 sold out (Verda, Voltage Park) [+1 WoW] · H200 2/7 sold out (Hyperstack, Verda) · B200 1/7 sold out (Lambda) [-2 WoW] · B300 3/7 sold out (Hyperstack, Scaleway, Verda) · GB300 1/3 sold out (Verda) (capacity run 2026-09-16)
