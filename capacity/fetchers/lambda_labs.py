@@ -1,143 +1,148 @@
-"""
-Lambda Labs capacity fetcher.
+"""Lambda exact-instance launchability, without model/size or cluster inference.
 
-GET https://cloud.lambdalabs.com/api/v1/instance-types (Basic auth,
-LAMBDA_API_KEY) — each instance type carries regions_with_capacity_available:
-the list of regions where it can be launched RIGHT NOW. Empty list = sold out
-fleet-wide for that instance type. This is a true live-stock signal (the same
-field the pricing fetcher deliberately ignores).
-
-Per-GPU-model aggregation: a model is available in region R if ANY of its
-instance sizes is launchable there; the metric is the region count and the
-detail lists regions. Sold-out sizes are reported per instance type so a
-"1x available / 8x gone" split (single-GPU scraps vs cluster capacity) stays
-visible — the 8x flagship SKU state is what capacity decisions care about.
+The API lists regions where one exact instance type is currently launchable.
+It reports no count of instances and no multi-node cluster availability. A
+global summary counts regions only for that exact SKU; alternative shapes are
+never combined. Only an explicit valid empty region list establishes sold out.
 """
-import base64
-import json
 import logging
 import os
-import urllib.request
+import re
 from datetime import datetime, timezone
 from typing import List
 
 from capacity.schema import AvailabilityRecord, plural
+from lambda_capacity_api import API_URL, API_KEY_ENV, LambdaAPIError, fetch_instance_types
 
 logger = logging.getLogger(__name__)
-
-API_URL = "https://cloud.lambdalabs.com/api/v1/instance-types"
-SOURCE_URL = "https://cloud.lambdalabs.com"
-
-# Instance-id fragment → GPU model (reuses the pricing fetcher's mapping rules;
-# GH200 excluded — different form factor). Lambda's "gpu_1x_rtx6000" is the
-# LEGACY Quadro RTX 6000 (Turing 24GB), NOT the Blackwell RTX PRO 6000 —
-# excluded so it can't pollute the RTX6000 bucket (research finding 2026-08-12).
+SOURCE_URL = API_URL
+PARSER_VERSION = "lambda-instance-capacity-2.0"
 _GPU_FRAGMENTS = [
     ("gb300", "GB300"), ("gb200", "GB200"), ("b300", "B300"), ("b200", "B200"),
     ("h200", "H200"), ("h100", "H100"), ("l40s", "L40S"),
     ("rtx_pro_6000", "RTX6000"), ("rtxpro6000", "RTX6000"),
 ]
+_ERRORS = frozenset((
+    "Lambda instance response has no data mapping",
+    "Lambda instance response returned unsupported pagination",
+    "Lambda instance has invalid SKU identity",
+    "Lambda instance entry is not an object",
+    "Lambda instance has invalid type object",
+    "Lambda instance name differs from SKU identity",
+    "Lambda instance has invalid specs object",
+    "Lambda instance has invalid GPU count",
+    "Lambda instance GPU count differs from SKU identity",
+))
+
+
+class LambdaParseError(ValueError):
+    """Static schema diagnostics that never interpolate response values."""
+
+    def __init__(self, message):
+        super().__init__(message if message in _ERRORS
+                         else "Lambda instance schema validation failed")
+
+
+def _valid_identity(value):
+    return isinstance(value, str) and re.fullmatch(r"[A-Za-z0-9_.:-]{1,200}", value) is not None
 
 
 def _match_gpu(instance_id: str):
     low = instance_id.lower()
-    if "gh200" in low:
-        return None
-    for frag, model in _GPU_FRAGMENTS:
-        if frag in low:
+    for token, model in _GPU_FRAGMENTS:
+        if re.search(r"(?<![a-z0-9])" + re.escape(token) + r"(?![a-z0-9])", low):
             return model
     return None
 
 
-def fetch() -> List[AvailabilityRecord]:
-    now = datetime.now(timezone.utc).isoformat()
-    api_key = os.environ.get("LAMBDA_API_KEY")
-    if not api_key:
-        logger.warning("Lambda capacity: LAMBDA_API_KEY not set — skipping")
-        return []
+def _regions(info):
+    """Preserve valid positive regions; flag whether the complete list is usable."""
+    raw = info.get("regions_with_capacity_available")
+    if not isinstance(raw, list):
+        return [], False
+    names, complete = set(), True
+    for entry in raw:
+        name = entry.get("name") if isinstance(entry, dict) else None
+        if not _valid_identity(name) or name.lower() == "global":
+            complete = False
+        else:
+            names.add(name)
+    return sorted(names), complete
 
-    creds = base64.b64encode(f"{api_key}:".encode()).decode()
-    req = urllib.request.Request(API_URL, headers={
-        "Authorization": f"Basic {creds}",
-        # Cloudflare 1010-bans urllib's default UA before auth is checked
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                      "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-        "Accept": "application/json",
-    })
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read())
-    except Exception as e:
-        logger.error(f"Lambda capacity fetch failed: {e}")
-        return []
 
-    instance_types = data.get("data", {})
-    if isinstance(instance_types, list):
-        instance_types = {str(i): x for i, x in enumerate(instance_types)}
-
-    # gpu_model → {region: [instance types with capacity]}, and per-type states
-    records: List[AvailabilityRecord] = []
-    model_regions: dict = {}
-    model_types: dict = {}
-
-    for name, info in instance_types.items():
+def parse(payload, fetched_at: str = "") -> List[AvailabilityRecord]:
+    if not isinstance(payload, dict) or not isinstance(payload.get("data"), dict):
+        raise LambdaParseError("Lambda instance response has no data mapping")
+    if payload.get("next_page_token") or payload.get("next_token") or payload.get("next"):
+        raise LambdaParseError("Lambda instance response returned unsupported pagination")
+    records = []
+    for name in sorted(payload["data"], key=str):
+        if not _valid_identity(name):
+            raise LambdaParseError("Lambda instance has invalid SKU identity")
         gpu_model = _match_gpu(name)
         if not gpu_model:
             continue
-        regions = [r.get("name") for r in (info.get("regions_with_capacity_available") or [])
-                   if isinstance(r, dict) and r.get("name")]
-        model_types.setdefault(gpu_model, {})[name] = sorted(set(regions))
-        for r in regions:
-            model_regions.setdefault(gpu_model, {}).setdefault(r, []).append(name)
-
-    for gpu_model, types in model_types.items():
-        regions = model_regions.get(gpu_model, {})
-        n_types = len(types)
-        n_avail_types = sum(1 for t, rs in types.items() if rs)
-        largest = max(types, key=lambda t: _size_rank(t))
-        largest_avail = bool(types[largest])
-
-        if regions:
-            state = "available"
-            # Flagship (largest node) sold out while only small sizes remain =
-            # scraps, not cluster capacity → limited.
-            if not largest_avail:
-                state = "limited"
-            detail = (f"{plural(len(regions), 'region')}: {', '.join(sorted(regions))}; "
-                      f"{n_avail_types}/{n_types} sizes launchable"
-                      + ("" if largest_avail else f" (largest size {largest} sold out)"))
-            records.append(AvailabilityRecord(
-                provider="lambda", gpu_model=gpu_model, region="global",
-                consumption_type="on_demand", state=state,
-                metric_type="regions_with_capacity", metric_value=float(len(regions)),
-                detail=detail, instance_type=largest,
-                fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
-            ))
-            for r in sorted(regions):
-                records.append(AvailabilityRecord(
-                    provider="lambda", gpu_model=gpu_model, region=r,
-                    consumption_type="on_demand", state="available",
-                    metric_type="regions_with_capacity", metric_value=1.0,
-                    detail=f"launchable sizes: {', '.join(sorted(regions[r]))}",
-                    instance_type=sorted(regions[r])[0],
-                    fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
-                ))
+        info = payload["data"][name]
+        if not isinstance(info, dict):
+            raise LambdaParseError("Lambda instance entry is not an object")
+        instance = info.get("instance_type")
+        if not isinstance(instance, dict):
+            raise LambdaParseError("Lambda instance has invalid type object")
+        if instance.get("name") != name:
+            raise LambdaParseError("Lambda instance name differs from SKU identity")
+        specs = instance.get("specs")
+        if not isinstance(specs, dict):
+            raise LambdaParseError("Lambda instance has invalid specs object")
+        count = specs.get("gpus")
+        if type(count) is not int or not 1 <= count <= 2 ** 31 - 1:
+            raise LambdaParseError("Lambda instance has invalid GPU count")
+        sku_count = re.match(r"gpu_(\d+)x_", name, flags=re.IGNORECASE)
+        if not sku_count or int(sku_count.group(1)) != count:
+            raise LambdaParseError("Lambda instance GPU count differs from SKU identity")
+        regions, complete = _regions(info)
+        common = dict(
+            provider="lambda", gpu_model=gpu_model, consumption_type="on_demand",
+            instance_type=name, fetched_at=fetched_at, source_url=SOURCE_URL,
+            data_source="official_api", parser_version=PARSER_VERSION,
+            product_scope="on_demand_instance", gpu_count=count,
+        )
+        if complete:
+            state = "available" if regions else "sold_out"
+            value = float(len(regions))
+            evidence = (f"launchable in {plural(len(regions), 'region')}: {', '.join(regions)}"
+                        if regions else "explicit empty launchable-region list")
         else:
+            state, value = "unknown", None
+            evidence = "launchable-region list missing, null or malformed; complete region count unknown"
+        caveat = f"{count} GPUs per instance; instance count and multi-node availability not established"
+        records.append(AvailabilityRecord(
+            **common, region="global", state=state, metric_type="launchable_regions",
+            metric_value=value, detail=f"Exact instance: {evidence}; {caveat}",
+        ))
+        for region in regions:
             records.append(AvailabilityRecord(
-                provider="lambda", gpu_model=gpu_model, region="global",
-                consumption_type="on_demand", state="sold_out",
-                metric_type="regions_with_capacity", metric_value=0.0,
-                detail=f"all {plural(n_types, 'instance size')} show no region with capacity",
-                instance_type=largest,
-                fetched_at=now, source_url=SOURCE_URL, data_source="official_api",
+                **common, region=region, state="available", metric_type="instance_launchability",
+                metric_value=1.0,
+                detail=f"API lists this exact instance as launchable in this region; {caveat}",
             ))
-
-    logger.info(f"Lambda capacity: {len(records)} records "
-                f"({len(model_types)} GPU models)")
     return records
 
 
-def _size_rank(instance_id: str) -> int:
-    import re
-    m = re.search(r"gpu_(\d+)x", instance_id.lower())
-    return int(m.group(1)) if m else 1
+def fetch() -> List[AvailabilityRecord]:
+    if not os.environ.get(API_KEY_ENV, "").strip():
+        logger.warning("Lambda capacity: LAMBDA_API_KEY not set — skipping")
+        return []
+    try:
+        payload = fetch_instance_types()
+        records = parse(payload, datetime.now(timezone.utc).isoformat())
+    except Exception as exc:
+        status = getattr(exc, "http_status", None)
+        if type(status) is int and 100 <= status <= 599:
+            logger.error("Lambda instance capacity fetch failed: HTTP %d", status)
+        elif isinstance(exc, (LambdaParseError, LambdaAPIError)):
+            logger.error("Lambda instance capacity fetch failed: %s", exc)
+        else:
+            logger.error("Lambda instance capacity fetch failed (%s)", type(exc).__name__)
+        return []
+    logger.info("Lambda instance capacity: %d exact instance/region records", len(records))
+    return records

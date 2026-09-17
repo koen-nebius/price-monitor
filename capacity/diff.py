@@ -10,6 +10,7 @@ import logging
 from typing import Dict, List, Tuple
 
 from capacity.schema import AvailabilityRecord, CapacityDiffEntry
+from capacity.insights import is_lambda_instance
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,8 @@ def _key(r: AvailabilityRecord) -> Tuple[str, str, str, str, str]:
 def _index(records: List[AvailabilityRecord]) -> Dict[Tuple, AvailabilityRecord]:
     out: Dict[Tuple, AvailabilityRecord] = {}
     for r in records:
+        if r.provider == "lambda" and not is_lambda_instance(r):
+            continue
         if r.provider == "together" and not (
                 r.product_scope == "dedicated_inference"
                 and r.metric_type == "inference_replicas"
@@ -80,6 +83,10 @@ def compute_diff(new: List[AvailabilityRecord],
                 or n.metric_type != o.metric_type or n.data_source != o.data_source
                 or n.quantity_relation != o.quantity_relation):
             continue
+        if n.provider == "lambda" and (
+                n.product_scope != o.product_scope or n.gpu_count != o.gpu_count
+                or n.metric_type != o.metric_type or n.data_source != o.data_source):
+            continue
 
         if n.state != o.state and (n.state in _MEANINGFUL or o.state in _MEANINGFUL):
             # unknown<->anything churn is fetcher noise, skip unless it involves
@@ -96,7 +103,7 @@ def compute_diff(new: List[AvailabilityRecord],
         # Same state — check quantitative moves. Ordinal label ranks
         # (stock_status_label) are not quantities: a "1 → 0 (-100%)" bullet is
         # noise when the state itself did not change.
-        if n.metric_type == "stock_status_label":
+        if n.metric_type in {"stock_status_label", "launchable_regions", "instance_launchability"}:
             continue
         if n.metric_type == "inference_replicas" and (
                 n.quantity_relation != "RELATION_EQ" or o.quantity_relation != "RELATION_EQ"):
@@ -124,10 +131,21 @@ def compute_diff(new: List[AvailabilityRecord],
 
     for key, o in old_idx.items():
         if key not in new_idx and o.state in _MEANINGFUL:
+            if o.provider == "lambda":
+                # A missing SKU or unreadable region list says nothing about
+                # stock. Only a complete comparable exact-SKU summary can
+                # establish that a previously listed region was removed.
+                summary_key = (o.provider, o.gpu_model, "global", o.consumption_type, o.instance_type)
+                summary = new_idx.get(summary_key)
+                if (o.region == "global" or summary is None
+                        or summary.state not in {"available", "sold_out"}
+                        or summary.gpu_count != o.gpu_count):
+                    continue
             entries.append(CapacityDiffEntry(
                 *key[:4], instance_type=key[4], change_type="removed",
                 old_state=o.state, old_value=o.metric_value,
-                detail="signal disappeared from source",
+                detail=("region no longer listed as launchable for this exact VM SKU"
+                        if o.provider == "lambda" else "signal disappeared from source"),
             ))
 
     logger.info(f"Capacity diff: {len(entries)} changes")

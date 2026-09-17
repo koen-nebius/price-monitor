@@ -1,0 +1,31 @@
+name: Check Lambda capacity scope (read only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, codex/lambda-capacity-scope]
+    paths:
+      - lambda_capacity_api.py
+      - capacity/**.py
+      - scripts/check_lambda_capacity.py
+      - test_lambda_capacity*.py
+      - .github/workflows/lambda-capacity-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline regression tests
+        run: python3 -m unittest discover -p 'test_lambda_capacity*.py'
+      - name: Verify exact instance availability and output scope
+        env:
+          LAMBDA_API_KEY: ${{ secrets.LAMBDA_API_KEY }}
+        run: python3 scripts/check_lambda_capacity.py

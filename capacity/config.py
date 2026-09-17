@@ -44,11 +44,13 @@ PROVIDER_LABELS = {
 #   inference     — dedicated-inference replica headroom, separate from raw
 #                   GPU/cluster stock. Never counted in cluster k/n or joined
 #                   to raw-GPU rental prices.
+#   instance      — launchability of an exact on-demand VM shape in named
+#                   regions; not inventory quantities or multi-node stock.
 # A record with data_source="aggregator" (Shadeform) is treated as live but
 # marked "via aggregator" and flagged non-independent (✱) in counts.
 # ---------------------------------------------------------------------------
 SIGNAL_CLASS = {
-    "lambda": "live", "scaleway": "live", "runpod": "live",
+    "lambda": "instance", "scaleway": "live", "runpod": "live",
     "voltage_park": "live", "hyperstack": "live", "verda": "live",
     "together": "inference", "massedcompute": "live",
     "aws": "spot",            # becomes lead-time (live) once CB IAM lands
@@ -62,9 +64,11 @@ import os as _os
 
 # Fetchers registered but awaiting a credential — counted as "pending", not
 # "failed", in freshness lines so the day a REAL source breaks stands out.
-PENDING_ACTIVATION = {"aws_capacity_blocks", "hyperstack", "together", "verda"}
+PENDING_ACTIVATION = {"aws_capacity_blocks", "hyperstack", "together", "verda", "lambda"}
 if _os.environ.get("TOGETHER_API_KEY", "").strip():
     PENDING_ACTIVATION.discard("together")
+if _os.environ.get("LAMBDA_API_KEY", "").strip():
+    PENDING_ACTIVATION.discard("lambda")
 
 # GPUs whose tightness moves Nebius pricing/capacity decisions — the digest
 # strip and thread blocks cover exactly these, in this order.
@@ -78,6 +82,8 @@ FOOTPRINT_ONLY_GPUS = ["GB200", "GB300"]
 # Crusoe is excluded until pricing and capacity share an exact SKU/location:
 # its API quantity must not make a different shape's price look bookable.
 # Together's inference replicas are a different product from GPU clusters.
+# Lambda remains eligible for listed prices, but exact-instance launchability
+# cannot qualify a different shape's GPU-level price as bookable.
 PRICE_JOIN_PEERS = {
     "coreweave": "coreweave", "lambda": "lambda",
     "hyperstack": "hyperstack", "cp_hyperstack": "hyperstack",
@@ -89,7 +95,7 @@ PRICE_JOIN_PEERS = {
 # capacity/fetchers/ unless mapped in main.FETCHER_MODULES.
 # Keyless & working today:
 PROVIDERS = [
-    "lambda",            # LAMBDA_API_KEY (in repo secrets) — live per-region stock
+    "lambda",            # exact on-demand instance launchability; not 1ClickClusters stock
     "coreweave",         # docs matrix — footprint per AZ
     "gcp_zones",         # docs page — offering footprint per zone (emits provider=gcp)
     "azure_regions",     # retail prices API — offering footprint (emits provider=azure)

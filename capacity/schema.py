@@ -21,7 +21,11 @@ PARSER_VERSION = "1.0"
 STATES = ["available", "limited", "sold_out", "not_offered", "unknown"]
 
 # metric_type values and their semantics:
-#   regions_with_capacity — count of regions listing live capacity (Lambda)
+#   regions_with_capacity — legacy region count; old Lambda rows lack SKU scope
+#   launchable_regions    — number of API-listed regions for one exact Lambda
+#                           VM SKU; not an instance/GPU inventory quantity
+#   instance_launchability — exact VM SKU is listed as launchable in this region;
+#                           not quota, simultaneous deployments or cluster stock
 #   stock_level           — provider-reported stock label or count (Hyperstack)
 #   offer_depth_gpus      — marketplace GPUs listed right now (Vast)
 #   stock_status_label    — provider enum e.g. High/Low/None (RunPod, Scaleway)

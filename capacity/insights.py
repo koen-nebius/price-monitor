@@ -57,6 +57,8 @@ def signal_class(r: AvailabilityRecord) -> str:
     # stock signal. Unscoped caches/aggregator rows must fail closed as well.
     if r.provider == "together":
         return "inference" if is_together_inference(r) else "unverified_scope"
+    if r.provider == "lambda":
+        return "instance" if is_lambda_instance(r) else "unverified_scope"
     # The provider has two independent evidence types. Cached documentation
     # never becomes live capacity merely because credentials were later added.
     if r.provider == "crusoe":
@@ -88,6 +90,22 @@ def together_inference_records(records: List[AvailabilityRecord]) -> List[Availa
     """Keep every inference configuration separate; never roll into GPU stock."""
     return sorted((r for r in records if is_together_inference(r)),
                   key=lambda r: (r.gpu_model, r.instance_type, r.region))
+
+
+def is_lambda_instance(r: AvailabilityRecord) -> bool:
+    """Exact on-demand VM launchability; never a cluster-stock observation."""
+    expected_metric = "launchable_regions" if r.region == "global" else "instance_launchability"
+    return (r.provider == "lambda" and r.data_source == "official_api"
+            and getattr(r, "product_scope", "") == "on_demand_instance"
+            and r.consumption_type == "on_demand" and bool(r.instance_type)
+            and type(getattr(r, "gpu_count", None)) is int and r.gpu_count > 0
+            and r.metric_type == expected_metric)
+
+
+def lambda_instance_records(records: List[AvailabilityRecord]) -> List[AvailabilityRecord]:
+    """Retain individual shapes and regions without summing overlapping offers."""
+    return sorted((r for r in records if is_lambda_instance(r)),
+                  key=lambda r: (r.gpu_model, r.instance_type, r.fetched_at, r.region))
 
 
 def plural(n: int, word: str) -> str:
