@@ -3543,12 +3543,12 @@ def _build_qualified_catalogue_section(records: List[PriceRecord],
         freshness = 'Refresh status unreported'
         if status.get('status') == 'live':
             freshness = 'Refreshed this run'
-        elif status.get('status') == 'cached':
+        elif status.get('status') in {'cache', 'cached'}:
             freshness = 'Cached; not refreshed this run'
             age = status.get('cache_age_hours')
             if type(age) in (int, float) and age >= 0:
                 freshness += f' (cache age {age:g}h)'
-        elif status.get('status') == 'failed':
+        elif status.get('status') in {'error', 'failed'}:
             freshness = 'Fetch failed; not refreshed this run'
         html.append(
             f'<tr><td>{escape(_provider_display(r.provider))} / {escape(r.gpu_model)}</td>'
