@@ -1,15 +1,14 @@
 """
-Crusoe capacity fetcher — docs VM-types-to-zones matrix (offering footprint).
+Crusoe authenticated capacity, with a docs footprint when no key is configured.
 
 https://docs.crusoecloud.com/compute/virtual-machines/overview/index.html is
 server-rendered HTML (verified 2026-08-12, no JS needed) mapping each
 instance type to its zones (e.g. h100-80gb-sxm-ib.8x → us-east1-a,
 us-southcentral1-a, eu-iceland1-a). Footprint, not live stock.
 
-Crusoe DOES have a quantitative live endpoint — GET /v1alpha5/capacities
-returns {location, type, quantity} — but it needs an account + HMAC-signed
-auth (CRUSOE_ACCESS_KEY_ID/CRUSOE_SECRET_KEY). Documented for later
-activation; the docs matrix keeps Crusoe on the board until then.
+GET /v1/capacities returns exact resource types and locations. Its quantity is
+retained in provider units; neither GPU totals nor multi-node capacity is
+inferred. API errors and partial credentials never fall back to docs.
 """
 import logging
 import re
@@ -17,11 +16,13 @@ from datetime import datetime, timezone
 from typing import List
 
 from capacity.schema import AvailabilityRecord, plural
+from crusoe_api import API_URL, credentials_configured, fetch_capacities
 
 logger = logging.getLogger(__name__)
 
 URL = "https://docs.crusoecloud.com/compute/virtual-machines/overview/index.html"
 SOURCE_URL = URL
+PARSER_VERSION = "crusoe-capacity-2.0"
 
 _TYPE_GPU = [
     ("gb300", "GB300"), ("gb200", "GB200"), ("b300", "B300"), ("b200", "B200"),
@@ -32,13 +33,13 @@ _ZONE_RE = re.compile(r"\b(?:us|eu|ap|me)-[a-z]+\d-[a-z]\b")
 _LIMITED_MAX_ZONES = 1
 
 
-def fetch() -> List[AvailabilityRecord]:
+def _fetch_docs() -> List[AvailabilityRecord]:
     now = datetime.now(timezone.utc).isoformat()
     try:
         from fetchers._http import http_get
         html = http_get(URL, timeout=45).decode("utf-8", "replace")
     except Exception as e:
-        logger.error(f"Crusoe docs fetch failed: {e}")
+        logger.error("Crusoe docs fetch failed (%s)", type(e).__name__)
         return []
 
     # Table rows: instance-type slug cell followed by a zone-list cell
@@ -88,3 +89,92 @@ def fetch() -> List[AvailabilityRecord]:
     logger.info(f"Crusoe docs: {len(records)} records "
                 f"({', '.join(f'{m}:{len(z)}z' for m, z in sorted(model_zones.items()))})")
     return records
+
+
+def _gpu_model(instance_type):
+    for prefix, model in _TYPE_GPU:
+        if re.match(rf"^{prefix}(?:[.-]|$)", instance_type, re.I):
+            return model
+    if re.match(r"^rtx-pro-6000-blackwell(?:[.-]|$)", instance_type, re.I):
+        return "RTX6000"
+    return None
+
+
+def _uint32(value, field):
+    if type(value) is not int or not 0 <= value <= 2 ** 32 - 1:
+        raise ValueError(f"Crusoe capacity has invalid {field}")
+    return value
+
+
+def parse(payload: dict, fetched_at: str = "") -> List[AvailabilityRecord]:
+    """Preserve one exact resource/location observation, never sum shapes."""
+    items = payload.get("items") if isinstance(payload, dict) else None
+    if not isinstance(items, list):
+        raise ValueError("Crusoe capacity response has no items array")
+    if payload.get("next_page_token") or payload.get("next_token"):
+        raise ValueError("Crusoe capacity returned unsupported pagination")
+    records, seen = [], set()
+    for item in items:
+        if not isinstance(item, dict):
+            raise ValueError("Crusoe capacity contains an invalid item")
+        sku = item.get("type")
+        # Type is optional in CapacityV1; no hardware identity means no GPU row.
+        if sku is None:
+            continue
+        if not isinstance(sku, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,159}", sku):
+            raise ValueError("Crusoe capacity has an invalid instance type")
+        model = _gpu_model(sku)
+        if not model:
+            continue
+        location = item.get("location")
+        if not isinstance(location, str) or not re.fullmatch(r"[a-z][a-z0-9-]{1,79}", location):
+            raise ValueError("Crusoe capacity has an invalid location")
+        key = (sku, location)
+        if key in seen:
+            raise ValueError("Crusoe capacity repeats an exact resource/location")
+        seen.add(key)
+        quantity = _uint32(item.get("quantity"), "quantity")
+        parts = [f"API quantity {quantity} (provider units)"]
+        if "num_slices" in item:
+            slices = _uint32(item["num_slices"], "num_slices")
+            parts.append(f"num_slices={slices} per resource")
+        if "quota_type" in item:
+            quota = item["quota_type"]
+            if not isinstance(quota, str) or (quota and not re.fullmatch(r"[A-Z0-9_]{1,256}", quota)):
+                raise ValueError("Crusoe capacity has an invalid quota_type")
+            if quota:
+                parts.append(f"quota_type={quota}")
+        # Reservation context is not part of today's CapacityV1. If introduced,
+        # avoid presenting reserved/restricted quantity as open availability.
+        reservation = any(item.get(field) not in (None, False, "", [], {}) for field in (
+            "reservation", "reservation_id", "reservation_specification",
+            "reserved", "is_reserved", "requires_reservation",
+        ))
+        state = "unknown" if reservation else "available" if quantity > 0 else "sold_out"
+        if reservation:
+            parts.append("reservation context present; eligibility unverified")
+        parts.append("account quota, reservation eligibility and multi-node stock not established")
+        # 'global' is a special aggregation sentinel in the existing renderer.
+        region = "global (reported location)" if location == "global" else location
+        records.append(AvailabilityRecord(
+            provider="crusoe", gpu_model=model, region=region,
+            consumption_type="on_demand", state=state,
+            metric_type="provider_quantity", metric_value=float(quantity),
+            detail="; ".join(parts), instance_type=sku, fetched_at=fetched_at,
+            source_url=API_URL, data_source="official_api", parser_version=PARSER_VERSION,
+        ))
+    return records
+
+
+def fetch() -> List[AvailabilityRecord]:
+    if not credentials_configured():
+        return _fetch_docs()
+    try:
+        return parse(fetch_capacities(), datetime.now(timezone.utc).isoformat())
+    except Exception as exc:
+        status = getattr(exc, "http_status", None)
+        if type(status) is int and 100 <= status <= 599:
+            logger.error("Crusoe API capacity fetch failed (HTTP %d)", status)
+        else:
+            logger.error("Crusoe API capacity fetch failed (%s)", type(exc).__name__)
+        return []

@@ -29,6 +29,7 @@ CACHE_MAX_AGE_HOURS = 48
 HISTORY_COLUMNS = [
     "date", "provider", "gpu_model", "region", "consumption_type",
     "state", "metric_type", "metric_value",
+    "instance_type", "data_source", "fetched_at", "source_url", "parser_version", "detail",
 ]
 
 
@@ -113,23 +114,20 @@ def append_history(records: List[AvailabilityRecord], day: date = None) -> None:
     import io
 
     day = (day or datetime.now(timezone.utc).date()).isoformat()
-    rows: List[List[str]] = []
+    rows: List[dict] = []
     if HISTORY_FILE.exists():
         with HISTORY_FILE.open() as f:
-            reader = csv.reader(f)
-            header = next(reader, None)
-            rows = [r for r in reader if r and r[0] != day]
+            reader = csv.DictReader(f)
+            # Old eight-column rows keep their values with blank new fields;
+            # never invent historical shape identity or source provenance.
+            rows = [r for r in reader if r and r.get("date") != day]
 
     for r in records:
-        rows.append([
-            day, r.provider, r.gpu_model, r.region, r.consumption_type,
-            r.state, r.metric_type,
-            "" if r.metric_value is None else str(r.metric_value),
-        ])
+        rows.append({"date": day, **r.to_dict()})
 
     buf = io.StringIO()
-    writer = csv.writer(buf)
-    writer.writerow(HISTORY_COLUMNS)
+    writer = csv.DictWriter(buf, fieldnames=HISTORY_COLUMNS, extrasaction="ignore")
+    writer.writeheader()
     writer.writerows(rows)
     HISTORY_FILE.write_text(buf.getvalue())
     logger.info(f"history.csv: wrote {len(records)} rows for {day}")

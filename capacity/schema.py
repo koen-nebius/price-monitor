@@ -29,6 +29,8 @@ STATES = ["available", "limited", "sold_out", "not_offered", "unknown"]
 #   clearing_price_usd    — market-clearing $/GPU-hr on an exchange (SFCompute)
 #   binary                — available true/false (Verda, DataCrunch-style)
 #   listed_offering       — GPU is listed for sale, no live stock signal (docs)
+#   provider_quantity     — raw capacity quantity for one SKU/location (Crusoe);
+#                           provider units, not GPUs; alternate shapes can overlap
 
 
 @dataclass
