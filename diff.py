@@ -2,6 +2,7 @@
 Compute price changes between two snapshots and format outputs.
 """
 import csv
+from html import escape
 import statistics
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
@@ -42,7 +43,8 @@ def _prov_display(p: str) -> str:
                     for w in name.split())
 from comparability import (enrich_comparability, is_cluster_class,
                            LOCAL_STORAGE_BUNDLED, LOCAL_STORAGE_VERIFIED,
-                           local_storage_info)
+                           local_storage_info, is_public_benchmark_eligible,
+                           is_qualified_catalogue_reference, QUALIFIED_CATALOGUE_BASES)
 
 INTEL_CSV = Path(__file__).parent / "store" / "intel.csv"
 HISTORY_CSV = Path(__file__).parent / "store" / "history.csv"
@@ -207,6 +209,11 @@ def compute_diff(old: List[PriceRecord], new: List[PriceRecord]) -> List[DiffEnt
                 old_pv = getattr(old_rec, "parser_version", "") or ""
                 new_pv = getattr(new_rec, "parser_version", "") or ""
                 change = "price_change" if old_pv == new_pv else "restatement"
+                if (is_qualified_catalogue_reference(old_rec)
+                        or is_qualified_catalogue_reference(new_rec)):
+                    # A restricted/unknown catalogue tariff (or transition from
+                    # one) is not an ordinary purchasable-offer price movement.
+                    change = "catalog_reference_change"
                 if change == "price_change":
                     # Reversion check: is the "new" price just a level this series
                     # already sat at within the lookback window? (History grain is
@@ -277,6 +284,7 @@ def _best_price(records: List[PriceRecord], gpu: str, ct: str,
     candidates = [
         r for r in records
         if r.gpu_model == gpu and r.consumption_type == ct
+        and is_public_benchmark_eligible(r)
         and (tiers is None or provider_tier(r.provider) in tiers)
         and (not cluster_only or is_cluster_class(r))
     ]
@@ -302,6 +310,7 @@ def _representative_spot_floor(records: List[PriceRecord], gpu: str,
     # genuine spot discount (~60-70%). Comparing Nebius preemptible to that produces a
     # misleading "+54% above AWS" against capacity nobody can actually get.
     MAX_SPOT_DISCOUNT = 0.80
+    records = [r for r in records if is_public_benchmark_eligible(r)]
     od_by_prov: Dict[str, float] = {}
     for r in records:
         if r.gpu_model == gpu and r.consumption_type == "on_demand":
@@ -364,7 +373,8 @@ def _position_for_tier(records, gpu, cts, label, cluster_only=False):
              if r.gpu_model == gpu and r.consumption_type in cts
              and provider_tier(r.provider) in ("raw_gpu_cloud", "enterprise_gpu_cloud")
              and r.provider in PROVIDER_TIERS.get("enterprise_gpu_cloud", [])
-             and r.provider != "nebius"]
+             and r.provider != "nebius"
+             and is_public_benchmark_eligible(r)]
     if cluster_only:
         # Prefer cluster-class (8×SXM) peers; fall back to all peers only when none
         # exist for this GPU — e.g. L40S is PCIe everywhere, so PCIe-to-PCIe is the
@@ -935,7 +945,7 @@ def _rtx_market_stats(records: List[PriceRecord]):
     # Account-specific catalogues remain visible as labelled observations in
     # the market sweep, but cannot silently enter the public-market statistic.
     rtx = [r for r in records if r.gpu_model == "RTX6000"
-           and r.price_basis != "account_catalog"]
+           and is_public_benchmark_eligible(r)]
     if not rtx:
         return None
     neb_od = min((r.price_per_gpu_hour_usd for r in rtx
@@ -1575,6 +1585,16 @@ def format_slack_message(diffs: List[DiffEntry], run_date: str,
                      f"to a recent level ({'; '.join(rp[:4])}) — source/FX artifact, "
                      f"not a repricing._")
 
+    catalogue_refs = [r for r in (records or [])
+                      if is_qualified_catalogue_reference(r)]
+    if catalogue_refs:
+        providers = ", ".join(sorted({_provider_display(r.provider)
+                                      for r in catalogue_refs}))
+        lines.append(f"\n_Catalogue prices (deployment restricted or unconfirmed): {providers}. Published tariffs "
+                     "with deployment disabled, unlisted locations, or unknown eligibility "
+                     "are shown separately in Confluence; excluded from price comparisons "
+                     "and price-move alerts. These are not live-stock observations._")
+
     lines.append(f"\nFull benchmark table: {confluence_url}")
 
     # ── Data freshness footer ─────────────────────────────────────────────────
@@ -1900,7 +1920,7 @@ def _market_trend(gpu: str, days: int, records: List[PriceRecord]):
         return None
     ent = set(PROVIDER_TIERS.get("enterprise_gpu_cloud", []))
     cands = [r for r in records if r.gpu_model == gpu and r.consumption_type == "on_demand"
-             and r.provider in ent]
+             and r.provider in ent and is_public_benchmark_eligible(r)]
     if not cands:
         return None
     prov = min(cands, key=lambda r: r.price_per_gpu_hour_usd).provider
@@ -2299,7 +2319,8 @@ def _build_decision_trigger_table(records: List[PriceRecord]) -> str:
 
 def _cheapest(records, provider, gpu, cts) -> Optional[float]:
     ps = [r.price_per_gpu_hour_usd for r in records
-          if r.provider == provider and r.gpu_model == gpu and r.consumption_type in cts]
+          if is_public_benchmark_eligible(r)
+          and r.provider == provider and r.gpu_model == gpu and r.consumption_type in cts]
     return min(ps) if ps else None
 
 
@@ -2416,6 +2437,7 @@ def _build_battlecards(records: List[PriceRecord]) -> str:
     # single-GPU/marketplace quote — compared against the cluster-class basis.
     h_noncluster = [r for r in records
                     if r.gpu_model == "H100" and r.consumption_type == "on_demand"
+                    and is_public_benchmark_eligible(r)
                     and r.provider != "nebius"
                     and provider_tier(r.provider) == "raw_gpu_cloud"
                     and not _is_cluster_peer(r)]
@@ -2423,6 +2445,7 @@ def _build_battlecards(records: List[PriceRecord]) -> str:
     _ent = set(PROVIDER_TIERS.get("enterprise_gpu_cloud", []))
     h_cluster = [r for r in records
                  if r.gpu_model == "H100" and r.consumption_type == "on_demand"
+                 and is_public_benchmark_eligible(r)
                  and r.provider != "nebius"
                  and r.provider.lower() in _ent and _is_cluster_peer(r)]
     cluster_floor = min(h_cluster, key=lambda r: r.price_per_gpu_hour_usd) if h_cluster else None
@@ -2865,6 +2888,7 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
         'section below — per-second platform billing is not IaaS-comparable.</p>'
     )
     html.append(_build_peer_tables(records))
+    html.append(_build_qualified_catalogue_section(records))
     html.append(_build_platform_section(records))
 
     # ── Section 3b: RTX PRO 6000 (2026-07-22: was thread-only, so the page had
@@ -3186,7 +3210,7 @@ def _build_committed_gap_table(records: List[PriceRecord]) -> str:
     grouped: Dict[str, Dict[int, Dict[str, float]]] = defaultdict(
         lambda: defaultdict(dict))
     for r in records:
-        if r.gpu_model not in SHOW_GPUS:
+        if r.gpu_model not in SHOW_GPUS or not is_public_benchmark_eligible(r):
             continue
         for col_idx, (_, cts) in enumerate(COLUMNS):
             if r.consumption_type not in cts:
@@ -3404,6 +3428,7 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
         raw_peers = [r for r in records
                      if r.gpu_model == gpu
                      and r.consumption_type == "on_demand"
+                     and not is_qualified_catalogue_reference(r)
                      and provider_tier(r.provider) in ("raw_gpu_cloud", "hyperscaler")]
         # Deduplicate: keep cheapest record per provider
         best_by_prov: Dict[str, PriceRecord] = {}
@@ -3461,6 +3486,7 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
         for r in records:
             if (r.gpu_model == gpu
                     and r.consumption_type in INTERRUPTIBLE_CTS
+                    and not is_qualified_catalogue_reference(r)
                     and r.provider not in od_provs
                     and r.provider != "nebius"
                     and provider_tier(r.provider) in ("raw_gpu_cloud", "hyperscaler")):
@@ -3477,6 +3503,43 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
                 f'on-demand rows above.</em></p>'
             )
 
+    return "\n".join(html)
+
+
+def _build_qualified_catalogue_section(records: List[PriceRecord]) -> str:
+    """Keep constrained public tariffs inspectable without implying buyability."""
+    refs = [r for r in records if is_qualified_catalogue_reference(r)]
+    if not refs:
+        return ""
+    refs = sorted(refs, key=lambda r: (r.provider, r.gpu_model, r.instance_type,
+                                      r.consumption_type, r.region))
+    html = [
+        '<h2>Catalogue prices — deployment restricted or unconfirmed</h2>',
+        '<p>Published tariffs whose API reports deployment disabled, no listed '
+        'locations, or unknown deployment eligibility. These records are excluded '
+        'from ordinary price comparisons, cheapest-provider statistics and price-move '
+        'alerts. They do not establish live stock, account quota, or multi-node access. '
+        'The full configured instance is the minimum priced unit; dividing by GPU '
+        'count does not create a purchasable single-GPU offer.</p>',
+        '<table data-layout="full-width"><tbody>',
+        '<tr><th>Provider / GPU</th><th>Exact SKU / tier</th>'
+        '<th>Minimum priced instance</th><th>$/GPU-hr</th><th>Location</th>'
+        '<th>Qualification / source</th></tr>',
+    ]
+    for r in refs:
+        tier = CT_LABELS.get(r.consumption_type, r.consumption_type)
+        label = QUALIFIED_CATALOGUE_BASES[r.price_basis]
+        source = (f'<a href="{escape(r.source_url, quote=True)}">Official catalogue</a>'
+                  if r.source_url else 'Source unavailable')
+        location = r.region if r.region not in {'', 'unspecified'} else 'Not listed'
+        html.append(
+            f'<tr><td>{escape(_provider_display(r.provider))} / {escape(r.gpu_model)}</td>'
+            f'<td>{escape(r.instance_type)}<br />{escape(tier)}</td>'
+            f'<td>{r.gpu_count:g} GPUs · ${r.price_per_hour_usd:.2f}/instance-hr</td>'
+            f'<td>${r.price_per_gpu_hour_usd:.4f}</td><td>{escape(location)}</td>'
+            f'<td>{escape(label)}<br />{source}</td></tr>'
+        )
+    html.append('</tbody></table>')
     return "\n".join(html)
 
 

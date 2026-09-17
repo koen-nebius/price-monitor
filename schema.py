@@ -87,7 +87,7 @@ class DiffEntry:
     region: str
     consumption_type: str
     instance_type: str
-    change_type: str        # price_change | added | removed
+    change_type: str        # price_change | added | removed | restatement | reversion | catalog_reference_change
     old_price: Optional[float] = None
     new_price: Optional[float] = None
     delta_pct: Optional[float] = None

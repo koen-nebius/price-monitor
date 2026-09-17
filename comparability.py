@@ -98,7 +98,8 @@ def _classify(r: PriceRecord) -> Tuple[str, str]:
     # Massed's authenticated inventory has generic H100 SKUs alongside explicit
     # SXM/NVL/PCIe variants. Missing form-factor evidence must stay unknown;
     # the broad H100 -> SXM default would silently promote an entry VM.
-    if base == "massedcompute":
+    # Vultr's public plans likewise do not establish form factor or fabric.
+    if base in {"massedcompute", "vultr"}:
         return "unknown", "unknown"
 
     for p, rx, ff, ic in _RULES:
@@ -137,3 +138,31 @@ def is_cluster_class(r: PriceRecord) -> bool:
     Lambda 1× PCIe) and PCIe inference cards (L40S, L4).
     """
     return getattr(r, "form_factor", "") == "SXM"
+
+
+# Record-level qualification lets a later enabled plan with published locations
+# join ordinary comparison without a permanent provider-wide exclusion.
+QUALIFIED_CATALOGUE_BASES = {
+    "public_catalog_ondemand_disabled": "On-demand deployment disabled",
+    "public_catalog_preemptible_disabled": "Preemptible deployment disabled",
+    "public_catalog_no_locations": "No deployment locations listed",
+    "public_catalog_deployment_unknown": "Deployment eligibility unknown",
+}
+
+
+def is_qualified_catalogue_reference(record: PriceRecord) -> bool:
+    """Tariff whose deployment qualification precludes ordinary comparison.
+
+    This is a catalogue qualification, never a claim about real-time stock.
+    """
+    return record.price_basis in QUALIFIED_CATALOGUE_BASES
+
+
+def is_public_benchmark_eligible(record: PriceRecord) -> bool:
+    """Exclude account-specific or restricted catalogues from public statistics.
+
+    Existing unqualified sources retain their behavior; passing this gate does
+    not establish live stock, multi-node access, or configuration equivalence.
+    """
+    return (record.price_basis != "account_catalog"
+            and not is_qualified_catalogue_reference(record))

@@ -22,6 +22,7 @@ from typing import List, Dict, Tuple
 
 from store import STORE_DIR, list_snapshot_dates, load_snapshot
 from schema import PriceRecord
+from comparability import is_qualified_catalogue_reference
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +79,11 @@ def _cheapest_per_combo(
     best: Dict[Tuple[str, str, str], PriceRecord] = {}
     for r in records:
         if r.consumption_type not in INCLUDE_CONSUMPTION_TYPES:
+            continue
+        # Trend CSV has no deployment fields; keeping restricted catalogue
+        # rows here would turn them back into ordinary PAYG/Spot anchors.
+        # The exact qualified evidence remains in the dated JSON snapshots.
+        if is_qualified_catalogue_reference(r):
             continue
         key = (r.provider, r.gpu_model, r.consumption_type)
         if key not in best or r.price_per_gpu_hour_usd < best[key].price_per_gpu_hour_usd:
