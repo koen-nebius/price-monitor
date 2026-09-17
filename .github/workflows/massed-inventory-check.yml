@@ -3,7 +3,7 @@ name: Check Massed inventory (read only)
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, codex/massed-compute-monitor]
     paths:
       - massedcompute_api.py
       - fetchers/massedcompute.py
