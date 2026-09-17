@@ -33,6 +33,14 @@ def _key(r: AvailabilityRecord) -> Tuple[str, str, str, str, str]:
 def _index(records: List[AvailabilityRecord]) -> Dict[Tuple, AvailabilityRecord]:
     out: Dict[Tuple, AvailabilityRecord] = {}
     for r in records:
+        if r.provider == "together" and not (
+                r.product_scope == "dedicated_inference"
+                and r.metric_type == "inference_replicas"
+                and r.data_source == "official_api" and r.instance_type
+                and r.region != "global"):
+            # Legacy synthesized rows are quarantined, not a disappearance or
+            # stock change when the new product-specific feed takes over.
+            continue
         # Keep the most-available state per key when duplicates exist
         cur = out.get(_key(r))
         if cur is None or _rank(r.state) < _rank(cur.state):
@@ -61,6 +69,18 @@ def compute_diff(new: List[AvailabilityRecord],
                 ))
             continue
 
+        # A source upgrade is not a stock transition. Crusoe's historical
+        # docs footprint and authenticated per-configuration quantities are
+        # different observations, even if their identity happens to match.
+        if n.provider == "crusoe" and (
+                n.metric_type != o.metric_type or n.data_source != o.data_source):
+            continue
+        if n.provider == "together" and (
+                n.product_scope != o.product_scope or n.gpu_count != o.gpu_count
+                or n.metric_type != o.metric_type or n.data_source != o.data_source
+                or n.quantity_relation != o.quantity_relation):
+            continue
+
         if n.state != o.state and (n.state in _MEANINGFUL or o.state in _MEANINGFUL):
             # unknown<->anything churn is fetcher noise, skip unless it involves
             # two meaningful states (e.g. available -> sold_out).
@@ -77,6 +97,10 @@ def compute_diff(new: List[AvailabilityRecord],
         # (stock_status_label) are not quantities: a "1 → 0 (-100%)" bullet is
         # noise when the state itself did not change.
         if n.metric_type == "stock_status_label":
+            continue
+        if n.metric_type == "inference_replicas" and (
+                n.quantity_relation != "RELATION_EQ" or o.quantity_relation != "RELATION_EQ"):
+            # Two lower bounds do not establish a percentage change in stock.
             continue
         if n.metric_value is not None and o.metric_value is not None \
                 and n.metric_type == o.metric_type:

@@ -63,6 +63,22 @@ def run(providers=None, test=False):
             logger.info(f"{provider}: {len(records)} records (live)")
         else:
             cached, age_h = store.get_cached_records(provider)
+            if provider == "together":
+                # Legacy rows maximized across shapes and synthesized cluster
+                # stock. They are not safe fallback observations for inference.
+                cached = [r for r in cached
+                          if r.product_scope == "dedicated_inference"
+                          and r.metric_type == "inference_replicas"
+                          and r.data_source == "official_api"
+                          and r.region != "global" and r.instance_type]
+            if provider == "crusoe":
+                from crusoe_api import credentials_configured
+                if credentials_configured():
+                    # An API outage may reuse a labelled stale API observation,
+                    # never promote the old documentation footprint as a
+                    # substitute for the newly configured authenticated source.
+                    cached = [r for r in cached if r.data_source == "official_api"
+                              and r.metric_type == "provider_quantity"]
             if cached:
                 records = cached
                 stale.append(provider)

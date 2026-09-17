@@ -23,7 +23,7 @@ from typing import Dict, List, Optional, Tuple
 from capacity import insights
 from capacity.config import (
     CONFLUENCE_BASE_URL, FLAGSHIP_GPUS, FOOTPRINT_ONLY_GPUS, PROVIDER_LABELS,
-    SECONDARY_GPUS, SIGNAL_CLASS,
+    SECONDARY_GPUS, SIGNAL_CLASS, PENDING_ACTIVATION,
 )
 from capacity.insights import plural, region_label
 from capacity.schema import AvailabilityRecord, CapacityDiffEntry
@@ -48,14 +48,14 @@ METHOD = {
     "voltage_park": ("live",          "public locations API: live rentable GPU counts per fabric"),
     "hyperstack":   ("live",          "stock API: per-region counts + restock forecast (pending free key)"),
     "verda":        ("live",          "instance-availability API per location (pending free key)"),
-    "together":     ("live",          "per-region capacity headroom API (pending free key)"),
+    "together":     ("inference",     "dedicated-inference instance API: replicas per exact instance/region, with exact or lower-bound relation; not raw GPU cluster stock or bookability"),
     "massedcompute": ("live",         "account inventory: exact SKU and reported region; quantity unit unverified; no multi-node or cluster assertion"),
     "aws":          ("spot",          "spot advisor pools (~weekly) now; Capacity Blocks lead time once IAM lands"),
     "vast":         ("marketplace",   "commodity marketplace depth: GPUs listed + floor price, not DC inventory"),
     "sfcompute":    ("marketplace",   "exchange clearing price (short-term reserve); price level = scarcity"),
     "gmi":          ("self_reported", "pricing-page badges (provider-declared, unverifiable) — never counted"),
     "coreweave":    ("footprint",     "docs AZ matrix: where deployed, not whether in stock"),
-    "crusoe":       ("footprint",     "docs zone matrix: where offered (live capacities API needs account)"),
+    "crusoe":       ("footprint",     "docs zone matrix: where offered, not live stock; authenticated quantities shown separately when connected"),
     "gcp":          ("footprint",     "GPU zones docs page: where offered"),
     "azure":        ("footprint",     "retail price API: where priced (can overstate deployment)"),
     "nebius":       ("footprint",     "outside-in: docs region matrix + which SKUs are self-service vs sales-gated"),
@@ -66,6 +66,8 @@ CLASS_LABEL = {
     "live": "live stock", "spot": "spot", "marketplace": "marketplace",
     "self_reported": "self-reported", "footprint": "footprint",
     "aggregator": "aggregator",
+    "inference": "dedicated inference",
+    "unverified_scope": "product scope unverified",
 }
 
 
@@ -335,10 +337,35 @@ def _short(detail: str, limit: int = 70) -> str:
     return d if len(d) <= limit else d[:limit - 1] + "…"
 
 
+def _change_scope_verified(c: CapacityDiffEntry, records: List[AvailabilityRecord]) -> bool:
+    if c.provider != "together":
+        return True
+    return any(insights.is_together_inference(r)
+               and (r.gpu_model, r.region, r.consumption_type, r.instance_type)
+               == (c.gpu_model, c.region, c.consumption_type, c.instance_type)
+               for r in records)
+
+
 def _describe_change(c: CapacityDiffEntry,
                      records: List[AvailabilityRecord] = None) -> str:
     prov = PROVIDER_LABELS.get(c.provider, c.provider)
-    cls = SIGNAL_CLASS.get(c.provider, "footprint")
+    record = next((r for r in (records or [])
+                   if (r.provider, r.gpu_model, r.region, r.consumption_type, r.instance_type)
+                   == (c.provider, c.gpu_model, c.region, c.consumption_type, c.instance_type)), None)
+    cls = insights.signal_class(record) if record else SIGNAL_CLASS.get(c.provider, "footprint")
+    if c.provider == "together":
+        if record and insights.is_together_inference(record):
+            return (f"{prov} dedicated inference {c.instance_type} {c.region}: "
+                    f"current replica headroom {_inference_headroom(record)} "
+                    f"(observed {_observed_time(record.fetched_at)}; not raw GPU cluster stock)")
+        return f"{prov} {c.gpu_model}: legacy product scope unverified; excluded from capacity comparisons"
+    if record and insights.is_crusoe_api_quantity(record):
+        scope = f"{prov} {c.gpu_model} {c.instance_type} {c.region}"
+        if (c.change_type in {"state_change", "metric_move"}
+                and c.old_value is not None and c.new_value is not None):
+            return (f"{scope}: API quantity {c.old_value:g} → {c.new_value:g} "
+                    "(provider units; this SKU/location only)")
+        return f"{scope}: {c.detail} (API quantity; this SKU/location only)"
     tag = {"live": "live", "spot": "spot", "marketplace": "marketplace",
            "self_reported": "badge", "footprint": "footprint"}[cls]
     # A "live" tag on an aggregator-sourced row overstates trust — mark it.
@@ -377,9 +404,8 @@ def _render_thread(records, diff, manifest, old_records) -> str:
     lines = [f"*Detail · {today}*", ""]
     first_aws = [False]
 
-    # A "footprint-only" GPU with an actual live read auto-promotes to a full
-    # block (Together was live-selling GB300 while the thread claimed "no live
-    # market" — red-team 2026-08-14).
+    # A "footprint-only" GPU with a qualified raw-GPU stock read can promote
+    # to a full block. Dedicated-inference replicas do not establish that stock.
     promoted = [g for g in FOOTPRINT_ONLY_GPUS if insights.tightness(records, g)]
 
     for gpu in FLAGSHIP_GPUS + promoted:
@@ -400,8 +426,9 @@ def _render_thread(records, diff, manifest, old_records) -> str:
     # Changes first (decision-relevant), then static footprint/badges.
     # Default provenance is the provider's own API; only exceptions are marked.
     baseline = _baseline_label(old_records)
-    changes = [c for c in diff if c.change_type in ("state_change", "metric_move")]
-    provider_level = [c for c in changes if c.region == "global"]
+    changes = [c for c in diff if c.change_type in ("state_change", "metric_move")
+               and _change_scope_verified(c, records)]
+    provider_level = [c for c in changes if c.region == "global" and c.provider != "together"]
     n_region = len(changes) - len(provider_level)
 
     # One basis per provider: when a direct feed returned data today, that
@@ -466,6 +493,52 @@ def _render_thread(records, diff, manifest, old_records) -> str:
         lines.append(f"_+{plural(n_region, 'datacenter-level change')} on Confluence_")
     lines.append("")
 
+    quantity_rows = insights.crusoe_quantity_records(records)
+    if quantity_rows:
+        lines.append("*Crusoe API — exact instance/location quantities:*")
+        lines.append(f"_{_crusoe_read_freshness(manifest)}_")
+        timestamps = {_observed_time(r.fetched_at) for r in quantity_rows}
+        common_observation = next(iter(timestamps)) if len(timestamps) == 1 else None
+        if common_observation:
+            lines.append(f"_Observed: {common_observation}_")
+        for row in quantity_rows[:8]:
+            value = f"{row.metric_value:g}" if row.metric_value is not None else "unreported"
+            qualifier = " (observation unconfirmed)" if row.state == "unknown" else ""
+            observed = "" if common_observation else f" · observed {_observed_time(row.fetched_at)}"
+            lines.append(f"• {row.instance_type} · {row.region}: quantity {value}{qualifier}{observed}")
+        if len(quantity_rows) > 8:
+            lines.append(f"_+{len(quantity_rows) - 8} exact rows on Confluence_")
+        lines.append("_Provider units, not GPU counts; alternative shapes/slices may overlap. "
+                     "Not added to cluster totals or price/bookability comparisons. Account "
+                     "quota, reservation eligibility and multi-node stock remain unverified._")
+        lines.append("")
+
+    inference_rows = insights.together_inference_records(records)
+    if inference_rows:
+        lines.append("*Together AI — dedicated-inference replica headroom:*")
+        lines.append(f"_{_provider_read_freshness('together', manifest)}_")
+        timestamps = {_observed_time(r.fetched_at) for r in inference_rows}
+        common_observation = next(iter(timestamps)) if len(timestamps) == 1 else None
+        if common_observation:
+            lines.append(f"_Observed: {common_observation}_")
+        for row in inference_rows[:8]:
+            count = getattr(row, "gpu_count", None)
+            unit = "GPU" if count == 1 else "GPUs"
+            size = f"{count} {unit}/replica" if count is not None else "GPU count unreported"
+            observed = "" if common_observation else f" · observed {_observed_time(row.fetched_at)}"
+            lines.append(f"• {row.instance_type} · {size} · {row.region}: {_inference_headroom(row)}{observed}")
+        if len(inference_rows) > 8:
+            lines.append(f"_+{len(inference_rows) - 8} exact configurations on Confluence_")
+        lines.append("_Replicas for dedicated inference; not GPU counts or training-cluster "
+                     "stock. Excluded from cluster totals and GPU-rental price comparisons._")
+        lines.append("")
+
+    legacy_together = [r for r in records if r.provider == "together" and not insights.is_together_inference(r)]
+    if legacy_together:
+        lines.append(f"_Together AI: {len(legacy_together)} legacy observations excluded; "
+                     "product scope is unverified._")
+        lines.append("")
+
     # Footprint-only generations (full product names; offered ≠ in stock)
     fp_label = {"GB200": "GB200 NVL72", "GB300": "GB300 NVL72"}
     for gpu in FOOTPRINT_ONLY_GPUS:
@@ -474,7 +547,7 @@ def _render_thread(records, diff, manifest, old_records) -> str:
         bits = []
         for prov in ("coreweave", "gcp", "azure", "crusoe"):
             rows = [r for r in records if r.provider == prov and r.gpu_model == gpu
-                    and r.region == "global"]
+                    and r.region == "global" and insights.signal_class(r) == "footprint"]
             if rows and rows[0].metric_value:
                 unit = {"coreweave": "AZ", "gcp": "zone", "azure": "priced region",
                         "crusoe": "zone"}[prov]
@@ -542,6 +615,107 @@ def _read_for(t: dict) -> Tuple[str, str]:
     if share >= 2 / 3 and t["k_any"] == t["n"]:
         return "green", "broadly available"
     return "yellow", "mixed"
+
+
+def _observed_time(value: str) -> str:
+    if not value:
+        return "timestamp not recorded"
+    try:
+        dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if dt.tzinfo is not None:
+            return dt.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    except ValueError:
+        pass
+    return value + " (timezone unconfirmed)"
+
+
+def _provider_read_freshness(provider: str, manifest: dict = None) -> str:
+    status = (manifest or {}).get("provider_status", {}).get(provider, {})
+    state = status.get("status")
+    age = status.get("cache_age_hours")
+    age_note = f" (cache age {age:g}h)" if isinstance(age, (int, float)) else ""
+    if state in {"cached", "cache"}:
+        return "Cached observation; not refreshed this run" + age_note
+    if state == "failed":
+        return "Fetch failed; observations not refreshed this run" + age_note
+    if state == "live":
+        return "Fetched in this run; point-in-time observations"
+    return "Refresh status not supplied; use each observation timestamp"
+
+
+def _crusoe_read_freshness(manifest: dict = None) -> str:
+    return _provider_read_freshness("crusoe", manifest)
+
+
+def _inference_headroom(record: AvailabilityRecord) -> str:
+    value = record.metric_value
+    relation = getattr(record, "quantity_relation", "")
+    if record.state == "unknown" or value is None or relation not in {"RELATION_EQ", "RELATION_GTE"}:
+        return "unknown replica headroom"
+    unit = "replica" if value == 1 else "replicas"
+    if relation == "RELATION_GTE":
+        return f"≥{value:g} {unit} (lower bound)"
+    return f"{value:g} {unit} (exact)"
+
+
+def _together_inference_table(records: List[AvailabilityRecord], manifest: dict = None) -> str:
+    rows = insights.together_inference_records(records)
+    legacy = [r for r in records if r.provider == "together" and not insights.is_together_inference(r)]
+    if not rows and not legacy:
+        return ""
+    h = ["<h2>Together AI — dedicated-inference replica headroom</h2>",
+         f"<p><strong>{_esc(_provider_read_freshness('together', manifest))}</strong></p>",
+         "<p>This API describes dedicated inference, <strong>not raw GPU rental or "
+         "training-cluster stock</strong>. Headroom is replicas of the exact configuration "
+         "in the reported region; a lower bound is not an exact inventory count. "
+         "Configurations are not summed or converted into available GPU totals. "
+         "Excluded from cluster tightness, fleet-wide sellout claims and GPU-rental price comparisons.</p>"]
+    if legacy:
+        h.append(f"<p>{len(legacy)} legacy Together observations have unverified product scope "
+                 "and are excluded from capacity comparisons.</p>")
+    if rows:
+        h.extend(['<table data-layout="full-width"><tbody>',
+                  "<tr><th>GPU</th><th>Exact instance</th><th>GPUs per replica</th>"
+                  "<th>Region</th><th>Replica headroom</th><th>Observed at</th><th>Evidence</th></tr>"])
+        for row in rows:
+            count = getattr(row, "gpu_count", None)
+            count_label = str(count) if count is not None else "Unreported"
+            source = f'<a href="{_esc(row.source_url)}">Source</a>' if row.source_url else ""
+            h.append(f"<tr><td>{_esc(row.gpu_model)}</td><td>{_esc(row.instance_type)}</td>"
+                     f"<td>{_esc(count_label)}</td><td>{_esc(row.region)}</td>"
+                     f"<td>{_esc(_inference_headroom(row))}</td>"
+                     f"<td>{_esc(_observed_time(row.fetched_at))}</td>"
+                     f"<td>{_esc(row.detail)} {source}</td></tr>")
+        h.append("</tbody></table>")
+    return "\n".join(h)
+
+
+def _crusoe_quantity_table(records: List[AvailabilityRecord], manifest: dict = None) -> str:
+    rows = insights.crusoe_quantity_records(records)
+    if not rows:
+        return ""
+    h = ["<h2>Crusoe API — quantities by exact instance and location</h2>",
+         f"<p><strong>{_esc(_crusoe_read_freshness(manifest))}</strong></p>",
+         "<p>Raw provider quantities, <strong>not GPU counts</strong>. Alternative "
+         "instance shapes or slices can draw from overlapping capacity, so quantities "
+         "are not summed. A positive value does not establish account quota, reservation "
+         "eligibility or multi-node stock. Zero applies only to the reported SKU/location. "
+         "These rows are excluded from cluster-stock totals and the price/bookability "
+         "comparison until an exact offer match is established.</p>",
+         '<table data-layout="full-width"><tbody>',
+         "<tr><th>GPU</th><th>Exact instance</th><th>Location</th>"
+         "<th>Quantity (provider units)</th><th>API observation</th>"
+         "<th>Observed at</th><th>Evidence</th></tr>"]
+    for row in rows:
+        value = f"{row.metric_value:g}" if row.metric_value is not None else "Unreported"
+        state = {"available": "Positive quantity", "sold_out": "Zero reported", "unknown": "Observation unconfirmed"}.get(row.state, row.state)
+        source = f'<a href="{_esc(row.source_url)}">Source</a>' if row.source_url else ""
+        h.append(f"<tr><td>{_esc(row.gpu_model)}</td><td>{_esc(row.instance_type)}</td>"
+                 f"<td>{_esc(row.region)}</td><td>{_esc(value)}</td><td>{_esc(state)}</td>"
+                 f"<td>{_esc(_observed_time(row.fetched_at))}</td>"
+                 f"<td>{_esc(row.detail)} {source}</td></tr>")
+    h.append("</tbody></table>")
+    return "\n".join(h)
 
 
 def render_confluence(records: List[AvailabilityRecord],
@@ -714,7 +888,7 @@ def render_confluence(records: List[AvailabilityRecord],
              "✱ = via aggregator today (direct feed pending or down). GMI is "
              "provider-declared and never counted in verdicts.</em></p>")
     live_provs = [p for p in ("lambda", "scaleway", "runpod", "voltage_park",
-                              "verda", "hyperstack", "together", "gmi")
+                              "verda", "hyperstack", "gmi")
                   if any(r.provider == p for r in records)]
     h.append('<table data-layout="full-width"><tbody>')
     h.append("<tr><th>GPU</th>" + "".join(f"<th>{_esc(PROVIDER_LABELS[p])}"
@@ -745,6 +919,8 @@ def render_confluence(records: List[AvailabilityRecord],
     h.append("</tbody></table>")
 
     # 6 — Footprint table (neutral)
+    h.append(_crusoe_quantity_table(records, manifest))
+    h.append(_together_inference_table(records, manifest))
     h.append("<h2>Offering Footprint — where it is sold (NOT whether in stock)</h2>")
     fp_provs = ["coreweave", "crusoe", "gcp", "azure", "nebius"]
     h.append('<table data-layout="full-width"><tbody>')
@@ -756,7 +932,8 @@ def render_confluence(records: List[AvailabilityRecord],
         row, any_cell = [f"<td><strong>{gpu}</strong></td>"], False
         for p in fp_provs:
             rows = [r for r in records if r.provider == p and r.gpu_model == gpu
-                    and r.region == "global" and r.data_source != "aggregator"]
+                    and r.region == "global" and r.data_source != "aggregator"
+                    and insights.signal_class(r) == "footprint"]
             if not rows or rows[0].state == "not_offered":
                 row.append("<td>—</td>")
                 continue
@@ -790,9 +967,10 @@ def render_confluence(records: List[AvailabilityRecord],
     # 8 — Changes
     baseline = _baseline_label(old_records)
     h.append(f"<h2>Changes ({_esc(baseline)})</h2>")
-    material = [c for c in diff if c.change_type == "state_change" and c.region == "global"
+    scoped_diff = [c for c in diff if _change_scope_verified(c, records)]
+    material = [c for c in scoped_diff if c.change_type == "state_change" and c.region == "global"
                 and SIGNAL_CLASS.get(c.provider) in ("live", "marketplace")]
-    other = [c for c in diff if c not in material and c.change_type in ("state_change", "metric_move")]
+    other = [c for c in scoped_diff if c not in material and c.change_type in ("state_change", "metric_move")]
     if material:
         h.append("<p><strong>Material (live/marketplace, provider-level):</strong></p><ul>")
         for c in material[:20]:
@@ -827,13 +1005,28 @@ def render_confluence(records: List[AvailabilityRecord],
         seen.add(key)
         cls = "aggregator" if r.data_source == "aggregator" else insights.signal_class(r)
         color, label = state_disp.get(r.state, ("neutral", r.state))
+        class_label = CLASS_LABEL.get(cls, cls)
+        if cls == "footprint":
+            color, label = "neutral", "Listed" if r.metric_type == "listed_offering" else "Unknown"
+        if insights.is_crusoe_api_quantity(r):
+            color = "neutral"
+            label = {"available": "Positive quantity", "sold_out": "Zero reported"}.get(r.state, "Unconfirmed")
+            class_label = "API quantity (exact SKU/location)"
+        detail = _short(r.detail, 90)
+        if r.provider == "together":
+            color = "neutral"
+            if insights.is_together_inference(r):
+                label, class_label = _inference_headroom(r), "dedicated inference"
+            else:
+                label, class_label = "Unverified", "product scope unverified"
+                detail = "Legacy observation excluded from capacity comparisons"
         h.append(f"<tr><td>{_esc(PROVIDER_LABELS.get(r.provider, r.provider))}</td>"
                  f"<td><strong>{_esc(r.gpu_model)}</strong></td><td>{_esc(r.region)}</td>"
                  f"<td>{_esc(r.instance_type or '—')}</td>"
                  f"<td>{_esc(r.consumption_type)}</td>"
                  f"<td>{_status(color, label)}</td>"
-                 f"<td><em>{_esc(_short(r.detail, 90))}</em></td>"
-                 f"<td>{_esc(CLASS_LABEL.get(cls, cls))}</td></tr>")
+                 f"<td><em>{_esc(detail)}</em></td>"
+                 f"<td>{_esc(class_label)}</td></tr>")
     h.append("</tbody></table></ac:rich-text-body></ac:structured-macro>")
 
     # 10 — Method
@@ -848,8 +1041,19 @@ def render_confluence(records: List[AvailabilityRecord],
     h.append("<tr><th>Provider</th><th>Class</th><th>Signal &amp; semantics</th>"
              "<th>Today's basis</th></tr>")
     for prov, (cls, sem) in METHOD.items():
+        if (prov == "together" and any(r.provider == prov for r in records)
+                and not insights.together_inference_records(records)):
+            cls = "unverified_scope"
+            sem = "Legacy observations have unverified product scope; excluded from live GPU/cluster stock and pricing comparisons."
+        if prov == "crusoe" and insights.crusoe_quantity_records(records):
+            cls = "API quantity (exact SKU/location)"
+            sem = ("Authenticated /v1/capacities: raw quantity per instance/location; "
+                   "provider units, not GPU counts. Alternative shapes/slices may overlap; "
+                   "no cluster totals, account-quota claim or price join.")
+            if any(r.provider == prov and insights.signal_class(r) == "footprint" for r in records):
+                sem += " Documentation records remain footprint only."
         b = basis.get(prov, "—")
-        if prov in ("hyperstack", "verda", "together") and b == "failed":
+        if prov in ("hyperstack", "verda") and prov in PENDING_ACTIVATION and b == "failed":
             b = "pending key (via Shadeform ✱)"
         elif b == "failed" and prov in {p for p in PENDING_ACTIVATION}:
             b = "pending activation"

@@ -53,9 +53,41 @@ def geo(region: str) -> str:
 
 
 def signal_class(r: AvailabilityRecord) -> str:
+    # Old snapshots collapsed dedicated-inference replicas into a global GPU
+    # stock signal. Unscoped caches/aggregator rows must fail closed as well.
+    if r.provider == "together":
+        return "inference" if is_together_inference(r) else "unverified_scope"
+    # The provider has two independent evidence types. Cached documentation
+    # never becomes live capacity merely because credentials were later added.
+    if r.provider == "crusoe":
+        return "live" if is_crusoe_api_quantity(r) else "footprint"
     if r.consumption_type == "spot":
         return "spot"
     return SIGNAL_CLASS.get(r.provider, "footprint")
+
+
+def is_crusoe_api_quantity(r: AvailabilityRecord) -> bool:
+    """Authenticated exact-SKU quantity, not a GPU count or cluster signal."""
+    return (r.provider == "crusoe" and r.metric_type == "provider_quantity"
+            and r.data_source == "official_api")
+
+
+def crusoe_quantity_records(records: List[AvailabilityRecord]) -> List[AvailabilityRecord]:
+    """Preserve alternative shapes/slices individually; quantities may overlap."""
+    return sorted((r for r in records if is_crusoe_api_quantity(r)),
+                  key=lambda r: (r.gpu_model, r.instance_type, r.region, r.consumption_type))
+
+
+def is_together_inference(r: AvailabilityRecord) -> bool:
+    return (r.provider == "together" and r.metric_type == "inference_replicas"
+            and r.data_source == "official_api"
+            and getattr(r, "product_scope", "") == "dedicated_inference")
+
+
+def together_inference_records(records: List[AvailabilityRecord]) -> List[AvailabilityRecord]:
+    """Keep every inference configuration separate; never roll into GPU stock."""
+    return sorted((r for r in records if is_together_inference(r)),
+                  key=lambda r: (r.gpu_model, r.instance_type, r.region))
 
 
 def plural(n: int, word: str) -> str:
@@ -73,12 +105,15 @@ def live_reads(records: List[AvailabilityRecord], gpu: str) -> List[dict]:
     fallback only, and can never prove CLUSTER stock: Shadeform booleans
     cannot see instance size, so cluster_ok requires a direct 'available'."""
     reads = []
-    for provider, cls in SIGNAL_CLASS.items():
-        if cls != "live" or provider == "nebius":
+    providers = {r.provider for r in records if signal_class(r) == "live"}
+    for provider in sorted(providers):
+        if provider == "nebius":
             continue
         rows = [r for r in records
                 if r.provider == provider and r.gpu_model == gpu
                 and r.consumption_type == "on_demand" and r.region == "global"
+                and signal_class(r) == "live"
+                and not is_crusoe_api_quantity(r)
                 and r.state in _RANK]
         if not rows:
             continue
@@ -282,6 +317,7 @@ def agg_state(records: List[AvailabilityRecord], provider: str, gpu: str,
     states = [r.state for r in records
               if r.provider == provider and r.gpu_model == gpu
               and r.region == "global" and r.consumption_type == "on_demand"
+              and signal_class(r) == "live" and not is_crusoe_api_quantity(r)
               and r.state in _RANK
               and (not direct_only or r.data_source != "aggregator")]
     if not states:
@@ -295,7 +331,8 @@ def provider_transitions(records: List[AvailabilityRecord],
     """Provider-level (all variants aggregated) state transitions on flagship
     GPUs since the previous build."""
     out = []
-    providers = {p for p, c in SIGNAL_CLASS.items() if c == "live" and p != "nebius"}
+    providers = {r.provider for r in records
+                 if signal_class(r) == "live" and r.provider != "nebius"}
     for gpu in FLAGSHIP_GPUS:
         for provider in sorted(providers):
             new = agg_state(records, provider, gpu, direct_only)

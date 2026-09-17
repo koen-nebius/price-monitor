@@ -1,0 +1,33 @@
+name: Check Crusoe capacity (read only)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, codex/crusoe-capacity-api]
+    paths:
+      - crusoe_api.py
+      - capacity/**.py
+      - capacity/fetchers/crusoe.py
+      - scripts/check_crusoe.py
+      - test_crusoe*.py
+      - .github/workflows/crusoe-capacity-check.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Offline regression tests
+        run: python3 -m unittest discover -p 'test_crusoe*.py'
+      - name: Verify secrets and live capacity
+        env:
+          CRUSOE_ACCESS_KEY_ID: ${{ secrets.CRUSOE_ACCESS_KEY_ID }}
+          CRUSOE_SECRET_KEY: ${{ secrets.CRUSOE_SECRET_KEY }}
+        run: python3 scripts/check_crusoe.py
