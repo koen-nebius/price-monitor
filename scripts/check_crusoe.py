@@ -9,11 +9,20 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from capacity.main import _fetch_provider
+import crusoe_api
 from crusoe_api import fetch_capacities
 
 
 def main():
     logging.basicConfig(level=logging.INFO)
+    if crusoe_api.CAPACITY_ACCESS_PAUSED:
+        message = "Crusoe authenticated capacity PAUSED: " + crusoe_api.CAPACITY_PAUSE_REASON
+        print(message + ". No provider request made; availability unknown.")
+        summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary_file:
+            with open(summary_file, "a") as handle:
+                handle.write(message + ". No provider request made; availability unknown.\n")
+        return 0
     try:
         if not all(os.environ.get(key, "").strip() for key in
                    ("CRUSOE_ACCESS_KEY_ID", "CRUSOE_SECRET_KEY")):

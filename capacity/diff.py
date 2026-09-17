@@ -10,7 +10,7 @@ import logging
 from typing import Dict, List, Tuple
 
 from capacity.schema import AvailabilityRecord, CapacityDiffEntry
-from capacity.insights import is_lambda_instance
+from capacity.insights import is_lambda_instance, is_scaleway_instance
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +35,8 @@ def _index(records: List[AvailabilityRecord]) -> Dict[Tuple, AvailabilityRecord]
     out: Dict[Tuple, AvailabilityRecord] = {}
     for r in records:
         if r.provider == "lambda" and not is_lambda_instance(r):
+            continue
+        if r.provider == "scaleway" and not is_scaleway_instance(r):
             continue
         if r.provider == "together" and not (
                 r.product_scope == "dedicated_inference"
@@ -83,7 +85,7 @@ def compute_diff(new: List[AvailabilityRecord],
                 or n.metric_type != o.metric_type or n.data_source != o.data_source
                 or n.quantity_relation != o.quantity_relation):
             continue
-        if n.provider == "lambda" and (
+        if n.provider in {"lambda", "scaleway"} and (
                 n.product_scope != o.product_scope or n.gpu_count != o.gpu_count
                 or n.metric_type != o.metric_type or n.data_source != o.data_source):
             continue
@@ -103,7 +105,7 @@ def compute_diff(new: List[AvailabilityRecord],
         # Same state — check quantitative moves. Ordinal label ranks
         # (stock_status_label) are not quantities: a "1 → 0 (-100%)" bullet is
         # noise when the state itself did not change.
-        if n.metric_type in {"stock_status_label", "launchable_regions", "instance_launchability"}:
+        if n.metric_type in {"stock_status_label", "launchable_regions", "instance_launchability", "instance_stock_status"}:
             continue
         if n.metric_type == "inference_replicas" and (
                 n.quantity_relation != "RELATION_EQ" or o.quantity_relation != "RELATION_EQ"):
@@ -131,6 +133,9 @@ def compute_diff(new: List[AvailabilityRecord],
 
     for key, o in old_idx.items():
         if key not in new_idx and o.state in _MEANINGFUL:
+            if o.provider == "scaleway":
+                # An absent SKU/zone observation is not a confirmed stockout.
+                continue
             if o.provider == "lambda":
                 # A missing SKU or unreadable region list says nothing about
                 # stock. Only a complete comparable exact-SKU summary can

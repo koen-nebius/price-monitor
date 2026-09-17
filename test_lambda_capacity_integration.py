@@ -113,9 +113,9 @@ class LambdaCapacityIntegrationTests(unittest.TestCase):
     def test_listed_price_stays_but_no_lambda_shape_is_misjoined_as_bookable(self):
         prices = [{"provider": "lambda", "gpu_model": "H100", "consumption_type": "on_demand",
                    "price_per_gpu_hour_usd": 2, "instance_type": "different-cheapest-shape"},
-                  {"provider": "cp_scaleway", "gpu_model": "H100", "consumption_type": "on_demand",
+                  {"provider": "hyperstack", "gpu_model": "H100", "consumption_type": "on_demand",
                    "price_per_gpu_hour_usd": 4}]
-        scaleway = replace(legacy(), provider="scaleway")
+        hyperstack = replace(legacy(), provider="hyperstack")
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "prices.json"
             path.write_text(json.dumps(prices))
@@ -124,8 +124,8 @@ class LambdaCapacityIntegrationTests(unittest.TestCase):
                     result = insights.price_join(rows)["H100"]
                     self.assertEqual(result["cheapest_listed"]["provider"], "Lambda")
                     self.assertIsNone(result["cheapest_bookable"])
-                result = insights.price_join(instance(8) + [scaleway])["H100"]
-                self.assertEqual(result["cheapest_bookable"]["provider"], "Scaleway")
+                result = insights.price_join(instance(8) + [hyperstack])["H100"]
+                self.assertEqual(result["cheapest_bookable"]["provider"], "Hyperstack")
 
     def test_scoped_changes_keep_instance_context(self):
         rows = instance(8, ())

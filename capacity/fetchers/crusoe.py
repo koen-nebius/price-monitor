@@ -16,6 +16,7 @@ from dataclasses import replace
 from datetime import datetime, timezone
 from typing import List
 
+import crusoe_api
 from capacity.schema import AvailabilityRecord, plural
 from crusoe_api import API_URL, credentials_configured, fetch_capacities
 
@@ -201,6 +202,9 @@ def parse(payload: dict, fetched_at: str = "") -> List[AvailabilityRecord]:
 
 
 def fetch() -> List[AvailabilityRecord]:
+    if crusoe_api.CAPACITY_ACCESS_PAUSED:
+        logger.info("Crusoe capacity paused: %s", crusoe_api.CAPACITY_PAUSE_REASON)
+        return []
     if not credentials_configured():
         return _fetch_docs()
     try:

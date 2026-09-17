@@ -44,7 +44,7 @@ PENDING_LABELS = {
 # today's basis so no reader has to guess what a cell means.
 METHOD = {
     "lambda":       ("instance",      "instance-types API: exact on-demand instance launchability by region; explicit empty list means no regions reported for that SKU, missing data is unknown; not 1ClickClusters stock, inventory quantities or quota"),
-    "scaleway":     ("live",          "public availability API: available / scarce / shortage per zone per SKU"),
+    "scaleway":     ("instance_stock", "public availability API: available / scarce / shortage for each exact GPU VM SKU and zone; not stock quantities, multi-node capacity or GPU-level price bookability"),
     "runpod":       ("live",          "GraphQL stock labels (1x and 8x cluster) + per-datacenter availability"),
     "voltage_park": ("live",          "public locations API: live rentable GPU counts per fabric"),
     "hyperstack":   ("live",          "stock API: per-region counts + restock forecast (pending free key)"),
@@ -69,6 +69,7 @@ CLASS_LABEL = {
     "aggregator": "aggregator",
     "inference": "dedicated inference",
     "instance": "on-demand instance launchability",
+    "instance_stock": "GPU instance stock status",
     "unverified_scope": "product scope unverified",
 }
 
@@ -89,10 +90,15 @@ def _fresh_line(manifest: dict) -> Tuple[str, str]:
         short = f"Feeds: {n_live}/{n_act} live ({'; '.join(bits)})"
         color = "yellow"
     pend = f" · {len(f['pending'])} awaiting access" if f["pending"] else ""
+    pause = (" · access paused: " + ", ".join(PROVIDER_LABELS.get(p, p) for p in f["paused"])) if f["paused"] else ""
+    if f["paused"] and not n_act:
+        short = "Feeds: no active checks"
+    if f["paused"]:
+        color = "yellow"
     html = (f'<span data-type="status" data-color="{color}">'
             f'{n_live}/{n_act} feeds live</span>'
-            + (f"<em>{pend}</em>" if pend else ""))
-    return short + pend, html
+            + (f"<em>{pend}{pause}</em>" if pend or pause else ""))
+    return short + pend + pause, html
 
 
 def _baseline_label(old_records: List[AvailabilityRecord]) -> str:
@@ -341,7 +347,8 @@ def _short(detail: str, limit: int = 70) -> str:
 
 def _change_scope_verified(c: CapacityDiffEntry, records: List[AvailabilityRecord]) -> bool:
     verifier = {"together": insights.is_together_inference,
-                "lambda": insights.is_lambda_instance}.get(c.provider)
+                "lambda": insights.is_lambda_instance,
+                "scaleway": insights.is_scaleway_instance}.get(c.provider)
     if verifier is None:
         return True
     return any(verifier(r)
@@ -368,6 +375,14 @@ def _describe_change(c: CapacityDiffEntry,
             return (f"{prov} on-demand instance {c.instance_type} ({plural(record.gpu_count, 'GPU')}/instance) "
                     f"{c.region}: {_lambda_launchability(record)} "
                     f"(observed {_observed_time(record.fetched_at)}; not 1ClickClusters stock)")
+        return f"{prov} {c.gpu_model}: legacy product scope unverified; excluded from capacity comparisons"
+    if c.provider == "scaleway":
+        if record and insights.is_scaleway_instance(record):
+            transition = (f"{c.old_state} → {c.new_state}; "
+                          if c.change_type == "state_change" else "")
+            return (f"{prov} {c.instance_type} ({plural(record.gpu_count, 'GPU')}/instance) "
+                    f"{c.region}: {transition}{_scaleway_stock_status(record)} "
+                    f"(observed {_observed_time(record.fetched_at)}; single-instance status only)")
         return f"{prov} {c.gpu_model}: legacy product scope unverified; excluded from capacity comparisons"
     if record and insights.is_crusoe_api_quantity(record):
         scope = f"{prov} {c.gpu_model} {c.instance_type} {c.region}"
@@ -438,8 +453,8 @@ def _render_thread(records, diff, manifest, old_records) -> str:
     baseline = _baseline_label(old_records)
     changes = [c for c in diff if c.change_type in ("state_change", "metric_move")
                and _change_scope_verified(c, records)]
-    provider_level = [c for c in changes if c.region == "global" and c.provider not in {"together", "lambda"}]
-    n_region = sum(c.region != "global" and c.provider not in {"together", "lambda"}
+    provider_level = [c for c in changes if c.region == "global" and c.provider not in {"together", "lambda", "scaleway"}]
+    n_region = sum(c.region != "global" and c.provider not in {"together", "lambda", "scaleway"}
                    for c in changes)
 
     # One basis per provider: when a direct feed returned data today, that
@@ -505,7 +520,14 @@ def _render_thread(records, diff, manifest, old_records) -> str:
     lines.append("")
 
     quantity_rows = insights.crusoe_quantity_records(records)
-    if quantity_rows:
+    crusoe_paused = (manifest or {}).get("provider_status", {}).get("crusoe", {}).get("status") == "paused"
+    if crusoe_paused:
+        lines.append("*Crusoe — authenticated access paused:*")
+        lines.append(f"_{_crusoe_read_freshness(manifest)}_")
+        lines.append("_Authoritative availability unknown; not zero stock. Historical API cache is not reused. "
+                     "Any observations via an aggregator remain separate._")
+        lines.append("")
+    elif quantity_rows:
         lines.append("*Crusoe API — exact instance/location quantities:*")
         lines.append(f"_{_crusoe_read_freshness(manifest)}_")
         timestamps = {_observed_time(r.fetched_at) for r in quantity_rows}
@@ -522,6 +544,28 @@ def _render_thread(records, diff, manifest, old_records) -> str:
         lines.append("_Provider units, not GPU counts; alternative shapes/slices may overlap. "
                      "Not added to cluster totals or price/bookability comparisons. Account "
                      "quota, reservation eligibility and multi-node stock remain unverified._")
+        lines.append("")
+
+    scaleway_rows = insights.scaleway_instance_records(records)
+    legacy_scaleway = [r for r in records if r.provider == "scaleway" and not insights.is_scaleway_instance(r)]
+    if scaleway_rows or legacy_scaleway or "scaleway" in (manifest or {}).get("provider_status", {}):
+        lines.append("*Scaleway — stock by exact GPU instance and zone:*")
+        lines.append(f"_{_provider_read_freshness('scaleway', manifest)}_")
+        for row in scaleway_rows[:12]:
+            lines.append(f"• {row.instance_type} · {plural(row.gpu_count, 'GPU')}/instance · {row.region}: "
+                         f"{_scaleway_stock_status(row)} · observed {_observed_time(row.fetched_at)}")
+        if len(scaleway_rows) > 12:
+            lines.append(f"_+{len(scaleway_rows) - 12} exact observations on Confluence_")
+        if not scaleway_rows:
+            lines.append("_No verified exact-instance observations available._")
+        if legacy_scaleway:
+            lines.append(f"_Scaleway: {len(legacy_scaleway)} legacy or aggregator observations excluded; exact SKU scope is unverified._")
+        instance_changes = [c for c in changes if c.provider == "scaleway"]
+        if instance_changes:
+            lines.append("_Changes apply only to the named instance and zone:_")
+            lines.extend(f"• {_describe_change(c, records)}" for c in instance_changes[:8])
+        lines.append("_A small VM's status does not apply to an 8-GPU node; an 8-GPU node does not establish "
+                     "multi-node stock. No stock quantities, quota or GPU-level price/bookability claim._")
         lines.append("")
 
     inference_rows = insights.together_inference_records(records)
@@ -679,6 +723,8 @@ def _provider_read_freshness(provider: str, manifest: dict = None) -> str:
         if provider in PENDING_ACTIVATION:
             return "API access pending; no fresh observations" + age_note
         return "Fetch failed; observations not refreshed this run" + age_note
+    if state == "paused":
+        return "Access paused: " + status.get("reason", "authenticated checks suspended pending review")
     if state == "live":
         return "Fetched in this run; point-in-time observations"
     return "Refresh status not supplied; use each observation timestamp"
@@ -686,6 +732,42 @@ def _provider_read_freshness(provider: str, manifest: dict = None) -> str:
 
 def _crusoe_read_freshness(manifest: dict = None) -> str:
     return _provider_read_freshness("crusoe", manifest)
+
+
+def _scaleway_stock_status(row: AvailabilityRecord) -> str:
+    return {"available": "available", "limited": "scarce", "sold_out": "shortage",
+            "unknown": "stock status unknown"}.get(row.state, "stock status unknown")
+
+
+def _scaleway_instance_table(records: List[AvailabilityRecord], manifest: dict = None) -> str:
+    rows = insights.scaleway_instance_records(records)
+    legacy = [r for r in records if r.provider == "scaleway" and not insights.is_scaleway_instance(r)]
+    if not rows and not legacy and "scaleway" not in (manifest or {}).get("provider_status", {}):
+        return ""
+    h = ["<h2>Scaleway — stock by exact GPU instance and zone</h2>",
+         f"<p><strong>{_esc(_provider_read_freshness('scaleway', manifest))}</strong></p>",
+         "<p>Provider stock labels for the named single-instance SKU and zone. A small VM's availability "
+         "does not apply to an 8-GPU node, and an 8-GPU node does not establish multi-node stock. "
+         "Labels are not quantities and do not establish account quota. Excluded from cluster tightness, "
+         "provider-wide stock claims and GPU-level price/bookability joins; listed prices remain independent.</p>"]
+    if legacy:
+        h.append(f"<p>{len(legacy)} legacy or aggregator Scaleway observations have unverified exact SKU scope "
+                 "and are excluded from capacity comparisons.</p>")
+    if not rows:
+        h.append("<p>No verified exact-instance observations available.</p>")
+        return "\n".join(h)
+    h.extend(['<table data-layout="full-width"><tbody>',
+              "<tr><th>GPU</th><th>Exact instance</th><th>GPUs per instance</th><th>Zone</th>"
+              "<th>Stock status</th><th>Observed at</th><th>Evidence</th></tr>"])
+    for row in rows:
+        source = f'<a href="{_esc(row.source_url)}">Source</a>' if row.source_url else ""
+        h.append(f"<tr><td>{_esc(row.gpu_model)}</td><td>{_esc(row.instance_type)}</td>"
+                 f"<td>{row.gpu_count}</td><td>{_esc(row.region)}</td>"
+                 f"<td>{_esc(_scaleway_stock_status(row))}</td>"
+                 f"<td>{_esc(_observed_time(row.fetched_at))}</td>"
+                 f"<td>{_esc(row.detail)} {source}</td></tr>")
+    h.append("</tbody></table>")
+    return "\n".join(h)
 
 
 def _lambda_launchability(row: AvailabilityRecord) -> str:
@@ -795,6 +877,11 @@ def _together_inference_table(records: List[AvailabilityRecord], manifest: dict 
 
 
 def _crusoe_quantity_table(records: List[AvailabilityRecord], manifest: dict = None) -> str:
+    if (manifest or {}).get("provider_status", {}).get("crusoe", {}).get("status") == "paused":
+        return ("<h2>Crusoe — authenticated access paused</h2>"
+                f"<p><strong>{_esc(_crusoe_read_freshness(manifest))}</strong></p>"
+                "<p>Authoritative availability unknown; not zero stock. Historical API cache is not reused. "
+                "Any observations via an aggregator remain separate.</p>")
     rows = insights.crusoe_quantity_records(records)
     if not rows:
         return ""
@@ -991,7 +1078,7 @@ def render_confluence(records: List[AvailabilityRecord],
     h.append("<p><em>Only providers with a live or self-reported signal. "
              "✱ = via aggregator today (direct feed pending or down). GMI is "
              "provider-declared and never counted in verdicts.</em></p>")
-    live_provs = [p for p in ("scaleway", "runpod", "voltage_park",
+    live_provs = [p for p in ("runpod", "voltage_park",
                               "verda", "hyperstack", "gmi")
                   if any(r.provider == p for r in records)]
     h.append('<table data-layout="full-width"><tbody>')
@@ -1026,6 +1113,7 @@ def render_confluence(records: List[AvailabilityRecord],
     h.append(_crusoe_quantity_table(records, manifest))
     h.append(_together_inference_table(records, manifest))
     h.append(_lambda_instance_table(records, manifest))
+    h.append(_scaleway_instance_table(records, manifest))
     h.append("<h2>Offering Footprint — where it is sold (NOT whether in stock)</h2>")
     fp_provs = ["coreweave", "crusoe", "gcp", "azure", "nebius"]
     h.append('<table data-layout="full-width"><tbody>')
@@ -1132,6 +1220,13 @@ def render_confluence(records: List[AvailabilityRecord],
             else:
                 label, class_label = "Unverified", "product scope unverified"
                 detail = "Legacy observation excluded from capacity comparisons"
+        if r.provider == "scaleway":
+            color = "neutral"
+            if insights.is_scaleway_instance(r):
+                label, class_label = _scaleway_stock_status(r), "GPU instance stock status"
+            else:
+                label, class_label = "Unverified", "exact SKU scope unverified"
+                detail = "Legacy or aggregator observation excluded from capacity comparisons"
         h.append(f"<tr><td>{_esc(PROVIDER_LABELS.get(r.provider, r.provider))}</td>"
                  f"<td><strong>{_esc(r.gpu_model)}</strong></td><td>{_esc(r.region)}</td>"
                  f"<td>{_esc(r.instance_type or '—')}</td>"
@@ -1161,6 +1256,10 @@ def render_confluence(records: List[AvailabilityRecord],
                 and not insights.lambda_instance_records(records)):
             cls = "unverified_scope"
             sem = "Legacy observations have unverified product scope; excluded from live GPU/cluster stock and bookability comparisons."
+        if (prov == "scaleway" and any(r.provider == prov for r in records)
+                and not insights.scaleway_instance_records(records)):
+            cls = "unverified_scope"
+            sem = "Legacy or aggregator observations have unverified exact SKU scope; excluded from cluster stock and bookability comparisons."
         if prov == "crusoe" and insights.crusoe_quantity_records(records):
             cls = "API quantity (exact SKU/location)"
             sem = ("Authenticated /v1/capacities: raw quantity per instance/location; "
@@ -1169,6 +1268,9 @@ def render_confluence(records: List[AvailabilityRecord],
             if any(r.provider == prov and insights.signal_class(r) == "footprint" for r in records):
                 sem += " Documentation records remain footprint only."
         b = basis.get(prov, "—")
+        if b == "paused":
+            cls = "access paused"
+            sem = _provider_read_freshness(prov, manifest) + "; authoritative availability unavailable, not zero stock."
         if prov in ("hyperstack", "verda") and prov in PENDING_ACTIVATION and b == "failed":
             b = "pending key (via Shadeform ✱)"
         elif b == "failed" and prov in {p for p in PENDING_ACTIVATION}:
