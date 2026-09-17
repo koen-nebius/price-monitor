@@ -77,16 +77,16 @@ class TogetherCapacityIntegrationTests(unittest.TestCase):
         self.assertNotIn("together", config.PRICE_JOIN_PEERS)
         prices = [{"provider": "together", "gpu_model": "H100", "consumption_type": "on_demand",
                    "price_per_gpu_hour_usd": .01},
-                  {"provider": "lambda", "gpu_model": "H100", "consumption_type": "on_demand",
+                  {"provider": "cp_scaleway", "gpu_model": "H100", "consumption_type": "on_demand",
                    "price_per_gpu_hour_usd": 4}]
-        lambda_row = replace(legacy(state="available"), provider="lambda")
+        stock_row = replace(legacy(state="available"), provider="scaleway")
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "prices.json"
             path.write_text(json.dumps(prices))
             with patch.object(insights, "PRICING_SNAPSHOT", path):
-                joined = insights.price_join([inference(10), lambda_row])["H100"]
-        self.assertEqual(joined["cheapest_listed"]["provider"], "Lambda")
-        self.assertEqual(joined["cheapest_bookable"]["provider"], "Lambda")
+                joined = insights.price_join([inference(10), stock_row])["H100"]
+        self.assertEqual(joined["cheapest_listed"]["provider"], "Scaleway")
+        self.assertEqual(joined["cheapest_bookable"]["provider"], "Scaleway")
 
     def test_rendering_preserves_exact_lower_bound_zero_and_unknown(self):
         rows = [inference(0), inference(5, 8, "h100-8", "RELATION_GTE"),

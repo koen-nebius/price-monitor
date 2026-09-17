@@ -63,6 +63,11 @@ def run(providers=None, test=False):
             logger.info(f"{provider}: {len(records)} records (live)")
         else:
             cached, age_h = store.get_cached_records(provider)
+            if provider == "lambda":
+                from capacity.insights import is_lambda_instance
+                # Old rows combined shapes and cannot substitute for an exact
+                # instance observation. Keep original timestamps on valid cache.
+                cached = [r for r in cached if is_lambda_instance(r)]
             if provider == "together":
                 # Legacy rows maximized across shapes and synthesized cluster
                 # stock. They are not safe fallback observations for inference.

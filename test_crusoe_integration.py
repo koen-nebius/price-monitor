@@ -60,10 +60,10 @@ class CrusoeIntegrationTests(unittest.TestCase):
         self.assertIsNone(insights.agg_state([global_qty], "crusoe", "H100"))
 
     def test_existing_verified_global_stock_behavior_is_preserved(self):
-        legacy = replace(quantity(), provider="lambda", region="global",
+        legacy = replace(quantity(), provider="scaleway", region="global",
                          metric_type="regions_with_capacity", instance_type="")
         reads = insights.live_reads([legacy, quantity()], "H100")
-        self.assertEqual([r["provider"] for r in reads], ["lambda"])
+        self.assertEqual([r["provider"] for r in reads], ["scaleway"])
         self.assertTrue(reads[0]["cluster_ok"])
         self.assertEqual(insights.tightness([legacy, quantity()], "H100")["n"], 1)
 
@@ -71,17 +71,17 @@ class CrusoeIntegrationTests(unittest.TestCase):
         self.assertNotIn("crusoe", PRICE_JOIN_PEERS)
         prices = [
             {"provider": "crusoe", "gpu_model": "H100", "consumption_type": "on_demand", "price_per_gpu_hour_usd": .01},
-            {"provider": "lambda", "gpu_model": "H100", "consumption_type": "on_demand", "price_per_gpu_hour_usd": 4},
+            {"provider": "cp_scaleway", "gpu_model": "H100", "consumption_type": "on_demand", "price_per_gpu_hour_usd": 4},
         ]
-        legacy = replace(quantity(), provider="lambda", region="global",
+        legacy = replace(quantity(), provider="scaleway", region="global",
                          metric_type="regions_with_capacity", instance_type="")
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "prices.json"
             path.write_text(json.dumps(prices))
             with patch.object(insights, "PRICING_SNAPSHOT", path):
                 joined = insights.price_join([quantity(), legacy])["H100"]
-        self.assertEqual(joined["cheapest_listed"]["provider"], "Lambda")
-        self.assertEqual(joined["cheapest_bookable"]["provider"], "Lambda")
+        self.assertEqual(joined["cheapest_listed"]["provider"], "Scaleway")
+        self.assertEqual(joined["cheapest_bookable"]["provider"], "Scaleway")
 
     def test_exact_changes_mean_quantity_moves_not_provider_restock(self):
         old, new = quantity(0), quantity(5)

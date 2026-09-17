@@ -37,12 +37,13 @@ PENDING_LABELS = {
     "hyperstack": "Hyperstack (free key pending)",
     "together": "Together AI (free key pending)",
     "verda": "Verda (free key pending)",
+    "lambda": "Lambda (API key pending)",
 }
 
 # Method & semantics per provider — rendered on Confluence with the class and
 # today's basis so no reader has to guess what a cell means.
 METHOD = {
-    "lambda":       ("live",          "instance-types API: per-region launchability; empty = sold out in all regions"),
+    "lambda":       ("instance",      "instance-types API: exact on-demand instance launchability by region; explicit empty list means no regions reported for that SKU, missing data is unknown; not 1ClickClusters stock, inventory quantities or quota"),
     "scaleway":     ("live",          "public availability API: available / scarce / shortage per zone per SKU"),
     "runpod":       ("live",          "GraphQL stock labels (1x and 8x cluster) + per-datacenter availability"),
     "voltage_park": ("live",          "public locations API: live rentable GPU counts per fabric"),
@@ -67,6 +68,7 @@ CLASS_LABEL = {
     "self_reported": "self-reported", "footprint": "footprint",
     "aggregator": "aggregator",
     "inference": "dedicated inference",
+    "instance": "on-demand instance launchability",
     "unverified_scope": "product scope unverified",
 }
 
@@ -338,9 +340,11 @@ def _short(detail: str, limit: int = 70) -> str:
 
 
 def _change_scope_verified(c: CapacityDiffEntry, records: List[AvailabilityRecord]) -> bool:
-    if c.provider != "together":
+    verifier = {"together": insights.is_together_inference,
+                "lambda": insights.is_lambda_instance}.get(c.provider)
+    if verifier is None:
         return True
-    return any(insights.is_together_inference(r)
+    return any(verifier(r)
                and (r.gpu_model, r.region, r.consumption_type, r.instance_type)
                == (c.gpu_model, c.region, c.consumption_type, c.instance_type)
                for r in records)
@@ -358,6 +362,12 @@ def _describe_change(c: CapacityDiffEntry,
             return (f"{prov} dedicated inference {c.instance_type} {c.region}: "
                     f"current replica headroom {_inference_headroom(record)} "
                     f"(observed {_observed_time(record.fetched_at)}; not raw GPU cluster stock)")
+        return f"{prov} {c.gpu_model}: legacy product scope unverified; excluded from capacity comparisons"
+    if c.provider == "lambda":
+        if record and insights.is_lambda_instance(record):
+            return (f"{prov} on-demand instance {c.instance_type} ({plural(record.gpu_count, 'GPU')}/instance) "
+                    f"{c.region}: {_lambda_launchability(record)} "
+                    f"(observed {_observed_time(record.fetched_at)}; not 1ClickClusters stock)")
         return f"{prov} {c.gpu_model}: legacy product scope unverified; excluded from capacity comparisons"
     if record and insights.is_crusoe_api_quantity(record):
         scope = f"{prov} {c.gpu_model} {c.instance_type} {c.region}"
@@ -428,8 +438,9 @@ def _render_thread(records, diff, manifest, old_records) -> str:
     baseline = _baseline_label(old_records)
     changes = [c for c in diff if c.change_type in ("state_change", "metric_move")
                and _change_scope_verified(c, records)]
-    provider_level = [c for c in changes if c.region == "global" and c.provider != "together"]
-    n_region = len(changes) - len(provider_level)
+    provider_level = [c for c in changes if c.region == "global" and c.provider not in {"together", "lambda"}]
+    n_region = sum(c.region != "global" and c.provider not in {"together", "lambda"}
+                   for c in changes)
 
     # One basis per provider: when a direct feed returned data today, that
     # provider's aggregator-sourced diff rows are noise (mixed bases made the
@@ -539,6 +550,34 @@ def _render_thread(records, diff, manifest, old_records) -> str:
                      "product scope is unverified._")
         lines.append("")
 
+    instance_views = _lambda_instance_views(records)
+    legacy_lambda = [r for r in records if r.provider == "lambda" and not insights.is_lambda_instance(r)]
+    if instance_views or legacy_lambda or "lambda" in (manifest or {}).get("provider_status", {}):
+        lines.append("*Lambda — on-demand instance launchability:*")
+        lines.append(f"_{_provider_read_freshness('lambda', manifest)}_")
+        timestamps = {_observed_time(r.fetched_at) for r, _text in instance_views}
+        common_observation = next(iter(timestamps)) if len(timestamps) == 1 else None
+        if common_observation:
+            lines.append(f"_Observed: {common_observation}_")
+        for row, region_text in instance_views[:10]:
+            observed = "" if common_observation else f" · observed {_observed_time(row.fetched_at)}"
+            size = plural(row.gpu_count, "GPU")
+            lines.append(f"• {row.instance_type} · {size}/instance: {region_text}{observed}")
+        if len(instance_views) > 10:
+            lines.append(f"_+{len(instance_views) - 10} exact configurations on Confluence_")
+        if not instance_views:
+            lines.append("_No verified exact-instance observations available._")
+        if legacy_lambda:
+            lines.append(f"_Lambda: {len(legacy_lambda)} legacy observations excluded; product scope is unverified._")
+        instance_changes = [c for c in changes if c.provider == "lambda"]
+        if instance_changes:
+            lines.append("_Changes apply only to the named instance and region:_")
+            lines.extend(f"• {_describe_change(c, records)}" for c in instance_changes[:6])
+        lines.append("_On-demand instance launchability is not 1ClickClusters stock. "
+                     "Listed regions do not guarantee account quota or simultaneous launches. "
+                     "No stock quantities or multi-node availability inferred._")
+        lines.append("")
+
     # Footprint-only generations (full product names; offered ≠ in stock)
     fp_label = {"GB200": "GB200 NVL72", "GB300": "GB300 NVL72"}
     for gpu in FOOTPRINT_ONLY_GPUS:
@@ -636,7 +675,9 @@ def _provider_read_freshness(provider: str, manifest: dict = None) -> str:
     age_note = f" (cache age {age:g}h)" if isinstance(age, (int, float)) else ""
     if state in {"cached", "cache"}:
         return "Cached observation; not refreshed this run" + age_note
-    if state == "failed":
+    if state in {"failed", "error"}:
+        if provider in PENDING_ACTIVATION:
+            return "API access pending; no fresh observations" + age_note
         return "Fetch failed; observations not refreshed this run" + age_note
     if state == "live":
         return "Fetched in this run; point-in-time observations"
@@ -645,6 +686,69 @@ def _provider_read_freshness(provider: str, manifest: dict = None) -> str:
 
 def _crusoe_read_freshness(manifest: dict = None) -> str:
     return _provider_read_freshness("crusoe", manifest)
+
+
+def _lambda_launchability(row: AvailabilityRecord) -> str:
+    if row.state == "unknown" or row.metric_value is None:
+        return "launchability unknown"
+    if row.metric_type == "launchable_regions":
+        return "none reported" if row.metric_value == 0 else f"{plural(row.metric_value, 'region')} reported"
+    return "launchable in this region" if row.state == "available" else "not reported launchable in this region"
+
+
+def _lambda_instance_views(records: List[AvailabilityRecord]) -> list:
+    """One display row per exact shape/observation, not a cross-shape rollup."""
+    groups = {}
+    for row in insights.lambda_instance_records(records):
+        key = (row.gpu_model, row.instance_type, row.gpu_count, row.fetched_at)
+        groups.setdefault(key, []).append(row)
+    views = []
+    for rows in groups.values():
+        summary = next((r for r in rows if r.region == "global"), None)
+        regions = sorted({r.region for r in rows if r.region != "global" and r.state == "available"})
+        if summary is None or summary.state == "unknown" or summary.metric_value is None:
+            text = "complete availability unknown"
+            if regions:
+                text += "; reported regions: " + ", ".join(regions)
+        elif summary.metric_value == 0:
+            text = "none reported"
+        elif regions:
+            text = ", ".join(regions)
+        else:
+            text = _lambda_launchability(summary) + "; region names unreported"
+        views.append((summary or rows[0], text))
+    return views
+
+
+def _lambda_instance_table(records: List[AvailabilityRecord], manifest: dict = None) -> str:
+    views = _lambda_instance_views(records)
+    legacy = [r for r in records if r.provider == "lambda" and not insights.is_lambda_instance(r)]
+    if not views and not legacy and "lambda" not in (manifest or {}).get("provider_status", {}):
+        return ""
+    h = ["<h2>Lambda — on-demand instance launchability</h2>",
+         f"<p><strong>{_esc(_provider_read_freshness('lambda', manifest))}</strong></p>",
+         "<p>Launchability of each exact on-demand instance, <strong>not 1ClickClusters stock</strong>. "
+         "Even an 8-GPU instance is a single node. Listed regions do not guarantee account quota "
+         "or simultaneous launches. Region counts are not GPU or instance inventory quantities. "
+         "Shapes are not summed; excluded from cluster tightness, provider-wide sellout claims "
+         "and GPU-level price/bookability joins.</p>"]
+    if legacy:
+        h.append(f"<p>{len(legacy)} legacy Lambda observations have unverified product scope "
+                 "and are excluded from capacity comparisons.</p>")
+    if not views:
+        h.append("<p>No verified exact-instance observations available.</p>")
+        return "\n".join(h)
+    h.extend(['<table data-layout="full-width"><tbody>',
+              "<tr><th>GPU</th><th>Exact instance</th><th>GPUs per instance</th>"
+              "<th>Reported launchable regions</th><th>Observed at</th><th>Evidence</th></tr>"])
+    for row, region_text in views:
+        source = f'<a href="{_esc(row.source_url)}">Source</a>' if row.source_url else ""
+        h.append(f"<tr><td>{_esc(row.gpu_model)}</td><td>{_esc(row.instance_type)}</td>"
+                 f"<td>{row.gpu_count}</td><td>{_esc(region_text)}</td>"
+                 f"<td>{_esc(_observed_time(row.fetched_at))}</td>"
+                 f"<td>{_esc(row.detail)} {source}</td></tr>")
+    h.append("</tbody></table>")
+    return "\n".join(h)
 
 
 def _inference_headroom(record: AvailabilityRecord) -> str:
@@ -887,7 +991,7 @@ def render_confluence(records: List[AvailabilityRecord],
     h.append("<p><em>Only providers with a live or self-reported signal. "
              "✱ = via aggregator today (direct feed pending or down). GMI is "
              "provider-declared and never counted in verdicts.</em></p>")
-    live_provs = [p for p in ("lambda", "scaleway", "runpod", "voltage_park",
+    live_provs = [p for p in ("scaleway", "runpod", "voltage_park",
                               "verda", "hyperstack", "gmi")
                   if any(r.provider == p for r in records)]
     h.append('<table data-layout="full-width"><tbody>')
@@ -921,6 +1025,7 @@ def render_confluence(records: List[AvailabilityRecord],
     # 6 — Footprint table (neutral)
     h.append(_crusoe_quantity_table(records, manifest))
     h.append(_together_inference_table(records, manifest))
+    h.append(_lambda_instance_table(records, manifest))
     h.append("<h2>Offering Footprint — where it is sold (NOT whether in stock)</h2>")
     fp_provs = ["coreweave", "crusoe", "gcp", "azure", "nebius"]
     h.append('<table data-layout="full-width"><tbody>')
@@ -1020,6 +1125,13 @@ def render_confluence(records: List[AvailabilityRecord],
             else:
                 label, class_label = "Unverified", "product scope unverified"
                 detail = "Legacy observation excluded from capacity comparisons"
+        if r.provider == "lambda":
+            color = "neutral"
+            if insights.is_lambda_instance(r):
+                label, class_label = _lambda_launchability(r), "on-demand instance launchability"
+            else:
+                label, class_label = "Unverified", "product scope unverified"
+                detail = "Legacy observation excluded from capacity comparisons"
         h.append(f"<tr><td>{_esc(PROVIDER_LABELS.get(r.provider, r.provider))}</td>"
                  f"<td><strong>{_esc(r.gpu_model)}</strong></td><td>{_esc(r.region)}</td>"
                  f"<td>{_esc(r.instance_type or '—')}</td>"
@@ -1045,6 +1157,10 @@ def render_confluence(records: List[AvailabilityRecord],
                 and not insights.together_inference_records(records)):
             cls = "unverified_scope"
             sem = "Legacy observations have unverified product scope; excluded from live GPU/cluster stock and pricing comparisons."
+        if (prov == "lambda" and any(r.provider == prov for r in records)
+                and not insights.lambda_instance_records(records)):
+            cls = "unverified_scope"
+            sem = "Legacy observations have unverified product scope; excluded from live GPU/cluster stock and bookability comparisons."
         if prov == "crusoe" and insights.crusoe_quantity_records(records):
             cls = "API quantity (exact SKU/location)"
             sem = ("Authenticated /v1/capacities: raw quantity per instance/location; "
