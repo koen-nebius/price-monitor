@@ -1,10 +1,10 @@
 {
- "run_date": "2026-09-16",
- "started_at": "2026-09-16T07:46:13.417075+00:00",
- "completed_at": "2026-09-16T07:49:48.906493+00:00",
+ "run_date": "2026-09-17",
+ "started_at": "2026-09-17T07:49:01.454777+00:00",
+ "completed_at": "2026-09-17T07:52:42.600863+00:00",
  "status": "success",
  "record_count": 361,
- "diff_count": 60,
+ "diff_count": 51,
  "provider_count": 18,
  "live_provider_count": 16,
  "failed_providers": [
@@ -16,7 +16,7 @@
  "provider_status": {
   "lambda": {
    "status": "live",
-   "record_count": 3
+   "record_count": 2
   },
   "coreweave": {
    "status": "live",
@@ -57,7 +57,7 @@
   "voltage_park": {
    "status": "cached",
    "record_count": 1,
-   "cache_age_hours": 23.9
+   "cache_age_hours": 47.9
   },
   "gmi": {
    "status": "live",
@@ -85,7 +85,7 @@
   },
   "verda": {
    "status": "live",
-   "record_count": 14
+   "record_count": 15
   }
  },
  "post_thread": true
