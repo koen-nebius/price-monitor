@@ -2888,7 +2888,7 @@ def format_confluence_table(records: List[PriceRecord], run_date: str,
         'section below — per-second platform billing is not IaaS-comparable.</p>'
     )
     html.append(_build_peer_tables(records))
-    html.append(_build_qualified_catalogue_section(records))
+    html.append(_build_qualified_catalogue_section(records, provider_status))
     html.append(_build_platform_section(records))
 
     # ── Section 3b: RTX PRO 6000 (2026-07-22: was thread-only, so the page had
@@ -3506,7 +3506,8 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
     return "\n".join(html)
 
 
-def _build_qualified_catalogue_section(records: List[PriceRecord]) -> str:
+def _build_qualified_catalogue_section(records: List[PriceRecord],
+                                       provider_status: dict = None) -> str:
     """Keep constrained public tariffs inspectable without implying buyability."""
     refs = [r for r in records if is_qualified_catalogue_reference(r)]
     if not refs:
@@ -3524,7 +3525,7 @@ def _build_qualified_catalogue_section(records: List[PriceRecord]) -> str:
         '<table data-layout="full-width"><tbody>',
         '<tr><th>Provider / GPU</th><th>Exact SKU / tier</th>'
         '<th>Minimum priced instance</th><th>$/GPU-hr</th><th>Location</th>'
-        '<th>Qualification / source</th></tr>',
+        '<th>Qualification / source</th><th>Observation / freshness</th></tr>',
     ]
     for r in refs:
         tier = CT_LABELS.get(r.consumption_type, r.consumption_type)
@@ -3532,12 +3533,30 @@ def _build_qualified_catalogue_section(records: List[PriceRecord]) -> str:
         source = (f'<a href="{escape(r.source_url, quote=True)}">Official catalogue</a>'
                   if r.source_url else 'Source unavailable')
         location = r.region if r.region not in {'', 'unspecified'} else 'Not listed'
+        try:
+            observed = datetime.fromisoformat((r.fetched_at or '').replace('Z', '+00:00'))
+            observed_text = (observed.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
+                             if observed.tzinfo is not None else 'Timezone unreported')
+        except (TypeError, ValueError):
+            observed_text = 'Observation time unreported'
+        status = (provider_status or {}).get(r.provider, {})
+        freshness = 'Refresh status unreported'
+        if status.get('status') == 'live':
+            freshness = 'Refreshed this run'
+        elif status.get('status') == 'cached':
+            freshness = 'Cached; not refreshed this run'
+            age = status.get('cache_age_hours')
+            if type(age) in (int, float) and age >= 0:
+                freshness += f' (cache age {age:g}h)'
+        elif status.get('status') == 'failed':
+            freshness = 'Fetch failed; not refreshed this run'
         html.append(
             f'<tr><td>{escape(_provider_display(r.provider))} / {escape(r.gpu_model)}</td>'
             f'<td>{escape(r.instance_type)}<br />{escape(tier)}</td>'
             f'<td>{r.gpu_count:g} GPUs · ${r.price_per_hour_usd:.2f}/instance-hr</td>'
             f'<td>${r.price_per_gpu_hour_usd:.4f}</td><td>{escape(location)}</td>'
-            f'<td>{escape(label)}<br />{source}</td></tr>'
+            f'<td>{escape(label)}<br />{source}</td>'
+            f'<td>{escape(observed_text)}<br />{escape(freshness)}</td></tr>'
         )
     html.append('</tbody></table>')
     return "\n".join(html)

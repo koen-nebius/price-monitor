@@ -114,6 +114,25 @@ class VultrRenderingTests(unittest.TestCase):
         self.assertIn("Catalogue prices (deployment restricted or unconfirmed): Vultr", thread)
         self.assertIn("not live-stock observations", thread)
 
+    def test_reference_preserves_observation_time_and_cached_refresh_status(self):
+        row = replace(offer(), fetched_at="2026-09-15T14:00:00+02:00")
+        status = {"vultr": {"status": "cached", "cache_age_hours": 47}}
+        page = diff.format_confluence_table([row], "2026-09-17", provider_status=status)
+        section = page.split("<h2>Catalogue prices — deployment restricted or unconfirmed</h2>")[1].split("<h2>")[0]
+        self.assertIn("2026-09-15 12:00:00 UTC", section)
+        self.assertIn("Cached; not refreshed this run (cache age 47h)", section)
+        self.assertNotIn("Refreshed this run", section)
+        live = diff._build_qualified_catalogue_section([row], {"vultr": {"status": "live"}})
+        self.assertIn("Refreshed this run", live)
+
+    def test_missing_observation_metadata_is_not_presented_as_fresh(self):
+        for timestamp, expected in [("", "Observation time unreported"),
+                                     ("invalid", "Observation time unreported"),
+                                     ("2026-09-15T12:00:00", "Timezone unreported")]:
+            section = diff._build_qualified_catalogue_section([replace(offer(), fetched_at=timestamp)])
+            self.assertIn(expected, section)
+            self.assertIn("Refresh status unreported", section)
+
 
 if __name__ == "__main__":
     unittest.main()

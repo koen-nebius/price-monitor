@@ -31,7 +31,9 @@ older aggregator B200 value of $3.50/GPU-hour is not reproduced by this API.
 - Restricted values are `public_catalog_ondemand_disabled`,
   `public_catalog_preemptible_disabled`, `public_catalog_no_locations`, and
   `public_catalog_deployment_unknown`. All are catalogue reference rows, outside
-  ordinary comparison and price-change alert populations.
+ordinary comparison and price-change alert populations.
+- The reference table retains each observation's original UTC timestamp and
+  reports whether this run refreshed the source or reused cached data.
 - The legacy `vcpu` field holds the explicitly reported bare-metal CPU threads,
   not physical cores. `ram_gb` is the API memory field divided by 1024; it is the
   source's quantity rather than a correction to round marketing memory. In
