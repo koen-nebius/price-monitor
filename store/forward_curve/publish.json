@@ -1,12 +1,12 @@
 {
- "as_of": "2026-09-17",
+ "as_of": "2026-09-18",
  "bytes": 48226,
  "lozenges": 74,
  "xml_warning": null,
- "published_at": "2026-09-17T06:15:23.409346+00:00",
+ "published_at": "2026-09-18T06:05:00.929579+00:00",
  "ok": true,
  "page_id": "2285044257",
- "version": 6,
+ "version": 7,
  "url": "https://nebius.atlassian.net/wiki/spaces/PR/pages/2285044257/GPU+Committed-Price+Benchmarks+Internal+Marks",
  "attachments": {
   "forward_curve.png": "ok",
@@ -16,8 +16,8 @@
  "interactive": {
   "ok": true,
   "page_id": "2294677609",
-  "version": 1,
-  "bytes": 414776,
+  "version": 2,
+  "bytes": 418767,
   "url": "https://nebius.atlassian.net/wiki/spaces/PR/pages/2294677609/GPU+Committed-Price+Benchmarks+Interactive"
  }
 }

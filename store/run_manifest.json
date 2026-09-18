@@ -1,13 +1,13 @@
 {
-  "run_date": "2026-09-17",
-  "started_at": "2026-09-17T06:13:08.867992+00:00",
-  "completed_at": "2026-09-17T06:15:11.896028+00:00",
+  "run_date": "2026-09-18",
+  "started_at": "2026-09-18T06:03:05.673725+00:00",
+  "completed_at": "2026-09-18T06:04:49.144773+00:00",
   "status": "partial",
-  "record_count": 1354,
-  "raw_record_count": 1354,
+  "record_count": 1390,
+  "raw_record_count": 1390,
   "anomaly_count": 3,
   "quarantined_count": 0,
-  "diff_count": 205,
+  "diff_count": 123,
   "failed_providers": [],
   "stale_providers": [
     "sfcompute"
@@ -64,7 +64,7 @@
     "sfcompute": {
       "status": "cache",
       "record_count": 1,
-      "cache_age_hours": 531.5
+      "cache_age_hours": 555.4
     },
     "together": {
       "status": "live",
@@ -89,6 +89,14 @@
     "baseten": {
       "status": "live",
       "record_count": 4
+    },
+    "vultr": {
+      "status": "live",
+      "record_count": 6
+    },
+    "massedcompute": {
+      "status": "live",
+      "record_count": 38
     }
   },
   "provider_freshness": {
@@ -142,7 +150,7 @@
     },
     "sfcompute": {
       "status": "cached",
-      "age_hours": 531.5
+      "age_hours": 555.4
     },
     "together": {
       "status": "live",
@@ -167,20 +175,30 @@
     "baseten": {
       "status": "live",
       "age_hours": null
+    },
+    "vultr": {
+      "status": "live",
+      "age_hours": null
+    },
+    "massedcompute": {
+      "status": "live",
+      "age_hours": null
     }
   },
   "warnings": [
-    "Nebius committed prices last verified 86 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
-    "together B200 on_demand: $4.09 \u2192 $8.19 (+100.2%) \u26a0 price anomaly",
-    "together H100 on_demand: $1.99 \u2192 $3.99 (+100.5%) \u26a0 price anomaly",
-    "together H200 on_demand: $2.99 \u2192 $5.99 (+100.3%) \u26a0 price anomaly",
+    "Nebius committed prices last verified 87 days ago (> 45d) \u2014 committed section omitted from exec output; re-verify against the AE pricing sheet and bump NEBIUS_COMMITTED_PRICES_VERIFIED_DATE.",
+    "cp_atmoscompute-com H100 on_demand: $4.33 \u2192 $2.43 (-43.9%) \u26a0 price anomaly",
+    "cp_atmoscompute-com H200 on_demand: $9.03 \u2192 $4.61 (-48.9%) \u26a0 price anomaly",
+    "cp_atmoscompute-com RTX6000 on_demand: $2.50 \u2192 $1.41 (-43.7%) \u26a0 price anomaly",
     "cross-check: azure H100 on-demand: ours $6.98 (api) vs ComputePrices $11.06 (58% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
     "cross-check: lambda H100 on-demand: ours $3.29 (api) vs ComputePrices $3.99 (21% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
-    "cross-check: runpod L40S on-demand: ours $1.09 (api) vs ComputePrices $0.79 (28% gap) \u2014 ComputePrices likely off (provider API is authoritative)"
+    "cross-check: runpod L40S on-demand: ours $1.09 (api) vs ComputePrices $0.79 (28% gap) \u2014 ComputePrices likely off (provider API is authoritative)",
+    "supply: B200 sold out at 3/7 live-stock providers, +2 WoW (Lambda, RunPod, Verda) \u2014 tightening",
+    "supply: B300 sold out at 4/7 live-stock providers (Hyperstack, RunPod, Scaleway, Verda)"
   ],
   "post_thread": true,
   "is_weekly": false,
-  "significant_moves": 127,
+  "significant_moves": 3,
   "generated_outputs": {
     "slack_message": true,
     "confluence_body": true

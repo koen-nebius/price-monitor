@@ -25,7 +25,7 @@
 <line x1="730.0" y1="28" x2="730.0" y2="376" stroke="#f0f1f5"/>
 <text x="730.0" y="394" text-anchor="middle" fill="#555">60m</text>
 <text x="393" y="412" text-anchor="middle" fill="#333">commitment length (log scale)</text>
-<text x="14" y="202" transform="rotate(-90 14 202)" text-anchor="middle" fill="#333">$/GPU-hr, 0% prepay, as-of 2026-09-17</text>
+<text x="14" y="202" transform="rotate(-90 14 202)" text-anchor="middle" fill="#333">$/GPU-hr, 0% prepay, as-of 2026-09-18</text>
 <path d="M56.0,271.3 L211.9,263.1 L367.9,265.7 L523.8,278.2" fill="none" stroke="#4a90d9" stroke-width="2.2"/>
 <circle cx="56.0" cy="271.3" r="4.0" fill="#ffffff" stroke="#4a90d9" stroke-width="2"><title>H100 3m: $2.43 (thin)</title></circle>
 <circle cx="211.9" cy="263.1" r="4.0" fill="#ffffff" stroke="#4a90d9" stroke-width="2"><title>H100 6m: $2.62 (thin)</title></circle>
