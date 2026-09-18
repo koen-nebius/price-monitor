@@ -20,6 +20,9 @@ Writes
                                 share of lines revised, median revision among revised lines,
                                 median days from first review to final. forward_curve renders
                                 it as a reference class (never pooled into a mark).
+                                Recorded loss reasons do not establish price acceptance
+                                or a willingness-to-pay ceiling. The 2-deal reference
+                                threshold is separate from the 3-deal mark threshold.
 
 Rack-priced lines (GB200/GB300 NVL72, 'GPU-72' products) are divided by GPUs per rack before
 anything else; plausibility band 0.3-40 $/GPU-hr per snapshot. Outcome, final price, quantity

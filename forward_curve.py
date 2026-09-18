@@ -66,12 +66,15 @@ import math
 import statistics
 from collections import defaultdict
 from datetime import date, datetime, timedelta
+from html import escape
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 import sys as _sys  # noqa: E402
 _sys.path.insert(0, str(ROOT))
 from intel_quality import classify as intel_classify, dedupe as intel_dedupe, prepay_known as intel_prepay_known  # noqa: E402
+from history import load_comparison_history  # noqa: E402
+from report_freshness import committed_reference_fresh  # noqa: E402
 STORE = ROOT / "store"
 OUT_DIR = STORE / "forward_curve"
 INTEL_CSV = STORE / "intel.csv"
@@ -80,7 +83,7 @@ DEAL_COHORTS_CSV = STORE / "deal_cohorts.csv"   # CRM closed-deal cohorts (scrip
 HISTORY_CSV = STORE / "history.csv"
 BODY_HTML = STORE / "forward_curve_body.html"
 
-METHOD_VERSION = "1.4 (2026-09-16)"
+METHOD_VERSION = "1.4.1 (2026-09-18)"
 TIERS = ["H100", "H200", "B200", "B300", "GB200", "GB300", "VR"]
 TENORS = [3, 6, 12, 18, 24, 36, 60]            # months; buckets, see bucket_months()
 TENOR_LABEL = {3: "3m", 6: "6m", 12: "12m", 18: "18m", 24: "24m", 36: "36m", 60: "60m"}
@@ -324,7 +327,7 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
     except Exception:  # pragma: no cover
         provider_tag = lambda p: "peer"  # noqa: E731
     if history.exists():
-        rows = [r for r in csv.DictReader(open(history, newline="")) if r.get("consumption_type") in ("on_demand", "spot", "preemptible")]
+        rows = [r for r in load_comparison_history(history) if r.get("consumption_type") in ("on_demand", "spot", "preemptible")]
         if rows:
             latest = max(r["snapshot_date"] for r in rows)
             per = defaultdict(lambda: {"peer": [], "hyper": [], "other": []})
@@ -402,8 +405,8 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
 
 
 def load_cohorts(path: Path = DEAL_COHORTS_CSV) -> list[dict]:
-    """Nebius closed-deal cohorts per GPU x tenor x outcome (won / lost_capacity = accepted
-    price, we had no capacity / lost_price_or_competitor / lost_other), aggregates only,
+    """Nebius closed-deal cohorts per GPU x tenor x recorded outcome, aggregates only.
+    Loss categories do not establish customer price acceptance or willingness to pay;
     from scripts/refresh_deal_cohorts.py. Reference class: rendered, never pooled."""
     out = []
     if not path.exists():
@@ -414,7 +417,7 @@ def load_cohorts(path: Path = DEAL_COHORTS_CSV) -> list[dict]:
                 continue
             try:
                 out.append({"gpu": r["gpu"], "tenor_months": int(float(r["tenor_months"])), "outcome": r["outcome"],
-                            "opps": int(float(r["opps"])), "gpus": int(float(r["gpus"] or 0)),
+                            "opps": int(float(r["opps"])), "lines": int(float(r.get("lines") or 0)), "gpus": int(float(r["gpus"] or 0)),
                             "p25": float(r["price_p25"]), "med": float(r["price_med"]), "p75": float(r["price_p75"]),
                             "source": r.get("source", ""), "window_from": r.get("window_from", ""),
                             "window_to": r.get("window_to", ""), "generated": r.get("generated_date", "")})
@@ -515,15 +518,12 @@ def grid_reference(grids: dict, tier: str, tenor: int, segment: str = DEFAULT_SE
     return None
 
 
-def load_list(path: Path = HISTORY_CSV) -> dict:
-    """Latest public committed/reserved list prices: {(tier, tenor): {...}}."""
+def load_list(path: Path = HISTORY_CSV, as_of: date | None = None) -> dict:
+    """Latest list references; expired manually verified Nebius commitments are withheld."""
     if not path.exists():
         return {}
-    rows = []
-    with open(path, newline="") as f:
-        for r in csv.DictReader(f):
-            if r.get("consumption_type") in LIST_TENOR:
-                rows.append(r)
+    fresh_nebius, _, _ = committed_reference_fresh((as_of or date.today()).isoformat())
+    rows = [r for r in load_comparison_history(path) if r.get("consumption_type") in LIST_TENOR]
     if not rows:
         return {}
     latest = max(r["snapshot_date"] for r in rows)
@@ -532,6 +532,8 @@ def load_list(path: Path = HISTORY_CSV) -> dict:
                                "hyper_list": {}, "peer_list": {}})
     for r in rows:
         if r["snapshot_date"] != latest:
+            continue
+        if r["provider"] == "nebius" and r["consumption_type"].startswith("committed") and not fresh_nebius:
             continue
         tier = r["gpu_model"].upper()
         tenor = bucket_months(LIST_TENOR[r["consumption_type"]])
@@ -593,8 +595,8 @@ def load_crm_asks(path: Path = CRM_ASKS_CSV, as_of: date | None = None, min_deal
                   quote_path: Path | None = QUOTE_ASKS_CSV) -> dict:
     """Nebius' own asked prices that did not (yet) sign, from the CRM deal-review table through
     scripts/refresh_crm_asks.py, per tier x tenor x class:
-      lost      deals in stage Closed lost: an upper bound on what those customers would pay;
-                loss reasons are not recorded in a usable way, so no competitor price is implied
+      lost      asked prices on deals in stage Closed lost; this class does not distinguish
+                loss reasons or establish willingness to pay, acceptance or a competitor price
       proposal  deals in Commercial Proposal or Agreement signing: what we are asking now
     Two files in one schema: the HubSpot deal-review aggregates (path; that mirror froze at the
     2026-08-10 cutover) and the live Salesforce quote aggregates (quote_path, daily). Once the quote
@@ -703,8 +705,8 @@ def load_short_term(history: Path = HISTORY_CSV, snapshot: Path = LATEST_SNAPSHO
     as_of = as_of or date.today()
     out: dict = {t: [] for t in TIERS}
     if history.exists():
-        with open(history, newline="") as f:
-            rows = [r for r in csv.DictReader(f) if r.get("consumption_type") == "spot" and r.get("provider") in _EXCHANGES]
+        rows = [r for r in load_comparison_history(history)
+                if r.get("consumption_type") == "spot" and r.get("provider") in _EXCHANGES]
         if rows:
             latest = max(r["snapshot_date"] for r in rows)
             for r in rows:
@@ -865,7 +867,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
     # Nebius achieved only as aggregates of >= ASK_MIN_DEALS deals (no single deal's price is published)
     obs = [o for o in obs if o["side"] != "ask"] + aggregate_asks([o for o in obs if o["side"] == "ask"])
 
-    lists = load_list(history)
+    lists = load_list(history, as_of=as_of)
     by_cell = defaultdict(list)
     for o in obs:
         by_cell[(o["tier"], o["tenor"])].append(o)
@@ -996,6 +998,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
             first = next(csv.DictReader(f), None)
             src_dates["reserve_tenor_generated"] = (first or {}).get("generated_date")
     list_date = next((v["snapshot_date"] for v in lists.values()), None)
+    committed_fresh, committed_verified, _ = committed_reference_fresh(as_of.isoformat())
 
     return {
         "as_of": as_of.isoformat(),
@@ -1021,7 +1024,9 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         "sources": {"intel_latest_quote": src_dates["intel_latest"].isoformat() if src_dates["intel_latest"] else None,
                     "reserve_tenor_generated": src_dates["reserve_tenor_generated"],
                     "public_contracts": src_dates["contracts"], "grid_version": src_dates["grid_version"],
-                    "list_snapshot": list_date, "cost_floor": SA_COST_FLOOR_SOURCE},
+                    "list_snapshot": list_date, "cost_floor": SA_COST_FLOOR_SOURCE,
+                    "nebius_committed_reference_verified": committed_verified,
+                    "nebius_committed_reference_eligible": committed_fresh},
         "grid": {"version": max(grids) if grids else None,
                  "segments": {k: {t: {int(float(m)): {int(float(pp)): v for pp, v in ps.items()} for m, ps in cells.items()}
                                   for t, cells in seg.items()}
@@ -1159,44 +1164,88 @@ def _lozenge(text, colour):
 
 
 def _mark_cell(e: dict) -> str:
-    unst = f' · +{e["n_bid_unstated"]} unstated excluded' if e.get("n_bid_unstated") else ""
+    """Compact overview; full counts, ranges and failure reasons remain in evidence."""
     if not e["has_mark"]:
-        return _lozenge("n/a", "grey") + f'<br/><em>{e["n_obs"]} obs{unst}</em>'
-    if e.get("achieved_only"):
-        loz, why = _lozenge("achieved only", "blue"), " · Nebius deals, no competitor offer"
-    else:
-        loz = _lozenge(e["confidence"], "green" if e["confidence"] == "good" else "yellow")
-        why = f' · thin: {e["confidence_reason"]}' if e["confidence"] == "thin" else ""
-    rng = ("recent " if e.get("range_recent") else "all-obs range ") + _range(e["range_lo"], e["range_hi"])
-    ach = f'{e["ask_deals"]} deals in {e["n_ask"]} aggregate{"s" if e["n_ask"] != 1 else ""}' if e["n_ask"] else "0 achieved"
-    return (f'<strong>{_fmt(e["mark"])}</strong> {loz}'
-            f'<br/><em>n={e["n_obs"]} ({e["n_bid"]} offers · {ach}){unst}{why} · {rng}</em>')
+        return _lozenge("n/a", "grey") + f'<br/><em>{e["n_obs"]} obs</em>'
+    label = "achieved only" if e.get("achieved_only") else e["confidence"]
+    colour = "blue" if e.get("achieved_only") else "green" if e["confidence"] == "good" else "yellow"
+    return (f'<strong>{_fmt(e["mark"])}</strong> {_lozenge(label, colour)}'
+            f'<br/><em>{e["n_bid"]} offers · {e["ask_deals"]} Nebius deals</em>')
+
+
+def _input_dates(rows: list[dict]) -> str:
+    dates = sorted({str(r["generated"]) for r in rows if r.get("generated")})
+    return escape(", ".join(dates) if dates else "not available")
+
+
+def _cohort_window(source: str, start: str, end: str) -> str:
+    # The HubSpot query excludes the cutover date; Salesforce is an extraction as of end.
+    until = "to before" if source == "hubspot" else "to"
+    return f"{escape(start or 'unknown')} {until} {escape(end or 'unknown')}"
+
+
+COHORT_LABELS = (("won", "closed won"), ("lost_capacity", "lost: capacity"),
+                 ("lost_price_or_competitor", "lost: price or competitor"))
+
+
+def _render_cohorts(coh: list[dict]) -> str:
+    """Preserve each source's line-item median; aggregate medians cannot be pooled."""
+    h = ['<p>Each cell is a source-specific line-item median in $/GPU-hr as recorded at close '
+         '(opportunities; lines; GPUs), with at least 2 opportunities. Sources and close windows '
+         'remain separate; no combined median is inferred. These references never enter a mark. '
+         'Loss labels are CRM reason categories: capacity does not establish price acceptance, '
+         'and price or competitor does not establish a willingness-to-pay ceiling.</p>']
+    groups = defaultdict(list)
+    for c in coh:
+        groups[(c.get("source", ""), c.get("window_from", ""), c.get("window_to", ""), c.get("generated", ""))].append(c)
+    for (source, start, end, generated), rows in sorted(groups.items()):
+        label = {"hubspot": "HubSpot", "salesforce": "Salesforce"}.get(source, source or "Unknown source")
+        h.append(f'<h3>{escape(label)}</h3><p>Close window: {_cohort_window(source, start, end)}; '
+                 f'input generated {escape(generated or "unknown")}.</p>')
+        h.append('<table data-layout="wide"><thead><tr><th>GPU</th><th>Recorded outcome</th>' +
+                 "".join(f'<th>{TENOR_LABEL[t]}</th>' for t in TENORS) + '</tr></thead><tbody>')
+        for tier in TIERS:
+            for outcome, outcome_label in COHORT_LABELS:
+                cells = []
+                for tenor in TENORS:
+                    cs = [c for c in rows if c["gpu"] == tier and c["outcome"] == outcome and c["tenor_months"] == tenor]
+                    cells.append('<br/>'.join(
+                        f'{_fmt(c["med"])} <em>({c["opps"]}; {c.get("lines", "—")}; {c["gpus"]:,})</em>'
+                        for c in cs) if cs else "—")
+                if any(c != "—" for c in cells):
+                    h.append(f'<tr><td><strong>{tier}</strong></td><td>{outcome_label}</td>' +
+                             "".join(f'<td>{c}</td>' for c in cells) + '</tr>')
+        h.append('</tbody></table>')
+    return "\n".join(h)
 
 
 def render_confluence_body(result: dict, with_images: bool = False) -> str:
     as_of = result["as_of"]
     n = result["n_observations"]
     s = result["sources"]
+    coh = result.get("cohorts") or []
+    ap = [a for a in (result.get("ask_paths") or []) if a["outcome"] in dict(COHORT_LABELS)]
     h = []
-    h.append(f'<p><em>As of {as_of} — refreshed daily by the price-monitor build (method v{result["method_version"]}). '
-             f'<strong>Marks are $/GPU-hr at 0% prepayment and today\'s price level</strong>; rate-card, list, raw and cost columns are shown as published. Sibling pages: '
-             f'<a href="https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419">GPU Competitor Pricing — Daily Overview</a> · '
-             f'<a href="https://nebius.atlassian.net/wiki/spaces/Billing/pages/1970110707">Competitor Spot &amp; Auction Pricing</a>. '
-             f'<strong>Interactive version</strong> (three views: market benchmarks by term, where a price sits among comparable offers, '
-             f'what a contract returns after costs): child page <em>GPU Committed-Price Benchmarks — Interactive</em> under this one, '
-             f'embedded via the HTML macro; also attached here as forward_view.html.</em></p>')
-    h.append('<div data-type="panel-warning"><p><strong>Read me first.</strong> These are <strong>committed-price benchmarks</strong>, not a traded curve: '
-             'each cell is the weighted median of dated observations we hold — <em>competitor offers</em> reported in #price-intelligence '
-             '(confirmed repeats removed; skews to losses) and <em>Nebius achieved</em> prices from CRM deal reviews '
-             '(aggregates only) — shifted to today\'s price level and to a 0%-prepay basis. <strong>Only offers that state their prepayment enter a mark</strong>; '
-             'offers with unstated terms are counted per cell and never pooled. The two classes are shown separately; the gap between them is descriptive only. '
-             f'Nebius achieved prices appear only as aggregates of at least {ASK_MIN_DEALS} deals; thinner achieved evidence is counted but withheld. '
-             'Public multi-year contracts are a reference and never pooled. Commitment length alone is not a delivery-date curve. Cells with fewer than '
-             f'{MIN_OBS} observations in the last {MAX_AGE_DAYS} days are <strong>suppressed</strong>, never interpolated. '
-             '<strong>Internal only</strong>: Nebius achieved prices are derived from confidential contracts; never quote marks to customers '
-             'or paste this page externally.</p></div>')
+    h.append(f'<p><strong>Committed-price benchmarks · built {as_of}</strong> · $/GPU-hr, '
+             f'0% prepayment, adjusted to the build date. Method v{result["method_version"]}.</p>')
+    h.append(f'<p><strong>Input dates:</strong> latest reported offer {s.get("intel_latest_quote") or "not available"}; '
+             f'achieved-price extract {s.get("reserve_tenor_generated") or "not available"}; '
+             f'Finance grid {s.get("grid_version") or "not available"}; public list snapshot {s.get("list_snapshot") or "not available"}. '
+             f'Outcome extract {_input_dates(coh)}; historical path extract {_input_dates(ap)}. A daily build does not refresh every input.</p>')
+    if s.get("nebius_committed_reference_eligible") is False:
+        h.append(f'<p>The manual Nebius committed-list reference was verified {escape(s.get("nebius_committed_reference_verified") or "on an unknown date")} '
+                 'and is excluded from current list comparisons. The separately dated Finance grid remains a labelled reference.</p>')
+    h.append('<div data-type="panel-warning"><p><strong>Internal reference.</strong> Marks combine sales-reported competitor offers '
+             '(skewed toward lost deals) and Nebius achieved aggregates on a common payment basis. '
+             'Only stated-payment offers enter marks; the time axis is contract length, not delivery date. '
+             'Do not quote these confidential benchmarks or achieved prices to customers.</p></div>')
+    h.append('<p><strong>Explore:</strong> child page <em>GPU Committed-Price Benchmarks — Interactive</em> '
+             '(Market benchmarks, Market position, Contract return), also attached as forward_view.html. '
+             '<a href="https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419">Daily competitor pricing</a> · '
+             '<a href="https://nebius.atlassian.net/wiki/spaces/Billing/pages/1970110707">Spot and auction pricing</a>.</p>')
     if with_images:
-        h.append('<p><ac:image ac:width="900"><ri:attachment ri:filename="forward_curve.png"/></ac:image></p>')
+        h.append('<div data-type="expand" data-title="Chart by commitment length">'
+                 '<p><ac:image ac:width="900"><ri:attachment ri:filename="forward_curve.png"/></ac:image></p></div>')
 
     # marks grid
     h.append('<h2>Marks — $/GPU-hr by commitment length</h2>')
@@ -1218,49 +1267,30 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
                  "".join(f'<td>{_mark_cell(e)}</td>' for e in cells) +
                  f'<td>{struct_txt}</td></tr>')
     h.append('</tbody></table>')
-    h.append(f'<p><em>Cell = mark on a stated-prepay basis, then a lozenge: good = n ≥ {GOOD_OBS} distinct stated-prepay observations from ≥ 2 providers with ≥ 2 in the last {RECENT_DAYS} days; '
-             f'thin = one of those three tests fails (the failing test is named); achieved only = Nebius signed deals with no competitor offer in the cell (always one provider, so never "good"). '
-             f'Then n (competitor offers / Nebius achieved aggregates), the number of offers excluded for unstated terms, and the min–max of recent adjusted observations (of all observations when none is recent). '
-             f'n/a = suppressed. Shape compares the 36m mark to the 12m mark.</em></p>')
+    h.append(f'<p>Good: at least {GOOD_OBS} observations, 2 providers and 2 observations within {RECENT_DAYS} days; '
+             'thin: a confidence test fails; achieved only: Nebius deals with no competitor offer. '
+             f'n/a: fewer than {MIN_OBS} eligible observations in {MAX_AGE_DAYS} days. '
+             'Shape compares the 36-month and 12-month marks; it is descriptive.</p>')
+    h.append(f'<p><strong>Aggregation thresholds:</strong> the achieved-price mark leg and lost/open asked-price markers '
+             f'require at least {ASK_MIN_DEALS} and {CRM_ASK_MIN_DEALS} deals respectively. '
+             'The separate outcome and historical-path reference tables retain their 2-opportunity/deal minimum. '
+             'Prices with unstated payment terms are excluded from marks. Full evidence and limitations follow.</p>')
 
-    # CRM deal-outcome cohorts (reference class, never pooled)
-    coh = result.get("cohorts") or []
+    # CRM deal-outcome cohorts: source medians stay separate, never enter a mark.
     if coh:
-        h.append('<h2>Nebius deal outcomes — CRM aggregates (reference, never pooled)</h2>')
-        h.append(f'<p><em>Closed opportunities since {min(c["window_from"] for c in coh)} (Salesforce from the 2026-08-10 CRM cutover, the HubSpot mirror before it), '
-                 'per-GPU $/hr as quoted at close, cells with at least 2 opportunities; two sources in one cell are combined opportunity-weighted. '
-                 '<strong>Accepted</strong> = the customer accepted our price and we could not deliver (lost for capacity): confirmed willingness to pay, stronger than any quote. '
-                 '<strong>Lost on price</strong> = lost to price or a named competitor: a ceiling. Won = signed. Cell = median (opportunities, GPUs).</em></p>')
-        h.append('<table data-layout="wide"><thead><tr><th>GPU</th><th>Outcome</th>' +
-                 "".join(f'<th>{TENOR_LABEL[t]}</th>' for t in TENORS) + '</tr></thead><tbody>')
-        labels = (("won", "won"), ("lost_capacity", "accepted, lost for capacity"), ("lost_price_or_competitor", "lost on price / competitor"))
-        for tier in TIERS:
-            rows_t = [c for c in coh if c["gpu"] == tier]
-            if not rows_t:
-                continue
-            for outcome, label in labels:
-                cells = []
-                for t in TENORS:
-                    cs = [c for c in rows_t if c["tenor_months"] == t and c["outcome"] == outcome]
-                    if not cs:
-                        cells.append("—"); continue
-                    opps = sum(c["opps"] for c in cs); gpus = sum(c["gpus"] for c in cs)
-                    med = sum(c["med"] * c["opps"] for c in cs) / opps
-                    cells.append(f'${med:.2f} <span style="color:#6b6b76">({opps}, {gpus:,})</span>')
-                if all(x == "—" for x in cells):
-                    continue
-                h.append(f'<tr><td><strong>{tier}</strong></td><td>{label}</td>' + "".join(f'<td>{x}</td>' for x in cells) + '</tr>')
-        h.append('</tbody></table>')
-        h.append(f'<p><em>Generated {coh[0]["generated"]} by scripts/refresh_deal_cohorts.py (weekly, local). Internal only: derived from CRM.</em></p>')
+        h.append('<div data-type="expand" data-title="Nebius deal outcomes — source medians and cohorts">')
+        h.append(_render_cohorts(coh))
+        h.append('</div>')
 
     # ask-to-close paths (HubSpot era, reference class, never pooled)
-    ap_labels = (("won", "won"), ("lost_capacity", "accepted, lost for capacity"), ("lost_price_or_competitor", "lost on price / competitor"))
-    ap = [a for a in (result.get("ask_paths") or []) if a["outcome"] in dict(ap_labels)]
+    ap_labels = COHORT_LABELS
     if ap:
-        h.append('<h2>Ask-to-close price paths — HubSpot deal reviews (reference, never pooled)</h2>')
+        h.append('<div data-type="expand" data-title="Historical ask-to-close paths — HubSpot deal reviews">')
         h.append(f'<p><em>Every GPU deal line priced at a twice-weekly deal review between {ap[0]["window_from"]} and {ap[0]["window_to"]} (the HubSpot mirror froze at the CRM cutover), '
-                 'followed from its first review to its final state. Cell = median first asked price → median final price (deals; share of lines whose price was revised). '
-                 'For won deals the final price is the signed price; for deals lost for capacity it is the price the customer had accepted; for deals lost on price it is the last ask before the loss. Salesforce keeps no such history; '
+                 'followed from its first observed priced review to its last priced snapshot. Cell = median first asked price → median final recorded price (deals; share of lines whose price was revised), at least 2 deals. '
+                 'Lines already priced at the first source snapshot are excluded because their earlier history is unknown. '
+                 'Outcome and final price come from the same last priced snapshot, even if the stage changed later. '
+                 'Lost-case prices are recorded asks; loss reasons do not prove acceptance or a price ceiling. Salesforce keeps no such history; '
                  'scripts/refresh_quote_asks.py rebuilds it from daily quote snapshots.</em></p>')
         h.append('<table data-layout="wide"><thead><tr><th>GPU</th><th>Outcome</th>' +
                  "".join(f'<th>{TENOR_LABEL[t]}</th>' for t in TENORS) + '</tr></thead><tbody>')
@@ -1277,10 +1307,10 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
                     continue
                 h.append(f'<tr><td><strong>{tier}</strong></td><td>{label}</td>' + "".join(f'<td>{x}</td>' for x in cells) + '</tr>')
         h.append('</tbody></table>')
-        h.append(f'<p><em>Generated {ap[0]["generated"]} by scripts/backfill_hubspot_ask_paths.py (one-off, the source is frozen). Internal only: derived from CRM.</em></p>')
+        h.append(f'<p><em>Input generated {_input_dates(ap)}; the HubSpot source is frozen. Reference only, never pooled into marks. Internal only: derived from CRM.</em></p></div>')
 
     # shape + references
-    h.append('<h2>Curve shape and references</h2>')
+    h.append('<div data-type="expand" data-title="Curve shape, Finance grid and public references">')
     h.append('<table><thead><tr><th>GPU</th><th>3m</th><th>12m</th><th>36m</th><th>60m</th>'
              '<th>3m vs 12m</th><th>36m vs 12m</th>'
              '<th>Nebius grid 24m / 36m (100% · 50% prepay)</th><th>Cheapest hyperscaler list 12m / 36m</th>'
@@ -1302,14 +1332,16 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              f'(Pricing model.xlsx, NebiusFinance/GPU), shown as published, i.e. NOT prepay-normalised; 12m Blackwell cells are "per request" in that grid. Hyperscaler list = cheapest of AWS/GCP/Azure/Oracle reserved/committed tier '
              f'in the {s.get("list_snapshot") or "latest"} snapshot (rack rates; enterprise customers pay far less). SA cost floor = {SA_COST_FLOOR_SOURCE} — a third-party modeled cost, not Nebius COGS.</em></p>')
 
+    h.append('</div>')
+
     # bid vs ask detail
-    h.append('<h2>Evidence by cell</h2>')
+    h.append('<div data-type="expand" data-title="Full evidence by cell — counts, ranges and confidence">')
     h.append('<p><em>Competitor offers = median of offers reported by sales that state their prepayment (confirmed repeats removed; adjusted to today and 0% prepay); '
              'unstated = offers without payment terms, excluded from the mark, shown with their median at a 0% assumption for reference only; '
              'Nebius achieved = median of Nebius signed reserve prices (CRM aggregates, payment type as prepay proxy); recent raw = median of the last 90 days as reported, '
              'no date adjustment, for comparison with the adjusted mark; public contracts = implied lower bounds, reference only. Gap = achieved / offers − 1, descriptive, not a spread.</em></p>')
     h.append('<table><thead><tr><th>GPU</th><th>Tenor</th><th>Mark</th><th>Recent raw (n)</th><th>Competitor offers, stated prepay (n · providers)</th><th>Unstated terms, excluded (n · median at 0%)</th><th>Nebius achieved (n · deals)</th>'
-             '<th>Public contracts (n)</th><th>Gap</th><th>Recent range</th><th>Status</th></tr></thead><tbody>')
+             '<th>Public contracts (n)</th><th>Gap</th><th>Adjusted range</th><th>Status</th></tr></thead><tbody>')
     for e in result["marks"]:
         if e["n_all"] == 0 and e["n_public"] == 0:
             continue
@@ -1327,8 +1359,11 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
                  f'<td>{ask_txt}</td>'
                  f'<td>{_fmt(e["public_median"])} ({e["n_public"]})</td>'
                  f'<td>{_pct(e["spread_pct"])}</td>'
-                 f'<td>{_range(e["range_lo"], e["range_hi"])}</td><td>{status}</td></tr>')
+                 f'<td>{"recent" if e.get("range_recent") else "all observations"}: {_range(e["range_lo"], e["range_hi"])}</td><td>{status}'
+                 f'{" · " + escape(e.get("confidence_reason") or e.get("reason") or "") if e.get("confidence_reason") or e.get("reason") else ""}</td></tr>')
     h.append('</tbody></table>')
+
+    h.append('</div>')
 
     # method
     qe = ", ".join(f'{k} {v:+.2f}' for k, v in result["quarter_effects_log"].items())
@@ -1356,8 +1391,8 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
              'Offers without a stated prepayment never enter a mark; they are counted per cell, their median at a 0% assumption is shown for reference, and the interactive page can add them to a comparison only through an explicitly labelled switch.</li>'
              '<li><strong>Duplicates:</strong> a row is removed only as a confirmed repeat (same provider, price and term within 7 days, or a seed row repeating a retrieved row with the same or an anonymised provider or identical notes). '
              'Rows that only share a Slack message with another provider, or seed rows matching another provider, are kept and listed for review; one message can carry several providers\' offers at one price.</li>'
-             f'<li><strong>Other evidence classes (interactive page only, never pooled):</strong> Nebius asked prices on deals that closed lost and on open proposals (HubSpot deal reviews until the 2026-08-10 cutover, live Salesforce quotes in review or approved since; aggregates of at least {CRM_ASK_MIN_DEALS} deals per GPU, term and class, thinner cells withheld); '
-             'Nebius deal outcomes and ask-to-close paths (tables above); '
+             f'<li><strong>Other evidence classes (never pooled):</strong> Nebius asked prices on deals that closed lost and on open proposals (HubSpot deal reviews until the 2026-08-10 cutover, live Salesforce quotes in review or approved since; aggregates of at least {CRM_ASK_MIN_DEALS} deals per GPU, term and class, thinner cells withheld); '
+             'Nebius deal outcomes and ask-to-close paths (expandable tables above, minimum 2 opportunities/deals, source medians kept separate); '
              'the SemiAnalysis draft GB300 contract index (Aug-2026; source to be confirmed), moved out of the offer file because an index is not an offer; '
              'short-term market prices (SF Compute H100 clearing price, Vast.ai marketplace reservations) against the PAYG and 3-month cells.</li>'
              f'<li><strong>Tenor buckets:</strong> ≤4 → 3m, ≤8 → 6m, ≤14 → 12m, ≤20 → 18m, ≤27 → 24m, ≤42 → 36m, longer → 60m. '
@@ -1450,7 +1485,7 @@ def write_outputs(result: dict, with_images: bool = False, quiet: bool = False) 
         with open(hist, newline="") as f:
             existing = [r for r in csv.DictReader(f) if r.get("as_of") != result["as_of"]]
     with open(hist, "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols)
+        w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
         w.writeheader()
         w.writerows(existing)
         for e in result["marks"]:

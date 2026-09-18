@@ -32,3 +32,9 @@ jobs:
           CONFLUENCE_EMAIL: ${{ secrets.CONFLUENCE_EMAIL }}
           CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
         run: pip install matplotlib && python3 forward_curve.py && python3 scripts/publish_forward_curve.py --strict
+      - name: Publish capacity page from committed evidence
+        env:
+          CONFLUENCE_EMAIL: ${{ secrets.CONFLUENCE_EMAIL }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          PUBLISH_FORCE: ${{ inputs.force && '1' || '0' }}
+        run: python3 -m capacity.notify_confluence --strict

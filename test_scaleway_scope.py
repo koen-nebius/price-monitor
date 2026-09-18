@@ -90,9 +90,11 @@ class ScalewayScopeTests(unittest.TestCase):
         self.assertNotIn("Scaleway", matrix)
         self.assertNotIn("Misleading old fleet-wide stock claim", page)
         _, thread = render.render_slack(rows, [], manifest, [])
-        self.assertIn("H100-2-88G · 2 GPUs/instance · fr-par-2: available", thread)
-        self.assertIn("H100-8-88G · 8 GPUs/instance · fr-par-2: scarce", thread)
-        self.assertIn("H100-8-88G · 8 GPUs/instance · fr-par-3: shortage", thread)
+        self.assertNotIn("H100-2-88G · 2 GPUs/instance", thread)
+        self.assertNotIn("H100-8-88G · 8 GPUs/instance", thread)
+        self.assertIn("Complete observations", thread)
+        self.assertIn("H100-2-88G", section)
+        self.assertIn("H100-8-88G", section)
         self.assertIn("legacy or aggregator observations excluded", thread)
 
     def test_exact_state_change_cannot_be_described_as_fleet_change(self):

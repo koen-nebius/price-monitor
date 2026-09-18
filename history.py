@@ -23,10 +23,26 @@ from typing import List, Dict, Tuple
 from store import STORE_DIR, list_snapshot_dates, load_snapshot
 from schema import PriceRecord
 from comparability import is_qualified_catalogue_reference
+from price_corrections import correct_history_rows
 
 logger = logging.getLogger(__name__)
 
 HISTORY_CSV = STORE_DIR / "history.csv"
+
+
+def load_comparison_history(path: Path = None, *, include_excluded=False) -> List[dict]:
+    """Read an audited analytical view without changing historical observations.
+
+    Price consumers must use this view rather than treating known parser fixes as
+    market changes. The writers below intentionally preserve the original records;
+    corrected/exported copies retain their original values and correction reasons.
+    Missing Together OD observations are unknown, not zero or an inferred doubling.
+    """
+    path = Path(path) if path is not None else HISTORY_CSV
+    if not path.exists():
+        return []
+    with path.open(newline="") as stream:
+        return correct_history_rows(csv.DictReader(stream), include_excluded=include_excluded)
 
 COLUMNS = [
     "snapshot_date",

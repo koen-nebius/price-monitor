@@ -42,8 +42,9 @@ from store import (save_snapshot, load_snapshot, previous_snapshot_day, STORE_DI
                    PEER_CACHE_SOFT_STALE_HOURS, PEER_CACHE_HARD_STALE_HOURS)
 from fetchers.computeprices import FETCH_KEY as COMPUTEPRICES_KEY
 from diff import (compute_diff, format_slack_message, format_slack_summary,
-                  format_confluence_table, format_spot_auction_page)
+                  format_confluence_table, format_spot_auction_page, _publication_diffs)
 from history import append_records as append_history_records
+from report_freshness import publication_records
 from config import PROVIDERS
 from schema import PriceRecord
 from comparability import is_qualified_catalogue_reference
@@ -467,13 +468,14 @@ def run(providers=None, test=False):
     # Persist today's computed position gaps so the Monday anchor can report
     # week-over-week movement consistent with what was actually published.
     from diff import record_position_history
-    record_position_history(accepted_records)
+    comparison_records, comparison_exclusions = publication_records(accepted_records)
+    record_position_history(comparison_records)
 
     # ── Compute diff ─────────────────────────────────────────────────────────
     diffs = []
     if old_records:
         source = str(prev_day) if prev_day else "last_snapshot.json"
-        diffs = compute_diff(old_records, accepted_records)
+        diffs = _publication_diffs(compute_diff(old_records, accepted_records), comparison_records)
         diff_path = STORE_DIR / f"diff_{today.isoformat()}.json"
         with open(diff_path, "w") as f:
             json.dump([d.to_dict() for d in diffs], f, indent=2)
@@ -506,15 +508,17 @@ def run(providers=None, test=False):
     list_moves = [
         d for d in diffs
         if d.change_type == "price_change"
+        and not d.provider.startswith(("cp_", "sf_"))
         and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
         and provider_tier(d.provider) in _tracked
         and d.consumption_type not in INTERRUPTIBLE_CTS
     ]
     significant_moves = list_moves  # recorded in the manifest for visibility
     hyperscaler_move = any(provider_tier(d.provider) == "hyperscaler" for d in list_moves)
-    coordinated_move = len(list_moves) >= 3
+    coordinated_move = len({d.provider for d in list_moves}) >= 3
     is_weekly = today.weekday() == 0  # Monday weekly anchor
-    post_thread = is_weekly or hyperscaler_move or coordinated_move
+    source_correction = any(d.change_type == "restatement" for d in diffs)
+    post_thread = is_weekly or hyperscaler_move or coordinated_move or source_correction
 
     slack_summary = format_slack_summary(
         diffs, run_date, CONFLUENCE_PAGE_URL,
@@ -565,25 +569,6 @@ def run(providers=None, test=False):
             else:
                 slack_summary += f"\n\n{line}"
             logger.info(f"Storage benchmark changes: {storage_moves}")
-        # ── Supply tightness (2026-09-15): sold-out ratio per GPU from the capacity
-        # monitor's last committed run, as a price-move leading indicator. Same
-        # placement as the storage line; silent when the snapshot is stale/missing.
-        try:
-            from supply import supply_line
-            _sl = supply_line(today)
-            if _sl:
-                _anchor = "\nFull benchmark (live, updated daily):"
-                if _anchor in slack_summary:
-                    slack_summary = slack_summary.replace(_anchor, f"\n{_sl}" + _anchor, 1)
-                else:
-                    slack_summary += f"\n\n{_sl}"
-                logger.info(f"Supply line: {_sl}")
-            from supply import supply_alerts
-            for _w in supply_alerts(today):
-                warnings.append(_w)          # internal manifest warning, not exec-facing
-                logger.warning(_w)
-        except Exception as _e:
-            logger.debug(f"supply line skipped: {_e}")
         from storage_page import format_storage_page
         with open(STORE_DIR / "storage_body.html", "w") as f:
             f.write(format_storage_page(run_date))
@@ -665,6 +650,8 @@ def run(providers=None, test=False):
         "stale_providers":   stale_providers,
         "provider_status":   provider_status,
         "provider_freshness": provider_freshness,
+        "comparison_exclusions": comparison_exclusions,
+        "comparison_record_count": len(comparison_records),
         "warnings":          warnings,
         # Phase 3.6: posting hints for the CCR routine.
         "post_thread":       post_thread,   # post full tables thread? (change or weekly)

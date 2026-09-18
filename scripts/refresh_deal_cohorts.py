@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Weekly refresh of store/deal_cohorts.csv: Nebius CLOSED deals as three clearing-price
-signals per GPU x tenor bucket, aggregates only (2026-09-16, Koen: "deduce PAYG and
+Weekly refresh of store/deal_cohorts.csv: Nebius CLOSED deals as three recorded-outcome
+reference classes per GPU x tenor bucket, aggregates only (2026-09-16, Koen: "deduce PAYG and
 Reserve pricing from what we already have").
 
   won                       achieved prices (signed)
-  lost_capacity             the customer accepted our price and we could not deliver:
-                            confirmed willingness to pay, stronger than any quote
-  lost_price_or_competitor  the price ceiling: where we lose on price
+  lost_capacity             recorded price on a deal labelled lost for capacity;
+                            customer acceptance is not established by the category
+  lost_price_or_competitor  recorded price on a deal labelled lost for price or competitor;
+                            neither a competitor price nor a willingness-to-pay ceiling
   lost_other                disengagement, PoC, compliance, no decision (context only)
   (duplicates, test deals, qualification oversights, contract restructuring excluded)
 
@@ -23,7 +24,10 @@ Runs LOCALLY only (YT is not reachable from GitHub Actions):
         scripts/refresh_deal_cohorts.py [--dry-run] [--since 2026-01-01]
 
 Confidentiality: aggregates only (opportunity counts, GPU sums, p25/median/p75 per cell,
-cells with < 2 opportunities dropped). Never customer names or deal-level rows.
+cells with < 2 opportunities dropped). This reference threshold is distinct from
+the 3-deal achieved-price mark threshold. Source line-item medians remain separate
+in both published views; they are not combined into a purported pooled median.
+Never customer names or deal-level rows.
 """
 import csv
 import os

@@ -10,6 +10,9 @@ from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 
 from schema import PriceRecord, DiffEntry
+from price_corrections import known_restatement, correct_record
+from history import load_comparison_history
+from report_freshness import publication_records, committed_reference_fresh
 from config import provider_tier, provider_tag, ALERT_THRESHOLD_PCT, PROVIDER_TIERS
 
 # Direct-fetcher serverless/managed platforms (Modal, Baseten). They sit in the
@@ -174,7 +177,7 @@ def _recent_price_levels(days: int = REVERSION_LOOKBACK_DAYS) -> Dict[tuple, lis
     cutoff = (date.today() - timedelta(days=days)).isoformat()
     today = date.today().isoformat()
     with open(HISTORY_CSV, newline="") as f:
-        for r in csv.DictReader(f):
+        for r in load_comparison_history(HISTORY_CSV):
             d = r.get("snapshot_date", "")
             if not (cutoff <= d < today):
                 continue
@@ -197,7 +200,16 @@ def compute_diff(old: List[PriceRecord], new: List[PriceRecord]) -> List[DiffEnt
     for key, new_rec in new_map.items():
         if key in old_map:
             old_rec = old_map[key]
-            old_p, new_p = old_rec.price_per_gpu_hour_usd, new_rec.price_per_gpu_hour_usd
+            old_corrected = correct_record(old_rec)
+            new_corrected = correct_record(new_rec)
+            old_p = old_corrected.record.price_per_gpu_hour_usd
+            new_p = new_corrected.record.price_per_gpu_hour_usd
+            restatement = (known_restatement(old_rec, new_rec) or
+                           not old_corrected.comparison_eligible or not new_corrected.comparison_eligible)
+            if restatement:
+                # Preserve the visible source correction in the ledger, without
+                # treating a different product as an observed price change.
+                old_p, new_p = old_rec.price_per_gpu_hour_usd, new_rec.price_per_gpu_hour_usd
             if old_p > 0 and abs(new_p - old_p) / old_p > CHANGE_THRESHOLD:
                 # A price produced by DIFFERENT parser code is a methodology
                 # restatement, not a market move: broadcasting it as a
@@ -208,7 +220,16 @@ def compute_diff(old: List[PriceRecord], new: List[PriceRecord]) -> List[DiffEnt
                 # market-move consumer filters on change_type=="price_change".
                 old_pv = getattr(old_rec, "parser_version", "") or ""
                 new_pv = getattr(new_rec, "parser_version", "") or ""
-                change = "price_change" if old_pv == new_pv else "restatement"
+                change = "restatement" if (old_pv != new_pv or restatement) else "price_change"
+                if change == "price_change":
+                    try:
+                        old_time = datetime.fromisoformat(old_rec.fetched_at.replace("Z", "+00:00"))
+                        new_time = datetime.fromisoformat(new_rec.fetched_at.replace("Z", "+00:00"))
+                        if abs((new_time - old_time).total_seconds()) > 48 * 3600:
+                            change = "coverage_reference_change"
+                    except (TypeError, ValueError):
+                        # Missing observation dates cannot establish a daily move.
+                        change = "coverage_reference_change"
                 if (is_qualified_catalogue_reference(old_rec)
                         or is_qualified_catalogue_reference(new_rec)):
                     # A restricted/unknown catalogue tariff (or transition from
@@ -448,23 +469,8 @@ def compute_position(records: List[PriceRecord]) -> List[dict]:
 # ---------------------------------------------------------------------------
 
 def _committed_freshness():
-    """
-    (is_fresh, verified_date_str, days_old) for the Nebius committed list.
-    Fresh = verified within NEBIUS_COMMITTED_STALE_DAYS. The committed section is
-    exec-facing and the list is hand-maintained from the internal AE sheet, so when
-    it goes stale we OMIT the section rather than show numbers we can't vouch for.
-    Fails open (treats as fresh) only if the date constant is unreadable — a config
-    bug should surface loudly elsewhere, not silently delete the section forever.
-    """
-    try:
-        from datetime import datetime, date
-        from config import (NEBIUS_COMMITTED_PRICES_VERIFIED_DATE,
-                            NEBIUS_COMMITTED_STALE_DAYS)
-        v = datetime.strptime(NEBIUS_COMMITTED_PRICES_VERIFIED_DATE, "%Y-%m-%d").date()
-        days = (date.today() - v).days
-        return (days <= NEBIUS_COMMITTED_STALE_DAYS, NEBIUS_COMMITTED_PRICES_VERIFIED_DATE, days)
-    except Exception:
-        return (True, None, None)
+    """Fail closed when the manually verified reference has expired."""
+    return committed_reference_fresh()
 
 
 def _best_aws_h100_field_deal():
@@ -634,7 +640,7 @@ def _peer_gap_wow(gpu: str, current_pct: float):
     best = None   # (|days_from_7|, gap_pct)
     with open(POSITION_HISTORY_CSV, newline="") as f:
         for r in csv.DictReader(f):
-            if r["gpu"] != gpu or r["basis"] != "peer_median":
+            if r["date"] < "2026-09-18" or r["gpu"] != gpu or r["basis"] != "peer_median":
                 continue
             try:
                 age = (today - date.fromisoformat(r["date"])).days
@@ -661,7 +667,7 @@ def _range_stability_weeks(current_range: str) -> int:
     neb: Dict[str, Dict[str, float]] = {}
     hyp: Dict[str, Dict[str, list]] = {}
     with open(HISTORY_CSV, newline="") as f:
-        for r in csv.DictReader(f):
+        for r in load_comparison_history(HISTORY_CSV):
             if r["consumption_type"] != "on_demand":
                 continue
             d, g = r["snapshot_date"], r["gpu_model"]
@@ -888,52 +894,21 @@ def _format_reserve_wins_callout() -> str:
     return "\n".join(lines)
 
 
-def _build_reserve_wins_section() -> str:
-    """Confluence HTML twin of _format_reserve_wins_callout."""
-    rows, gen, stale = _load_reserve_wins()
+def _build_reserve_wins_section():
+    rows, generated, stale = _load_reserve_wins()
     if not rows:
-        return ""
-    win = rows[0].get("window_days", "30")
-    html = [
-        f'<h3>Reserve wins — Nebius signed deals (rolling {win}d)</h3>',
-        '<p><em>Aggregated from reserve deals CLOSED-WON in the window (CRM deal reviews); '
-        'autorenewals excluded so legacy rates don\'t skew the read. Anonymized: '
-        'no customer names, aggregates only; <strong>internal only</strong> (deal-level '
-        'detail lives in HubSpot for those with access). This is the '
-        'WON side of the market — the counterweight to the loss-skewed field intel above. '
-        'Internal benchmark only: never quote these rates to customers. '
-        f'Refreshed {gen or "unknown"}.'
-        + (f' <strong>⚠ stale (&gt;{RESERVE_WINS_STALE_DAYS}d old — refresh '
-           f'store/reserve_wins.csv).</strong>' if stale else '')
-        + '</em></p>',
-        '<table><thead><tr><th>GPU</th><th>Term</th><th>Deals</th><th>GPUs</th><th>Lowest</th>'
-        '<th>Median</th><th>Highest</th><th>Median vs matching Nebius list (512+, 100%)</th>'
-        '</tr></thead><tbody>',
-    ]
+        return '<p>CRM win aggregates unavailable.</p>'
+    html = [f'<h3>CRM won-deal aggregates — generated {escape(generated or "unknown")}</h3>',
+            '<p>Historical CRM aggregates, not independently verified contract prices. '
+            'The window is anchored to the generation date; it does not roll forward with this page.</p>',
+            '<p>Excluded from current comparisons: source refresh overdue.</p>' if stale else '',
+            '<table><tbody><tr><th>GPU / term</th><th>Window days</th><th>Deals / GPUs</th><th>Low / median / high ($/GPU-h)</th></tr>']
     for r in rows:
-        try:
-            lo, med, hi = (float(r["price_lo"]), float(r["price_med"]), float(r["price_hi"]))
-            gpus = int(float(r["gpus"]))
-        except (ValueError, KeyError):
-            continue
-        bucket = r.get("term_bucket", "~1yr")
-        lst, lbl = _reserve_list_for_bucket(r["gpu"], bucket)
-        vs = (f'{med / lst - 1:+.0%} vs {lbl} ${lst:.2f}' if lst else "—")
-        html.append(f'<tr><td><strong>{r["gpu"]}</strong></td><td>{bucket}</td>'
-                    f'<td>{r["deals"]}</td>'
-                    f'<td>{gpus:,}</td><td>${lo:.2f}</td><td><strong>${med:.2f}</strong></td>'
-                    f'<td>${hi:.2f}</td><td>{vs}</td></tr>')
+        html.append('<tr>' + ''.join('<td>' + escape(str(v)) + '</td>' for v in (
+            r['gpu'] + ' / ' + r['term_bucket'], r['window_days'], r['deals'] + ' / ' + r['gpus'],
+            r['price_lo'] + ' / ' + r['price_med'] + ' / ' + r['price_hi'])) + '</tr>')
     html.append('</tbody></table>')
-    html.append(
-        '<p><em><strong>Method:</strong> deals CLOSED-WON in the last 30 days (by CRM close '
-        'date — grandfathered/long-running contracts never enter); automated renewals at '
-        'carried-over prices excluded (renegotiated renewals count); reserve line items only; '
-        'terms bucketed (&le;8mo / ~1yr / 2yr+) and never blended — each bucket compares to '
-        'its own list tier; rack-priced line items (NVL72) converted to $/GPU-hr before '
-        'bounds; price field sanity-bounded ($0.2-20/GPU-hr); median is per line '
-        'item, not GPU-weighted, so read deal counts alongside medians. Full methodology: '
-        'analysis/reserve_wins_method.md in the price-monitor repo.</em></p>')
-    return "\n".join(html)
+    return '\n'.join(html)
 
 
 def _rtx_market_stats(records: List[PriceRecord]):
@@ -1054,239 +1029,33 @@ def _self_move_line(diffs: List[DiffEntry]) -> str:
             + " — position deltas below reflect our move, not the market.")
 
 
-def format_slack_summary(diffs: List[DiffEntry], run_date: str,
-                         confluence_url: str, records: List[PriceRecord] = None,
-                         provider_status: dict = None, post_thread: bool = True,
-                         weekly: bool = False) -> str:
-    """
-    Short headline digest posted to the channel.
-
-    Two modes (delta-first, 2026-07-06):
-    - weekly=True (Monday anchor): the full summary — bottom line, action flag,
-      peer position, references, moves — with the full-tables thread below it.
-    - weekly=False (all other days): DELTA-FIRST. Lead with what changed in the
-      last 24h and one position line; on a quiet day post only a one-line
-      "no movement" heartbeat (channel presence + proof the monitor ran).
-      Standing detail lives in the Monday anchor and the Confluence page, so
-      the daily post never repeats it.
-    """
-    def _pname(p: str) -> str:
-        return _prov_display(p)
-
-    lines = [f"*GPU Pricing Daily — {run_date}*"]
-
-    # ── Price moves today: most important grouped move ───────────────────────
-    # Built into signal_block and appended at the END — the lead is the position
-    # takeaway, not a daily spot tick (which is noise to an exec/sales reader).
-    signal_block: List[str] = []
-    # Our own repricing is NOT a market move: attribute it explicitly (lead line)
-    # and keep it out of the "Changed in 24h" market-move grouping below.
-    self_move = _self_move_line(diffs)
-    if self_move:
-        lines.append(self_move)
-    significant = [
-        d for d in diffs
-        if d.change_type == "price_change"
-        and d.provider != "nebius"
-        and (provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
-                                           "enterprise_gpu_cloud")
-             or d.provider in DIRECT_PLATFORM_PROVIDERS)
-        and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
-    ]
-    if significant:
-        from collections import defaultdict as _dd
-        groups: Dict[tuple, list] = _dd(list)
-        for d in significant:
-            interruptible = d.consumption_type in INTERRUPTIBLE_CTS
-            direction = "up" if (d.delta_pct or 0) > 0 else "down"
-            groups[(d.provider, d.gpu_model, d.consumption_type,
-                    interruptible, direction)].append(d)
-
-        # Signal weighting: a CoreWeave or AWS repricing is a market signal; a
-        # small provider with a few thousand GPUs moving price is not. Tier-2
-        # (hyperscaler + enterprise neocloud) moves outrank small-provider moves
-        # regardless of magnitude; spot jitter ranks below list-price changes.
-        def _high_signal(prov: str) -> bool:
-            # Direct membership test — provider_tier() returns raw_gpu_cloud for
-            # providers that appear in both lists (coreweave, lambda, crusoe, ...)
-            return (provider_tier(prov) == "hyperscaler"
-                    or prov.lower() in PROVIDER_TIERS.get("enterprise_gpu_cloud", []))
-
-        def _signal_rank(kv):
-            (prov, gpu, ct, interruptible, _dir), items = kv
-            pcts = [abs(d.delta_pct or 0) for d in items]
-            return (not _high_signal(prov), interruptible, -statistics.median(pcts))
-
-        ranked = sorted(groups.items(), key=_signal_rank)
-        (prov, gpu, ct, interruptible, direction), items = ranked[0]
-        pcts = [d.delta_pct or 0 for d in items]
-        avg = statistics.mean(pcts)
-        verb = "raised" if avg > 0 else "cut"
-        best = max(items, key=lambda d: abs(d.delta_pct or 0))
-        ct_label = "spot" if interruptible else \
-            ct.replace("on_demand", "on-demand").replace("_", " ").replace("reserved 1yr", "reserved")
-        sku_note = f" across {len(items)} SKUs" if len(items) > 1 else ""
-        if _high_signal(prov):
-            signal_block.append(
-                f"\n*Price moves today:* {_pname(prov)} {verb} {gpu} {ct_label} "
-                f"{avg:+.0f}%{sku_note} (${best.old_price:.2f}→${best.new_price:.2f})"
-            )
-        else:
-            # Only small-provider moves today — say so instead of promoting one
-            signal_block.append(
-                f"\n*Price moves today:* no moves from hyperscalers or major neoclouds — "
-                f"largest small-provider move: {_pname(prov)} {gpu} {ct_label} {avg:+.0f}%"
-            )
-        rest = ranked[1:]
-        n_major = sum(1 for (p, *_), _ in rest if _high_signal(p))
-        n_small = len(rest) - n_major
-        rest_parts = []
-        if n_major:
-            rest_parts.append(f"{n_major} more major-provider move{'s' if n_major > 1 else ''}")
-        if n_small:
-            rest_parts.append(f"{n_small} small-provider move{'s' if n_small > 1 else ''}")
-        if rest_parts:
-            signal_block[-1] += f" · {' + '.join(rest_parts)} in thread"
+def format_slack_summary(diffs, run_date, confluence_url, records=None,
+                         provider_status=None, post_thread=True, weekly=False):
+    """Daily changes and material source exceptions; no standing sales guidance."""
+    current, notices = publication_records(records or [], run_date)
+    diffs = _publication_diffs(diffs, current)
+    moves = _group_significant_moves(diffs or [])
+    lines = [f"*GPU pricing · {run_date}*"]
+    if moves:
+        for g in moves[:2]:
+            d = g['peak']
+            lines.append(f"• {_prov_display(d.provider)} {d.gpu_model} {g['bucket']}: "
+                         f"${d.old_price:.2f} → ${d.new_price:.2f}/GPU-h ({d.delta_pct:+.1f}%, {d.region}); "
+                         f"{g['sku_count']} SKU/region observations in this group.")
+        if len(moves) > 2:
+            lines.append(f"{len(moves)-2} further change groups in the daily ledger.")
     else:
-        signal_block.append("\n*Price moves today:* no significant price moves "
-                            f"(≥{ALERT_THRESHOLD_PCT:.0f}%) on tracked providers")
-
-    # ── Delta-first daily (non-Monday) ───────────────────────────────────────
-    if not weekly:
-        if significant:
-            # Promote the day's move from the tail to the lead.
-            lead = signal_block[0].replace("*Price moves today:*",
-                                           "*Changed in 24h:*", 1)
-            if not post_thread:  # no thread today — the rest lives in Confluence
-                lead = lead.replace(" in thread", " — detail in Confluence")
-            lines.append(lead)
-            if records:
-                enrich_comparability(records)
-                position = _build_takeaway(records, include_pressure=False,
-                                           label="Position")
-                if position:
-                    lines.append(position)
-        else:
-            # STORM audit fix (2026-07-06): the heartbeat must never claim "no movement"
-            # over sources we didn't actually see today. live + fallback = observed;
-            # cache/missing/error = unobserved, so qualify the claim.
-            degraded = sorted(p for p, s in (provider_status or {}).items()
-                              if s.get("status") not in ("live", "fallback"))
-            if degraded:
-                total = len(provider_status)
-                lines.append(
-                    f"\nNo movement on live sources (no price moves ≥{ALERT_THRESHOLD_PCT:.0f}%), "
-                    f"but {total - len(degraded)}/{total} sources live today "
-                    f"({', '.join(degraded[:4])}{'…' if len(degraded) > 4 else ''} stale/missing) — "
-                    f"movement there can't be confirmed.")
-            else:
-                lines.append("\nNo competitor movement since yesterday's update "
-                             f"(no price moves ≥{ALERT_THRESHOLD_PCT:.0f}% on tracked providers).")
-        if post_thread:
-            lines.append(f"\nFull tables in thread ↓ · <{confluence_url}|Confluence benchmark>")
-        else:
-            lines.append(f"\nFull benchmark (live, updated daily): <{confluence_url}|Confluence>")
-        return "\n".join(lines)
-
-    # ── Weekly anchor (Monday): full summary ─────────────────────────────────
-    # Position: one line for hyperscalers, one for peers
-    if records:
-        enrich_comparability(records)  # ensure form_factor tags for cluster-class filtering
-        # Compute the action flag first. If it fires for a committed-deal SKU, the
-        # bottom line drops its committed-pressure clause so the same point is not
-        # stated twice (the action flag is the more actionable place for it).
-        action_flag = _top_action_flag(records)
-        # Lead with the bottom-line takeaway (synthesised position), before the detail.
-        takeaway = _build_takeaway(records, include_pressure=not bool(action_flag))
-        if takeaway:
-            lines.append(takeaway)
-        if action_flag:
-            lines.append(action_flag)
-        # vs hyperscalers (on-demand) — like-for-like cluster SKUs, revenue-driver GPUs only
-        gaps = []
-        for gpu in SUMMARY_GPUS:
-            neb = next((r for r in records if r.provider == "nebius"
-                        and r.gpu_model == gpu and r.consumption_type == "on_demand"), None)
-            hyp = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
-            if neb and hyp:
-                pct = (hyp.price_per_gpu_hour_usd - neb.price_per_gpu_hour_usd) \
-                      / hyp.price_per_gpu_hour_usd * 100
-                gaps.append((gpu, pct, hyp))
-        # Neutral framing: report where Nebius prices sit, no better/worse language.
-        # Lower is not inherently good — premium pricing can reflect product strength;
-        # this digest informs pricing decisions in both directions. The hyperscaler
-        # range is stated in the bottom-line takeaway above, so no standalone line here.
-        # (gaps is still used by the Reference notes below.)
-
-        # vs peer median (on-demand)
-        position = compute_position(records)
-        above, at_med, below = [], [], []
-        for row in position:
-            if row["tier_label"] != "on_demand" or row["nebius_price"] is None:
-                continue
-            if row["gpu"] not in SUMMARY_GPUS:
-                continue   # revenue-driver GPUs only in the headline; L40S etc. -> thread
-            if row["total_peers"] < 2 or row["median_peer"] is None:
-                continue
-            pct = (row["nebius_price"] - row["median_peer"]) / row["median_peer"] * 100
-            # 30d market-trend direction so the reader sees movement, not just the static
-            # level. Only attached when the market moved (>=5%) and history is old enough.
-            _t = _market_trend(row["gpu"], 30, records)
-            trend_tag = ""
-            if _t and abs(_t[0]) >= 5:
-                trend_tag = f" (mkt {'+' if _t[0] >= 0 else ''}{_t[0]:.0f}%/{_t[1]}d)"
-            # Week-over-week movement of the gap itself (2026-08-11, Koen: the
-            # static levels need motion). Shown only when a recorded point ~7d
-            # back exists; sub-1pp movement renders as "=" to keep noise out.
-            wow = _peer_gap_wow(row["gpu"], pct)
-            if wow is not None:
-                trend_tag += f" ({wow:+.0f}pp WoW)" if abs(wow) >= 1 else " (= WoW)"
-            if pct >= 3:
-                above.append(f"{row['gpu']} +{pct:.0f}%{trend_tag}")
-            elif pct <= -3:
-                below.append(f"{row['gpu']} {pct:.0f}%{trend_tag}")
-            else:
-                at_med.append(f"{row['gpu']}{trend_tag}")
-        peer_parts = []
-        if above:
-            peer_parts.append(f"premium to peer median on {', '.join(above)}")
-        if below:
-            peer_parts.append(f"below median on {', '.join(below)}")
-        if at_med:
-            peer_parts.append(f"at median on {', '.join(at_med)}")
-        if peer_parts:
-            lines.append("Vs GPU clouds: " + "; ".join(peer_parts))
-
-        # Reference points worth knowing when setting price — neutral observations
-        notes = []
-        for gpu, pct, hyp in gaps:
-            if pct < 5:
-                notes.append(f"{gpu} within {pct:.0f}% of {_pname(hyp.provider)} on-demand")
-        neb_pre = next((r for r in sorted(records, key=lambda x: x.price_per_gpu_hour_usd)
-                        if r.provider == "nebius" and r.gpu_model == "H100"
-                        and r.consumption_type in INTERRUPTIBLE_CTS), None)
-        hyp_floor = _representative_spot_floor(records, "H100", tiers=["hyperscaler"])
-        if neb_pre and hyp_floor:
-            hyp_prov, hyp_px, _ = hyp_floor
-            rel = (neb_pre.price_per_gpu_hour_usd - hyp_px) / hyp_px * 100
-            sign = "+" if rel > 0 else ""
-            notes.append(
-                f"H100 interruptible: our ${neb_pre.price_per_gpu_hour_usd:.2f} vs "
-                f"{_pname(hyp_prov)} spot ${hyp_px:.2f} (median) ({sign}{rel:.0f}%)"
-            )
-        if notes:
-            lines.append("Reference: " + " · ".join(notes))
-
-    # Daily price moves come AFTER the position (demoted from the lead).
-    lines.extend(signal_block)
-    # Footer reflects whether a full-tables thread actually follows today. On
-    # summary-only days (no thread) point straight to the always-live Confluence
-    # benchmark instead of promising a thread that won't appear.
-    if post_thread:
-        lines.append(f"\nFull tables in thread ↓ · <{confluence_url}|Confluence benchmark>")
-    else:
-        lines.append(f"\nFull benchmark (live, updated daily): <{confluence_url}|Confluence>")
-    return "\n".join(lines)
+        lines.append(f"No observed competitor price changes of {ALERT_THRESHOLD_PCT:g}% or more in the eligible snapshot.")
+    restated = {d.provider for d in (diffs or []) if d.change_type == 'restatement'}
+    if restated:
+        lines.append("Source corrections: " + ', '.join(_prov_display(p) for p in sorted(restated)) + "; excluded from market moves.")
+    if notices:
+        excluded = sorted({n.split(':', 1)[0] for n in notices})
+        lines.append("Comparison exclusions: " + ', '.join(_prov_display(p) for p in excluded) + ". Reasons and input dates are on the page.")
+    if weekly:
+        lines.append(f"Weekly reference: {len({r.provider for r in current})} providers with eligible observations; benchmark and evidence below.")
+    lines.append(f"<{confluence_url}|Pricing and change ledger> · <https://nebius.atlassian.net/wiki/pages/viewpage.action?pageId=2164457614|Capacity>")
+    return '\n'.join(lines)
 
 
 def _ct_bucket_label(ct: str) -> str:
@@ -1313,6 +1082,7 @@ def _group_significant_moves(diffs: List[DiffEntry]) -> list:
         d for d in diffs
         if d.change_type == "price_change"
         and d.provider != "nebius"
+        and not d.provider.startswith(("cp_", "sf_"))
         and (provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
                                            "enterprise_gpu_cloud")
              or d.provider in DIRECT_PLATFORM_PROVIDERS)
@@ -1346,289 +1116,32 @@ def _group_significant_moves(diffs: List[DiffEntry]) -> list:
     return out
 
 
-def format_slack_message(diffs: List[DiffEntry], run_date: str,
-                         confluence_url: str, records: List[PriceRecord] = None,
-                         provider_status: dict = None) -> str:
-    """
-    Executive-grade Slack digest framed for CFO / Pricing PM audience.
-    Neutral framing — price differences shown as plain +/-% without sentiment.
-
-    Structure:
-    1. Nebius position vs enterprise GPU cloud peers (on-demand)
-    2. Committed pricing benchmark vs AWS
-    3. Significant price moves (>threshold)
-    4. Link to full Confluence table
-    """
-    # The thread reply always carries the full benchmark tables (peers,
-    # hyperscalers, spot, committed) — they are reference data, not change data,
-    # so we do NOT short-circuit on quiet days. The price-moves section below
-    # (via _group_significant_moves, shared with the Confluence ledger) renders
-    # "no significant moves" when nothing crossed the threshold.
-    # Nebius's own repricing is attributed separately (self-move lead line) and
-    # excluded from the market-move lists.
-    minor = [
-        d for d in diffs
-        if d.change_type == "price_change"
-        and d.provider != "nebius"
-        and provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
-                                          "enterprise_gpu_cloud")
-    ]
-
-    lines = [f"*GPU Competitor Pricing — {run_date}*"]
-    self_move = _self_move_line(diffs)
-    if self_move:
-        lines.append(self_move)
-
-    def _pname(p: str) -> str:
-        return _prov_display(p)
-
-    if records:
-        enrich_comparability(records)  # ensure form_factor tags for cluster-class filtering
-        position = compute_position(records)
-        od_rows = [r for r in position if r["tier_label"] == "on_demand"
-                   and r["nebius_price"] is not None]  # skip GPUs with no Nebius price
-
-        # ── 1a. vs GPU cloud peers ────────────────────────────────────────────
-        if od_rows:
-            lines.append("\n*vs GPU cloud peers (on-demand, cluster-class like-for-like):*")
-            for row in od_rows:
-                neb   = row["nebius_price"]
-                med   = row["median_peer"]
-                total = row["total_peers"]
-                gpu   = row["gpu"]
-
-                peer_details = row.get("cheapest_peers_detail", [])
-                floor_prov, floor_px = peer_details[0] if peer_details else (None, None)
-
-                if total == 0:
-                    lines.append(f"`{gpu:<5}` ${neb:.2f}  no peer data")
-                elif total == 1:
-                    # Median of 1 is meaningless — just show the single peer
-                    floor_str = f"{_pname(floor_prov)} ${floor_px:.2f}" if floor_prov else "—"
-                    lines.append(f"`{gpu:<5}` Nebius ${neb:.2f}  |  1 peer: {floor_str}")
-                else:
-                    cheaper = row["peers_cheaper"]
-                    vs_med_pct = (neb - med) / med * 100
-                    sign = "+" if vs_med_pct >= 0 else ""
-                    floor_str = f"{_pname(floor_prov)} ${floor_px:.2f}" if floor_prov else "—"
-                    lines.append(
-                        f"`{gpu:<5}` Nebius ${neb:.2f}  {sign}{vs_med_pct:.0f}% vs median  "
-                        f"|  {cheaper}/{total} peers cheaper  |  floor: {floor_str}"
-                    )
-
-        # ── 1b. vs hyperscaler rack rate (like-for-like SXM cluster SKUs) ─────
-        hyp_rows = []
-        entry_notes = []
-        for gpu in GPU_ORDER:
-            neb_rec = next((r for r in records if r.provider == "nebius"
-                            and r.gpu_model == gpu and r.consumption_type == "on_demand"), None)
-            hyp_best = _best_comparable(records, gpu, "on_demand", tiers=["hyperscaler"])
-            if neb_rec and hyp_best:
-                neb_px  = neb_rec.price_per_gpu_hour_usd
-                hyp_px  = hyp_best.price_per_gpu_hour_usd
-                cheaper_pct = (hyp_px - neb_px) / hyp_px * 100  # positive = Nebius cheaper
-                hyp_rows.append((gpu, neb_px, hyp_best.provider, hyp_px, cheaper_pct))
-                # Transparency: if a hyperscaler's cheapest ENTRY (non-cluster) SKU
-                # undercuts its cluster price, surface it labeled — never hide it,
-                # but never let it be the headline comparison either.
-                entry = _best_price(records, gpu, "on_demand", tiers=["hyperscaler"])
-                if entry and is_cluster_class(entry) is False and \
-                   entry.price_per_gpu_hour_usd < hyp_px * 0.97:
-                    entry_notes.append(
-                        f"`{gpu:<5}` {_pname(entry.provider)} entry SKU "
-                        f"${entry.price_per_gpu_hour_usd:.2f} ({entry.form_factor}, "
-                        f"{entry.gpu_count}×, not a cluster)"
-                    )
-
-        if hyp_rows:
-            lines.append("\n*vs cheapest hyperscaler on-demand (8×SXM cluster, like-for-like):*")
-            for gpu, neb_px, hyp_prov, hyp_px, cheaper_pct in hyp_rows:
-                flag = "  — near parity" if cheaper_pct < 5 else ""
-                lines.append(
-                    f"`{gpu:<5}` Nebius ${neb_px:.2f}  vs  {_pname(hyp_prov)} ${hyp_px:.2f}"
-                    f"  →  Nebius {cheaper_pct:.0f}% below{flag}"
-                )
-            if entry_notes:
-                lines.append("_Cheaper non-cluster entry SKUs (single-GPU NVL/PCIe, "
-                             "not comparable to an SXM cluster):_")
-                lines.extend(entry_notes)
-
-        # ── 1c. spot/preemptible floor vs hyperscaler spot ───────────────────
-        # The on-demand story flips at the spot tier: hyperscaler spot floors
-        # often undercut Nebius preemptible. Show it so the digest isn't one-sided.
-        spot_rows = []
-        for gpu in GPU_ORDER:
-            neb_candidates = [r for r in records if r.provider == "nebius"
-                              and r.gpu_model == gpu
-                              and r.consumption_type in INTERRUPTIBLE_CTS]
-            neb_rec = min(neb_candidates, key=lambda r: r.price_per_gpu_hour_usd) \
-                if neb_candidates else None
-            floor = _representative_spot_floor(records, gpu, tiers=["hyperscaler"])
-            if neb_rec and floor:
-                spot_rows.append((gpu, neb_rec.price_per_gpu_hour_usd,
-                                  floor[0], floor[1], floor[2]))
-            elif neb_rec:
-                spot_rows.append((gpu, neb_rec.price_per_gpu_hour_usd, None, None, None))
-
-        if spot_rows:
-            lines.append("\n*Spot / preemptible (vs cheapest hyperscaler spot, median of regional floors):*")
-            for gpu, neb_px, hyp_prov, hyp_px, n_zones in spot_rows:
-                if hyp_px is None:
-                    lines.append(f"`{gpu:<5}` Nebius ${neb_px:.2f}  |  no comparable hyperscaler spot "
-                                 f"(not offered, or newest-gen spot capacity not realistically available)")
-                    continue
-                delta_pct = (neb_px - hyp_px) / hyp_px * 100  # positive = Nebius pricier
-                pos = f"Nebius {delta_pct:.0f}% above" if delta_pct > 0 else f"Nebius {-delta_pct:.0f}% below"
-                zone_lbl = (f"median of {n_zones} regional floors" if n_zones and n_zones > 1
-                            else "single region — thin signal")
-                lines.append(
-                    f"`{gpu:<5}` Nebius ${neb_px:.2f}  vs  {_pname(hyp_prov)} ${hyp_px:.2f}"
-                    f" ({zone_lbl})  →  {pos}"
-                )
-            lines.append("_Hyperscaler spot is interruptible, capacity not guaranteed; floors are "
-                         "the cheapest provider's median across its regional floors "
-                         "(single-region dips excluded; region-grain proxy, not per-AZ)._")
-
-        # ── 2. Committed pricing benchmark ───────────────────────────────────
-        _committed = _format_committed_callout(records)
-        if _committed:
-            lines.append("")
-            for l in _committed.split("\n"):
-                lines.append(l)
-
-        # ── 2b. Committed — negotiated competitor deals (field intel) ────────
-        # The real 2026 battleground (B300/GB300); peers don't publish committed list.
-        _field_committed = _format_field_committed_callout(records)
-        if _field_committed:
-            lines.append("")
-            for l in _field_committed.split("\n"):
-                lines.append(l)
-
-        # ── 2b-bis. Reserve wins: OUR signed deals (won side, from contracts) ─
-        _wins = _format_reserve_wins_callout()
-        if _wins:
-            lines.append("")
-            for l in _wins.split("\n"):
-                lines.append(l)
-
-        # ── 2c. RTX PRO 6000 vs the inference/PAYG market ────────────────────
-        _rtx = _format_rtx_callout(records)
-        if _rtx:
-            lines.append("")
-            for l in _rtx.split("\n"):
-                lines.append(l)
-
-        # ── 2d. Action flags: recommended action + 30d trend + lost-deal ─────
-        # Text version of the Confluence Decision Triggers table, revenue-driver GPUs
-        # only. Omits silently when no GPU has an actionable trigger.
-        _flags = _format_action_flags_thread(records)
-        if _flags:
-            lines.append("")
-            for l in _flags.split("\n"):
-                lines.append(l)
-
-    # ── Significant price changes — grouped by provider + GPU ───────────────
-    # Grouping shared with the Confluence "Price Moves (last 24h)" ledger via
-    # _group_significant_moves; `minor` is computed at the top of this function.
-
-    moves = _group_significant_moves(diffs)
-    if moves:
-        lines.append(f"\n*Price moves ≥{ALERT_THRESHOLD_PCT:.0f}%:*")
-        for g in moves[:15]:
-            prov, gpu, bucket = g["provider"], g["gpu"], g["bucket"]
-            arrow = "🔺" if g["direction"] == "up" else "🔻"
-            avg_pct = g["avg_pct"]
-            sign = "+" if avg_pct > 0 else ""
-            # Tier tags removed 2026-08-03 (Koen): "(small provider)" described our
-            # GPU-benchmark tier, but read as a company descriptor and was wrong
-            # there (DigitalOcean is small in GPU, huge in hosting). Tiers still
-            # drive signal weighting internally; they just aren't printed per line.
-            tier_tag = ""
-            sku_count = g["sku_count"]
-            best = g["peak"]
-            best_pct = best.delta_pct or 0
-            best_sign = "+" if best_pct > 0 else ""
-            if sku_count > 1:
-                # Show avg% as headline; call out worst-case SKU separately so the
-                # two numbers are self-consistent (old→new % matches the printed %).
-                # Previously "$2.42→$4.50 (+11.8%)" was confusing because the example
-                # SKU was +86% but the label showed the average.
-                lines.append(
-                    f"{arrow} *{_provider_display(prov)}*{tier_tag} {gpu} {bucket}: "
-                    f"{sign}{avg_pct:.1f}% avg across {sku_count} SKUs "
-                    f"(peak: ${best.old_price:.2f}→${best.new_price:.2f} {best.region}, "
-                    f"{best_sign}{best_pct:.1f}%)"
-                )
-            else:
-                lines.append(
-                    f"{arrow} *{_provider_display(prov)}*{tier_tag} {gpu} {bucket}: "
-                    f"${best.old_price:.2f}→${best.new_price:.2f}/GPU-hr "
-                    f"({best_sign}{best_pct:.1f}% {g['items'][0].region})"
-                )
-        if len(moves) > 15:
-            lines.append(f"_…and {len(moves) - 15} more provider/GPU groups_")
-    else:
-        # Minor changes only (below alert threshold) — note them briefly
-        lines.append(f"\n_No significant price moves today "
-                     f"({len(minor)} minor changes below {ALERT_THRESHOLD_PCT:.0f}% threshold)._")
-
-    restated = [d for d in diffs if d.change_type == "restatement"]
+def format_slack_message(diffs, run_date, confluence_url, records=None, provider_status=None):
+    """Bounded supporting reply. Unchanged reference tables remain on Confluence."""
+    current, notices = publication_records(records or [], run_date)
+    diffs = _publication_diffs(diffs, current)
+    lines = [f"*Pricing changes and exceptions · {run_date}*"]
+    for g in _group_significant_moves(diffs or [])[:6]:
+        d = g['peak']
+        lines.append(f"• {_prov_display(d.provider)} {d.gpu_model} {g['bucket']}: "
+                     f"${d.old_price:.2f} → ${d.new_price:.2f}/GPU-h ({d.delta_pct:+.1f}%, {d.region}); "
+                     f"{g['sku_count']} observed SKU/region pairs.")
+    if not _group_significant_moves(diffs or []):
+        lines.append(f"No eligible price changes above the {ALERT_THRESHOLD_PCT:g}% reporting threshold.")
+    restated = [d for d in (diffs or []) if d.change_type == 'restatement']
     if restated:
-        provs = sorted({_provider_display(d.provider) for d in restated})
-        lines.append(f"_Methodology note: {len(restated)} record(s) from "
-                     f"{', '.join(provs)} restated by a parser fix — excluded from the "
-                     f"moves above (measurement correction, not market)._")
-    reverted = [d for d in diffs if d.change_type == "reversion"]
-    if reverted:
-        rp = sorted({f"{_provider_display(d.provider)} {d.gpu_model}" for d in reverted})
-        lines.append(f"_Jitter note: {len(reverted)} move(s) excluded as oscillation back "
-                     f"to a recent level ({'; '.join(rp[:4])}) — source/FX artifact, "
-                     f"not a repricing._")
-
-    catalogue_refs = [r for r in (records or [])
-                      if is_qualified_catalogue_reference(r)]
-    if catalogue_refs:
-        providers = ", ".join(sorted({_provider_display(r.provider)
-                                      for r in catalogue_refs}))
-        lines.append(f"\n_Catalogue prices (deployment restricted or unconfirmed): {providers}. Published tariffs "
-                     "with deployment disabled, unlisted locations, or unknown eligibility "
-                     "are shown separately in Confluence; excluded from price comparisons "
-                     "and price-move alerts. These are not live-stock observations._")
-
-    lines.append(f"\nFull benchmark table: {confluence_url}")
-
-    # ── Data freshness footer ─────────────────────────────────────────────────
-    # Show which providers used live data vs cache/fallback, with cache age.
-    # Only shown when at least one provider is non-live — clean runs stay quiet.
-    if provider_status:
-        non_live = {
-            p: s for p, s in provider_status.items()
-            if s.get("status") not in ("live",) and s.get("record_count", 0) > 0
-        }
-        missing = {
-            p: s for p, s in provider_status.items()
-            if s.get("status") == "missing"
-        }
-        if non_live or missing:
-            parts = []
-            for p, s in sorted(non_live.items()):
-                status = s.get("status", "?")
-                age = s.get("cache_age_hours")
-                if status == "cache":
-                    age_str = f" ({age:.0f}h ago)" if age is not None else ""
-                    parts.append(f"{p} cached{age_str}")
-                elif status == "fallback":
-                    src = s.get("fallback_source", "fallback")
-                    parts.append(f"{p} via {src}")
-                elif status == "missing":
-                    parts.append(f"{p} no data")
-            for p in sorted(missing):
-                if p not in non_live:
-                    parts.append(f"{p} no data")
-            if parts:
-                lines.append(f"_Data freshness: {' · '.join(parts)}_")
-
-    return "\n".join(lines)
+        lines.append(f"{len(restated)} source-correction records excluded from market movement.")
+    if notices:
+        lines.append("*Inputs excluded from current comparisons:*")
+        lines.extend('• ' + n for n in notices[:5])
+        if len(notices) > 5:
+            lines.append(f"{len(notices)-5} further exclusions are listed on the page.")
+    rows, generated, stale = _load_reserve_wins()
+    if rows and stale:
+        lines.append(f"CRM win aggregates are historical (generated {generated}); they are not a current rolling window.")
+    lines.append("Prices describe observed offers. Availability, contract terms and acceptance require separate evidence.")
+    lines.append(f"<{confluence_url}|Full change ledger, source dates and expandable evidence>")
+    return '\n'.join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -1927,7 +1440,7 @@ def _market_trend(gpu: str, days: int, records: List[PriceRecord]):
     series: Dict[str, float] = {}
     try:
         with open(HISTORY_CSV, newline="") as f:
-            for r in csv.DictReader(f):
+            for r in load_comparison_history(HISTORY_CSV):
                 if (r.get("provider") == prov and r.get("gpu_model") == gpu
                         and r.get("consumption_type") == "on_demand"):
                     try:
@@ -2568,120 +2081,48 @@ def _build_availability_note(records: List[PriceRecord]) -> str:
     return "\n".join(html)
 
 
-def _build_short_term_reserved_section(records: List[PriceRecord]) -> str:
-    """
-    Short-term reserved market (days-to-months commitments): Vast.ai prepaid
-    marketplace offers, transacted SF Compute fills, and — since 2026-08-11 —
-    AWS EC2 Capacity Blocks published effective rates. Mixed quality tiers: AWS
-    CB is enterprise-grade published pricing; the marketplace rows remain a
-    floor signal, NOT an enterprise cluster-class comparable. Source
-    integration per analysis/reserve_price_sources.md (2026-07-07 research +
-    2026-08-11 B300/GB300 sweep).
-    """
-    rows = [r for r in records if r.consumption_type == "reserved_short"]
-    if not rows:
-        return ""
-    from config import NEBIUS_COMMITTED_PRICES
-    html = [
-        '<h2>Short-term reserved market (1–6 month commitments)</h2>',
-        '<p><em>Cheapest live short-term reserved offers: AWS EC2 Capacity Blocks '
-        '(published effective rates, enterprise-grade), Vast.ai marketplace '
-        '(prepaid 1–6 months, commodity SKUs on mixed hosts without enterprise SLAs) '
-        'and, when available, transacted SF Compute window fills. Marketplace rows '
-        'read as the market FLOOR for short-term committed capacity, not as '
-        'cluster-class comparables; AWS CB is directly comparable.</em></p>',
-        '<table><thead><tr><th>GPU</th><th>Source</th><th>$/GPU-hr</th><th>Node size</th>'
-        '<th>Region</th><th>Nebius 9mo committed (512+, 100%)</th><th>Nebius preemptible</th>'
-        '</tr></thead><tbody>',
-    ]
-    pvm = {}
-    for r in records:
-        if r.provider == "nebius" and r.consumption_type in INTERRUPTIBLE_CTS:
-            pvm[r.gpu_model] = min(pvm.get(r.gpu_model, 9e9), r.price_per_gpu_hour_usd)
-    order = {g: i for i, g in enumerate(GPU_ORDER)}
-    for r in sorted(rows, key=lambda x: (order.get(x.gpu_model, 99), x.price_per_gpu_hour_usd)):
-        tier = NEBIUS_COMMITTED_PRICES.get(r.gpu_model, {}).get("above_512") or {}
-        n9 = (tier.get(9) or {}).get("100pct")
-        n9_td = f"${n9:.2f}" if n9 else "—"
-        pv = pvm.get(r.gpu_model)
-        pv_td = f"${pv:.2f}" if pv else "—"
-        src = {"sfcompute": "SF Compute fills (transacted)",
-               "aws": "AWS Capacity Blocks (published)",
-               "lambda": "Lambda 1-Click Cluster (2wk-1yr)",
-               "vast": "Vast.ai reserved offer"}.get(
-            r.provider, f"{_provider_display(r.provider)} reserved offer")
-        html.append(
-            f'<tr><td><strong>{r.gpu_model}</strong></td><td>{src}</td>'
-            f'<td><strong>${r.price_per_gpu_hour_usd:.2f}</strong></td>'
-            f'<td>{r.gpu_count}× GPU</td><td>{r.region}</td><td>{n9_td}</td><td>{pv_td}</td></tr>')
+def _build_short_term_reserved_section(records):
+    rows = [r for r in records if r.consumption_type == 'reserved_short' or r.provider == 'sfcompute']
+    best = {}
+    for r in rows:
+        key = (r.provider, r.gpu_model, r.region, r.consumption_type)
+        if key not in best or r.price_per_gpu_hour_usd < best[key].price_per_gpu_hour_usd:
+            best[key] = r
+    html = ['<h2>Short-term reservations and exchange observations</h2>',
+            '<p>Published Capacity Block rates and marketplace observations are separate products. '
+            'A listed price does not establish an available booking, cluster size or service guarantee. '
+            'SF Compute exchange observations are not treated as interruptible spot.</p>',
+            '<table><tbody><tr><th>Provider / GPU</th><th>$/GPU-h</th><th>Product / region</th><th>Observed UTC / source</th></tr>']
+    for r in sorted(best.values(), key=lambda x: (x.gpu_model, x.provider, x.region)):
+        html.append(f'<tr><td>{escape(_prov_display(r.provider))} {escape(r.gpu_model)}</td>'
+                    f'<td>${r.price_per_gpu_hour_usd:.2f}</td><td>{escape(r.instance_type)} / {escape(r.region)}</td>'
+                    f'<td>{escape(r.fetched_at)} · <a href="{escape(r.source_url, quote=True)}">source</a></td></tr>')
     html.append('</tbody></table>')
-    return "\n".join(html)
+    if not best:
+        html.append('<p>No eligible recent observations.</p>')
+    return '\n'.join(html)
 
 
-def format_spot_auction_page(records: List[PriceRecord], run_date: str) -> str:
-    """
-    Competitor Spot & Auction Pricing — a focused page for the PVM Auctions project,
-    separate from the main benchmark. Fuses the spot/auction signals we have:
-      - Nebius preemptible (our current spot-equivalent)
-      - cheapest hyperscaler spot (median of regional floors, not a single-region outlier)
-      - SF Compute market clearing price (a rare public spot-market exchange)
-      - lowest negotiated/auction deal from #price-intelligence (term shown)
-    Most neoclouds gate spot/auction pricing, so for B-series the field-intel column is
-    the only signal — this page is directional, lower-confidence than the on-demand page.
-    """
-    if not records:
-        return ""
+def format_spot_auction_page(records, run_date):
+    records, notices = publication_records(records, run_date)
     enrich_comparability(records)
-    GPUS = ["H100", "H200", "B200", "B300"]
-
-    html = [
-        f'<p><em>Last updated: {run_date}</em> — <strong>daily refreshed</strong>, directional. '
-        f'All prices in <strong>$/GPU-hr</strong>. Built as a competitive reference for the '
-        f'<strong>PVM Auctions</strong> floor/target discussion '
-        f'(<a href="https://nebius.atlassian.net/wiki/spaces/Billing/pages/1949172383">RFC 055</a>).</p>',
-        '<div data-type="panel-warning"><p><strong>Read me first.</strong> Spot/auction prices are '
-        'volatile and partly field-sourced. Most neoclouds gate spot/auction pricing ("contact us"), '
-        'so for B-series the only signal is negotiated deals from #price-intelligence (sales-reported, '
-        'often committed rather than pure spot). Treat this as a directional anchor for floor/target '
-        'setting, not as fixed competitor rates. The on-demand/committed benchmark is the higher-'
-        'confidence page.</p></div>',
-        '<h2>Competitor spot / auction reference</h2>',
-        '<table data-layout="full-width"><tbody>',
-        '<tr><th>GPU</th><th>Nebius preemptible</th><th>Cheapest hyperscaler spot (median of regional floors)</th>'
-        '<th>SF Compute market</th><th>Lowest field-intel deal (term)</th><th>Market floor reference</th></tr>',
-    ]
-    for gpu in GPUS:
-        neb = _cheapest(records, "nebius", gpu, INTERRUPTIBLE_CTS)
-        floor = _representative_spot_floor(records, gpu, tiers=["hyperscaler"])
-        sfc = _cheapest(records, "sfcompute", gpu, INTERRUPTIBLE_CTS)
-        fi = _field_intel_floor(gpu)
-        neb_c = f'${neb:.2f}' if neb else '—'
-        hyp_c = f'${floor[1]:.2f} <em>({_provider_display(floor[0])})</em>' if floor else '—'
-        sfc_c = f'${sfc:.2f}' if sfc else '—'
-        if fi:
-            label = _provider_display(fi["label"]) if fi["label"] != "undisclosed" else "undisclosed"
-            fi_c = f'${fi["price"]:.2f} <em>({_term_label(fi["term"])}, {label})</em>'
-        else:
-            fi_c = '—'
-        sigs = [x for x in [floor[1] if floor else None, sfc, fi["price"] if fi else None] if x]
-        ref = f'<strong>${min(sigs):.2f}</strong>' if sigs else '—'
-        html.append(f'<tr><td><strong>{gpu}</strong></td><td>{neb_c}</td><td>{hyp_c}</td>'
-                    f'<td>{sfc_c}</td><td>{fi_c}</td><td>{ref}</td></tr>')
+    html = [f'<p>Snapshot date: {escape(run_date)}. Prices in $/GPU-hour. Input dates are shown separately.</p>',
+            '<h2>Interruptible spot and preemptible offers</h2>',
+            '<p>These observations are interruptible. They do not establish a clearing price or a recommended auction floor.</p>',
+            '<table><tbody><tr><th>GPU</th><th>Nebius preemptible</th><th>Hyperscaler regional-floor median</th></tr>']
+    for gpu in GPU_ORDER:
+        neb = _cheapest(records, 'nebius', gpu, INTERRUPTIBLE_CTS)
+        floor = _representative_spot_floor(records, gpu, tiers=['hyperscaler'])
+        n = f'${neb:.2f}' if neb else '—'
+        f = f'${floor[1]:.2f} ({escape(_provider_display(floor[0]))})' if floor else '—'
+        html.append(f'<tr><td>{gpu}</td><td>{n}</td><td>{f}</td></tr>')
     html.append('</tbody></table>')
-    html.append('<p><em>"Market floor reference" = the lowest real competitor spot/auction signal '
-                'observed (hyperscaler spot median, SF Compute market price, or a field-intel deal) — '
-                'the closest proxy for where competitor auction/spot clears, and a sensible anchor for '
-                'a PVM target price. The cost-based floor (electricity + overhead, ~$0.40 for Hoppers '
-                'in discussion) is a separate, lower bound. Hyperscaler spot is interruptible with no '
-                'capacity guarantee; field-intel deals are sales-reported and often committed, not pure '
-                'spot. SF Compute is one of the few public spot-market exchanges (H100 only so far; '
-                'B300 "coming this fall").</em></p>')
     html.append(_build_short_term_reserved_section(records))
-    html.append('<p><em>Note: a true like-for-like — competitor GPU <strong>auctions</strong> — barely '
-                'exists; Azure is the only major cloud with GPU spot bidding, and SF Compute is a market '
-                'exchange. Nebius launching auctions would be largely unique, so "spot" is the nearest '
-                'comparable.</em></p>')
-    return "\n".join(html)
+    html.append('<h2>Negotiated term deals</h2><p>Longer-term sales quotes and won deals remain in the '
+                '<a href="https://nebius.atlassian.net/wiki/pages/viewpage.action?pageId=2285044257">term benchmark</a>. '
+                'They are not combined with spot or reservation prices into a market floor.</p>')
+    html.append(_input_notice_html(notices))
+    return '\n'.join(html)
 
 
 def _build_price_moves_section(diffs: List[DiffEntry]) -> str:
@@ -2708,7 +2149,7 @@ def _build_price_moves_section(diffs: List[DiffEntry]) -> str:
         rp = sorted({f"{_provider_display(d.provider)} {d.gpu_model}" for d in reverted})
         restate_note += (f'<p><em>Jitter note: {len(reverted)} move(s) excluded as '
                          f'oscillation back to a recent level ({"; ".join(rp[:6])}) — '
-                         f'a source/currency-conversion artifact, not a repricing '
+                         f'a return to a recent observed level; the cause is unverified '
                          f'(e.g. EUR-priced providers relayed through an aggregator '
                          f'FX layer).</em></p>')
     html = ['<h2>Price Moves (since previous build)</h2>']
@@ -2762,10 +2203,10 @@ def _build_rtx_section(records: List[PriceRecord]) -> str:
     vs = (s["neb_od"] - s["median"]) / s["median"] * 100
     rows = [
         '<h2>RTX PRO 6000 — Inference / PAYG Card</h2>',
-        '<p>Compared against the full RTX PRO 6000 market (inference platforms and '
-        'GPU rental clouds — Vast, fal, Beam, …), not the training-cluster peer set; '
-        'hyperscalers don\'t offer this card. Kept out of the Executive Benchmark for '
-        'that reason.</p>',
+        '<p>Observed RTX PRO 6000 offers across GPU clouds, hyperscalers and inference platforms. '
+        'Each provider contributes its cheapest eligible on-demand observation; this is a '
+        'separate cohort from training-cluster peers, not a complete market census. '
+        'Prices do not establish available capacity or equivalent service configurations.</p>',
         '<table data-layout="default"><tbody>',
         '<tr><th>Tier</th><th>Nebius</th><th>Market</th><th>Position</th></tr>',
         f'<tr><td>On-demand</td><td>${s["neb_od"]:.2f}</td>'
@@ -2792,143 +2233,40 @@ def _build_rtx_section(records: List[PriceRecord]) -> str:
     return "\n".join(rows)
 
 
-def format_confluence_table(records: List[PriceRecord], run_date: str,
-                            provider_status: dict = None,
-                            diffs: List[DiffEntry] = None) -> str:
-    html = []
-    if records:
-        enrich_comparability(records)  # form_factor tags for cluster-class filtering
-
-    html.append(
-        f'<p><em>Last updated: {run_date}</em> — <strong>daily refreshed</strong> '
-        f'(point-in-time snapshot, not real-time). '
-        f'All prices in <strong>$/GPU-hr</strong>. '
-        f'Source: direct provider APIs/pages + '
-        f'<a href="https://computeprices.com">ComputePrices.com</a>.</p>'
-    )
-    rh = _run_health_line(provider_status)
-    if rh:
-        html.append(rh)
-
-    # ── Section 0: TL;DR by stakeholder (Phase 3.1) ─────────────────────────
-    if records:
-        html.append(_build_tldr(records))
-
-    # ── Section 1: Executive benchmark ──────────────────────────────────────
-    html.append('<h2>Executive Benchmark — Nebius vs Market</h2>')
-    html.append(
-        '<p>On-demand list prices; peer and median cells use each provider\'s cheapest '
-        '<strong>cluster-class (8×SXM) SKU</strong> — like-for-like with a training cluster — '
-        'falling back to all form factors only where no cluster SKU exists in the market '
-        '(e.g. L40S, which is PCIe everywhere). '
-        '<strong>Enterprise GPU cloud</strong> peers are the direct competitive set '
-        '(named providers with enterprise SLAs; commodity rental marketplaces excluded). '
-        'Hyperscaler column shows rack-rate list price — enterprise customers pay 40–57% less at 3yr committed. '
-        'Nebius on-demand prices are uniform across regions (no US discount); availability by GPU: '
-        'H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private).</p>'
-    )
-    html.append(_build_executive_table(records))
-    html.append(_build_local_storage_note())
-
-    # ── Section 1b: daily change ledger (backs every Slack "detail" claim) ──
-    html.append(_build_price_moves_section(diffs))
-
-    # ── Section 1b: Decision triggers (actionable core, Phase 3.2) ──────────
-    dt = _build_decision_trigger_table(records)
-    if dt:
-        html.append(dt)
-
-    # ── Section 1c: PAYG product-model gaps (Phase 3.3) ─────────────────────
-    if records:
-        html.append(_build_payg_gap_table(records))
-
-    # ── Section 1d: Availability & access (Phase 3.4) ───────────────────────
-    if records:
-        html.append(_build_availability_note(records))
-
-    # ── Section 2: Committed pricing comparison ─────────────────────────────
-    # Omit entirely when the hand-maintained Nebius committed list is stale, rather
-    # than publish numbers we can't vouch for to an exec-facing page.
-    _cf_fresh, _cf_vdate, _cf_days = _committed_freshness()
-    if _cf_fresh:
-        html.append('<h2>Committed Pricing Comparison</h2>')
-        html.append(
-            '<p>Nebius committed pricing spans 9-month to 36-month terms (100%, 50%, and 30% '
-            'upfront options). The table below compares Nebius committed tiers against hyperscaler '
-            'reserved pricing. Nebius figures shown are enterprise tier (512+ GPUs), 100% upfront — '
-            'the most aggressive available rate. Standard tier (&lt;512 GPU) is ~5–10% higher. '
-            f'<em>Committed list verified {_cf_vdate}.</em></p>'
-        )
-        html.append(_build_committed_gap_table(records))
-        html.append(_build_prepay_note(records))
-    html.append(_build_field_committed_section(records))
-    html.append(_build_reserve_wins_section())
-    html.append(_build_short_term_reserved_section(records))
-    html.append(_build_capacity_block_section(records))
-    html.append(_build_committed_implication(records))
-
-    # ── Section 2b: Sales battlecards (Phase 3.5) ───────────────────────────
-    if records:
-        bc = _build_battlecards(records)
-        if bc:
-            html.append(bc)
-
-    # ── Section 3: Full peer price table by GPU ──────────────────────────────
-    html.append('<h2>Complete Market Sweep — On-Demand by GPU</h2>')
-    html.append(
-        '<p>All tracked providers sorted by price, each tagged: '
-        '<span data-type="status" data-color="blue">peer</span> = enterprise GPU cloud '
-        '(the direct competitive set), '
-        '<span data-type="status" data-color="grey">pricefighter</span> = commodity '
-        'marketplaces / VPS generalists competing on price, '
-        '<span data-type="status" data-color="purple">hyperscaler</span> = AWS/GCP/Azure/Oracle '
-        'rack-rate list (enterprise customers pay 40–57% less at 3yr committed). '
-        'Use the Executive Benchmark table above for apples-to-apples enterprise comparisons. '
-        'Serverless/managed platforms (Modal, Baseten, fal.ai, Deep Infra) are in their own '
-        'section below — per-second platform billing is not IaaS-comparable.</p>'
-    )
-    html.append(_build_peer_tables(records))
-    html.append(_build_qualified_catalogue_section(records, provider_status))
-    html.append(_build_platform_section(records))
-
-    # ── Section 3b: RTX PRO 6000 (2026-07-22: was thread-only, so the page had
-    # no visible presence for a SKU Nebius actively sells — compute team asked
-    # where it was) ──────────────────────────────────────────────────────────
-    html.append(_build_rtx_section(records))
-
-    # ── Section 4: Regional comparison ──────────────────────────────────────
-    html.append('<h2>Regional Price Comparison — All Providers by Geography</h2>')
-    html.append(
-        '<p>Cheapest price per provider within each geographic region. '
-        'Geo buckets aggregate across provider-specific region names so AWS us-east-1, '
-        'GCP us-east4, and Azure eastus can be compared in the same row. '
-        'On-demand, spot, and committed tiers shown separately.</p>'
-    )
-    html.append(_build_hyperscaler_tables(records))
-
-    # ── Section 5: Field intelligence ───────────────────────────────────────
-    intel_html = _build_field_intel_callout(records)
-    if intel_html:
-        html.append(intel_html)
-
-    # ── Provenance footer: ties every claim on this page to the run that made
-    # it (2026-07-14 external-review ask: run id + source timestamp on exec
-    # claims). GITHUB_RUN_ID/NUMBER exist only in the GHA build environment.
-    import os as _os
-    from schema import PARSER_VERSION as _pv
-    run_no = _os.environ.get("GITHUB_RUN_NUMBER")
-    run_id = _os.environ.get("GITHUB_RUN_ID")
-    prov = (f'build #{run_no} (<a href="https://github.com/koen-nebius/price-monitor/'
-            f'actions/runs/{run_id}">run log</a>)' if run_no and run_id
-            else 'local build')
-    html.append(
-        f'<p><em>Generated {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")} · '
-        f'{prov} · parser v{_pv} · data date {run_date}. '
-        f'Numbers are point-in-time public list prices unless marked as field intel; '
-        f'confidence and freshness caveats appear inline per section.</em></p>'
-    )
-
-    return "\n".join(html)
+def format_confluence_table(records, run_date, provider_status=None, diffs=None):
+    raw_records = records
+    records, notices = publication_records(records, run_date)
+    enrich_comparability(records)
+    diffs = _publication_diffs(diffs, records)
+    html = [f'<p><strong>GPU pricing · {escape(run_date)}</strong>. Observed public offers in $/GPU-hour. '
+            'The report date is not the verification date of every input.</p>',
+            '<p><a href="https://nebius.atlassian.net/wiki/pages/viewpage.action?pageId=2164457614">Capacity</a> · '
+            '<a href="https://nebius.atlassian.net/wiki/pages/viewpage.action?pageId=2285044257">Term benchmarks</a> · '
+            '<a href="https://nebius.atlassian.net/wiki/pages/viewpage.action?pageId=1970110707">Spot and short-term reservations</a></p>',
+            _input_notice_html(notices), _build_price_moves_section(diffs),
+            '<h2>Current on-demand benchmark</h2>',
+            '<p>Each enterprise provider contributes its cheapest eligible cluster-class offer (8-GPU SXM where available). '
+            'Single-card markets use a separate fallback. Provider counts describe this observed cohort, not market coverage. '
+            'List prices do not prove available capacity or realized transaction prices.</p>',
+            _build_executive_table(records)]
+    def detail(title, body):
+        return f'<div data-type="expand" data-title="{escape(title, quote=True)}">{body}</div>'
+    html.append(detail('Source dates, exclusions and comparison method',
+                       _run_health_line(provider_status) + _input_dates_html(records) + _build_local_storage_note()
+                       + _secondary_changes_html(diffs)))
+    html.append(detail('Negotiated deals and historical CRM wins',
+                       _build_field_committed_section(records) + _build_reserve_wins_section()))
+    html.append(detail('Short-term reservation observations', _build_short_term_reserved_section(records)))
+    html.append(detail('Full provider evidence, account catalogues and managed platforms',
+                       _build_peer_tables(records) + _build_qualified_catalogue_section(raw_records, provider_status)
+                       + _build_platform_section(records) + _build_rtx_section(records)))
+    html.append(detail('Regional and term price tables', _build_hyperscaler_tables(records)))
+    html.append('<p>Methodology correction, 18 September 2026: the Azure fractional-GPU and Together '
+                'on-demand changes previously reported on 17 September were source corrections. '
+                'Azure history is re-normalized from preserved instance prices; the affected Together '
+                'on-demand history is excluded because its true historical on-demand rate is unverified. '
+                'Archived raw observations are retained.</p>')
+    return '\n'.join(html)
 
 
 def _build_executive_table(records: List[PriceRecord]) -> str:
@@ -3003,29 +2341,6 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         )
 
     rows.append('</tbody></table>')
-    # Generate the peer list from the tier registry so it can't go stale (e.g. it
-    # used to hardcode "Gcore", which was demoted, and omitted Together AI).
-    ent_peers = ", ".join(_provider_display(p)
-                          for p in PROVIDER_TIERS["enterprise_gpu_cloud"] if p != "nebius")
-    rows.append(
-        '<p><em>'
-        f'Enterprise peers (from tier registry): {ent_peers}. '
-        'Criteria: GPU-first business, meaningful owned capacity (1,000+ GPUs), enterprise SLAs, active. '
-        'Excluded: Genesis Cloud (in liquidation 2025), Sesterce (broker/reseller model), '
-        'Denvr Dataworks (too small). '
-        'Hyperscaler column = cheapest of AWS / GCP / Azure / Oracle (on-demand list price; '
-        'enterprise customers typically pay 40–57% less at 3yr committed). '
-        'Nebius on-demand prices are uniform across regions (no US discount); availability by GPU: '
-        'H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private). '
-        'IREN: competitor named in enterprise sales calls; not yet tracked (no public pricing). '
-        '⚠️ L40S pricing risk: Nebius on-demand ($1.82) is only 2% below AWS on-demand ($1.86); '
-        'AWS L40S drops to ~$0.37 at 3yr committed — a 5× gap that Nebius has no committed L40S tier to counter. '
-        'GB200/GB300: Nebius has committed pricing for these GPUs (see table below) but no published on-demand rate. '
-        'Coverage: current-gen datacenter GPUs (H100, H200, B200, B300, L40S, GB200, GB300). '
-        'A100 (prior-gen) is excluded as demand has shifted to Hopper/Blackwell; AMD MI300X/MI325X '
-        'excluded as a separate ecosystem. Both can be added on request.'
-        '</em></p>'
-    )
     return "\n".join(rows)
 
 
@@ -3072,76 +2387,33 @@ def _term_bucket_cts(term: int):
     return None, f"{term}mo"
 
 
-def _build_field_committed_section(records: List[PriceRecord]) -> str:
-    """
-    Neocloud committed market from #price-intelligence (Phase: reserved-coverage).
-    Neoclouds rarely publish committed list prices, so the list table above is just
-    hyperscalers + Nebius (+ Civo). Their real reserved market is negotiated — and we
-    capture it. This surfaces the lowest committed deal per GPU as the realistic
-    reserved benchmark for the peers missing from the list table.
-    """
-    from collections import defaultdict as _dd
-    by_gpu = _dd(list)
-    for r in _load_intel(days=90):   # match the decision-trigger field-deal window
+def _build_field_committed_section(records):
+    """Dated observations without expired reference prices or invented prepay."""
+    html = ['<h3>Field price observations</h3><p>Sales-reported observations from the last 90 days; '
+            'not a representative market sample or proof of customer acceptance. Terms and prepayment differ. '
+            'Zero prepayment is shown only when explicitly recorded as known.</p>',
+            '<table><tbody><tr><th>GPU</th><th>Provider / $ per GPU-h</th><th>Months</th><th>Prepay</th><th>Reported date / source</th><th>Notes</th></tr>']
+    rows = sorted(_load_intel(days=90), key=lambda r: r.get('message_date', ''), reverse=True)
+    for r in rows:
         try:
-            term = int(float(r.get("term_months", "0") or 0))
-            px = float(r["price_per_gpu_hour_usd"])
-        except (ValueError, KeyError, TypeError):
+            term = float(r.get('term_months') or 0)
+            price = float(r.get('price_per_gpu_hour_usd') or 0)
+        except (ValueError, TypeError):
             continue
-        if term <= 0 or px <= 0:
-            continue   # committed deals only
-        by_gpu[(r.get("gpu_model") or "").upper()].append(
-            (px, term, r.get("provider_name") or r.get("provider_type") or "?",
-             r.get("prepay_pct") or "?"))
-    present = [g for g in GPU_ORDER + FIELD_ONLY_GPUS if by_gpu.get(g)]
-    if not present:
-        return ""
-    html = [
-        '<h3>Neocloud Committed — Negotiated Deals (field intel)</h3>',
-        '<p>Neoclouds rarely publish committed <em>list</em> prices, so the table above is '
-        'hyperscalers + Nebius. Their reserved market is negotiated — these are the lowest '
-        'committed deals seen in <strong>#price-intelligence</strong> (deal-specific, anonymized; '
-        'lower confidence than list prices), the realistic reserved benchmark for peers absent above. '
-        '<strong>Basis:</strong> the Nebius reference is the 512+ GPU tier at 100% upfront; most '
-        'field deals are 0% prepay, so true like-for-like gaps are wider than the deltas shown. '
-        'Evidence skews negative: AEs log competitor quotes and losses, wins are rarely posted.</p>',
-        '<table data-layout="full-width"><tbody>',
-        '<tr><th>GPU</th><th>Lowest committed deal</th><th>Term</th><th>Prepay</th><th>Source</th>'
-        '<th>Deals seen</th><th>vs Nebius committed (same term)</th></tr>',
-    ]
-    for g in present:
-        deals = by_gpu[g]
-        px, term, prov, prepay = min(deals, key=lambda x: x[0])
-        cts, term_label = _term_bucket_cts(term)
-        neb = _cheapest(records, "nebius", g, cts) if cts else None
-        if neb:
-            d = (px - neb) / neb * 100
-            color = "green" if d < 0 else "red"
-            vs = f'<span data-type="status" data-color="{color}">{d:+.0f}% vs Nebius ${neb:.2f}</span>'
-        else:
-            # No Nebius tier at the headline deal's term (e.g. 60mo GB300): fall back
-            # to the lowest deal at a term Nebius DOES offer, so the hottest SKUs
-            # never show an uncompared dash in the exec view.
-            vs = '—'
-            comparable = []
-            for px2, term2, prov2, _pp2 in deals:
-                cts2, lbl2 = _term_bucket_cts(term2)
-                neb2 = _cheapest(records, "nebius", g, cts2) if cts2 else None
-                if neb2:
-                    comparable.append((px2, lbl2, prov2, neb2))
-            if comparable:
-                px2, lbl2, prov2, neb2 = min(comparable, key=lambda x: x[0])
-                d2 = (px2 - neb2) / neb2 * 100
-                color = "green" if d2 < 0 else "red"
-                vs = (f'no Nebius tier at {term_label}; closest comparable ${px2:.2f} ({lbl2}, '
-                      f'<em>{_provider_display(prov2)}</em>) = <span data-type="status" '
-                      f'data-color="{color}">{d2:+.0f}% vs Nebius ${neb2:.2f}</span>')
-        prepay_str = f'{prepay}%' if str(prepay).isdigit() else str(prepay)
-        html.append(f'<tr><td><strong>{g}</strong></td><td><strong>${px:.2f}</strong></td>'
-                    f'<td>{term_label}</td><td>{prepay_str}</td>'
-                    f'<td><em>{_provider_display(prov)}</em></td><td>{len(deals)}</td><td>{vs}</td></tr>')
+        if price <= 0:
+            continue
+        known = str(r.get('prepay_known', '')).lower() in ('1', 'true', 'yes')
+        prepay = str(r.get('prepay_pct', 'unknown')) + '%' if known else 'unknown'
+        source = escape(r.get('message_date', 'unknown'))
+        ts = r.get('message_ts', '')
+        if ts.replace('.', '').isdigit():
+            source = f'<a href="https://nebius.slack.com/archives/C06PM90GV0U/p{ts.replace(".", "")}">{source}</a>'
+        html.append(f'<tr><td><strong>{escape(r.get("gpu_model", ""))}</strong></td>'
+                    f'<td>{escape(r.get("provider_name") or r.get("provider_type") or "undisclosed")} / ${price:.2f}</td>'
+                    f'<td>{format(term, "g") if term > 0 else "unreported / no term recorded"}</td>'
+                    f'<td>{escape(prepay)}</td><td>{source}</td><td>{escape(r.get("notes", ""))}</td></tr>')
     html.append('</tbody></table>')
-    return "\n".join(html)
+    return '\n'.join(html)
 
 
 def _build_prepay_note(records: List[PriceRecord]) -> str:
@@ -3509,7 +2781,7 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
 def _build_qualified_catalogue_section(records: List[PriceRecord],
                                        provider_status: dict = None) -> str:
     """Keep constrained public tariffs inspectable without implying buyability."""
-    refs = [r for r in records if is_qualified_catalogue_reference(r)]
+    refs = [r for r in records if is_qualified_catalogue_reference(r) or r.price_basis == "account_catalog"]
     if not refs:
         return ""
     refs = sorted(refs, key=lambda r: (r.provider, r.gpu_model, r.instance_type,
@@ -3529,7 +2801,7 @@ def _build_qualified_catalogue_section(records: List[PriceRecord],
     ]
     for r in refs:
         tier = CT_LABELS.get(r.consumption_type, r.consumption_type)
-        label = QUALIFIED_CATALOGUE_BASES[r.price_basis]
+        label = QUALIFIED_CATALOGUE_BASES.get(r.price_basis, "Account catalogue; deployment and public eligibility unverified")
         source = (f'<a href="{escape(r.source_url, quote=True)}">Official catalogue</a>'
                   if r.source_url else 'Source unavailable')
         location = r.region if r.region not in {'', 'unspecified'} else 'Not listed'
@@ -3600,10 +2872,8 @@ def _build_platform_section(records: List[PriceRecord]) -> str:
         'billing. These bundle orchestration/autoscaling — and some bill CPU/RAM '
         'on top (see basis notes) — so they are <strong>not comparable</strong> to '
         'raw IaaS cluster rates and are excluded from all peer medians and '
-        'position lines. Tracked because platform repricing is demand-side market '
-        'signal: platforms are among the largest GPU buyers, and their retail '
-        'rates set the ceiling on what raw compute can charge inference '
-        'workloads.</p>',
+            'position lines. Differences in service scope prevent these rates '
+            'from establishing a raw-compute price ceiling.</p>',
         '<table data-layout="default"><tbody>',
         '<tr><th>Provider</th><th>GPU</th><th>$/GPU-hr equiv.</th>'
         '<th>vs Nebius on-demand</th><th>Basis</th></tr>',
@@ -3826,16 +3096,11 @@ def _build_hyperscaler_tables(records: List[PriceRecord]) -> str:
 
     html.append(
         '<p><em>'
-        'Each cell shows the cheapest price for that provider in any region within that geography. '
-        'AWS: standard reserved, all-upfront effective rate (deepest discount, 100% prepaid). '
-        'GCP: Committed Use Discount (no upfront). '
-        'Azure: partial-upfront capacity reservation. '
-        '*Nebius on-demand prices are uniform across regions (no US discount); availability by GPU: '
-        'H100 eu-north1 only, H200 EU + us-central1, B200 us-central1 + me-west1, B300 uk-south1 (private). '
-        'Nebius committed = internal pricing model (enterprise tier, 100% upfront). '
-        'CoreWeave and Lambda: US regions only currently. '
-        '†Oracle on-demand prices sourced directly from the OCI price-list API; '
-        'Oracle does not publish GPU committed pricing publicly. '
+        'Regional-provider cells show the cheapest observed price in a region mapped to that geography. '
+        'Term groups can contain different payment options; verify the underlying offer before comparing terms. '
+        '*Nebius is a price reference: its displayed column is not evidence of availability in that geography. '
+        '†Oracle is an aggregator-sourced global reference repeated across geographies, not a regional quote. '
+        'Blank cells mean no eligible observation in this table, not that the provider does not serve the region. '
         'Geography buckets: US includes us-east/us-west/us-central; '
         'Europe includes eu-west/eu-central/eu-north/northeurope/westeurope; '
         'APAC includes ap-northeast/ap-southeast/asia-northeast/japaneast.'
@@ -3848,3 +3113,46 @@ def _price_td(price: Optional[float]) -> str:
     if price is None:
         return '<td>—</td>'
     return f'<td><strong>${price:.2f}</strong></td>'
+
+
+def _input_notice_html(notices):
+    rows, generated, stale = _load_reserve_wins()
+    items = list(notices)
+    if rows and stale:
+        items.append(f"CRM win aggregates generated {generated}: historical only; current comparison withheld")
+    if not items:
+        return '<p>All displayed quote observations meet the 48-hour freshness gate.</p>'
+    return '<p><strong>Comparison limits:</strong></p><ul>' + ''.join('<li>' + escape(n) + '</li>' for n in items) + '</ul>'
+
+
+def _input_dates_html(records):
+    by_source = defaultdict(list)
+    for r in records:
+        by_source[(r.provider, r.data_source)].append(r.fetched_at)
+    html = ['<table><tbody><tr><th>Input</th><th>Observation time range (UTC)</th><th>Rows</th></tr>']
+    for (provider, source), dates in sorted(by_source.items()):
+        html.append(f'<tr><td>{escape(provider)} / {escape(source)}</td><td>{escape(min(dates))} to {escape(max(dates))}</td><td>{len(dates)}</td></tr>')
+    html.append('</tbody></table>')
+    return '\n'.join(html)
+
+
+def _publication_diffs(diffs, records):
+    keys = {record_key(r) for r in records if is_public_benchmark_eligible(r)}
+    return [d for d in (diffs or []) if d.change_type == 'restatement' or
+            (d.provider, d.gpu_model, d.instance_type, d.region, d.consumption_type) in keys]
+
+
+def _secondary_changes_html(diffs):
+    rows = [d for d in (diffs or []) if d.change_type in ('reversion', 'catalog_reference_change', 'coverage_reference_change') or
+            (d.change_type == 'price_change' and d.provider.startswith(('cp_', 'sf_')))]
+    if not rows:
+        return ''
+    html = ['<h3>Other observed source changes</h3><p>Aggregator updates, returns to prior levels, '
+            'catalogue changes and gaps in coverage are retained here. They are not verified provider repricing events.</p>',
+            '<table><tbody><tr><th>Provider / GPU / region</th><th>Type</th><th>Old / new $ per GPU-h</th></tr>']
+    for d in rows:
+        old = format(d.old_price, '.4f') if d.old_price is not None else '—'
+        new = format(d.new_price, '.4f') if d.new_price is not None else '—'
+        html.append(f'<tr><td>{escape(d.provider)} / {escape(d.gpu_model)} / {escape(d.region)}</td>'
+                    f'<td>{escape(d.change_type)}</td><td>{old} / {new}</td></tr>')
+    return '\n'.join(html) + '</tbody></table>'

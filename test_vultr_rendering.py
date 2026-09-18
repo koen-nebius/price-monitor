@@ -66,7 +66,8 @@ class VultrRenderingTests(unittest.TestCase):
         self.assertEqual(diff._representative_spot_floor([spot, peer], "H100"), ("lambda", 2, 1))
 
     def test_catalogue_changes_not_actionable_moves(self):
-        old, new = offer(price=1), offer(price=2)
+        old = replace(offer(price=1), fetched_at="2026-09-16T01:00:00Z")
+        new = replace(offer(price=2), fetched_at="2026-09-17T01:00:00Z")
         with patch.object(diff, "_recent_price_levels", return_value={}):
             changes = diff.compute_diff([old], [new])
         self.assertEqual(changes[0].change_type, "catalog_reference_change")
@@ -111,8 +112,15 @@ class VultrRenderingTests(unittest.TestCase):
         self.assertIn("Vultr / H100", page)
         self.assertNotIn("<td>Vultr", page.split("<h2>Catalogue prices — deployment restricted or unconfirmed</h2>")[0])
         thread = diff.format_slack_message([], "2026-09-17", "https://example.invalid", records=rows)
-        self.assertIn("Catalogue prices (deployment restricted or unconfirmed): Vultr", thread)
-        self.assertIn("not live-stock observations", thread)
+        # The daily Slack reply is delta-only; standing catalogue detail stays on the page.
+        self.assertNotIn("Catalogue prices (deployment restricted or unconfirmed): Vultr", thread)
+        self.assertNotIn("$0.75", thread)
+        self.assertIn("Full change ledger", thread)
+        self.assertIn('data-type="expand"', page)
+        changes = diff.compute_diff([replace(rows[1], price_per_gpu_hour_usd=.5)], [rows[1]])
+        summary = diff.format_slack_summary(changes, "2026-09-17", "https://example.invalid", records=rows)
+        self.assertNotIn("→", summary)
+        self.assertNotIn("$0.75", summary)
 
     def test_reference_preserves_observation_time_and_cached_refresh_status(self):
         row = replace(offer(), fetched_at="2026-09-15T14:00:00+02:00")

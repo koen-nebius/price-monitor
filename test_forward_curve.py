@@ -160,7 +160,7 @@ class Build(unittest.TestCase):
         self.assertAlmostEqual(b300_36["bid_median_unstated"], 3.05, places=2)
         unstated_obs = [o for o in res["observations"] if o["side"] == "bid" and not o["known"]]
         self.assertEqual(len(unstated_obs), 3)
-        self.assertEqual(b300_36["list_nebius"], 4.55)
+        self.assertIsNone(b300_36["list_nebius"])  # June-verified manual list is expired at this as-of date
         self.assertEqual(b300_36["list_hyperscaler_min"], 9.0)
         self.assertGreater(b300_36["spread_pct"], 0)
         h100_12 = next(e for e in res["marks"] if e["tier"] == "H100" and e["tenor_months"] == 12)

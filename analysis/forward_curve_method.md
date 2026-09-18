@@ -1,4 +1,4 @@
-# GPU committed-price benchmarks: methodology (v1.4, 2026-09-16)
+# GPU committed-price benchmarks: methodology (v1.4.1, 2026-09-18)
 
 What the Confluence pages "GPU Committed-Price Benchmarks — Internal Marks" (tables)
 and "... — Interactive" (embedded single-file app) show, how the numbers are produced,
@@ -29,7 +29,7 @@ cell **that state their payment terms**. Cells below three such observations pri
 | class | file | what it is | enters the mark |
 |---|---|---|---|
 | competitor offers | `store/intel.csv` | offers/deals reported by sales in #price-intelligence. **Confirmed repeats removed** (`intel_quality.classify`): same provider, price and term within 7 days, or a seed row (May-2026 import) that repeats a retrieved row with the same or an anonymised provider or identical notes. 273 rows → 32 removed, 241 distinct offers on 2026-09-15; **5 rows that only resemble another row are kept and listed for review** (`store/intel_duplicates.csv`, column `action` = removed / review). A shared Slack message is not evidence of duplication: one message reported BoostRun (20k GPUs, US, Q4) and Nscale (15k GPUs, EU, Q1) at the same GB300 $3.80 for 36 months, two offers. Column `prepay_known` = 1 only when the quote states its prepayment (any non-zero value or an explicit zero); 118 of 273 do. When a same-provider repeat states the prepayment the earlier row lacked, the informative row is kept. | only rows with `prepay_known = 1`, weight 1 |
-| Nebius achieved | `store/reserve_tenor.csv` | Nebius signed reserve deals from CRM deal reviews, per tier × tenor × close month × payment bucket (deals, GPUs, lo/median/hi). **Published and pooled only as aggregates of ≥ 3 deals** (`aggregate_asks`: merged per quarter × payment type, then per quarter, then over the whole window; what is still under 3 deals is counted but its price withheld, weight 0). Payment type is the only prepay signal (upfront / prepaid monthly / postpaid → 100 / 8 / 0 % proxy); a cross-bucket aggregate prints "mixed". | yes; each month weighs min(deals, 3) and an aggregate carries the summed weight |
+| Nebius achieved | `store/reserve_tenor.csv` | Nebius signed reserve deals from CRM deal reviews, per tier × tenor × close month × payment bucket (deals, GPUs, lo/median/hi). **This mark leg is published and pooled only as aggregates of ≥ 3 deals** (`aggregate_asks`: merged per quarter × payment type, then per quarter, then over the whole window; what is still under 3 deals is counted but its price withheld, weight 0). Payment type is the only prepay signal (upfront / prepaid monthly / postpaid → 100 / 8 / 0 % proxy); a cross-bucket aggregate prints "mixed". | yes; each month weighs min(deals, 3) and an aggregate carries the summed weight |
 | public contracts | `store/public_contracts.csv` | 12 announced multi-year contracts from the SemiAnalysis deal table; implied $/GPU-hr assumes 8,760 billed hours, i.e. a lower bound | **no**, shown as reference |
 
 Offers with unstated payment terms (43 of the 123 in the 365-day window) are counted
@@ -203,7 +203,7 @@ Three classes joined the page after the data-breadth review of 2026-09-16. Each 
 
 **Nebius asked prices that did not (yet) sign** (`store/crm_asks.csv`, `scripts/refresh_crm_asks.py`, local weekly, same query rules as the signed-deal leg: Actual overview, reserve, no autorenewal, rack ÷ 72). Two classes, never pooled with each other or with anything else:
 
-- *lost*: deals in stage Closed lost. A lost ask is an upper bound on what that customer would pay. The CRM stores `closed_lost_reason_name/desc` but the text never names a price or a competitor, so no competitor price is implied.
+- *lost*: asked prices on deals in stage Closed lost. This class does not distinguish loss reasons; the recorded ask establishes neither willingness to pay nor a competitor price.
 - *proposal*: deals in Commercial Proposal or Agreement signing. What we are asking now, not yet accepted.
 
 Rows are per GPU × tenor bucket × class × close month × payment type (deal count, GPU sum, lo/median/hi). `forward_curve.load_crm_asks` merges rows over the last 365 days per GPU × tenor × class, takes the deal-weighted median of the monthly medians re-based to 0% prepayment through the payment-type proxy (upfront 100%, prepaid monthly 8%, postpaid 0%), applies no quote-date adjustment (stated on the page), and withholds the price of any cell under 3 deals (`CRM_ASK_MIN_DEALS`). The Market position graph draws them as hollow triangles (down = lost, up = open) re-based to the selected prepayment, with the deal count, months covered and 0%-basis asked range in the definitions block; both toggles default on and hide for PAYG (reserve deals only). First pull 2026-09-16: 345 cells since 2025-09; lost deal-months H200 147, H100 114, B200 113, B300 109, GB300 29, GB200 3, VR 1; open B300 40, B200 21, H200 17, GB300 14, H100 10, VR 1.
@@ -250,3 +250,16 @@ contracts files.
 ## Confidentiality
 Aggregates only for Nebius achieved; no customer names in offer notes. Internal only;
 never quote marks, achieved prices or the cost view to customers.
+
+
+## Reference cohorts and page review (2026-09-18)
+
+The default Confluence overview shows the marks, their confidence and input dates. The build date is distinct from the latest offer date, achieved-price extract, Finance grid version, public list snapshot, outcome extract and historical-path extract. A daily render does not refresh all those inputs. Full outcome cohorts, historical paths, comparison references, per-cell evidence and methodology remain in expandable sections; the interactive page retains Market benchmarks, Market position and Contract return.
+
+**Closed-deal outcomes** (`store/deal_cohorts.csv`, `scripts/refresh_deal_cohorts.py`) are reference classes, never mark inputs. Each GPU × tenor × recorded outcome × CRM source cell holds the line-item price median, opportunity and line counts, GPU quantity, close window and extraction date. HubSpot closes before the 2026-08-10 cutover and Salesforce closes from the cutover are displayed separately in both published views. The previous opportunity-weighted arithmetic average of their medians was not a pooled median. Underlying observations would be required to compute one; the renderers no longer manufacture a combined value.
+
+`lost_capacity` means the CRM loss reason contains "capacity"; it does not prove the customer accepted the recorded price. `lost_price_or_competitor` means the reason contains "pric" or "competitor"; it does not prove a willingness-to-pay ceiling or a competitor's price. These limits also apply to generic closed-lost asked-price markers. Keep those references distinct from observed competitor offers and signed-deal aggregates.
+
+**Historical ask-to-close paths** (`store/ask_to_close.csv`, `scripts/backfill_hubspot_ask_paths.py`) compare the first observed priced review with the last priced snapshot. Outcome, final price, quantity and term come from that same last priced snapshot; a later unpriced stage change is not represented as the final outcome. Lines already priced at the mirror's first snapshot are excluded from path aggregates because earlier ask/revision history is unknown. The HubSpot source is frozen, so extraction date is not current commercial activity.
+
+**Thresholds remain scoped to their evidence classes.** The achieved-price mark leg and lost/open asked-price markers require at least 3 deals. Closed-outcome references require at least 2 opportunities; historical-path references require at least 2 deals. The page states these separately rather than suggesting every confidential reference has a 3-deal minimum. This review changes presentation and interpretation; it does not change economics, mark computation, source extraction, or threshold policy.

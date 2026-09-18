@@ -36,14 +36,24 @@ class IntegrationTests(unittest.TestCase):
         rows = [offer("coreweave"), offer("cp_massedcompute")]
         self.assertEqual(prefer_massed_direct(rows, True), rows)
 
-    def test_account_catalogue_label_survives_slack_renderers(self):
+    def test_account_catalogue_stays_in_confluence_not_slack_market_moves(self):
         from schema import DiffEntry
-        from diff import format_slack_summary, format_slack_message, _provider_display
+        from diff import format_slack_summary, format_slack_message, format_confluence_table, _provider_display
         change = DiffEntry("massedcompute", "B200", "unspecified", "on_demand",
                            "gpu_8x_b200_SXM6", "price_change", 5.0, 6.0, 20.0)
+        account = offer("massedcompute", sku="gpu_8x_b200_SXM6", price=6.0)
+        account.price_basis = "account_catalog"
+        account.fetched_at = "2026-09-17T01:00:00Z"
         for render in (format_slack_summary, format_slack_message):
-            text = render([change], "2026-09-17", "https://example.invalid")
-            self.assertIn("Massed Compute (account catalogue)", text)
+            text = render([change], "2026-09-17", "https://example.invalid", records=[account])
+            self.assertNotIn("→", text)
+            self.assertNotIn("$6.00", text)
+        page = format_confluence_table([account], "2026-09-17", diffs=[change])
+        details = page.split('data-type="expand"', 1)[1]
+        self.assertIn("Massed Compute (account catalogue)", details)
+        self.assertIn("gpu_8x_b200_SXM6", details)
+        self.assertIn("2026-09-17", details)
+        self.assertNotIn("$6.00", page.split('data-type="expand"', 1)[0])
         self.assertEqual(_provider_display("massedcompute"), "Massed Compute (account catalogue)")
 
     def test_account_catalogue_does_not_change_public_rtx_median(self):
