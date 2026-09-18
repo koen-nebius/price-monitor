@@ -381,7 +381,7 @@ def _is_cluster_peer(r) -> bool:
     """
     if (r.form_factor or "").upper() != "SXM":
         return False
-    if r.source_feed in {"computeprices", "shadeform"} and r.parser_version == "aggregator-offers-1":
+    if r.parser_version in {"aggregator-offers-1", "direct-offers-1"}:
         return (r.gpu_count or 0) >= 8
     return (r.gpu_count or 0) >= 8 or (getattr(r, "node_gpus", 0) or 0) >= 8
 
@@ -2273,6 +2273,11 @@ def format_confluence_table(records, run_date, provider_status=None, diffs=None)
                        + _build_platform_section(records) + _build_rtx_section(records)))
     html.append(detail('Aggregator offers by configuration, region and term',
                        _aggregator_offers_html(raw_records, run_date)))
+    html.append(detail('Direct offers requiring qualification',
+                       _aggregator_offers_html(raw_records, run_date, direct_references=True)))
+    from coverage_report import build_price_coverage, render_coverage
+    html.append(detail('Coverage by competitor, GPU, region and purchase type',
+                       render_coverage(build_price_coverage(raw_records, run_date, provider_status))))
     html.append(detail('Regional and term price tables', _build_hyperscaler_tables(records)))
     html.append('<p>Methodology correction, 18 September 2026: the Azure fractional-GPU and Together '
                 'on-demand changes previously reported on 17 September were source corrections. '
@@ -3152,17 +3157,20 @@ def _input_dates_html(records):
     return '\n'.join(html)
 
 
-def _aggregator_offers_html(records, as_of):
+def _aggregator_offers_html(records, as_of, direct_references=False):
     """Inspectable offer evidence, including stale and unavailable listings."""
     from urllib.parse import urlsplit
     from source_priority import canonicalize_provider_sources
-    rows = [r for r in canonicalize_provider_sources(records)
-            if r.source_type == "aggregator" or r.source_feed in {"computeprices", "shadeform"}]
+    if direct_references:
+        rows = [r for r in records if r.parser_version == "direct-offers-1" and not r.comparison_eligible]
+    else:
+        rows = [r for r in canonicalize_provider_sources(records)
+                if r.source_type == "aggregator" or r.source_feed in {"computeprices", "shadeform"}]
     if not rows:
-        return '<p>No aggregator observations in this snapshot.</p>'
+        return '<p>No direct offers require qualification.</p>' if direct_references else '<p>No aggregator observations in this snapshot.</p>'
     html = ['<p>Each row is a source observation. Different configurations, regions, commercial tiers and terms '
             'are retained. A provider contributes once to the peer benchmark, even when several feeds cover it. '
-            'Aggregator listings are not negotiated transaction prices or proof of multi-node capacity. '
+            'Listings are not negotiated transaction prices or proof of multi-node capacity. '
             'Stale, undated and explicitly unavailable offers remain below but are excluded from current comparisons. '
             'Payment terms are unknown unless separately documented.</p>',
             '<table data-layout="full-width"><tbody><tr><th>Provider / feed</th><th>GPU / offer</th>'
@@ -3185,7 +3193,7 @@ def _aggregator_offers_html(records, as_of):
         if urlsplit(row.source_url).scheme in {"https", "http"}:
             source = f'<br /><a href="{escape(row.source_url, quote=True)}">Source</a>'
         html.append(
-            f'<tr><td>{escape(_provider_display(row.provider))}<br />{escape(row.source_feed or "aggregator")}</td>'
+            f'<tr><td>{escape(_provider_display(row.provider))}<br />{escape(row.source_feed or row.data_source or "unknown")}</td>'
             f'<td>{escape(row.gpu_variant or row.gpu_model)}<br />{escape(row.instance_type)}</td>'
             f'<td>{escape(row.region)}<br />{row.gpu_count:g} GPU(s), {escape(row.form_factor or "unknown")} / '
             f'{escape(row.interconnect or "unknown")}</td>'

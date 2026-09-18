@@ -59,7 +59,7 @@ class OfflineReportRebuildTests(unittest.TestCase):
             self.assertFalse(output["artifact_generation"]["comparison_available"])
             self.assertIn("comparison was not regenerated", (folder / "slack_message.txt").read_text())
             self.assertEqual(set(output["artifact_generation"]["artifacts"]),
-                             {"slack_message.txt", "slack_thread.txt", "confluence_body.html", "spot_auction_body.html", "report_diff_2026-09-18.json"})
+                             {"slack_message.txt", "slack_thread.txt", "confluence_body.html", "spot_auction_body.html", "report_diff_2026-09-18.json", "coverage.json"})
             for name, raw in protected.items(): self.assertEqual((folder / name).read_bytes(), raw)
             self.assertNotIn("delivered", output["artifact_generation"])
 

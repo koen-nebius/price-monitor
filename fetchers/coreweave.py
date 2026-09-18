@@ -1,15 +1,20 @@
 """
 CoreWeave pricing fetcher.
-Scrapes https://www.coreweave.com/gpu-cloud-pricing
+Scrapes https://www.coreweave.com/pricing, preserving published regional
+instance rows and host variants. Prices are per instance-hour.
 Page structure: table rows with h3[data-product], instance-price/spot-price spans,
 and spec cells rendered "<value> <label>" (GPU Count, VRAM, vCPUs, System RAM).
 """
+import hashlib
 import json
+from html import unescape
+from html.parser import HTMLParser
 import logging
+import math
 import re
 import urllib.request
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import List
 
 from schema import PriceRecord
 
@@ -18,7 +23,7 @@ logger = logging.getLogger(__name__)
 PRICING_URL = "https://www.coreweave.com/pricing"
 SOURCE_URL = PRICING_URL
 
-NEBIUS_GPUS = {"H100", "H200", "B200", "B300", "GB200", "GB300", "L40S"}
+NEBIUS_GPUS = {"H100", "H200", "B200", "B300", "GB200", "GB300", "L40S", "RTX6000"}
 
 # Map product_id (from data-product attr) → (gpu_model, gpu_count)
 PRODUCT_MAP = {
@@ -35,6 +40,7 @@ PRODUCT_MAP = {
     # the H100 bucket clean and avoid inflating the CoreWeave H100 price.
     # "nvidia-gh200":     ("H100",  1),  # excluded
     "nvidia-l40s":        ("L40S",  8),
+    "nvidia-rtx-pro-6000-blackwell-server-edition": ("RTX6000", 8),
 }
 
 
@@ -56,86 +62,115 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
         return []
 
 
+class _PricingRows(HTMLParser):
+    """Read each complete responsive table row under its published region heading."""
+    def __init__(self):
+        super().__init__(convert_charrefs=False)
+        self.rows, self.parts = [], []
+        self.depth = 0
+        self.heading = None
+        self.region = "unknown"
+        self.row_region = "unknown"
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if not self.depth and tag == "h5":
+            self.heading = []
+        if tag == "div" and "table-row-v2" in attrs.get("class", "").split():
+            if not self.depth:
+                self.parts, self.row_region = [], self.region
+                self.depth = 1
+            else:
+                self.depth += 1
+        elif self.depth and tag == "div":
+            self.depth += 1
+        if self.depth:
+            self.parts.append(self.get_starttag_text())
+
+    def handle_startendtag(self, tag, attrs):
+        if self.depth:
+            self.parts.append(self.get_starttag_text())
+
+    def handle_endtag(self, tag):
+        if self.depth:
+            self.parts.append(f"</{tag}>")
+            if tag == "div":
+                self.depth -= 1
+                if not self.depth:
+                    self.rows.append((self.row_region, "".join(self.parts)))
+        if tag == "h5" and self.heading is not None:
+            match = re.search(r"REGION:\s*(.+)", "".join(self.heading), re.I)
+            if match:
+                self.region = unescape(match.group(1)).strip().upper()
+            self.heading = None
+
+    def handle_data(self, data):
+        if self.depth:
+            self.parts.append(data)
+        if self.heading is not None:
+            self.heading.append(data)
+
+    def handle_entityref(self, name):
+        self.handle_data(f"&{name};")
+
+    def handle_charref(self, name):
+        self.handle_data(f"&#{name};")
+
+
 def _parse_html(html: str, now: str) -> List[PriceRecord]:
-    records = []
-    seen = set()  # tracks (gpu_model, ct) only
-
-    row_pattern = re.compile(
-        r'<h3[^>]*data-product="([^"]+)"[^>]*>.*?</h3>(.*?)'
-        r'(?=<h3[^>]*data-product=|$)',
-        re.DOTALL,
-    )
-
-    for row_m in row_pattern.finditer(html):
-        product_id = row_m.group(1)
-        block = row_m.group(2)
-        text = re.sub(r'<[^>]+>', ' ', block)
-        text = re.sub(r'\s+', ' ', text).strip()
-
-        gpu_model, gpu_count = _match_product(product_id)
+    parser = _PricingRows()
+    parser.feed(html)
+    records, seen = [], set()
+    for region, block in parser.rows:
+        heading = re.search(r'<h3\b[^>]*data-product=["\']([^"\']+)["\'][^>]*>(.*?)</h3>', block, re.S | re.I)
+        if not heading:
+            continue
+        product_id = heading.group(1)
+        title = unescape(re.sub(r"<[^>]+>", " ", heading.group(2))).strip()
+        gpu_model, _ = _match_product(product_id)
         if gpu_model is None:
             continue
-
-        # Spec cells of the same row, e.g. "128 vCPUs 2,048 System RAM 8 GPU Count".
-        # vCPUs are published as threads (no conversion). Header says "System RAM
-        # (GB)" but CoreWeave defines GB as binary 2^30 and values are power-of-two
-        # DIMM totals → GiB as published, number kept. CoreWeave GPU instances are
-        # whole bare-metal nodes (8-GPU HGX host; "4^1" = 2-Superchip GB200/GB300
-        # tray per footnote 1), so the row's GPU Count is also the node GPU count.
+        text = re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", block))).strip()
+        # The priced unit is the actual row's GPU Count, never an NVL72 name.
+        gpu_count = _spec(text, "GPU Count")
+        if not gpu_count:
+            continue
         vcpu = _spec(text, "vCPUs")
         ram_gb = _spec(text, "System RAM", float)
-        node_gpus = _spec(text, "GPU Count")
-
-        od_m = re.search(r'On-Demand Price:\s*\$([0-9.]+)', text)
-        spot_m = re.search(r'Spot Price:\s*\$([0-9.]+)', text)
-
-        # All CoreWeave records use us-central-1 (their primary region)
-        region = "us-central-1"
-
-        if od_m:
-            price = float(od_m.group(1))
-            key = (gpu_model, "on_demand")
-            if key not in seen:
-                seen.add(key)
-                records.append(PriceRecord(
-                    provider="coreweave",
-                    gpu_model=gpu_model,
-                    gpu_count=gpu_count,
-                    instance_type=product_id,
-                    region=region,
-                    consumption_type="on_demand",
-                    price_per_hour_usd=price,
-                    price_per_gpu_hour_usd=price / gpu_count,
-                    vcpu=vcpu,
-                    ram_gb=ram_gb,
-                    node_gpus=node_gpus,
-                    fetched_at=now,
-                    source_url=SOURCE_URL,
-                    data_source="web_scrape",
-                ))
-
-        if spot_m:
-            price = float(spot_m.group(1))
-            key = (gpu_model, "spot")
-            if key not in seen:
-                seen.add(key)
-                records.append(PriceRecord(
-                    provider="coreweave",
-                    gpu_model=gpu_model,
-                    gpu_count=gpu_count,
-                    instance_type=product_id,
-                    region=region,
-                    consumption_type="spot",
-                    price_per_hour_usd=price,
-                    price_per_gpu_hour_usd=price / gpu_count,
-                    vcpu=vcpu,
-                    ram_gb=ram_gb,
-                    node_gpus=node_gpus,
-                    fetched_at=now,
-                    source_url=SOURCE_URL,
-                    data_source="web_scrape",
-                ))
-
+        storage_tb = _spec(text, "Local Storage (TB)", float)
+        variant = ("High Memory" if "(High Memory)" in title else
+                   "Standard Memory" if "(Standard Memory)" in title else "")
+        form_factor = ("SXM" if "HGX" in title else "NVL" if "NVL72" in title else
+                       "PCIe" if gpu_model in {"L40S", "RTX6000"} else "unknown")
+        for ct, label in (("on_demand", "On-Demand Price"), ("spot", "Spot Price")):
+            match = re.search(re.escape(label) + r":\s*\$([\d,]+(?:\.\d+)?)", text)
+            if not match:
+                continue  # Contact sales and N/A are not numeric offers.
+            price = float(match.group(1).replace(",", ""))
+            if not math.isfinite(price) or price <= 0:
+                continue
+            identity = (product_id, title, gpu_count, vcpu, ram_gb, storage_tb, region, ct)
+            offer_id = "coreweave:" + hashlib.sha256(json.dumps(identity).encode()).hexdigest()[:24]
+            record = PriceRecord(
+                provider="coreweave", gpu_model=gpu_model, gpu_count=gpu_count,
+                instance_type=product_id, region=region, consumption_type=ct,
+                price_per_hour_usd=price, price_per_gpu_hour_usd=price / gpu_count,
+                vcpu=vcpu, ram_gb=ram_gb,
+                # CoreWeave explicitly defines 1 TB = 1024 GB on this page.
+                storage_gb=storage_tb * 1024 if storage_tb is not None else None,
+                node_gpus=gpu_count, form_factor=form_factor, interconnect="unknown",
+                fetched_at=now, source_observed_at=now, source_url=SOURCE_URL,
+                data_source="web_scrape", parser_version="direct-offers-1",
+                offer_id=offer_id, gpu_variant=title, offer_variant=variant,
+                price_basis="public_instance_rate",
+                comparison_eligible=not (gpu_model == "RTX6000" and not variant),
+                correction_reason=("CoreWeave RTX host memory variant is unspecified"
+                                   if gpu_model == "RTX6000" and not variant else ""),
+            )
+            observation = json.dumps(record.to_dict(), sort_keys=True)
+            if observation not in seen:
+                seen.add(observation)
+                records.append(record)
     return records
 
 
@@ -159,7 +194,10 @@ def _spec(text: str, label: str, cast=int):
     if not m:
         return None
     try:
-        val = cast(float(m.group(1).replace(",", "")))
+        numeric = float(m.group(1).replace(",", ""))
+        if not math.isfinite(numeric) or (cast is int and not numeric.is_integer()):
+            return None
+        val = cast(numeric)
     except (ValueError, OverflowError):
         return None
     return val if val > 0 else None  # a 0/garbage cell is "unknown", not a spec

@@ -169,8 +169,12 @@ class LambdaCapacityIntegrationTests(unittest.TestCase):
         self.assertIn("lambda", missing)
         manifest = {"provider_status": {"lambda": {"status": "failed"}}}
         with patch.object(render, "PENDING_ACTIVATION", missing):
-            self.assertIn("API access pending; no fresh observations",
+            # Explicit observed failure outranks the legacy static activation list.
+            self.assertIn("Fetch failed; observations not refreshed this run",
                           render._lambda_instance_table([], manifest))
+            pending = {"provider_status": {"lambda": {"status": "pending"}}}
+            self.assertIn("API access pending; no fresh observations",
+                          render._lambda_instance_table([], pending))
         with patch.object(insights, "PENDING_ACTIVATION", configured), patch.object(render, "PENDING_ACTIVATION", configured):
             self.assertEqual(insights.freshness(manifest)["failed"], ["lambda"])
             page = render.render_confluence([], [], manifest, [])

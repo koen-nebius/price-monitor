@@ -329,6 +329,13 @@ def parse(items: list, now: str, seen: Optional[set] = None) -> List[PriceRecord
             continue
         seen.add(key)
 
+        # CoreWeave has distinct Standard/High Memory RTX hosts. The feed's
+        # cheapest OD and spot observations can describe different hosts; price
+        # coincidence cannot establish the missing configuration.
+        unknown_rtx_host = (
+            provider_slug.lower() == "coreweave" and gpu_model == "RTX6000"
+            and not re.search(r"\b(?:high|standard)[ -]memory\b", variant, re.I)
+        )
         records.append(PriceRecord(
             provider=f"cp_{provider_slug}",   # prefix to distinguish from direct scrapers
             gpu_model=gpu_model,
@@ -352,6 +359,10 @@ def parse(items: list, now: str, seen: Optional[set] = None) -> List[PriceRecord
             form_factor=("SXM" if "sxm" in gpu_label else "PCIe" if "pcie" in gpu_label
                          else "NVL" if "nvl" in gpu_label else "unknown"),
             parser_version="aggregator-offers-1",
+            comparison_eligible=not unknown_rtx_host,
+            correction_reason=("CoreWeave RTX host memory variant is unspecified; "
+                               "on-demand and spot may describe different configurations"
+                               if unknown_rtx_host else ""),
         ))
 
     return records

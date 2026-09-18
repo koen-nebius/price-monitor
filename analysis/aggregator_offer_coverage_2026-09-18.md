@@ -1,8 +1,10 @@
 # Aggregator pricing coverage — 18 September 2026
 
-Aggregator offers are a first-class evidence source for CoreWeave. Access to a
-public rate card does not replace access to aggregator offers, and does not
-justify dropping that provider from aggregator ingestion.
+Aggregator observations are retained as a separate CoreWeave evidence feed.
+The inspected ComputePrices CoreWeave entries relay the published CoreWeave
+rate card; they do not establish private negotiated offers or bookable stock.
+Dropping an entire provider at ingestion loses potentially useful regional
+and configuration evidence, even when a direct public scraper exists.
 
 ## Implemented scope
 
@@ -45,6 +47,19 @@ transaction prices or cluster configuration comparability. All six fresh rows
 have unknown availability signals.
 
 ## Evidence and release boundary
+
+A subsequent source-level reconciliation on 18 September checked all 30 API
+prices against CoreWeave's public regional instance table. Prices reconcile
+after per-GPU rounding, but this is not blanket configuration validation:
+the four RTX PRO 6000 feed rows omit the host-memory variant. Their on-demand
+and spot rates match different published host variants. These four rows now
+remain reference-only, without guessing configuration from price. Two of the
+six rows passing the timestamp gate are therefore excluded from comparisons.
+The B300 VRAM metadata also differs between feed and provider table; matching
+prices do not settle that metadata disagreement.
+
+See [the next coverage implementation](competition_coverage_2026-09-18.md)
+for direct collector repairs, the coverage tables and the opt-in Prime pilot.
 
 - [ComputePrices API documentation](https://computeprices.com/docs/api)
 - [ComputePrices OpenAPI schema](https://computeprices.com/api/v1/openapi.json)

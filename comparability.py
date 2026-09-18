@@ -95,7 +95,7 @@ def _classify(r: PriceRecord) -> Tuple[str, str]:
     it = (r.instance_type or "").lower()
     model = (r.gpu_model or "").upper()
 
-    if r.source_feed in {"computeprices", "shadeform"} and r.parser_version == "aggregator-offers-1":
+    if r.parser_version in {"aggregator-offers-1", "direct-offers-1"}:
         # These collectors retain the actual variant. Missing SKU evidence must
         # not be filled from a provider-wide or GPU-family assumption.
         return "unknown", "unknown"
@@ -131,6 +131,7 @@ def enrich_comparability(records: List[PriceRecord]) -> List[PriceRecord]:
         prov = r.provider.lower()
         base = prov[3:] if prov.startswith("cp_") else prov
         if base in _PER_GPU_CLUSTER_PROVIDERS and r.form_factor == "SXM" \
+                and r.parser_version != "direct-offers-1" \
                 and not r.source_feed and r.source_type != "aggregator" \
                 and (getattr(r, "node_gpus", 0) or 0) < 8:
             r.node_gpus = 8

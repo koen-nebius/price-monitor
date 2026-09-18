@@ -583,6 +583,9 @@ def run(providers=None, test=False):
     confluence_body = format_confluence_table(accepted_records, run_date,
                                               provider_status=provider_status,
                                               diffs=diffs)
+    from coverage_report import build_price_coverage
+    pricing_coverage = build_price_coverage(accepted_records, datetime.now(timezone.utc), provider_status)
+    (STORE_DIR / "coverage.json").write_text(json.dumps(pricing_coverage, indent=2) + "\n")
     # Separate competitor spot/auction page for the PVM Auctions project (own pipeline output)
     spot_auction_body = format_spot_auction_page(accepted_records, run_date)
     with open(STORE_DIR / "spot_auction_body.html", "w") as f:
@@ -654,6 +657,7 @@ def run(providers=None, test=False):
         "generated_outputs": {
             "slack_message":    True,
             "confluence_body":  True,
+            "coverage":         True,
         },
     }
     save_run_manifest(manifest)

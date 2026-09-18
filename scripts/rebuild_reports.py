@@ -22,6 +22,7 @@ import diff as renderer
 from config import ALERT_THRESHOLD_PCT, CONFLUENCE_PAGE_URL, provider_tier
 from report_freshness import publication_records
 from schema import PriceRecord
+from coverage_report import build_price_coverage
 
 
 def _hash(value: bytes) -> str:
@@ -146,6 +147,7 @@ def rebuild_reports(store_dir=ROOT / "store", *, previous_snapshot=None,
                        or any(d.change_type == "restatement" for d in diffs))
         providers = original.get("provider_status", {})
         outputs = {
+            "coverage.json": json.dumps(build_price_coverage(records, original["completed_at"], providers), indent=2),
             "slack_message.txt": renderer.format_slack_summary(
                 diffs, run_date, CONFLUENCE_PAGE_URL, records=records,
                 provider_status=providers, post_thread=post_thread, weekly=weekly),
@@ -175,6 +177,7 @@ def rebuild_reports(store_dir=ROOT / "store", *, previous_snapshot=None,
     manifest["generated_outputs"] = {**original.get("generated_outputs", {}),
                                      "slack_message": True, "slack_thread": True,
                                      "confluence_body": True, "spot_auction_body": True}
+    manifest["generated_outputs"]["coverage"] = True
     manifest["artifact_generation"] = {
         "mode": "offline_regeneration", "generated_at": generated,
         "source": source, "comparison_baseline": previous[2] if previous else None,

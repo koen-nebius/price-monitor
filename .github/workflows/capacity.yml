@@ -30,7 +30,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install boto3>=1.34.0
+        run: pip install "boto3>=1.34.0"
 
       - name: Check inventory integration
         run: |
@@ -40,6 +40,7 @@ jobs:
           python3 -m unittest discover -p 'test_lambda_capacity*.py'
           python3 -m unittest discover -p 'test_scaleway*.py'
           python3 -m unittest discover -p 'test_capacity_review*.py'
+          python3 -m unittest test_capacity_failed_feeds test_capacity_fetch_health test_coverage_report
 
       - name: Bootstrap Confluence page (idempotent, soft-fail)
         # Creates "GPU Competitor Capacity — Live Overview" under the pricing
@@ -89,7 +90,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add capacity/store/peer_cache.json capacity/store/last_snapshot.json \
-                  capacity/store/history.csv capacity/store/run_manifest.json \
+                  capacity/store/history.csv capacity/store/run_manifest.json capacity/store/coverage.json \
                   capacity/store/slack_message.txt capacity/store/slack_thread.txt \
                   capacity/store/confluence_body.html capacity/store/confluence_publish.json
           git add capacity/store/confluence_page.json 2>/dev/null || true

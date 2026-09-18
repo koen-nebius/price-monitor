@@ -69,7 +69,7 @@ def _fresh_line(manifest: dict) -> Tuple[str, str]:
     f = insights.freshness(manifest)
     n_act, n_live = len(f["activated"]), len(f["live"])
     bits = []
-    if not f["failed"] and not f["stale"]:
+    if n_act and n_live == n_act and not f["pending"] and not f["paused"]:
         short = f"Feeds: all {n_live} live"
         color = "green"
     else:
@@ -77,16 +77,22 @@ def _fresh_line(manifest: dict) -> Tuple[str, str]:
             bits.append("cached today: " + ", ".join(PROVIDER_LABELS.get(p, p) for p in f["stale"]))
         if f["failed"]:
             bits.append("down: " + ", ".join(PROVIDER_LABELS.get(p, p) for p in f["failed"]))
-        short = f"Feeds: {n_live}/{n_act} live ({'; '.join(bits)})"
+        if f["partial"]:
+            bits.append("partial: " + ", ".join(PROVIDER_LABELS.get(p, p) for p in f["partial"]))
+        if f["empty"]:
+            bits.append("empty catalogue: " + ", ".join(PROVIDER_LABELS.get(p, p) for p in f["empty"]))
+        short = f"Feeds: {n_live}/{n_act} live" + (f" ({'; '.join(bits)})" if bits else "")
         color = "yellow"
     pend = f" · {len(f['pending'])} awaiting access" if f["pending"] else ""
     pause = (" · access paused: " + ", ".join(PROVIDER_LABELS.get(p, p) for p in f["paused"])) if f["paused"] else ""
-    if f["paused"] and not n_act:
+    if not n_act:
         short = "Feeds: no active checks"
     if f["paused"]:
         color = "yellow"
+    html_label = f"{n_live}/{n_act} feeds live" if n_act else "No active checks"
     html = (f'<span data-type="status" data-color="{color}">'
-            f'{n_live}/{n_act} feeds live</span>'
+            f'{html_label}</span>'
+            + (f" <em>{_esc('; '.join(bits))}</em>" if bits else "")
             + (f"<em>{pend}{pause}</em>" if pend or pause else ""))
     return short + pend + pause, html
 
@@ -374,12 +380,28 @@ def _provider_read_freshness(provider: str, manifest: dict = None) -> str:
     state = status.get("status")
     age = status.get("cache_age_hours")
     age_note = f" (cache age {age:g}h)" if isinstance(age, (int, float)) else ""
+    details = []
+    if status.get("reason"):
+        details.append(str(status["reason"]))
+    if status.get("error_code"):
+        details.append(str(status["error_code"]))
+    planned, completed = status.get("planned_checks"), status.get("completed_checks")
+    if type(planned) is int and type(completed) is int:
+        details.append(f"{completed}/{planned} checks completed")
+    unqueried = status.get("unqueried_checks")
+    if isinstance(unqueried, list) and unqueried:
+        details.append(f"{len(unqueried)} checks unqueried")
+    detail_note = "; " + "; ".join(details) if details else ""
     if state in {"cached", "cache"}:
-        return "Cached observation; not refreshed this run" + age_note
+        return "Cached observation; not refreshed this run" + age_note + detail_note
     if state in {"failed", "error"}:
-        if provider in PENDING_ACTIVATION:
-            return "API access pending; no fresh observations" + age_note
-        return "Fetch failed; observations not refreshed this run" + age_note
+        return "Fetch failed; observations not refreshed this run" + age_note + detail_note
+    if state == "partial":
+        return "Partial retrieval; full configured scope not established" + detail_note
+    if state == "empty":
+        return "Empty catalogue; current GPU inventory unknown" + detail_note
+    if state == "pending":
+        return "API access pending; no fresh observations" + detail_note
     if state == "paused":
         return "Access paused: " + status.get("reason", "authenticated checks suspended pending review")
     if state == "live":
@@ -801,9 +823,9 @@ def render_confluence(records: List[AvailabilityRecord],
         if b == "paused":
             cls = "access paused"
             sem = _provider_read_freshness(prov, manifest) + "; authoritative availability unavailable, not zero stock."
-        if prov in ("hyperstack", "verda") and prov in PENDING_ACTIVATION and b == "failed":
+        if prov in ("hyperstack", "verda") and b == "pending":
             b = "pending key (via Shadeform ✱)"
-        elif b == "failed" and prov in {p for p in PENDING_ACTIVATION}:
+        elif b == "pending":
             b = "pending activation"
         h.append(f"<tr><td>{_esc(PROVIDER_LABELS.get(prov, prov.title()))}</td>"
                  f"<td>{_esc(CLASS_LABEL.get(cls, cls))}</td><td>{_esc(sem)}</td>"
@@ -826,6 +848,12 @@ def render_confluence(records: List[AvailabilityRecord],
     h.append("<p><em>Generated from the capacity monitor's recorded observations.</em></p>")
     h.append("</ac:rich-text-body></ac:structured-macro>")
 
+    from coverage_report import build_capacity_coverage, render_coverage
+    coverage = build_capacity_coverage(records, completed or day, manifest.get("provider_status"))
+    h.append('<ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">'
+             'Coverage by competitor, GPU, region and purchase type</ac:parameter><ac:rich-text-body>')
+    h.append(render_coverage(coverage))
+    h.append('</ac:rich-text-body></ac:structured-macro>')
     return "\n".join(h)
 
 
@@ -850,5 +878,10 @@ def write_artifacts(records: List[AvailabilityRecord],
     (STORE_DIR / "slack_thread.txt").write_text(slack_thread)
     (STORE_DIR / "confluence_body.html").write_text(
         render_confluence(records, diff, manifest, old_records))
+    import json
+    from coverage_report import build_capacity_coverage
+    coverage = build_capacity_coverage(records, manifest.get("completed_at") or manifest.get("run_date"),
+                                       manifest.get("provider_status"))
+    (STORE_DIR / "coverage.json").write_text(json.dumps(coverage, indent=2) + "\n")
     logger.info("Capacity artifacts written: slack_message.txt, slack_thread.txt, "
                 "confluence_body.html")

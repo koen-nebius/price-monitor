@@ -1,19 +1,16 @@
 """
 Verda (ex-DataCrunch, verda.com) fetcher — public no-auth instance-types API.
 
-Added 2026-08-11 from the B300/GB300/Vera-Rubin price research: Verda is the
-only provider besides Oracle publishing a machine-readable GB300 price
-(OD $8.62 / spot $4.31 per GPU at launch), plus B300, B200, H200, H100, L40S
-and RTX PRO 6000 — all in USD, all with spot. Finnish DC footprint
-(ex-DataCrunch); listed on getdeploying/gpus.io with matching numbers.
-
 API: GET https://api.verda.com/v1/instance-types  (no auth, JSON list; prices
 are strings, gpu.number_of_gpus carries the count; per-instance pricing —
-divide by count). Verified 2026-08-11: multi-GPU sizes price linearly, so we
-keep the largest config per (gpu, ct) to represent node-scale pricing without
-changing the per-GPU rate.
+divide by that row's count). Retain every instance configuration and rental
+type, including non-linear prices across sizes. The endpoint supplies no
+per-region price; region remains unknown. Confidential-compute variants are
+retained as qualified references rather than mixed with standard instances.
 """
+import hashlib
 import json
+import math
 import logging
 import urllib.request
 from datetime import datetime, timezone
@@ -28,8 +25,7 @@ SOURCE_URL = "https://verda.com/pricing"
 
 # Verda `name` → our model. "RTX 6000 Ada" deliberately absent (older 48GB Ada
 # card, NOT the Blackwell RTX PRO 6000 — same trap as the ComputePrices map);
-# "RTX PRO 6000 CC" (confidential-compute variant) also skipped: same silicon,
-# special config, would double-count against the standard card.
+# Confidential-compute variants are retained as separately qualified references.
 GPU_NAME_MAP = {
     "GB300 SXM6 288GB": "GB300",
     "B300 SXM6 268GB":  "B300",
@@ -38,6 +34,9 @@ GPU_NAME_MAP = {
     "H100 SXM5 80GB":   "H100",
     "L40S 48GB":        "L40S",
     "RTX PRO 6000 96GB": "RTX6000",
+    "RTX PRO 6000 CC 96GB": "RTX6000",
+    "B200 CC SXM6 180GB": "B200",
+    "B300 CC SXM6 268GB": "B300",
 }
 
 
@@ -52,71 +51,71 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
         return []
 
     items = data if isinstance(data, list) else data.get("data", [])
-    # Largest config per (gpu_model, ct) — per-GPU rate is linear across sizes.
-    best: dict = {}
-    node_size: dict = {}   # gpu_model → largest dedicated config in the payload
-    for it in items:
-        gpu_model = GPU_NAME_MAP.get(it.get("name") or "")
-        if not gpu_model:
-            continue
-        if (it.get("currency") or "usd").lower() != "usd":
-            logger.warning(f"Verda: non-USD row skipped ({it.get('instance_type')})")
-            continue
-        n = (it.get("gpu") or {}).get("number_of_gpus") or 0
-        try:
-            od = float(it.get("price_per_hour") or 0)
-            sp = float(it.get("spot_price") or 0)
-        except (ValueError, TypeError):
-            continue
-        if n <= 0:
-            continue
-        # Specs from the same row: cpu.number_of_cores is Verda's vCPU count (equals
-        # the ".NV" suffix of instance_type, e.g. 8B300.240V → 240; Shadeform lists
-        # the same SKU as vcpus=240), so no ×2. memory.size_in_gigabytes = system
-        # RAM of this SKU, GB as published. Missing/invalid → None, never inferred.
-        try:
-            vcpu = int((it.get("cpu") or {}).get("number_of_cores") or 0) or None
-            ram_gb = float((it.get("memory") or {}).get("size_in_gigabytes") or 0) or None
-        except (ValueError, TypeError, AttributeError):   # AttributeError: cpu/memory not a dict
-            vcpu = ram_gb = None
-        node_size[gpu_model] = max(node_size.get(gpu_model, 0), n)
-        for ct, price in (("on_demand", od), ("spot", sp)):
-            if price <= 0:
-                continue
-            per_gpu = price / n
-            if per_gpu < 0.10 or per_gpu > 30:   # unit-error guard
-                logger.warning(f"Verda: implausible ${per_gpu:.2f}/GPU-hr for "
-                               f"{it.get('instance_type')} {ct} — skipped")
-                continue
-            key = (gpu_model, ct)
-            if key not in best or n > best[key][0]:
-                best[key] = (n, per_gpu, price, it.get("instance_type", ""), vcpu, ram_gb)
+    records = parse(items, now)
+    logger.info("Verda: %d distinct price offers", len(records))
+    return records
 
-    records = []
-    for (gpu_model, ct), (n, per_gpu, total, itype, vcpu, ram_gb) in best.items():
-        records.append(PriceRecord(
-            provider="verda",
-            gpu_model=gpu_model,
-            gpu_count=n,
-            instance_type=itype,
-            region="fi-01",   # Finnish DCs (ex-DataCrunch); API has no per-region prices
-            consumption_type=ct,
-            price_per_hour_usd=total,
-            price_per_gpu_hour_usd=round(per_gpu, 4),
-            vcpu=vcpu,
-            ram_gb=ram_gb,
-            # Verda sells dedicated hosts; the largest size it lists for this GPU in
-            # the payload (8x HGX, 4x GB300 tray) is the node — same premise as the
-            # largest-config rule above. Not an explicit node-size field.
-            node_gpus=node_size.get(gpu_model) or None,
-            fetched_at=now,
-            source_url=SOURCE_URL,
-            data_source="official_api",
-        ))
-    if records:
-        by_gpu = sorted({f"{g} {'/'.join(c for (gg, c) in best if gg == g)}"
-                         for (g, _c) in best})
-        logger.info(f"Verda: {len(records)} records ({', '.join(by_gpu)})")
-    else:
-        logger.warning("Verda: no matching GPU instance types")
+
+def _number(value, *, integer=False):
+    if isinstance(value, bool) or value is None:
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if not math.isfinite(number) or number <= 0 or (integer and not number.is_integer()):
+        return None
+    return int(number) if integer else number
+
+
+def parse(items, now):
+    """Keep every documented instance shape; the catalogue has no region prices."""
+    records, seen = [], set()
+    for it in items if isinstance(items, list) else []:
+        if not isinstance(it, dict):
+            continue
+        name = it.get("name") or ""
+        currency = it.get("currency")
+        if not isinstance(name, str) or not isinstance(currency, str):
+            continue
+        gpu_model = GPU_NAME_MAP.get(name)
+        if not gpu_model or currency.lower() != "usd":
+            continue
+        def spec(parent, field, integer=False):
+            obj = it.get(parent)
+            return _number(obj.get(field), integer=integer) if isinstance(obj, dict) else None
+        n = spec("gpu", "number_of_gpus", True)
+        sku = it.get("instance_type")
+        if not n or not isinstance(sku, str) or not sku.strip():
+            continue
+        vcpu = spec("cpu", "number_of_cores", True)
+        ram_gb = spec("memory", "size_in_gigabytes")
+        storage_gb = spec("storage", "size_in_gigabytes")
+        cc = " CC " in name
+        form_factor = "SXM" if "SXM" in name else "PCIe" if gpu_model in {"L40S", "RTX6000"} else "unknown"
+        for ct, field in (("on_demand", "price_per_hour"), ("spot", "spot_price")):
+            price = _number(it.get(field))
+            if price is None or not .10 <= price / n <= 30:
+                continue
+            # Unknown is explicit: a provider-wide tariff is not a fi-01 quote.
+            region = "unknown"
+            identity = (it.get("id"), sku, name, n, vcpu, ram_gb, storage_gb, region, ct)
+            offer_id = "verda:" + hashlib.sha256(json.dumps(identity).encode()).hexdigest()[:24]
+            row = PriceRecord(
+                provider="verda", gpu_model=gpu_model, gpu_count=n, instance_type=sku,
+                region=region, consumption_type=ct, price_per_hour_usd=price,
+                price_per_gpu_hour_usd=price / n, vcpu=vcpu, ram_gb=ram_gb,
+                storage_gb=storage_gb, node_gpus=n, form_factor=form_factor,
+                interconnect="unknown", fetched_at=now, source_observed_at=now,
+                source_url=API, data_source="official_api", parser_version="direct-offers-1",
+                offer_id=offer_id, gpu_variant=name,
+                offer_variant="Confidential compute" if cc else "",
+                price_basis="public_instance_rate",
+                comparison_eligible=not cc,
+                correction_reason="Confidential-compute configuration; separate comparison required" if cc else "",
+            )
+            observation = json.dumps(row.to_dict(), sort_keys=True)
+            if observation not in seen:
+                seen.add(observation)
+                records.append(row)
     return records

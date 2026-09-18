@@ -57,6 +57,9 @@ jobs:
       - name: Check aggregator offer coverage and provenance
         run: python3 -m unittest test_computeprices_offers test_shadeform_parse test_aggregator_integration test_aggregator_history
 
+      - name: Check retained configurations and coverage reporting
+        run: python3 -m unittest test_direct_offer_retention test_coverage_report test_primeintellect_pilot
+
       - name: Merge field-intel inbox (Confluence -> intel.csv)
         # Plan-2 migration (2026-07-10): the posting routine parks extracted
         # intel on the Confluence "Field Intel Inbox" page (2054817562) because
@@ -178,7 +181,7 @@ jobs:
           # 07:00 CCR can post them verbatim without re-fetching. run_manifest
           # carries run_date so the CCR can confirm the artifacts are today's.
           git add store/peer_cache.json store/last_snapshot.json store/history.csv \
-                  store/run_manifest.json store/slack_message.txt \
+                  store/run_manifest.json store/coverage.json store/slack_message.txt \
                   store/slack_thread.txt store/confluence_body.html \
                   store/spot_auction_body.html store/intel.csv \
                   store/provider_baseline.json store/position_history.csv \

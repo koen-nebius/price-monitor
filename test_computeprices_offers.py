@@ -25,6 +25,30 @@ def offer(**changes):
 
 
 class ComputePricesOfferTests(unittest.TestCase):
+    def test_coreweave_rtx_unknown_host_variant_is_retained_but_never_inferred_from_price(self):
+        from report_freshness import publication_records
+        from comparability import is_public_benchmark_eligible
+        rows = cp.parse([
+            offer(gpu="RTX PRO 6000", variant=None, total_hourly_usd=20),
+            offer(gpu="RTX PRO 6000", variant=None, pricing_type="spot", total_hourly_usd=9.56),
+            offer(gpu="RTX PRO 6000", variant="Dedicated", pricing_type="spot", total_hourly_usd=11.09),
+        ], NOW)
+        self.assertEqual(len(rows), 3)
+        self.assertEqual([r.price_per_hour_usd for r in rows], [20, 9.56, 11.09])
+        self.assertTrue(all(r.ram_gb is None for r in rows))
+        self.assertTrue(all(not is_public_benchmark_eligible(r) for r in rows))
+        self.assertTrue(all("memory variant is unspecified" in r.correction_reason for r in rows))
+        eligible, notices = publication_records(rows, NOW)
+        self.assertEqual(eligible, [])
+        self.assertTrue(any("different configurations" in notice for notice in notices))
+        # Only source-provided variant evidence can lift this qualification.
+        explicit = cp.parse([offer(gpu="RTX PRO 6000", variant="High Memory", total_hourly_usd=9.56),
+                             offer(gpu="RTX PRO 6000", variant="Standard Memory", total_hourly_usd=9.56)], NOW)
+        self.assertTrue(all(r.comparison_eligible for r in explicit))
+        self.assertNotEqual(explicit[0].offer_id, explicit[1].offer_id)
+        other = cp.parse([offer(provider="Other", provider_slug="other", gpu="RTX PRO 6000", variant=None)], NOW)
+        self.assertTrue(other[0].comparison_eligible)
+
     def test_coreweave_retained_with_source_identity(self):
         row = cp.parse([offer()], NOW)[0]
         self.assertEqual((row.provider, row.source_feed), ("cp_coreweave", "computeprices"))

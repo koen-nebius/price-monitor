@@ -1,31 +1,12 @@
+"""Hyperstack public per-GPU rate cards, preserving every printed variant.
+
+The page publishes maximum resources per GPU, not exact priced VM shapes.
+Reservation starting-from rates omit their term and must remain references.
 """
-Hyperstack (NexGen Cloud) pricing fetcher.
-
-Data availability (verified June 2026):
-  H100, H200: on_demand + reserved prices in static HTML at /gpu-pricing ✓
-  H100: spot price also in HTML ✓
-  B200: listed as "Contact us" — no public numeric price
-  B300: reservation-only, no public on-demand price found
-  GB200/GB300: not on pricing page
-
-The Infrahub Pricebook API exists but requires authentication (401).
-The public /gpu-pricing page contains prices in rendered HTML text.
-
-Three pricing sections parsed from stripped page text:
-  On-demand: "NVIDIA H200 SXM 141 22 225 $3.50"
-             (GPU name | VRAM GB | Max pCPUs per GPU | Max RAM GB per GPU | $/GPU-hr)
-  Reserved:  "NVIDIA H200 SXM $2.45 Reserve here"
-             (GPU name | starting-from $/GPU-hr | "Reserve here")
-  Spot VM:   "NVIDIA H100 PCIe $1.52" (under "Spot VM Pricing" header)
-
-H100 ships in several form factors that all map to our single "H100" model
-(on-demand: SXM $2.40, NVLink $1.95, PCIe/plain $1.90). ComputePrices and
-main.py's Phase 1.9 cross-check both collapse variants to the CHEAPEST on-demand
-price per (provider, gpu_model). We do the same here: keep the lowest price per
-(gpu_model, consumption_type). Keeping the first DOM row instead picked the
-priciest variant (SXM) and made Hyperstack look ~21% over its true cheapest price.
-"""
+import hashlib
+import json
 import logging
+from html import unescape
 import re
 import urllib.request
 from datetime import datetime, timezone
@@ -46,6 +27,7 @@ HYPERSTACK_GPU_MAP = {
     "B200": "B200",   # public since ~Aug 2026 ($6.00 OD / $5.10 reserved)
     "B300": "B300",   # public since Aug 2026 ($7.40 OD)
     "A100": None,
+    "RTX PRO 6000": "RTX6000",
     "RTX":  None,
     "L40":  None,
 }
@@ -80,124 +62,68 @@ def _scrape_pricing(now: str) -> List[PriceRecord]:
     return records
 
 
+_SKU = r"(?:H100|H200|B200|B300)(?:\s+(?:SXM\d*|NVLink|PCIe))?|RTX\s+Pro\s+6000\s+SE"
+
+
 def _parse_pricing(raw: str, now: str) -> List[PriceRecord]:
-    # Strip scripts/styles/tags; normalize markdown pipes -> spaces so the same
-    # space-separated regexes match both raw HTML and Tavily markdown tables.
-    text = re.sub(r'<script[^>]*>.*?</script>', ' ', raw, flags=re.DOTALL)
-    text = re.sub(r'<style[^>]*>.*?</style>',  ' ', text, flags=re.DOTALL)
-    text = re.sub(r'<[^>]+>', ' ', text)
-    text = text.replace('&nbsp;', ' ').replace('|', ' ')
-    text = re.sub(r'\s+', ' ', text).strip()
-
-    # (gpu_model, consumption_type) -> (cheapest price seen, SKU name as printed).
-    # Multiple H100 form factors collapse to one model; keep the lowest, matching how
-    # ComputePrices and main.py's cross-check normalize variants (see module docstring).
-    best: dict = {}
-    # SKU name as printed -> (Max pCPUs per GPU, Max RAM GB per GPU) from the on-demand
-    # table. Reserved/spot rows print only a price, so they look up the same-named SKU.
-    specs: dict = {}
-
-    def _offer(gpu_model: str, ct: str, price: float, sku: str) -> None:
-        if not (0.5 <= price <= 20):
-            return
-        key = (gpu_model, ct)
-        if key not in best or price < best[key][0]:
-            best[key] = (price, sku)
-
-    # ── On-demand: distinctive pattern "NVIDIA <GPU> <vram> <vcpu> <ram> $<price>" ──
-    # Three numbers between GPU name and price distinguish on-demand rows from
-    # reservation rows which have only "$price Reserve here"
-    for m in re.finditer(
-        r'NVIDIA\s+((?:H100|H200|B200|B300)(?:\s+\w+)?)\s+\d[\d.]+\s+(\d+)\s+(\d+)\s+\$?\s*([\d.]+)',
-        text, re.IGNORECASE
-    ):
-        gpu_model = _match_gpu(m.group(1))
-        if not gpu_model:
-            continue
-        try:
-            price = float(m.group(4))
-        except ValueError:
-            continue
+    text = re.sub(r'<(?:script|style)\b[^>]*>.*?</(?:script|style)>', ' ', raw, flags=re.S | re.I)
+    text = re.sub(r'\s+', ' ', unescape(re.sub(r'<[^>]+>', ' ', text)).replace('|', ' ')).strip()
+    offers, specs = [], {}
+    # Explicit maximum allowance columns are attached to that printed SKU.
+    od_pattern = rf'NVIDIA\s+({_SKU})\s+\d[\d.]*\s+(\d+)\s+(\d+)\s+\$\s*([\d.]+)'
+    for m in re.finditer(od_pattern, text, re.I):
         sku = m.group(1).upper()
-        specs[sku] = (int(m.group(2)), float(m.group(3)))   # pCPUs/GPU, RAM GB/GPU
-        _offer(gpu_model, "on_demand", price, sku)
-
-    # ── Reserved: "NVIDIA <GPU> $<price> Reserve here" (starting-from price) ──
-    for m in re.finditer(
-        r'NVIDIA\s+((?:H100|H200|B200|B300)(?:\s+\w+)?)\s+\$?\s*([\d.]+)\s+Reserve\s+here',
-        text, re.IGNORECASE
-    ):
-        gpu_model = _match_gpu(m.group(1))
-        if not gpu_model:
+        profile = (int(m.group(2)), float(m.group(3)))
+        specs.setdefault(sku, set()).add(profile)
+        offers.append((sku, "on_demand", float(m.group(4)), profile))
+    reserve_pattern = rf'NVIDIA\s+({_SKU})\s+\$\s*([\d.]+)\s+Reserve\s+here'
+    for m in re.finditer(reserve_pattern, text, re.I):
+        offers.append((m.group(1).upper(), "reserved_unknown", float(m.group(2)), None))
+    sections = list(re.finditer(r'Spot VM Pricing', text, re.I))
+    if sections:
+        spot_text = re.split(r'On-Demand CPU Pricing|Storage Pricing|Frequently',
+                             text[sections[-1].end():], maxsplit=1, flags=re.I)[0]
+        for m in re.finditer(rf'NVIDIA\s+({_SKU})\s+\$\s*([\d.]+)', spot_text, re.I):
+            offers.append((m.group(1).upper(), "spot", float(m.group(2)), None))
+    records, seen = [], set()
+    for sku, ct, price, profile in offers:
+        model = _match_gpu(sku)
+        if not model or not .5 <= price <= 20:
             continue
-        try:
-            _offer(gpu_model, "reserved_1yr", float(m.group(2)), m.group(1).upper())
-        except ValueError:
-            continue
-
-    # ── Spot VM: after "Spot VM Pricing" header (not the nav "Spot VMs" menu) ──
-    # Use rfind-style: find the occurrence that's followed by prices
-    spot_start = -1
-    for m in re.finditer(r'Spot VM Pricing', text):
-        spot_start = m.start()  # take the last match
-    if spot_start >= 0:
-        spot_text = text[spot_start:spot_start + 500]
-        for m in re.finditer(
-            r'NVIDIA\s+((?:H100|H200|B200|B300)(?:\s+\w+)?)\s+\$?\s*([\d.]+)',
-            spot_text, re.IGNORECASE
-        ):
-            gpu_model = _match_gpu(m.group(1))
-            if not gpu_model:
-                continue
-            try:
-                _offer(gpu_model, "spot", float(m.group(2)), m.group(1).upper())
-            except ValueError:
-                continue
-
-    return [
-        _make_record(gpu_model, ct, price, now, *specs.get(sku, (None, None)))
-        for (gpu_model, ct), (price, sku) in best.items()
-    ]
-
-
-# Largest public VM flavor per model (per-GPU rate is flat across sizes, so we
-# represent node scale like verda.py does). Verified 2026-09-02 from
-# hyperstack.cloud/gpu-pricing + docs flavors: B300's ONLY flavor is
-# n3-B300-SXM6x8 (8× SXM6) — the old hardcoded gpu_count=1 made these SXM cards
-# look like single-GPU VMs and silently dropped Hyperstack from the
-# cluster-class (8×SXM) peer set (why B300 showed "1 peer only").
-_MAX_NODE_GPUS = {"H100": 8, "H200": 8, "B200": 8, "B300": 8}
+        if profile is None:
+            same_sku = specs.get(sku, set())
+            profile = next(iter(same_sku)) if len(same_sku) == 1 else (None, None)
+        row = _make_record(model, ct, price, now, *profile, sku=sku)
+        observation = json.dumps(row.to_dict(), sort_keys=True)
+        if observation not in seen:
+            seen.add(observation)
+            records.append(row)
+    return records
 
 
 def _make_record(gpu_model: str, ct: str, price: float, now: str,
                  pcpu_per_gpu: Optional[int] = None,
-                 ram_gb_per_gpu: Optional[float] = None) -> PriceRecord:
-    count = _MAX_NODE_GPUS.get(gpu_model, 1)
+                 ram_gb_per_gpu: Optional[float] = None, *, sku: str = "") -> PriceRecord:
+    # The documented rate is per GPU and published CPU/RAM figures are maxima.
+    # Do not invent an eight-GPU host or claim a regional deployment entitlement.
+    slug = re.sub(r"[^a-z0-9]+", "-", sku.lower()).strip("-")
+    factor = "SXM" if "SXM" in sku else "PCIe" if "PCIE" in sku or gpu_model == "RTX6000" else "unknown"
+    identity = (sku, ct, pcpu_per_gpu, ram_gb_per_gpu)
+    offer_id = "hyperstack:" + hashlib.sha256(json.dumps(identity).encode()).hexdigest()[:24]
+    reserved = ct == "reserved_unknown"
     return PriceRecord(
-        provider="hyperstack",
-        gpu_model=gpu_model,
-        gpu_count=count,
-        # instance_type is part of record_key() — keep the historical string so
-        # the gpu_count fix doesn't fire fake removed/added diffs.
-        instance_type=f"hyperstack-{gpu_model.lower()}",
-        region="global",
-        consumption_type=ct,
-        price_per_hour_usd=round(price * count, 4),
-        price_per_gpu_hour_usd=price,
-        # vcpu/ram_gb come from the on-demand table's "Max pCPUs per GPU" / "Max RAM
-        # (GB) per GPU" columns × this record's gpu_count (the page quotes per-GPU
-        # figures; the record is the 8-GPU flavor). A Hyperstack pCPU is a dedicated
-        # host CPU pinned to the VM = one guest vCPU (docs flavors list the same
-        # numbers as the flavor's CPU count, e.g. n3-H100x1 = 28), so it is counted
-        # as a thread with no ×2. RAM is GB as published. Rows whose SKU name has no
-        # on-demand row (e.g. spot "H100 PCIe") stay None.
-        vcpu=pcpu_per_gpu * count if pcpu_per_gpu else None,
-        ram_gb=ram_gb_per_gpu * count if ram_gb_per_gpu else None,
-        # Full physical node = the largest public flavor (8× for every tracked model).
-        node_gpus=_MAX_NODE_GPUS.get(gpu_model),
-        fetched_at=now,
-        source_url=SOURCE_URL,
-        data_source="web_scrape",
+        provider="hyperstack", gpu_model=gpu_model, gpu_count=1,
+        instance_type=f"hyperstack-{slug}", region="unknown", consumption_type=ct,
+        price_per_hour_usd=price, price_per_gpu_hour_usd=price,
+        # These are per-GPU upper limits, labelled in price_basis/offer_variant.
+        vcpu=pcpu_per_gpu, ram_gb=ram_gb_per_gpu, node_gpus=1,
+        form_factor=factor, interconnect="NVLink" if "NVLINK" in sku else "unknown",
+        fetched_at=now, source_observed_at=now, source_url=SOURCE_URL,
+        data_source="web_scrape", parser_version="direct-offers-1", offer_id=offer_id,
+        gpu_variant=sku, offer_variant="Per-GPU rate; CPU/RAM are maximum allowances",
+        price_basis="published_starting_from_unknown_term" if reserved else "per_gpu_rate_card_max_resources",
+        comparison_eligible=not reserved,
+        correction_reason="Reservation starting-from tariff has no published commitment term" if reserved else "",
     )
 
 
