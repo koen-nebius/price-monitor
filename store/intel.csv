@@ -1,274 +1,275 @@
-message_ts,message_date,gpu_model,price_per_gpu_hour_usd,term_months,prepay_pct,provider_type,provider_name,notes,prepay_known
-seed_20260528_01,2026-05-28,B200,3.68,36,0,hyperscaler,Oracle,3yr 0% prepay committed deal,1
-seed_20260522_01,2026-05-22,B300,3.60,60,25,undisclosed,Undisclosed,5yr 25% prepay large cluster,1
-seed_20260519_01,2026-05-19,H100,1.80,12,0,hyperscaler,AWS,1yr 0% down 232-GPU cluster,1
-seed_20260518_01,2026-05-18,B200,3.68,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay quote,1
-seed_20260515_01,2026-05-15,B200,4.36,12,100,broker,Axe Compute,63-node bare metal 100% down 12m Canada,1
-seed_20260515_02,2026-05-15,B200,4.46,24,25,broker,Axe Compute,63-node bare metal 25% down 24m Canada,1
-seed_20260514_01,2026-05-14,B300,4.00,36,20,hyperscaler,AWS,3yr 20% prepay indicative,1
-seed_20260514_02,2026-05-14,GB300,5.00,24,40,undisclosed,Undisclosed,2yr 40% prepay delivery June,1
-seed_20260514_03,2026-05-14,GB300,4.30,36,35,undisclosed_neocloud,Undisclosed EU neocloud,3yr 30-40 rack cluster H2 availability,1
-seed_20260513_01,2026-05-13,B300,4.30,18,50,undisclosed,Undisclosed,18mo 50% upfront 80-GPU European deal,1
-seed_20260511_01,2026-05-11,B200,4.00,12,100,hyperscaler,AWS,1yr 100% prepay 400-GPU APAC deal,1
-seed_20260511_02,2026-05-11,B300,4.20,12,100,neocloud,Lambda,1yr 100% prepay 1024-GPU deal,1
-seed_20260508_01,2026-05-08,B200,3.20,24,0,hyperscaler,GCP,2yr 0% prepay,1
-seed_20260508_02,2026-05-08,B200,3.70,12,0,hyperscaler,GCP,1yr 0% prepay,1
-seed_20260508_03,2026-05-08,H200,2.00,12,0,hyperscaler,AWS,1yr 0% prepay,1
-seed_20260508_04,2026-05-08,B300,3.50,36,0,hyperscaler,Azure,3yr committed 5000-GPU lost deal,0
-seed_20260508_05,2026-05-08,B300,3.70,24,0,neocloud,CoreWeave,2yr 0% prepay APAC deal,1
-seed_20260508_06,2026-05-08,B300,3.80,12,0,neocloud,CoreWeave,1yr 0% prepay APAC deal,1
-seed_20260508_07,2026-05-08,B300,4.00,0,0,hyperscaler,AWS,monthly payment terms large cluster,1
-seed_20260505_01,2026-05-05,B200,4.25,12,40,broker,Blue Sky Compute,1yr 40% prepay 256-GPU 4-8wk go-live,1
-seed_20260505_02,2026-05-05,B300,4.75,24,25,undisclosed,Undisclosed,2yr 25% prepay leading provider,1
-seed_20260501_01,2026-05-01,GB300,3.09,60,100,undisclosed,Undisclosed,5yr 100% upfront UAE market,1
-seed_20260501_02,2026-05-01,GB300,3.50,36,100,undisclosed,Undisclosed,3yr 100% upfront UAE market,1
-seed_20260501_03,2026-05-01,GB300,4.00,36,50,undisclosed,Undisclosed,3yr 50% upfront UAE market,1
-seed_20260428_01,2026-04-28,GB300,6.18,12,30,nebius,Nebius,Nebius own quote for reference 30% down 1yr,1
-seed_20260414_01,2026-04-14,B200,3.45,0,0,undisclosed,Undisclosed,on-demand 600-GPU deal,0
-seed_20260414_02,2026-04-14,B200,4.25,0,25,hyperscaler,AWS,through reseller 25% down,1
-seed_20260413_01,2026-04-13,VR,4.75,36,25,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 25% prepay Vera Rubin GPU deal,1
-seed_20260413_02,2026-04-13,B300,3.95,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay biotech deal,1
-seed_20260409_01,2026-04-09,B300,3.98,36,25,neocloud,CoreWeave,3yr 25% down Jan 2027 earliest delivery,1
-seed_20260402_01,2026-04-02,GB300,4.00,36,0,neocloud,CoreWeave (unconfirmed),3yr 0% upfront 5000-GPU deal,1
-seed_20260402_02,2026-04-02,H100,2.35,12,0,undisclosed,Undisclosed,$2.00-$2.70 range 1yr reservation,0
-seed_20260313_01,2026-03-13,B200,2.85,24,0,undisclosed,Undisclosed,$2.80-$2.90 range multiyear with prepay,0
-seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-node broker offer,1
-1779927609.062969,2026-05-28,B200,3.68,36,0,hyperscaler,Oracle,3yr 0% prepay 512 GPUs,1
-1779453952.318479,2026-05-22,B300,3.6,60,25,undisclosed_neocloud,HUMAIN,5yr 25% down 4k B300s London Aug availability,1
-1779206116.969039,2026-05-19,H100,1.8,12,0,hyperscaler,AWS,1yr 0% down 232-GPU deal,1
-1779107728.747939,2026-05-18,B200,3.68,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay hyperscaler quote,1
-1778870469.336729,2026-05-15,B200,4.46,12,50,broker,Axe Compute,63-node bare metal 50% down 12m Canada,1
-1778870469.336729,2026-05-15,B200,4.46,24,25,broker,Axe Compute,63-node bare metal 25% down 24m Canada,1
-1778870469.336729,2026-05-15,B200,4.36,12,100,broker,Axe Compute,63-node bare metal 100% down 12m Canada,1
-1778793265.826279,2026-05-14,B300,4.0,36,20,hyperscaler,AWS,3yr 20% prepay Sep availability,1
-1778792937.752849,2026-05-14,GB300,5.0,24,40,undisclosed,Undisclosed,2yr 40% prepay delivery June ramp through Aug,1
-1778779567.610869,2026-05-14,GB300,4.3,36,0,undisclosed_neocloud,Undisclosed EU neocloud,3yr 30-40 rack H2 availability,0
-1778779567.610869,2026-05-14,GB300,4.5,24,0,undisclosed_neocloud,Undisclosed EU neocloud,2yr 30-40 rack H2 availability,0
-1778659992.974979,2026-05-13,B300,4.3,18,50,undisclosed,Undisclosed,18mo 50% upfront 80-GPU European deal,1
-1778498257.915789,2026-05-11,B200,4.0,12,100,hyperscaler,AWS,1yr 100% prepay 400-GPU APAC B200,1
-1778498257.915789,2026-05-11,B300,4.2,12,100,neocloud,Lambda,1yr 100% prepay 1024-GPU B300,1
-1778251159.227129,2026-05-08,B200,3.2,24,0,hyperscaler,GCP,2yr 0% prepay,1
-1778251159.227129,2026-05-08,B200,3.7,12,0,hyperscaler,GCP,1yr 0% prepay,1
-1778251159.227129,2026-05-08,H200,2.0,12,0,hyperscaler,AWS,1yr 0% prepay no payment needed,1
-1778230171.438679,2026-05-08,B300,3.5,36,0,hyperscaler,Azure,3yr committed 5000-GPU lost deal,0
-1778230171.438679,2026-05-08,B300,3.7,24,0,neocloud,CoreWeave,2yr 0% prepay APAC deal,1
-1778230171.438679,2026-05-08,B300,3.8,12,0,neocloud,CoreWeave,1yr 0% prepay APAC deal,1
-1778220816.521299,2026-05-08,B300,4.0,0,0,hyperscaler,AWS,monthly payment terms large cluster,1
-1778220816.521299,2026-05-08,B300,4.0,36,0,hyperscaler,AWS,3yr committed 500-1K B300s,0
-1778005793.502519,2026-05-05,B200,4.25,12,40,broker,Blue Sky Compute,1yr 40% prepay 256-GPU 4-8wk go-live,1
-1778001475.012579,2026-05-05,B300,4.75,24,25,undisclosed,Undisclosed,2yr 25% prepay leading provider deal,1
-1777599795.012079,2026-05-01,GB300,3.09,60,100,neocloud,Mistral,5yr 100% upfront UAE market,1
-1777599795.012079,2026-05-01,GB300,3.5,36,100,neocloud,Mistral,3yr 100% upfront UAE market,1
-1777599795.012079,2026-05-01,GB300,4.0,36,50,neocloud,Mistral,3yr 50% upfront UAE market,1
-1777387064.743909,2026-04-28,GB300,5.0,12,30,undisclosed_hyperscaler,Undisclosed hyperscaler,1yr 30% down comp quote,1
-1777387064.743909,2026-04-28,GB300,5.0,12,30,undisclosed_neocloud,Undisclosed neocloud,1yr 30% down comp quote,1
-1777319802.876079,2026-04-27,B300,19.25,36,0,hyperscaler,AWS,3yr CDW partner list price non-discounted,0
-1776195934.303569,2026-04-14,B200,3.45,0,0,undisclosed,Undisclosed,on-demand 600-GPU deal,0
-1776195386.853129,2026-04-14,B200,4.35,0,0,broker,Lyceum,AWS nodes German broker 0% down,1
-1776195386.853129,2026-04-14,B200,4.25,0,25,broker,Lyceum,AWS nodes German broker 25% down,1
-1776113165.196659,2026-04-13,VR,4.75,36,25,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 25% prepay Vera Rubin GPU deal,1
-1776103400.900209,2026-04-13,B300,3.95,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay biotech w/ PR obligations,1
-1776103400.900209,2026-04-13,B300,4.0,0,0,neocloud,CoreWeave,July 2026 availability low $4s unconfirmed,0
-1775752732.729229,2026-04-09,B300,3.98,36,25,neocloud,CoreWeave,3yr 25% down 256 GPUs Jan 2027 earliest,1
-1775158906.616219,2026-04-02,GB300,4.0,36,0,neocloud,CoreWeave (unconfirmed),3yr 0% upfront 5000-GPU deal,1
-1775104471.134239,2026-04-02,H100,2.0,12,0,undisclosed,Undisclosed,1yr reservation $2-$2.70 range lower bound,0
-1773433467.443049,2026-03-13,B200,2.8,24,0,undisclosed,Undisclosed,multiyear $2.80-$2.90 range with prepay,0
-1773244814.588709,2026-03-11,B200,4.5,0,0,neocloud,Hydrahost,one month 64-node B200,0
-1773244814.588709,2026-03-11,B300,3.5,24,0,neocloud,Hydrahost,2yr 0% upfront 64-node B300,1
-1772731887.282889,2026-03-05,B200,3.42,36,0,hyperscaler,Oracle,3yr 1k GPUs North America Aug availability,0
-1772731887.282889,2026-03-05,B200,3.2,60,0,hyperscaler,Oracle,5yr initial proposal 1k GPUs North America,0
-1772538555.986939,2026-03-03,B200,4.0,0,0,neocloud,GMI Cloud,1 month term on-demand,0
-1772228908.750069,2026-02-27,B200,3.85,12,20,broker,Undisclosed,1yr 20% down InfiniBand aggregator offer,1
-1772084259.091249,2026-02-26,B300,4.25,0,35,broker,Undisclosed,marketplace 2500 GPUs March delivery,1
-1771847940.814249,2026-02-23,B200,4.26,12,0,neocloud,Lambda,1yr reserve raised from $3.49,0
-1771847940.814249,2026-02-23,B200,4.62,0,0,neocloud,Lambda,on-demand raised from $3.79,0
-1770687750.323659,2026-02-10,VR,4.74,60,0,undisclosed,Undisclosed,NVIDIA pricing model 5yr Vera Rubin,0
-1769448492.806549,2026-01-26,B200,2.75,6,0,neocloud,Together,6mo reservation B200,0
-1769448492.806549,2026-01-26,B200,2.8,12,0,neocloud,CoreWeave,1yr reservation B200,0
-1768438488.843219,2026-01-15,B300,3.05,24,0,neocloud,Hydrahost,2yr 512 GPUs sold deal,0
-1763576844.666859,2025-11-19,H100,1.0,0,0,neocloud,Voltage Park,on-demand 1024+ GPUs no prepay creditworthy,1
-1760624920.211029,2025-10-16,B200,2.72,12,0,neocloud,CoreWeave,1yr no prepay 1024 B200,1
-1760604957.327919,2025-10-16,H100,2.03,12,25,neocloud,CoreWeave,1yr 25% prepay 2048 H100 available,1
-1760604957.327919,2025-10-16,B200,3.02,12,25,neocloud,CoreWeave,1yr 25% prepay 2048 B200 Feb 2026 target,1
-1759993734.116339,2025-10-09,H100,1.15,0,0,neocloud,FPT,on-demand 1000+ GPUs,0
-1759993734.116339,2025-10-09,B200,2.7,0,0,neocloud,Hydrahost,on-demand 1000+ GPUs InfiniBand,0
-1759993734.116339,2025-10-09,B200,2.5,0,0,neocloud,Whitefiber,on-demand 1000+ GPUs RoCE,0
-1759508630.785489,2025-10-03,B200,2.8,12,25,neocloud,CoreWeave,1yr partial prepay 1024 GPUs,1
-1759508630.785489,2025-10-03,B200,3.3,12,0,neocloud,CoreWeave,1yr no prepay 1024 GPUs,1
-1759160170.392029,2025-09-29,H200,2.0,0,0,hyperscaler,Alibaba,on-demand US market,0
-1758878892.131339,2025-09-26,H100,1.4,0,0,neocloud,Crusoe,manual preemptible 3-day release notice,0
-1758878892.131339,2025-09-26,H200,1.6,0,0,neocloud,Crusoe,manual preemptible 3-day release notice,0
-1758668155.409359,2025-09-24,H100,1.15,0,0,neocloud,Prime Intellect,on-demand customer quote,0
-1758668155.409359,2025-09-24,H100,1.35,0,0,undisclosed_neocloud,Undisclosed neocloud,similar-sized neocloud to Nebius,0
-1757707430.669089,2025-09-12,H200,2.0,12,0,neocloud,CoreWeave,1yr 3000 GPUs deal,0
-1755720635.167919,2025-08-20,GB200,3.0,36,0,undisclosed,Undisclosed,Semi Analysis test pricing 3yr floor,0
-1755720635.167919,2025-08-20,GB200,2.75,60,0,undisclosed,Undisclosed,Semi Analysis 5yr pricing floor,0
-1755533710.900709,2025-08-18,H100,1.8,0,0,broker,Sesterce,MTM 2K GPUs market spike,0
-1752708551.373529,2025-07-17,H200,2.0,0,0,neocloud,CoreWeave,less than 1yr 256 GPUs,0
-1751300482.444539,2025-06-30,B200,3.79,0,0,neocloud,Lambda,on-demand weekly pricing,0
-1751284703.625259,2025-06-30,H200,2.0,12,0,neocloud,Horizon Compute,32-GPU H200 reservation rate,0
-1750799264.405269,2025-06-24,GB200,4.0,0,0,hyperscaler,ByteDance,Asia/Europe on-demand starting price,0
-1750787590.055599,2025-06-24,B200,4.0,12,0,neocloud,Vultr,1yr minimum $4-6 range lower bound,0
-1780422932.324229,2026-06-02,B300,4.25,24,100,neocloud,Verda,24m 100% prepaid 64 GPUs joint offer,1
-1780422932.324229,2026-06-02,B300,4.25,24,100,neocloud,CIVO,24m 100% prepaid 64 GPUs joint offer,1
-1780592471.289529,2026-06-04,GB300,3.80,36,0,neocloud,BoostRun,20k GPUs US Q4 3yr high $3/hr range,0
-1780592471.289529,2026-06-04,GB300,3.80,36,0,neocloud,Nscale,15k GPUs EU Q1 3yr high $3/hr range,0
-1780592471.289529,2026-06-04,B300,3.80,0,0,neocloud,BoostRun (unconfirmed),5k GPUs recently signed deal,0
-1780592471.289529,2026-06-04,GB300,3.50,36,0,hyperscaler,GCP,3yr 0% prepay signed deal,1
-1780684940.660119,2026-06-05,B300,3.85,12,20,undisclosed_neocloud,Undisclosed neocloud,1yr 20% prepay 192 B300s,1
-1780998131.414069,2026-06-09,B300,3.81,36,0,neocloud,CoreWeave,3yr unknown prepay B300 deal end-of-year delivery,0
-1781225095.772999,2026-06-12,B300,3.80,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay competitive B300 win vs Nebius,1
-1781559030.314519,2026-06-15,VR,5.60,36,20,undisclosed_neocloud,Undisclosed neocloud,Vera Rubin Clustermax Gold-Tier+ quotes $5.60-$5.90 range,1
-1781806697.133429,2026-06-18,H100,1.95,12,0,hyperscaler,GCP,"Renewal, 1yr term",0
-1782016770.454949,2026-06-21,B200,3.69,24,50,undisclosed_neocloud,Undisclosed neocloud,576 GPUs Aug delivery 24m 50% prepay competitive bid,1
-1782016770.454949,2026-06-21,B300,4.00,24,20,undisclosed_neocloud,Undisclosed neocloud,576 GPUs Q4 delivery 24m 20% prepay competitive bid,1
-1782016770.454949,2026-06-21,B300,4.95,36,50,undisclosed_hyperscaler,Undisclosed hyperscaler,512 GPUs Nov delivery 36m 50% prepay competitive bid,1
-1782153062.086669,2026-06-22,B200,3.50,12,100,neocloud,LAI,1yr term ~5k B200 cluster; 100% prepay assumed,1
-1782153062.086669,2026-06-22,GB300,6.00,3,100,neocloud,Pale Blue Dot,3mo term quote; 1600x GB300 deal signed at 6mo (price undisclosed),1
-1782335994.895259,2026-06-24,GB300,4.75,0,0,neocloud,Andromeda,1k GB300 launching Sep no commitment term,0
-1782351420.240329,2026-06-25,B200,4.0,36,0,broker,Anyscale,92 nodes B200 US AWS-sourced resold 3yr low 4s,0
-1759152382.073769,2025-09-29,H200,2.00,0,0,hyperscaler,Alibaba,Alibaba adding H200 in US on-demand at $2,0
-1757675144.856659,2025-09-12,GB300,3.30,36,30,undisclosed,Undisclosed,Reflection: 3 shortlisters at $3.30-$3.50 3yr ~30% prepay (vs Nebius $4.6),1
-1782899873.480579,2026-07-01,B300,3.75,36,30,neocloud,CoreWeave,B300 committed offer end-2026 new DC 500-1500 GPUs price adj & upgrade clause,1
-1782917000.238339,2026-07-01,VR,5.50,36,0,hyperscaler,GCP,3yr VR deal signed; GCP admit below-cost,0
-1782917000.238339,2026-07-01,VR,6.00,36,0,neocloud,CoreWeave,3yr VR quote $6-6.50; lost to GCP at $5.50,0
-1782917000.238339,2026-07-01,VR,7.00,36,0,undisclosed,Undisclosed,3yr VR quote >$7; lost to GCP at $5.50,0
-1783273869.455719,2026-07-05,H200,2.10,3,0,undisclosed_neocloud,Undisclosed neocloud,64 H200 3mo reservation unnamed smaller provider,0
-1783273869.455719,2026-07-05,H200,2.40,3,0,neocloud,Crusoe,64 H200 3mo reservation,0
-1784643844.899699,2026-07-21,H100,3.26,12,0,neocloud,DigitalOcean,1yr reserved new rate eff Aug 1 2026 (was $2.50),0
-1784643844.899699,2026-07-21,H200,3.40,12,0,neocloud,DigitalOcean,1yr reserved new rate eff Aug 1 2026 (was $2.75),0
-1784643844.899699,2026-07-21,B300,7.94,12,0,neocloud,DigitalOcean,1yr reserved new rate eff Aug 1 2026 (was $5.65),0
-1784643870.877969,2026-07-21,H100,4.41,0,0,neocloud,DigitalOcean,on-demand new rate eff Aug 1 2026 (was $3.39),0
-1784643870.877969,2026-07-21,H100,3.89,0,0,neocloud,DigitalOcean,on-demand 8-GPU droplet new rate eff Aug 1 2026 (was $2.99),0
-1784643870.877969,2026-07-21,H200,4.47,0,0,neocloud,DigitalOcean,on-demand new rate eff Aug 1 2026 (was $3.44),0
-1785773165.072339,2026-08-03,VR,8.00,60,0,neocloud,PaleBlueDot,10K Vera Rubin 5yr 0% down end-2027 delivery,1
-1785773165.072339,2026-08-03,B300,3.08,36,20,neocloud,Lightning AI,B300 3yr 20% down AE intel,1
-1786040857.456889,2026-08-06,VR,6.00,0,0,undisclosed,Undisclosed,VR mkt $6s-high 7s; hyperscalers low-high 7s (Reflection intel Q2-Q4 2027),0
-1786044803.953839,2026-08-06,B300,4.25,12,20,neocloud,Yotta,200xB300 1yr 20% down Sep delivery via Geodesic Labs,1
-1786044803.953839,2026-08-06,H200,3.10,12,15,neocloud,Inference.ai,200xH200 1yr 15% down AU neocloud (Geodesic Labs inquiry),1
-1786059237.078829,2026-08-07,B300,4.15,36,0,undisclosed,Undisclosed,3yr offer seen by Cursor; prepay unspecified,0
-1786059237.078829,2026-08-07,GB300,4.50,36,0,undisclosed,Undisclosed,3yr offer seen by Cursor; prepay unspecified,0
-1786061618.219829,2026-08-07,B300,4.90,36,30,broker,SFCompute,256-GPU B300 HGX US-West 3yr 30% prepay SFC quote Aug 2026,1
-1786542026.111519,2026-08-12,B200,4.00,12,0,neocloud,Nscale,B200 immediately avail UK 12mo,0
-1786579347.449529,2026-08-13,B300,5.00,36,25,neocloud,CoreWeave,B300 3yr 25% upfront low $5s,1
-1786582338.528989,2026-08-13,B300,4.00,0,0,undisclosed,Undisclosed,B300 $4 seen past 2mo term unconfirmed,0
-1786627944.371599,2026-08-13,VR,6.25,60,50,hyperscaler,GCP,2K VR Q3 2027 GCP draft 5yr 50% upfront,1
-1786627944.371599,2026-08-13,VR,5.50,36,0,hyperscaler,GCP,4K VR GCP prev signed deal 3yr,0
-1786737623.389179,2026-08-14,B300,5.60,0,0,undisclosed,Undisclosed,4K B300 bridge May start $5.60 undisclosed,0
-1786737623.389179,2026-08-14,VR,6.65,48,25,undisclosed,Undisclosed,3K VR Q4'27-Q1'28 4yr 25% prepay undisclosed,1
-1786999784.803339,2026-08-17,B300,8.50,3,0,undisclosed_neocloud,Undisclosed,128xB300 3mo Asia premium undisclosed provider,0
-1787177223.177889,2026-08-20,GB300,19.00,2,0,undisclosed,Undisclosed,GB300 2-month cluster outbid at $19/hr,0
-1787230678.978469,2026-08-20,B300,4.90,36,0,broker,SFCompute,288xB300 3yr w/ resell option,0
-1787230678.978469,2026-08-20,B300,4.90,36,0,broker,Ornn,288xB300 3yr w/ resell option,0
-1787255339.627099,2026-08-20,GB300,3.70,60,0,undisclosed_hyperscaler,Undisclosed,GB300 5yr Feb 2027 delivery hyperscaler offer,0
-1787599134.249799,2026-08-24,B300,4.90,36,0,hyperscaler,AWS,512xB300 3yr no prepay US Jan/Feb delivery,1
-1787754903.783139,2026-08-26,VR,6.00,60,20,neocloud,CoreWeave,VR deal $6s 5yr 20% upfront signed few months ago,1
-1787772030.233299,2026-08-26,VR,9.00,60,0,neocloud,CoreWeave,VR ~$9 range 5yr term current pricing,0
-1787772892.613209,2026-08-26,B300,5.00,36,20,neocloud,CoreWeave,B300 3yr 20-30% down (lower bound $5),1
-1787772892.613209,2026-08-26,B300,4.20,36,20,neocloud,IREN,IREN B300 3yr 20% down,1
-1788414848.955649,2026-09-03,B300,6.50,3,0,neocloud,IREN,200xB300 3mo Oct start; IREN claims resold Nebius infra,0
-1788466826.629979,2026-09-03,B300,5.05,12,30,neocloud,CoreWeave,1024xB300 1yr w/ 1152xVR 5yr 30% prepay package,1
-1788466826.629979,2026-09-03,VR,7.35,60,30,neocloud,CoreWeave,1152xVR 5yr w/ 1024xB300 1yr 30% prepay package,1
-1788540957.926409,2026-09-04,B300,6.50,3,0,broker,Ornn,256xB300 3mo Paris DC; corr of 1788414848 (Ornn not IREN),0
-1789129113.191989,2026-09-11,GB300,5.00,36,30,undisclosed,Undisclosed,7kxGB300 UK Jan2027; UAE customer <$5,1
-1789129113.191989,2026-09-11,VR,7.00,0,0,undisclosed,Undisclosed,UAE customer; VR ~$7 undisclosed terms,0
-1789132570.330649,2026-09-11,B300,5.39,24,25,neocloud,CoreWeave,Remanence (FR AI lab) 25% upfront; 24 months (confirmed by Tanguy Derouet 2026-09-14),1
-1789135521.902249,2026-09-11,H200,2.50,12,0,undisclosed,Undisclosed,Gandara AI (PT) H200 1yr competitor offer,0
-1789135614.370919,2026-09-11,B300,5.97,24,20,neocloud,Nscale,Nscale B300 24mo 20% prepay; same $ as Nebius @30%,1
-1769453225.167629,2026-01-26,B200,3.0,12,0,neocloud,Together,[audit 2026-09-15] sub-$3 upper bound B200 on 6mo and 1yr terms per second customer; corroborates $2.75 6mo row,0
-1771855447.030049,2026-02-23,H100,3.44,0,0,neocloud,Lambda (inferred),[audit 2026-09-15] H100 on-demand list $3.44 raised from $2.99; provider inferred from same-day Lambda price-raise thread,0
-1773244814.588709,2026-03-11,B300,3.3,0,0,undisclosed,Undisclosed,[audit 2026-09-15] same prospect saw B300 offers from other NCPs/CSPs $3.30-4.90 across 1/2/3yr terms; lower bound,0
-1773607726.691229,2026-03-15,B200,2.6,36,20,undisclosed,Undisclosed,[audit 2026-09-15] supplier quote to Nebius for ToFa B200 procurement 3yr 20% down; same ballpark as $2.80 2yr 50% offer,1
-1773755977.501569,2026-03-17,GB300,3.4,36,25,neocloud,CoreWeave (unconfirmed),[audit 2026-09-15] competitive range $3.40-3.75 GB300 3yr 25% prepay; head-to-head vs CoreWeave cloud not BM; 288 GPUs; lower bound,1
-1775749768.070139,2026-04-09,VR,5.0,36,50,hyperscaler,GCP,"[audit 2026-09-15] ~4k VR Q4'26/Q1'27 'just over $5' + $50M investment; ~$500M 3yr process, 50% upfront preferred",1
-1775749768.070139,2026-04-09,VR,6.0,36,50,neocloud,CoreWeave,"[audit 2026-09-15] VR ~$6+ in same 3yr ~$500M process (50% upfront pref); above GCP, surprised buyer",1
-1777411029.125889,2026-04-28,B300,3.0,0,0,neocloud,Lightning AI / Voltage Park,"[audit 2026-09-15] ~$3 large B300 cluster Sep delivery; not GB, not interconnected w/ existing cluster; term/prepay unknown",0
-1778230171.438679,2026-05-08,GB300,4.0,0,25,undisclosed,Undisclosed,"[audit 2026-09-15] 114 GB300 Singapore low-$4 w/ 25-30% prepay; term unknown, buyer prefers 12/24mo; lower bound",1
-1779198885.778519,2026-05-19,B200,3.4,12,0,neocloud,Lambda,"[audit 2026-09-15] 512+ B200 1yr reservation no prepay, US-based capacity; quotes $3.40-3.50 lower bound",1
-1782316306.571539,2026-06-24,GB300,20.0,6,0,neocloud,SpaceX Colossus-2,[audit 2026-09-15] 10k GB300 ~$150M/mo 6mo no prepay; $/GPU-hr derived by Arkady from CNBC report + private customer confirm,1
-1782681849.070519,2026-06-28,B300,5.05,12,30,neocloud,Andromeda,[audit 2026-09-15] 1k B300 Sep DC 1yr 30% upfront; end-of-week signing deadline; update to 06-24 intel,1
-1782681849.070519,2026-06-28,GB300,5.5,12,30,neocloud,Andromeda,[audit 2026-09-15] 1k GB300 Sep DC 1yr 30% upfront; revises initial $4.75 intel (1782335994.895259),1
-1782901181.113229,2026-07-01,H100,3.2,0,0,neocloud,Hyperstack,"[audit 2026-09-15] H100-SXM5 on-demand via Shadeform marketplace, eff Jul 10 2026 (was $2.40)",0
-1782901181.113229,2026-07-01,H100,2.6,0,0,neocloud,Hyperstack,"[audit 2026-09-15] H100-NVLink on-demand via Shadeform marketplace, eff Jul 10 2026 (was $1.95)",0
-1782901181.113229,2026-07-01,H100,2.5,0,0,neocloud,Hyperstack,"[audit 2026-09-15] H100-PCIe on-demand via Shadeform marketplace, eff Jul 10 2026 (was $1.90)",0
-1782901181.113229,2026-07-01,H200,3.99,0,0,neocloud,Hyperstack,"[audit 2026-09-15] H200-SXM5 on-demand via Shadeform marketplace, eff Jul 10 2026 (was $3.50)",0
-1782901181.113229,2026-07-01,RTX6000,1.85,0,0,neocloud,Hyperstack,"[audit 2026-09-15] RTX PRO 6000 on-demand via Shadeform marketplace, eff Jul 10 2026 (was $1.80)",0
-1782901181.113229,2026-07-01,B200,6.0,0,0,neocloud,Hyperstack,"[audit 2026-09-15] B200 on-demand via Shadeform marketplace, eff Jul 10 2026 (was $3.50)",0
-1786040857.456889,2026-08-06,VR,7.0,0,0,undisclosed_hyperscaler,Undisclosed hyperscaler,"[audit 2026-09-15] hyperscalers VR low-7s to high-7s, contracting Q2-Q4 2027 delivery; term unknown; lower bound",0
-1744854565.678219,2025-04-17,H100,2.20,12,0,neocloud,CoreWeave,[audit 2026-09-15] 64xH100 12mo quote collected by CentML for its customer,0
-1744854565.678219,2025-04-17,H100,1.80,12,0,neocloud,Lambda,[audit 2026-09-15] 64xH100 12mo quote collected by CentML for its customer,0
-1744854565.678219,2025-04-17,H100,1.60,12,0,neocloud,Vultr,[audit 2026-09-15] 64xH100 12mo quote collected by CentML for its customer,0
-1745319633.974439,2025-04-22,B200,3.29,24,0,broker,CUDO,[audit 2026-09-15] 512xB200 2yr; CUDO relaying unnamed bare-metal supplier price,0
-1745319633.974439,2025-04-22,B200,4.29,12,0,broker,CUDO,[audit 2026-09-15] single-node B200 12mo; CUDO relaying unnamed bare-metal supplier price,0
-1745402325.590779,2025-04-23,H100,1.60,0,0,neocloud,Voltage Park,[audit 2026-09-15] H100 offer to prospect (media inference platform); term/qty unstated,0
-1745402536.388689,2025-04-23,H100,1.50,6,0,neocloud,Crusoe,[audit 2026-09-15] 512xH100 6-month term,0
-1745560331.127129,2025-04-25,GB200,3.00,36,0,hyperscaler,AWS,"[audit 2026-09-15] 'low $3s' 3yr GB200 deal, info via Andromeda; lower bound",0
-1745859134.847439,2025-04-28,B200,2.89,0,0,neocloud,Vultr,[audit 2026-09-15] website 'starting from' bare metal 8xB200 192GB; term unstated; screenshot,0
-1746121612.277629,2025-05-01,H200,1.50,0,0,neocloud,Crusoe,[audit 2026-09-15] OD counteroffer; customer also holds H200 reserve at same $1.50 (term unstated); may be spot-like,0
-1746235040.417019,2025-05-03,B200,3.50,12,0,neocloud,Vultr,[audit 2026-09-15] 'mid $3' 1yr; Vultr sells 1yr+ only on B200,0
-1746235040.417019,2025-05-03,B200,2.90,24,0,neocloud,Vultr,[audit 2026-09-15] 'high $2s' for longer terms (>1yr unspecified; 24 used),0
-1746478624.082709,2025-05-05,H100,0.40,0,0,broker,SF Compute,[audit 2026-09-15] spot/market non-reserved OD w/ autoscaling 0-10+ nodes; customer email,0
-1746520151.997409,2025-05-06,B200,3.60,12,0,neocloud,Lambda,[audit 2026-09-15] 16xB200 Quantum-2 US 1yr commit; via friendly 3rd-party outreach,0
-1746520151.997409,2025-05-06,B200,2.99,36,0,neocloud,Lambda,[audit 2026-09-15] 16xB200 Quantum-2 US 3yr commit; via friendly 3rd-party outreach,0
-1746643961.220979,2025-05-07,H100,2.00,0,0,neocloud,DigitalOcean,[audit 2026-09-15] offer to partner; qty/term unstated,0
-1746644409.641689,2025-05-07,B200,3.40,12,0,neocloud,Lambda,[audit 2026-09-15] partner paying $3.40-3.70 1yr commit from two providers incl Lambda; lower bound; nodes unstated,0
-1747585255.307699,2025-05-18,B200,5.99,0,0,neocloud,Lambda,[audit 2026-09-15] 1-Click Cluster list: OD 1wk+ 16-512 B200; screenshot,0
-1747585255.307699,2025-05-18,B200,3.79,0,0,neocloud,Lambda,[audit 2026-09-15] 1-Click Cluster list: reserved <12mo tier 16-512 B200; screenshot,0
-1747585255.307699,2025-05-18,B200,3.49,12,0,neocloud,Lambda,[audit 2026-09-15] 1-Click Cluster list: reserved 1yr 16-512 B200; screenshot,0
-1747585255.307699,2025-05-18,B200,3.29,24,0,neocloud,Lambda,[audit 2026-09-15] 1-Click Cluster list: reserved 2yr 16-512 B200; screenshot,0
-1747585255.307699,2025-05-18,B200,2.99,36,0,neocloud,Lambda,[audit 2026-09-15] 1-Click Cluster list: reserved 3yr 16-512 B200; screenshot,0
-1747862604.050899,2025-05-21,H200,2.25,0,0,neocloud,Horizon Compute,[audit 2026-09-15] OD 1280xH200 Iceland capacity to clear; undercuts Shadeform,0
-1748191489.346759,2025-05-25,H100,1.50,1,0,neocloud,Voltage Park,"[audit 2026-09-15] 1-month term (email 05-23); tier not in screenshot, H100 inferred from price + companion H100 msg",0
-1748191489.346759,2025-05-25,H100,1.45,2,0,neocloud,Voltage Park,[audit 2026-09-15] 2-month term; same price any qty; mK8S included; tier inferred H100 (see 1mo row),0
-1748191489.346759,2025-05-25,H100,1.35,3,0,neocloud,Voltage Park,[audit 2026-09-15] 3-month term 300-500 GPUs; tier inferred H100 (see 1mo row),0
-1748191489.346759,2025-05-25,H100,1.30,3,0,neocloud,Voltage Park,[audit 2026-09-15] 3-month term 700 GPUs; tier inferred H100 (see 1mo row),0
-1748450183.782329,2025-05-28,H100,1.50,1,0,broker,Compute exchange (CoreWeave capacity),[audit 2026-09-15] H100 CoreWeave cluster 'high quality' month-to-month via compute exchange; screenshot,0
-1748450405.066129,2025-05-28,GB200,3.00,0,0,neocloud,BitDeer,"[audit 2026-09-15] ~$3 GB200; 8 racks (576 GPUs), 3 in July 5 later 2025; term unstated",0
-1748450405.066129,2025-05-28,H100,1.80,0,0,neocloud,BitDeer,[audit 2026-09-15] H100 rate from BitDeer intro; term unstated,0
-1748450405.066129,2025-05-28,H200,2.00,0,0,neocloud,BitDeer,[audit 2026-09-15] H200 $2-2.10 from BitDeer intro; lower bound; term unstated,0
-1748450405.066129,2025-05-28,B200,2.50,0,0,neocloud,BitDeer,[audit 2026-09-15] B200 rate from BitDeer intro; term unstated,0
-1748454286.539619,2025-05-28,H100,1.10,0,0,neocloud,Crusoe,[audit 2026-09-15] OD per customer; thread doubts true OD (maybe preemptible/commit); volumes unshared,0
-1748454286.539619,2025-05-28,H200,1.50,0,0,undisclosed_neocloud,Undisclosed (likely Crusoe),[audit 2026-09-15] H200 OD offer; provider unconfirmed but correlates w/ Crusoe,0
-1748478672.099449,2025-05-29,B200,4.90,0,0,neocloud,DataCrunch,[audit 2026-09-15] OD via Shadeform Helsinki 1-8 GPU ($39.20 per 8-GPU node); screenshot,0
-1748478672.099449,2025-05-29,B200,5.50,0,0,neocloud,WhiteFiber,[audit 2026-09-15] OD 8xB200 via Shadeform Iceland ($44/node); screenshot,0
-1748918837.163359,2025-06-03,H200,2.10,6,0,neocloud,SMC,[audit 2026-09-15] 512xH200 SXM 6-month Singapore DC immediate go-live; screenshot,0
-1748918837.163359,2025-06-03,H200,2.06,12,0,neocloud,SMC,[audit 2026-09-15] 512xH200 SXM 12-month Singapore DC immediate go-live; screenshot,0
-1749057188.926659,2025-06-04,B200,4.10,2,0,neocloud,FluidStack,[audit 2026-09-15] 16xB200 2-month RoCE; screenshot,0
-1749057188.926659,2025-06-04,B200,3.50,12,0,neocloud,FluidStack,[audit 2026-09-15] 128xB200 12-month RoCE; rep expects ~$3.00 by Q4; screenshot,0
-1749501519.445149,2025-06-09,B200,3.25,36,0,neocloud,Lambda,[audit 2026-09-15] 3yr 1k B200 reserve offer,0
-1750304358.657839,2025-06-19,B200,3.79,0,0,neocloud,Lambda,[audit 2026-09-15] pricing page 16-1.5k B200: OD 1wk+ (was $5.99 on 05-18); re-observed unchanged 07-02,0
-1750304358.657839,2025-06-19,B200,3.49,12,0,neocloud,Lambda,[audit 2026-09-15] pricing page 16-1.5k B200: reserved 1yr; unchanged 07-02,0
-1750304358.657839,2025-06-19,B200,3.29,24,0,neocloud,Lambda,[audit 2026-09-15] pricing page 16-1.5k B200: reserved 2yr; unchanged 07-02,0
-1750304358.657839,2025-06-19,B200,2.99,36,0,neocloud,Lambda,[audit 2026-09-15] pricing page 16-1.5k B200: reserved 3yr; unchanged 07-02,0
-1750359445.584469,2025-06-19,B200,3.00,12,0,undisclosed,Market view (internal),[audit 2026-09-15] internal view $3-3.50 for 1K-2K B200 1yr; lower bound; thread reply,0
-1750786252.043949,2025-06-24,H200,2.45,0,0,broker,Shadeform,[audit 2026-09-15] 'Excess Supply' OD H200 US single/8-GPU; newsletter screenshot,0
-1750787590.055599,2025-06-24,GB200,7.00,0,0,neocloud,Vultr,[audit 2026-09-15] target GB200 price $7-11 (none purchased yet; aspirational); lower bound,0
-1750997681.811499,2025-06-27,B200,1.49,0,0,neocloud,DeepInfra,[audit 2026-09-15] promo OD until end-June (excl Nebraska); reverts to $4.49; screenshot,0
-1750997681.811499,2025-06-27,B200,4.49,0,0,neocloud,DeepInfra,[audit 2026-09-15] regular OD list ('still cheapest OD'); screenshot,0
-1751040156.580559,2025-06-27,GB200,3.00,18,0,undisclosed,Undisclosed (via Andromeda),[audit 2026-09-15] 'sub $3' 18mo 1k GB200 market color; upper bound,0
-1751284703.625259,2025-06-30,H100,1.75,0,0,undisclosed_neocloud,Undisclosed (likely E2E Networks),[audit 2026-09-15] 32xH100 w/ 3-month upfront payment; term unstated; email screenshot,0
-1751284703.625259,2025-06-30,H200,1.90,0,0,undisclosed_neocloud,Undisclosed (likely E2E Networks),[audit 2026-09-15] 32xH200 w/ 3-month upfront payment; term unstated; email screenshot,0
-1751475474.634429,2025-07-02,B200,4.50,0,0,undisclosed,Market view (per Prime Intellect),[audit 2026-09-15] $4.50 OD 'very good market price'; $4.45 beats DataCrunch/Lambda/Sesterce,0
-1751530267.804169,2025-07-03,B200,4.49,0,0,neocloud,DataCrunch,[audit 2026-09-15] OD fixed price 8xB200 ($35.92/node); screenshot,0
-1751530267.804169,2025-07-03,B200,2.88,0,0,neocloud,DataCrunch,"[audit 2026-09-15] OD dynamic price 8xB200 ($23.05/node) spot-like, max 1.5x fixed; screenshot",0
-1752855400.171219,2025-07-18,H100,1.50,0,0,neocloud,E2E Networks,[audit 2026-09-15] 32xH100 'updated rate' quote (Bangalore); term unstated; screenshot 1752855381,0
-1752855400.171219,2025-07-18,H200,1.70,0,0,neocloud,E2E Networks,[audit 2026-09-15] 32xH200 'updated rate' quote (Bangalore); term unstated; screenshot 1752855381,0
-1752855400.171219,2025-07-18,H100,1.90,0,0,neocloud,E2E Networks,[audit 2026-09-15] on-demand H100; screenshot 1752855381,0
-1752855400.171219,2025-07-18,H200,2.30,0,0,neocloud,E2E Networks,[audit 2026-09-15] on-demand H200; screenshot 1752855381,0
-1755278027.145329,2025-08-15,H100,1.00,12,0,neocloud,CoreWeave,[audit 2026-09-15] '<$1' 128xH100 1yr reservation per prospect; upper bound; thread doubts it (A100 confusion?),0
-1755763977.388349,2025-08-21,H100,1.20,0,0,broker,Valdi (gpulist),[audit 2026-09-15] H100 SXM5 8x quoted on gpulist.valdi.ai; thread reply to 1755533710,0
-1759152382.073769,2025-09-29,H200,15.44,0,0,hyperscaler,Alibaba,[audit 2026-09-15] list price/GPU/h before 87% discount (US/SG 8xH200 bare metal); quote dated 09-28,0
-1759160170.392029,2025-09-29,H100,0.99,0,0,neocloud,Hyperbolic,[audit 2026-09-15] billboard ad on I-80 SF 'H100s two clicks $0.99'; marketplace OD,0
-1759767068.390549,2025-10-06,B200,8.60,0,0,neocloud,CoreWeave,[audit 2026-09-15] CoreWeave OD list B200 cited in discount-logic note (1yr ~40% off w/ 25% TCV prepay),0
-1759993734.116339,2025-10-09,B200,2.70,12,0,neocloud,Massed Compute,[audit 2026-09-15] '<$2.70' 1000+ B200 RoCE Nov avail; ~1yr per thread; upper bound; distinct from Hydrahost row,0
-1759993734.116339,2025-10-09,B300,2.96,12,0,neocloud,Massed Compute,[audit 2026-09-15] '<$2.96' 1000+ B300 RoCE Jan deploy; ~1yr per thread; upper bound,0
-1759993734.116339,2025-10-09,B200,2.60,24,20,neocloud,Hydrahost,[audit 2026-09-15] Roman negotiating w/ Hydra: B200 2yr 20% down bare metal; thread reply,1
-1759993734.116339,2025-10-09,B300,3.12,24,20,neocloud,Hydrahost,[audit 2026-09-15] Roman negotiating w/ Hydra: B300 2yr 20% down bare metal; thread reply,1
-1760604957.327919,2025-10-16,H100,1.97,12,75,neocloud,CoreWeave,[audit 2026-09-15] 2048 H100 1yr 75% prepay tier (25%=$2.03 in store; 50%=$2.00),1
-1760604957.327919,2025-10-16,H100,1.94,12,100,neocloud,CoreWeave,[audit 2026-09-15] 2048 H100 1yr 100% prepay tier,1
-1760604957.327919,2025-10-16,B200,2.92,12,75,neocloud,CoreWeave,[audit 2026-09-15] 1248 B200 Feb target 1yr 75% prepay tier (25%=$3.02 in store; 50%=$2.97),1
-1760604957.327919,2025-10-16,B200,2.88,12,100,neocloud,CoreWeave,[audit 2026-09-15] 1248 B200 Feb target 1yr 100% prepay tier,1
-1765267345.620039,2025-12-09,H200,1.30,6,0,undisclosed,Undisclosed,"[audit 2026-09-15] most aggressive H200 seen: ~256 GPUs, 6-12mo term context; thread reply to 1765258716",0
-1789491104.048739,2026-09-15,VR,6.30,0,20,neocloud,CoreWeave,"Jane Street: previous deal signed with CoreWeave ~$6.3/hr, 20% upfront, 30k VR; term not stated (Khaled Ibrahim)",1
-1789491104.048739,2026-09-15,VR,7.25,0,30,undisclosed,Undisclosed,HRT: seeing low-mid $7s with 30% upfront for VR; midpoint 7.25; provider and term not stated (Khaled Ibrahim),1
-1789491003.199359,2026-09-15,VR,6.75,60,22,undisclosed,Undisclosed,"Perplexity: 5-year VR deals mid $6 to low $7, 20-25% down; midpoint 6.75 at 22.5%; two clusters 8k/11k; one provider Q2 timeline (Nav Kala)",1
+message_ts,message_date,gpu_model,price_per_gpu_hour_usd,term_months,prepay_pct,provider_type,provider_name,notes,prepay_known,quote_id,quote_status,source_url,source_observed_at,expires_on,instance_type,gpu_variant,region,gpu_count,gpu_count_relation,delivery_start,delivery_end,currency,tax_basis
+seed_20260528_01,2026-05-28,B200,3.68,36,0,hyperscaler,Oracle,3yr 0% prepay committed deal,1,,,,,,,,,,,,,,
+seed_20260522_01,2026-05-22,B300,3.60,60,25,undisclosed,Undisclosed,5yr 25% prepay large cluster,1,,,,,,,,,,,,,,
+seed_20260519_01,2026-05-19,H100,1.80,12,0,hyperscaler,AWS,1yr 0% down 232-GPU cluster,1,,,,,,,,,,,,,,
+seed_20260518_01,2026-05-18,B200,3.68,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay quote,1,,,,,,,,,,,,,,
+seed_20260515_01,2026-05-15,B200,4.36,12,100,broker,Axe Compute,63-node bare metal 100% down 12m Canada,1,,,,,,,,,,,,,,
+seed_20260515_02,2026-05-15,B200,4.46,24,25,broker,Axe Compute,63-node bare metal 25% down 24m Canada,1,,,,,,,,,,,,,,
+seed_20260514_01,2026-05-14,B300,4.00,36,20,hyperscaler,AWS,3yr 20% prepay indicative,1,,,,,,,,,,,,,,
+seed_20260514_02,2026-05-14,GB300,5.00,24,40,undisclosed,Undisclosed,2yr 40% prepay delivery June,1,,,,,,,,,,,,,,
+seed_20260514_03,2026-05-14,GB300,4.30,36,35,undisclosed_neocloud,Undisclosed EU neocloud,3yr 30-40 rack cluster H2 availability,1,,,,,,,,,,,,,,
+seed_20260513_01,2026-05-13,B300,4.30,18,50,undisclosed,Undisclosed,18mo 50% upfront 80-GPU European deal,1,,,,,,,,,,,,,,
+seed_20260511_01,2026-05-11,B200,4.00,12,100,hyperscaler,AWS,1yr 100% prepay 400-GPU APAC deal,1,,,,,,,,,,,,,,
+seed_20260511_02,2026-05-11,B300,4.20,12,100,neocloud,Lambda,1yr 100% prepay 1024-GPU deal,1,,,,,,,,,,,,,,
+seed_20260508_01,2026-05-08,B200,3.20,24,0,hyperscaler,GCP,2yr 0% prepay,1,,,,,,,,,,,,,,
+seed_20260508_02,2026-05-08,B200,3.70,12,0,hyperscaler,GCP,1yr 0% prepay,1,,,,,,,,,,,,,,
+seed_20260508_03,2026-05-08,H200,2.00,12,0,hyperscaler,AWS,1yr 0% prepay,1,,,,,,,,,,,,,,
+seed_20260508_04,2026-05-08,B300,3.50,36,0,hyperscaler,Azure,3yr committed 5000-GPU lost deal,0,,,,,,,,,,,,,,
+seed_20260508_05,2026-05-08,B300,3.70,24,0,neocloud,CoreWeave,2yr 0% prepay APAC deal,1,,,,,,,,,,,,,,
+seed_20260508_06,2026-05-08,B300,3.80,12,0,neocloud,CoreWeave,1yr 0% prepay APAC deal,1,,,,,,,,,,,,,,
+seed_20260508_07,2026-05-08,B300,4.00,0,0,hyperscaler,AWS,monthly payment terms large cluster,1,,,,,,,,,,,,,,
+seed_20260505_01,2026-05-05,B200,4.25,12,40,broker,Blue Sky Compute,1yr 40% prepay 256-GPU 4-8wk go-live,1,,,,,,,,,,,,,,
+seed_20260505_02,2026-05-05,B300,4.75,24,25,undisclosed,Undisclosed,2yr 25% prepay leading provider,1,,,,,,,,,,,,,,
+seed_20260501_01,2026-05-01,GB300,3.09,60,100,undisclosed,Undisclosed,5yr 100% upfront UAE market,1,,,,,,,,,,,,,,
+seed_20260501_02,2026-05-01,GB300,3.50,36,100,undisclosed,Undisclosed,3yr 100% upfront UAE market,1,,,,,,,,,,,,,,
+seed_20260501_03,2026-05-01,GB300,4.00,36,50,undisclosed,Undisclosed,3yr 50% upfront UAE market,1,,,,,,,,,,,,,,
+seed_20260428_01,2026-04-28,GB300,6.18,12,30,nebius,Nebius,Nebius own quote for reference 30% down 1yr,1,,,,,,,,,,,,,,
+seed_20260414_01,2026-04-14,B200,3.45,0,0,undisclosed,Undisclosed,on-demand 600-GPU deal,0,,,,,,,,,,,,,,
+seed_20260414_02,2026-04-14,B200,4.25,0,25,hyperscaler,AWS,through reseller 25% down,1,,,,,,,,,,,,,,
+seed_20260413_01,2026-04-13,VR,4.75,36,25,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 25% prepay Vera Rubin GPU deal,1,,,,,,,,,,,,,,
+seed_20260413_02,2026-04-13,B300,3.95,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay biotech deal,1,,,,,,,,,,,,,,
+seed_20260409_01,2026-04-09,B300,3.98,36,25,neocloud,CoreWeave,3yr 25% down Jan 2027 earliest delivery,1,,,,,,,,,,,,,,
+seed_20260402_01,2026-04-02,GB300,4.00,36,0,neocloud,CoreWeave (unconfirmed),3yr 0% upfront 5000-GPU deal,1,,,,,,,,,,,,,,
+seed_20260402_02,2026-04-02,H100,2.35,12,0,undisclosed,Undisclosed,$2.00-$2.70 range 1yr reservation,0,,,,,,,,,,,,,,
+seed_20260313_01,2026-03-13,B200,2.85,24,0,undisclosed,Undisclosed,$2.80-$2.90 range multiyear with prepay,0,,,,,,,,,,,,,,
+seed_20260311_01,2026-03-11,B300,3.50,24,0,broker,Hydrahost,2yr 0% upfront 64-node broker offer,1,,,,,,,,,,,,,,
+1779927609.062969,2026-05-28,B200,3.68,36,0,hyperscaler,Oracle,3yr 0% prepay 512 GPUs,1,,,,,,,,,,,,,,
+1779453952.318479,2026-05-22,B300,3.6,60,25,undisclosed_neocloud,HUMAIN,5yr 25% down 4k B300s London Aug availability,1,,,,,,,,,,,,,,
+1779206116.969039,2026-05-19,H100,1.8,12,0,hyperscaler,AWS,1yr 0% down 232-GPU deal,1,,,,,,,,,,,,,,
+1779107728.747939,2026-05-18,B200,3.68,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay hyperscaler quote,1,,,,,,,,,,,,,,
+1778870469.336729,2026-05-15,B200,4.46,12,50,broker,Axe Compute,63-node bare metal 50% down 12m Canada,1,,,,,,,,,,,,,,
+1778870469.336729,2026-05-15,B200,4.46,24,25,broker,Axe Compute,63-node bare metal 25% down 24m Canada,1,,,,,,,,,,,,,,
+1778870469.336729,2026-05-15,B200,4.36,12,100,broker,Axe Compute,63-node bare metal 100% down 12m Canada,1,,,,,,,,,,,,,,
+1778793265.826279,2026-05-14,B300,4.0,36,20,hyperscaler,AWS,3yr 20% prepay Sep availability,1,,,,,,,,,,,,,,
+1778792937.752849,2026-05-14,GB300,5.0,24,40,undisclosed,Undisclosed,2yr 40% prepay delivery June ramp through Aug,1,,,,,,,,,,,,,,
+1778779567.610869,2026-05-14,GB300,4.3,36,0,undisclosed_neocloud,Undisclosed EU neocloud,3yr 30-40 rack H2 availability,0,,,,,,,,,,,,,,
+1778779567.610869,2026-05-14,GB300,4.5,24,0,undisclosed_neocloud,Undisclosed EU neocloud,2yr 30-40 rack H2 availability,0,,,,,,,,,,,,,,
+1778659992.974979,2026-05-13,B300,4.3,18,50,undisclosed,Undisclosed,18mo 50% upfront 80-GPU European deal,1,,,,,,,,,,,,,,
+1778498257.915789,2026-05-11,B200,4.0,12,100,hyperscaler,AWS,1yr 100% prepay 400-GPU APAC B200,1,,,,,,,,,,,,,,
+1778498257.915789,2026-05-11,B300,4.2,12,100,neocloud,Lambda,1yr 100% prepay 1024-GPU B300,1,,,,,,,,,,,,,,
+1778251159.227129,2026-05-08,B200,3.2,24,0,hyperscaler,GCP,2yr 0% prepay,1,,,,,,,,,,,,,,
+1778251159.227129,2026-05-08,B200,3.7,12,0,hyperscaler,GCP,1yr 0% prepay,1,,,,,,,,,,,,,,
+1778251159.227129,2026-05-08,H200,2.0,12,0,hyperscaler,AWS,1yr 0% prepay no payment needed,1,,,,,,,,,,,,,,
+1778230171.438679,2026-05-08,B300,3.5,36,0,hyperscaler,Azure,3yr committed 5000-GPU lost deal,0,,,,,,,,,,,,,,
+1778230171.438679,2026-05-08,B300,3.7,24,0,neocloud,CoreWeave,2yr 0% prepay APAC deal,1,,,,,,,,,,,,,,
+1778230171.438679,2026-05-08,B300,3.8,12,0,neocloud,CoreWeave,1yr 0% prepay APAC deal,1,,,,,,,,,,,,,,
+1778220816.521299,2026-05-08,B300,4.0,0,0,hyperscaler,AWS,monthly payment terms large cluster,1,,,,,,,,,,,,,,
+1778220816.521299,2026-05-08,B300,4.0,36,0,hyperscaler,AWS,3yr committed 500-1K B300s,0,,,,,,,,,,,,,,
+1778005793.502519,2026-05-05,B200,4.25,12,40,broker,Blue Sky Compute,1yr 40% prepay 256-GPU 4-8wk go-live,1,,,,,,,,,,,,,,
+1778001475.012579,2026-05-05,B300,4.75,24,25,undisclosed,Undisclosed,2yr 25% prepay leading provider deal,1,,,,,,,,,,,,,,
+1777599795.012079,2026-05-01,GB300,3.09,60,100,neocloud,Mistral,5yr 100% upfront UAE market,1,,,,,,,,,,,,,,
+1777599795.012079,2026-05-01,GB300,3.5,36,100,neocloud,Mistral,3yr 100% upfront UAE market,1,,,,,,,,,,,,,,
+1777599795.012079,2026-05-01,GB300,4.0,36,50,neocloud,Mistral,3yr 50% upfront UAE market,1,,,,,,,,,,,,,,
+1777387064.743909,2026-04-28,GB300,5.0,12,30,undisclosed_hyperscaler,Undisclosed hyperscaler,1yr 30% down comp quote,1,,,,,,,,,,,,,,
+1777387064.743909,2026-04-28,GB300,5.0,12,30,undisclosed_neocloud,Undisclosed neocloud,1yr 30% down comp quote,1,,,,,,,,,,,,,,
+1777319802.876079,2026-04-27,B300,19.25,36,0,hyperscaler,AWS,3yr CDW partner list price non-discounted,0,,,,,,,,,,,,,,
+1776195934.303569,2026-04-14,B200,3.45,0,0,undisclosed,Undisclosed,on-demand 600-GPU deal,0,,,,,,,,,,,,,,
+1776195386.853129,2026-04-14,B200,4.35,0,0,broker,Lyceum,AWS nodes German broker 0% down,1,,,,,,,,,,,,,,
+1776195386.853129,2026-04-14,B200,4.25,0,25,broker,Lyceum,AWS nodes German broker 25% down,1,,,,,,,,,,,,,,
+1776113165.196659,2026-04-13,VR,4.75,36,25,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 25% prepay Vera Rubin GPU deal,1,,,,,,,,,,,,,,
+1776103400.900209,2026-04-13,B300,3.95,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay biotech w/ PR obligations,1,,,,,,,,,,,,,,
+1776103400.900209,2026-04-13,B300,4.0,0,0,neocloud,CoreWeave,July 2026 availability low $4s unconfirmed,0,,,,,,,,,,,,,,
+1775752732.729229,2026-04-09,B300,3.98,36,25,neocloud,CoreWeave,3yr 25% down 256 GPUs Jan 2027 earliest,1,,,,,,,,,,,,,,
+1775158906.616219,2026-04-02,GB300,4.0,36,0,neocloud,CoreWeave (unconfirmed),3yr 0% upfront 5000-GPU deal,1,,,,,,,,,,,,,,
+1775104471.134239,2026-04-02,H100,2.0,12,0,undisclosed,Undisclosed,1yr reservation $2-$2.70 range lower bound,0,,,,,,,,,,,,,,
+1773433467.443049,2026-03-13,B200,2.8,24,0,undisclosed,Undisclosed,multiyear $2.80-$2.90 range with prepay,0,,,,,,,,,,,,,,
+1773244814.588709,2026-03-11,B200,4.5,0,0,neocloud,Hydrahost,one month 64-node B200,0,,,,,,,,,,,,,,
+1773244814.588709,2026-03-11,B300,3.5,24,0,neocloud,Hydrahost,2yr 0% upfront 64-node B300,1,,,,,,,,,,,,,,
+1772731887.282889,2026-03-05,B200,3.42,36,0,hyperscaler,Oracle,3yr 1k GPUs North America Aug availability,0,,,,,,,,,,,,,,
+1772731887.282889,2026-03-05,B200,3.2,60,0,hyperscaler,Oracle,5yr initial proposal 1k GPUs North America,0,,,,,,,,,,,,,,
+1772538555.986939,2026-03-03,B200,4.0,0,0,neocloud,GMI Cloud,1 month term on-demand,0,,,,,,,,,,,,,,
+1772228908.750069,2026-02-27,B200,3.85,12,20,broker,Undisclosed,1yr 20% down InfiniBand aggregator offer,1,,,,,,,,,,,,,,
+1772084259.091249,2026-02-26,B300,4.25,0,35,broker,Undisclosed,marketplace 2500 GPUs March delivery,1,,,,,,,,,,,,,,
+1771847940.814249,2026-02-23,B200,4.26,12,0,neocloud,Lambda,1yr reserve raised from $3.49,0,,,,,,,,,,,,,,
+1771847940.814249,2026-02-23,B200,4.62,0,0,neocloud,Lambda,on-demand raised from $3.79,0,,,,,,,,,,,,,,
+1770687750.323659,2026-02-10,VR,4.74,60,0,undisclosed,Undisclosed,NVIDIA pricing model 5yr Vera Rubin,0,,,,,,,,,,,,,,
+1769448492.806549,2026-01-26,B200,2.75,6,0,neocloud,Together,6mo reservation B200,0,,,,,,,,,,,,,,
+1769448492.806549,2026-01-26,B200,2.8,12,0,neocloud,CoreWeave,1yr reservation B200,0,,,,,,,,,,,,,,
+1768438488.843219,2026-01-15,B300,3.05,24,0,neocloud,Hydrahost,2yr 512 GPUs sold deal,0,,,,,,,,,,,,,,
+1763576844.666859,2025-11-19,H100,1.0,0,0,neocloud,Voltage Park,on-demand 1024+ GPUs no prepay creditworthy,1,,,,,,,,,,,,,,
+1760624920.211029,2025-10-16,B200,2.72,12,0,neocloud,CoreWeave,1yr no prepay 1024 B200,1,,,,,,,,,,,,,,
+1760604957.327919,2025-10-16,H100,2.03,12,25,neocloud,CoreWeave,1yr 25% prepay 2048 H100 available,1,,,,,,,,,,,,,,
+1760604957.327919,2025-10-16,B200,3.02,12,25,neocloud,CoreWeave,1yr 25% prepay 2048 B200 Feb 2026 target,1,,,,,,,,,,,,,,
+1759993734.116339,2025-10-09,H100,1.15,0,0,neocloud,FPT,on-demand 1000+ GPUs,0,,,,,,,,,,,,,,
+1759993734.116339,2025-10-09,B200,2.7,0,0,neocloud,Hydrahost,on-demand 1000+ GPUs InfiniBand,0,,,,,,,,,,,,,,
+1759993734.116339,2025-10-09,B200,2.5,0,0,neocloud,Whitefiber,on-demand 1000+ GPUs RoCE,0,,,,,,,,,,,,,,
+1759508630.785489,2025-10-03,B200,2.8,12,25,neocloud,CoreWeave,1yr partial prepay 1024 GPUs,1,,,,,,,,,,,,,,
+1759508630.785489,2025-10-03,B200,3.3,12,0,neocloud,CoreWeave,1yr no prepay 1024 GPUs,1,,,,,,,,,,,,,,
+1759160170.392029,2025-09-29,H200,2.0,0,0,hyperscaler,Alibaba,on-demand US market,0,,,,,,,,,,,,,,
+1758878892.131339,2025-09-26,H100,1.4,0,0,neocloud,Crusoe,manual preemptible 3-day release notice,0,,,,,,,,,,,,,,
+1758878892.131339,2025-09-26,H200,1.6,0,0,neocloud,Crusoe,manual preemptible 3-day release notice,0,,,,,,,,,,,,,,
+1758668155.409359,2025-09-24,H100,1.15,0,0,neocloud,Prime Intellect,on-demand customer quote,0,,,,,,,,,,,,,,
+1758668155.409359,2025-09-24,H100,1.35,0,0,undisclosed_neocloud,Undisclosed neocloud,similar-sized neocloud to Nebius,0,,,,,,,,,,,,,,
+1757707430.669089,2025-09-12,H200,2.0,12,0,neocloud,CoreWeave,1yr 3000 GPUs deal,0,,,,,,,,,,,,,,
+1755720635.167919,2025-08-20,GB200,3.0,36,0,undisclosed,Undisclosed,Semi Analysis test pricing 3yr floor,0,,,,,,,,,,,,,,
+1755720635.167919,2025-08-20,GB200,2.75,60,0,undisclosed,Undisclosed,Semi Analysis 5yr pricing floor,0,,,,,,,,,,,,,,
+1755533710.900709,2025-08-18,H100,1.8,0,0,broker,Sesterce,MTM 2K GPUs market spike,0,,,,,,,,,,,,,,
+1752708551.373529,2025-07-17,H200,2.0,0,0,neocloud,CoreWeave,less than 1yr 256 GPUs,0,,,,,,,,,,,,,,
+1751300482.444539,2025-06-30,B200,3.79,0,0,neocloud,Lambda,on-demand weekly pricing,0,,,,,,,,,,,,,,
+1751284703.625259,2025-06-30,H200,2.0,12,0,neocloud,Horizon Compute,32-GPU H200 reservation rate,0,,,,,,,,,,,,,,
+1750799264.405269,2025-06-24,GB200,4.0,0,0,hyperscaler,ByteDance,Asia/Europe on-demand starting price,0,,,,,,,,,,,,,,
+1750787590.055599,2025-06-24,B200,4.0,12,0,neocloud,Vultr,1yr minimum $4-6 range lower bound,0,,,,,,,,,,,,,,
+1780422932.324229,2026-06-02,B300,4.25,24,100,neocloud,Verda,24m 100% prepaid 64 GPUs joint offer,1,,,,,,,,,,,,,,
+1780422932.324229,2026-06-02,B300,4.25,24,100,neocloud,CIVO,24m 100% prepaid 64 GPUs joint offer,1,,,,,,,,,,,,,,
+1780592471.289529,2026-06-04,GB300,3.80,36,0,neocloud,BoostRun,20k GPUs US Q4 3yr high $3/hr range,0,,,,,,,,,,,,,,
+1780592471.289529,2026-06-04,GB300,3.80,36,0,neocloud,Nscale,15k GPUs EU Q1 3yr high $3/hr range,0,,,,,,,,,,,,,,
+1780592471.289529,2026-06-04,B300,3.80,0,0,neocloud,BoostRun (unconfirmed),5k GPUs recently signed deal,0,,,,,,,,,,,,,,
+1780592471.289529,2026-06-04,GB300,3.50,36,0,hyperscaler,GCP,3yr 0% prepay signed deal,1,,,,,,,,,,,,,,
+1780684940.660119,2026-06-05,B300,3.85,12,20,undisclosed_neocloud,Undisclosed neocloud,1yr 20% prepay 192 B300s,1,,,,,,,,,,,,,,
+1780998131.414069,2026-06-09,B300,3.81,36,0,neocloud,CoreWeave,3yr unknown prepay B300 deal end-of-year delivery,0,,,,,,,,,,,,,,
+1781225095.772999,2026-06-12,B300,3.80,36,0,undisclosed_hyperscaler,Undisclosed hyperscaler,3yr 0% prepay competitive B300 win vs Nebius,1,,,,,,,,,,,,,,
+1781559030.314519,2026-06-15,VR,5.60,36,20,undisclosed_neocloud,Undisclosed neocloud,Vera Rubin Clustermax Gold-Tier+ quotes $5.60-$5.90 range,1,,,,,,,,,,,,,,
+1781806697.133429,2026-06-18,H100,1.95,12,0,hyperscaler,GCP,"Renewal, 1yr term",0,,,,,,,,,,,,,,
+1782016770.454949,2026-06-21,B200,3.69,24,50,undisclosed_neocloud,Undisclosed neocloud,576 GPUs Aug delivery 24m 50% prepay competitive bid,1,,,,,,,,,,,,,,
+1782016770.454949,2026-06-21,B300,4.00,24,20,undisclosed_neocloud,Undisclosed neocloud,576 GPUs Q4 delivery 24m 20% prepay competitive bid,1,,,,,,,,,,,,,,
+1782016770.454949,2026-06-21,B300,4.95,36,50,undisclosed_hyperscaler,Undisclosed hyperscaler,512 GPUs Nov delivery 36m 50% prepay competitive bid,1,,,,,,,,,,,,,,
+1782153062.086669,2026-06-22,B200,3.50,12,100,neocloud,LAI,1yr term ~5k B200 cluster; 100% prepay assumed,1,,,,,,,,,,,,,,
+1782153062.086669,2026-06-22,GB300,6.00,3,100,neocloud,Pale Blue Dot,3mo term quote; 1600x GB300 deal signed at 6mo (price undisclosed),1,,,,,,,,,,,,,,
+1782335994.895259,2026-06-24,GB300,4.75,0,0,neocloud,Andromeda,1k GB300 launching Sep no commitment term,0,,,,,,,,,,,,,,
+1782351420.240329,2026-06-25,B200,4.0,36,0,broker,Anyscale,92 nodes B200 US AWS-sourced resold 3yr low 4s,0,,,,,,,,,,,,,,
+1759152382.073769,2025-09-29,H200,2.00,0,0,hyperscaler,Alibaba,Alibaba adding H200 in US on-demand at $2,0,,,,,,,,,,,,,,
+1757675144.856659,2025-09-12,GB300,3.30,36,30,undisclosed,Undisclosed,Reflection: 3 shortlisters at $3.30-$3.50 3yr ~30% prepay (vs Nebius $4.6),1,,,,,,,,,,,,,,
+1782899873.480579,2026-07-01,B300,3.75,36,30,neocloud,CoreWeave,B300 committed offer end-2026 new DC 500-1500 GPUs price adj & upgrade clause,1,,,,,,,,,,,,,,
+1782917000.238339,2026-07-01,VR,5.50,36,0,hyperscaler,GCP,3yr VR deal signed; GCP admit below-cost,0,,,,,,,,,,,,,,
+1782917000.238339,2026-07-01,VR,6.00,36,0,neocloud,CoreWeave,3yr VR quote $6-6.50; lost to GCP at $5.50,0,,,,,,,,,,,,,,
+1782917000.238339,2026-07-01,VR,7.00,36,0,undisclosed,Undisclosed,3yr VR quote >$7; lost to GCP at $5.50,0,,,,,,,,,,,,,,
+1783273869.455719,2026-07-05,H200,2.10,3,0,undisclosed_neocloud,Undisclosed neocloud,64 H200 3mo reservation unnamed smaller provider,0,,,,,,,,,,,,,,
+1783273869.455719,2026-07-05,H200,2.40,3,0,neocloud,Crusoe,64 H200 3mo reservation,0,,,,,,,,,,,,,,
+1784643844.899699,2026-07-21,H100,3.26,12,0,neocloud,DigitalOcean,1yr reserved new rate eff Aug 1 2026 (was $2.50),0,,,,,,,,,,,,,,
+1784643844.899699,2026-07-21,H200,3.40,12,0,neocloud,DigitalOcean,1yr reserved new rate eff Aug 1 2026 (was $2.75),0,,,,,,,,,,,,,,
+1784643844.899699,2026-07-21,B300,7.94,12,0,neocloud,DigitalOcean,1yr reserved new rate eff Aug 1 2026 (was $5.65),0,,,,,,,,,,,,,,
+1784643870.877969,2026-07-21,H100,4.41,0,0,neocloud,DigitalOcean,on-demand new rate eff Aug 1 2026 (was $3.39),0,,,,,,,,,,,,,,
+1784643870.877969,2026-07-21,H100,3.89,0,0,neocloud,DigitalOcean,on-demand 8-GPU droplet new rate eff Aug 1 2026 (was $2.99),0,,,,,,,,,,,,,,
+1784643870.877969,2026-07-21,H200,4.47,0,0,neocloud,DigitalOcean,on-demand new rate eff Aug 1 2026 (was $3.44),0,,,,,,,,,,,,,,
+1785773165.072339,2026-08-03,VR,8.00,60,0,neocloud,PaleBlueDot,10K Vera Rubin 5yr 0% down end-2027 delivery,1,,,,,,,,,,,,,,
+1785773165.072339,2026-08-03,B300,3.08,36,20,neocloud,Lightning AI,B300 3yr 20% down AE intel,1,,,,,,,,,,,,,,
+1786040857.456889,2026-08-06,VR,6.00,0,0,undisclosed,Undisclosed,VR mkt $6s-high 7s; hyperscalers low-high 7s (Reflection intel Q2-Q4 2027),0,,,,,,,,,,,,,,
+1786044803.953839,2026-08-06,B300,4.25,12,20,neocloud,Yotta,200xB300 1yr 20% down Sep delivery via Geodesic Labs,1,,,,,,,,,,,,,,
+1786044803.953839,2026-08-06,H200,3.10,12,15,neocloud,Inference.ai,200xH200 1yr 15% down AU neocloud (Geodesic Labs inquiry),1,,,,,,,,,,,,,,
+1786059237.078829,2026-08-07,B300,4.15,36,0,undisclosed,Undisclosed,3yr offer seen by Cursor; prepay unspecified,0,,,,,,,,,,,,,,
+1786059237.078829,2026-08-07,GB300,4.50,36,0,undisclosed,Undisclosed,3yr offer seen by Cursor; prepay unspecified,0,,,,,,,,,,,,,,
+1786061618.219829,2026-08-07,B300,4.90,36,30,broker,SFCompute,256-GPU B300 HGX US-West 3yr 30% prepay SFC quote Aug 2026,1,,,,,,,,,,,,,,
+1786542026.111519,2026-08-12,B200,4.00,12,0,neocloud,Nscale,B200 immediately avail UK 12mo,0,,,,,,,,,,,,,,
+1786579347.449529,2026-08-13,B300,5.00,36,25,neocloud,CoreWeave,B300 3yr 25% upfront low $5s,1,,,,,,,,,,,,,,
+1786582338.528989,2026-08-13,B300,4.00,0,0,undisclosed,Undisclosed,B300 $4 seen past 2mo term unconfirmed,0,,,,,,,,,,,,,,
+1786627944.371599,2026-08-13,VR,6.25,60,50,hyperscaler,GCP,2K VR Q3 2027 GCP draft 5yr 50% upfront,1,,,,,,,,,,,,,,
+1786627944.371599,2026-08-13,VR,5.50,36,0,hyperscaler,GCP,4K VR GCP prev signed deal 3yr,0,,,,,,,,,,,,,,
+1786737623.389179,2026-08-14,B300,5.60,0,0,undisclosed,Undisclosed,4K B300 bridge May start $5.60 undisclosed,0,,,,,,,,,,,,,,
+1786737623.389179,2026-08-14,VR,6.65,48,25,undisclosed,Undisclosed,3K VR Q4'27-Q1'28 4yr 25% prepay undisclosed,1,,,,,,,,,,,,,,
+1786999784.803339,2026-08-17,B300,8.50,3,0,undisclosed_neocloud,Undisclosed,128xB300 3mo Asia premium undisclosed provider,0,,,,,,,,,,,,,,
+1787177223.177889,2026-08-20,GB300,19.00,2,0,undisclosed,Undisclosed,GB300 2-month cluster outbid at $19/hr,0,,,,,,,,,,,,,,
+1787230678.978469,2026-08-20,B300,4.90,36,0,broker,SFCompute,288xB300 3yr w/ resell option,0,,,,,,,,,,,,,,
+1787230678.978469,2026-08-20,B300,4.90,36,0,broker,Ornn,288xB300 3yr w/ resell option,0,,,,,,,,,,,,,,
+1787255339.627099,2026-08-20,GB300,3.70,60,0,undisclosed_hyperscaler,Undisclosed,GB300 5yr Feb 2027 delivery hyperscaler offer,0,,,,,,,,,,,,,,
+1787599134.249799,2026-08-24,B300,4.90,36,0,hyperscaler,AWS,512xB300 3yr no prepay US Jan/Feb delivery,1,,,,,,,,,,,,,,
+1787754903.783139,2026-08-26,VR,6.00,60,20,neocloud,CoreWeave,VR deal $6s 5yr 20% upfront signed few months ago,1,,,,,,,,,,,,,,
+1787772030.233299,2026-08-26,VR,9.00,60,0,neocloud,CoreWeave,VR ~$9 range 5yr term current pricing,0,,,,,,,,,,,,,,
+1787772892.613209,2026-08-26,B300,5.00,36,20,neocloud,CoreWeave,B300 3yr 20-30% down (lower bound $5),1,,,,,,,,,,,,,,
+1787772892.613209,2026-08-26,B300,4.20,36,20,neocloud,IREN,IREN B300 3yr 20% down,1,,,,,,,,,,,,,,
+1788414848.955649,2026-09-03,B300,6.50,3,0,neocloud,IREN,200xB300 3mo Oct start; IREN claims resold Nebius infra,0,,,,,,,,,,,,,,
+1788466826.629979,2026-09-03,B300,5.05,12,30,neocloud,CoreWeave,1024xB300 1yr w/ 1152xVR 5yr 30% prepay package,1,,,,,,,,,,,,,,
+1788466826.629979,2026-09-03,VR,7.35,60,30,neocloud,CoreWeave,1152xVR 5yr w/ 1024xB300 1yr 30% prepay package,1,,,,,,,,,,,,,,
+1788540957.926409,2026-09-04,B300,6.50,3,0,broker,Ornn,256xB300 3mo Paris DC; corr of 1788414848 (Ornn not IREN),0,,,,,,,,,,,,,,
+1789129113.191989,2026-09-11,GB300,5.00,36,30,undisclosed,Undisclosed,7kxGB300 UK Jan2027; UAE customer <$5,1,,,,,,,,,,,,,,
+1789129113.191989,2026-09-11,VR,7.00,0,0,undisclosed,Undisclosed,UAE customer; VR ~$7 undisclosed terms,0,,,,,,,,,,,,,,
+1789132570.330649,2026-09-11,B300,5.39,24,25,neocloud,CoreWeave,Remanence (FR AI lab) 25% upfront; 24 months (confirmed by Tanguy Derouet 2026-09-14),1,,,,,,,,,,,,,,
+1789135521.902249,2026-09-11,H200,2.50,12,0,undisclosed,Undisclosed,Gandara AI (PT) H200 1yr competitor offer,0,,,,,,,,,,,,,,
+1789135614.370919,2026-09-11,B300,5.97,24,20,neocloud,Nscale,Nscale B300 24mo 20% prepay; same $ as Nebius @30%,1,,,,,,,,,,,,,,
+1769453225.167629,2026-01-26,B200,3.0,12,0,neocloud,Together,[audit 2026-09-15] sub-$3 upper bound B200 on 6mo and 1yr terms per second customer; corroborates $2.75 6mo row,0,,,,,,,,,,,,,,
+1771855447.030049,2026-02-23,H100,3.44,0,0,neocloud,Lambda (inferred),[audit 2026-09-15] H100 on-demand list $3.44 raised from $2.99; provider inferred from same-day Lambda price-raise thread,0,,,,,,,,,,,,,,
+1773244814.588709,2026-03-11,B300,3.3,0,0,undisclosed,Undisclosed,[audit 2026-09-15] same prospect saw B300 offers from other NCPs/CSPs $3.30-4.90 across 1/2/3yr terms; lower bound,0,,,,,,,,,,,,,,
+1773607726.691229,2026-03-15,B200,2.6,36,20,undisclosed,Undisclosed,[audit 2026-09-15] supplier quote to Nebius for ToFa B200 procurement 3yr 20% down; same ballpark as $2.80 2yr 50% offer,1,,,,,,,,,,,,,,
+1773755977.501569,2026-03-17,GB300,3.4,36,25,neocloud,CoreWeave (unconfirmed),[audit 2026-09-15] competitive range $3.40-3.75 GB300 3yr 25% prepay; head-to-head vs CoreWeave cloud not BM; 288 GPUs; lower bound,1,,,,,,,,,,,,,,
+1775749768.070139,2026-04-09,VR,5.0,36,50,hyperscaler,GCP,"[audit 2026-09-15] ~4k VR Q4'26/Q1'27 'just over $5' + $50M investment; ~$500M 3yr process, 50% upfront preferred",1,,,,,,,,,,,,,,
+1775749768.070139,2026-04-09,VR,6.0,36,50,neocloud,CoreWeave,"[audit 2026-09-15] VR ~$6+ in same 3yr ~$500M process (50% upfront pref); above GCP, surprised buyer",1,,,,,,,,,,,,,,
+1777411029.125889,2026-04-28,B300,3.0,0,0,neocloud,Lightning AI / Voltage Park,"[audit 2026-09-15] ~$3 large B300 cluster Sep delivery; not GB, not interconnected w/ existing cluster; term/prepay unknown",0,,,,,,,,,,,,,,
+1778230171.438679,2026-05-08,GB300,4.0,0,25,undisclosed,Undisclosed,"[audit 2026-09-15] 114 GB300 Singapore low-$4 w/ 25-30% prepay; term unknown, buyer prefers 12/24mo; lower bound",1,,,,,,,,,,,,,,
+1779198885.778519,2026-05-19,B200,3.4,12,0,neocloud,Lambda,"[audit 2026-09-15] 512+ B200 1yr reservation no prepay, US-based capacity; quotes $3.40-3.50 lower bound",1,,,,,,,,,,,,,,
+1782316306.571539,2026-06-24,GB300,20.0,6,0,neocloud,SpaceX Colossus-2,[audit 2026-09-15] 10k GB300 ~$150M/mo 6mo no prepay; $/GPU-hr derived by Arkady from CNBC report + private customer confirm,1,,,,,,,,,,,,,,
+1782681849.070519,2026-06-28,B300,5.05,12,30,neocloud,Andromeda,[audit 2026-09-15] 1k B300 Sep DC 1yr 30% upfront; end-of-week signing deadline; update to 06-24 intel,1,,,,,,,,,,,,,,
+1782681849.070519,2026-06-28,GB300,5.5,12,30,neocloud,Andromeda,[audit 2026-09-15] 1k GB300 Sep DC 1yr 30% upfront; revises initial $4.75 intel (1782335994.895259),1,,,,,,,,,,,,,,
+1782901181.113229,2026-07-01,H100,3.2,0,0,neocloud,Hyperstack,"[audit 2026-09-15] H100-SXM5 on-demand via Shadeform marketplace, eff Jul 10 2026 (was $2.40)",0,,,,,,,,,,,,,,
+1782901181.113229,2026-07-01,H100,2.6,0,0,neocloud,Hyperstack,"[audit 2026-09-15] H100-NVLink on-demand via Shadeform marketplace, eff Jul 10 2026 (was $1.95)",0,,,,,,,,,,,,,,
+1782901181.113229,2026-07-01,H100,2.5,0,0,neocloud,Hyperstack,"[audit 2026-09-15] H100-PCIe on-demand via Shadeform marketplace, eff Jul 10 2026 (was $1.90)",0,,,,,,,,,,,,,,
+1782901181.113229,2026-07-01,H200,3.99,0,0,neocloud,Hyperstack,"[audit 2026-09-15] H200-SXM5 on-demand via Shadeform marketplace, eff Jul 10 2026 (was $3.50)",0,,,,,,,,,,,,,,
+1782901181.113229,2026-07-01,RTX6000,1.85,0,0,neocloud,Hyperstack,"[audit 2026-09-15] RTX PRO 6000 on-demand via Shadeform marketplace, eff Jul 10 2026 (was $1.80)",0,,,,,,,,,,,,,,
+1782901181.113229,2026-07-01,B200,6.0,0,0,neocloud,Hyperstack,"[audit 2026-09-15] B200 on-demand via Shadeform marketplace, eff Jul 10 2026 (was $3.50)",0,,,,,,,,,,,,,,
+1786040857.456889,2026-08-06,VR,7.0,0,0,undisclosed_hyperscaler,Undisclosed hyperscaler,"[audit 2026-09-15] hyperscalers VR low-7s to high-7s, contracting Q2-Q4 2027 delivery; term unknown; lower bound",0,,,,,,,,,,,,,,
+1744854565.678219,2025-04-17,H100,2.20,12,0,neocloud,CoreWeave,[audit 2026-09-15] 64xH100 12mo quote collected by CentML for its customer,0,,,,,,,,,,,,,,
+1744854565.678219,2025-04-17,H100,1.80,12,0,neocloud,Lambda,[audit 2026-09-15] 64xH100 12mo quote collected by CentML for its customer,0,,,,,,,,,,,,,,
+1744854565.678219,2025-04-17,H100,1.60,12,0,neocloud,Vultr,[audit 2026-09-15] 64xH100 12mo quote collected by CentML for its customer,0,,,,,,,,,,,,,,
+1745319633.974439,2025-04-22,B200,3.29,24,0,broker,CUDO,[audit 2026-09-15] 512xB200 2yr; CUDO relaying unnamed bare-metal supplier price,0,,,,,,,,,,,,,,
+1745319633.974439,2025-04-22,B200,4.29,12,0,broker,CUDO,[audit 2026-09-15] single-node B200 12mo; CUDO relaying unnamed bare-metal supplier price,0,,,,,,,,,,,,,,
+1745402325.590779,2025-04-23,H100,1.60,0,0,neocloud,Voltage Park,[audit 2026-09-15] H100 offer to prospect (media inference platform); term/qty unstated,0,,,,,,,,,,,,,,
+1745402536.388689,2025-04-23,H100,1.50,6,0,neocloud,Crusoe,[audit 2026-09-15] 512xH100 6-month term,0,,,,,,,,,,,,,,
+1745560331.127129,2025-04-25,GB200,3.00,36,0,hyperscaler,AWS,"[audit 2026-09-15] 'low $3s' 3yr GB200 deal, info via Andromeda; lower bound",0,,,,,,,,,,,,,,
+1745859134.847439,2025-04-28,B200,2.89,0,0,neocloud,Vultr,[audit 2026-09-15] website 'starting from' bare metal 8xB200 192GB; term unstated; screenshot,0,,,,,,,,,,,,,,
+1746121612.277629,2025-05-01,H200,1.50,0,0,neocloud,Crusoe,[audit 2026-09-15] OD counteroffer; customer also holds H200 reserve at same $1.50 (term unstated); may be spot-like,0,,,,,,,,,,,,,,
+1746235040.417019,2025-05-03,B200,3.50,12,0,neocloud,Vultr,[audit 2026-09-15] 'mid $3' 1yr; Vultr sells 1yr+ only on B200,0,,,,,,,,,,,,,,
+1746235040.417019,2025-05-03,B200,2.90,24,0,neocloud,Vultr,[audit 2026-09-15] 'high $2s' for longer terms (>1yr unspecified; 24 used),0,,,,,,,,,,,,,,
+1746478624.082709,2025-05-05,H100,0.40,0,0,broker,SF Compute,[audit 2026-09-15] spot/market non-reserved OD w/ autoscaling 0-10+ nodes; customer email,0,,,,,,,,,,,,,,
+1746520151.997409,2025-05-06,B200,3.60,12,0,neocloud,Lambda,[audit 2026-09-15] 16xB200 Quantum-2 US 1yr commit; via friendly 3rd-party outreach,0,,,,,,,,,,,,,,
+1746520151.997409,2025-05-06,B200,2.99,36,0,neocloud,Lambda,[audit 2026-09-15] 16xB200 Quantum-2 US 3yr commit; via friendly 3rd-party outreach,0,,,,,,,,,,,,,,
+1746643961.220979,2025-05-07,H100,2.00,0,0,neocloud,DigitalOcean,[audit 2026-09-15] offer to partner; qty/term unstated,0,,,,,,,,,,,,,,
+1746644409.641689,2025-05-07,B200,3.40,12,0,neocloud,Lambda,[audit 2026-09-15] partner paying $3.40-3.70 1yr commit from two providers incl Lambda; lower bound; nodes unstated,0,,,,,,,,,,,,,,
+1747585255.307699,2025-05-18,B200,5.99,0,0,neocloud,Lambda,[audit 2026-09-15] 1-Click Cluster list: OD 1wk+ 16-512 B200; screenshot,0,,,,,,,,,,,,,,
+1747585255.307699,2025-05-18,B200,3.79,0,0,neocloud,Lambda,[audit 2026-09-15] 1-Click Cluster list: reserved <12mo tier 16-512 B200; screenshot,0,,,,,,,,,,,,,,
+1747585255.307699,2025-05-18,B200,3.49,12,0,neocloud,Lambda,[audit 2026-09-15] 1-Click Cluster list: reserved 1yr 16-512 B200; screenshot,0,,,,,,,,,,,,,,
+1747585255.307699,2025-05-18,B200,3.29,24,0,neocloud,Lambda,[audit 2026-09-15] 1-Click Cluster list: reserved 2yr 16-512 B200; screenshot,0,,,,,,,,,,,,,,
+1747585255.307699,2025-05-18,B200,2.99,36,0,neocloud,Lambda,[audit 2026-09-15] 1-Click Cluster list: reserved 3yr 16-512 B200; screenshot,0,,,,,,,,,,,,,,
+1747862604.050899,2025-05-21,H200,2.25,0,0,neocloud,Horizon Compute,[audit 2026-09-15] OD 1280xH200 Iceland capacity to clear; undercuts Shadeform,0,,,,,,,,,,,,,,
+1748191489.346759,2025-05-25,H100,1.50,1,0,neocloud,Voltage Park,"[audit 2026-09-15] 1-month term (email 05-23); tier not in screenshot, H100 inferred from price + companion H100 msg",0,,,,,,,,,,,,,,
+1748191489.346759,2025-05-25,H100,1.45,2,0,neocloud,Voltage Park,[audit 2026-09-15] 2-month term; same price any qty; mK8S included; tier inferred H100 (see 1mo row),0,,,,,,,,,,,,,,
+1748191489.346759,2025-05-25,H100,1.35,3,0,neocloud,Voltage Park,[audit 2026-09-15] 3-month term 300-500 GPUs; tier inferred H100 (see 1mo row),0,,,,,,,,,,,,,,
+1748191489.346759,2025-05-25,H100,1.30,3,0,neocloud,Voltage Park,[audit 2026-09-15] 3-month term 700 GPUs; tier inferred H100 (see 1mo row),0,,,,,,,,,,,,,,
+1748450183.782329,2025-05-28,H100,1.50,1,0,broker,Compute exchange (CoreWeave capacity),[audit 2026-09-15] H100 CoreWeave cluster 'high quality' month-to-month via compute exchange; screenshot,0,,,,,,,,,,,,,,
+1748450405.066129,2025-05-28,GB200,3.00,0,0,neocloud,BitDeer,"[audit 2026-09-15] ~$3 GB200; 8 racks (576 GPUs), 3 in July 5 later 2025; term unstated",0,,,,,,,,,,,,,,
+1748450405.066129,2025-05-28,H100,1.80,0,0,neocloud,BitDeer,[audit 2026-09-15] H100 rate from BitDeer intro; term unstated,0,,,,,,,,,,,,,,
+1748450405.066129,2025-05-28,H200,2.00,0,0,neocloud,BitDeer,[audit 2026-09-15] H200 $2-2.10 from BitDeer intro; lower bound; term unstated,0,,,,,,,,,,,,,,
+1748450405.066129,2025-05-28,B200,2.50,0,0,neocloud,BitDeer,[audit 2026-09-15] B200 rate from BitDeer intro; term unstated,0,,,,,,,,,,,,,,
+1748454286.539619,2025-05-28,H100,1.10,0,0,neocloud,Crusoe,[audit 2026-09-15] OD per customer; thread doubts true OD (maybe preemptible/commit); volumes unshared,0,,,,,,,,,,,,,,
+1748454286.539619,2025-05-28,H200,1.50,0,0,undisclosed_neocloud,Undisclosed (likely Crusoe),[audit 2026-09-15] H200 OD offer; provider unconfirmed but correlates w/ Crusoe,0,,,,,,,,,,,,,,
+1748478672.099449,2025-05-29,B200,4.90,0,0,neocloud,DataCrunch,[audit 2026-09-15] OD via Shadeform Helsinki 1-8 GPU ($39.20 per 8-GPU node); screenshot,0,,,,,,,,,,,,,,
+1748478672.099449,2025-05-29,B200,5.50,0,0,neocloud,WhiteFiber,[audit 2026-09-15] OD 8xB200 via Shadeform Iceland ($44/node); screenshot,0,,,,,,,,,,,,,,
+1748918837.163359,2025-06-03,H200,2.10,6,0,neocloud,SMC,[audit 2026-09-15] 512xH200 SXM 6-month Singapore DC immediate go-live; screenshot,0,,,,,,,,,,,,,,
+1748918837.163359,2025-06-03,H200,2.06,12,0,neocloud,SMC,[audit 2026-09-15] 512xH200 SXM 12-month Singapore DC immediate go-live; screenshot,0,,,,,,,,,,,,,,
+1749057188.926659,2025-06-04,B200,4.10,2,0,neocloud,FluidStack,[audit 2026-09-15] 16xB200 2-month RoCE; screenshot,0,,,,,,,,,,,,,,
+1749057188.926659,2025-06-04,B200,3.50,12,0,neocloud,FluidStack,[audit 2026-09-15] 128xB200 12-month RoCE; rep expects ~$3.00 by Q4; screenshot,0,,,,,,,,,,,,,,
+1749501519.445149,2025-06-09,B200,3.25,36,0,neocloud,Lambda,[audit 2026-09-15] 3yr 1k B200 reserve offer,0,,,,,,,,,,,,,,
+1750304358.657839,2025-06-19,B200,3.79,0,0,neocloud,Lambda,[audit 2026-09-15] pricing page 16-1.5k B200: OD 1wk+ (was $5.99 on 05-18); re-observed unchanged 07-02,0,,,,,,,,,,,,,,
+1750304358.657839,2025-06-19,B200,3.49,12,0,neocloud,Lambda,[audit 2026-09-15] pricing page 16-1.5k B200: reserved 1yr; unchanged 07-02,0,,,,,,,,,,,,,,
+1750304358.657839,2025-06-19,B200,3.29,24,0,neocloud,Lambda,[audit 2026-09-15] pricing page 16-1.5k B200: reserved 2yr; unchanged 07-02,0,,,,,,,,,,,,,,
+1750304358.657839,2025-06-19,B200,2.99,36,0,neocloud,Lambda,[audit 2026-09-15] pricing page 16-1.5k B200: reserved 3yr; unchanged 07-02,0,,,,,,,,,,,,,,
+1750359445.584469,2025-06-19,B200,3.00,12,0,undisclosed,Market view (internal),[audit 2026-09-15] internal view $3-3.50 for 1K-2K B200 1yr; lower bound; thread reply,0,,,,,,,,,,,,,,
+1750786252.043949,2025-06-24,H200,2.45,0,0,broker,Shadeform,[audit 2026-09-15] 'Excess Supply' OD H200 US single/8-GPU; newsletter screenshot,0,,,,,,,,,,,,,,
+1750787590.055599,2025-06-24,GB200,7.00,0,0,neocloud,Vultr,[audit 2026-09-15] target GB200 price $7-11 (none purchased yet; aspirational); lower bound,0,,,,,,,,,,,,,,
+1750997681.811499,2025-06-27,B200,1.49,0,0,neocloud,DeepInfra,[audit 2026-09-15] promo OD until end-June (excl Nebraska); reverts to $4.49; screenshot,0,,,,,,,,,,,,,,
+1750997681.811499,2025-06-27,B200,4.49,0,0,neocloud,DeepInfra,[audit 2026-09-15] regular OD list ('still cheapest OD'); screenshot,0,,,,,,,,,,,,,,
+1751040156.580559,2025-06-27,GB200,3.00,18,0,undisclosed,Undisclosed (via Andromeda),[audit 2026-09-15] 'sub $3' 18mo 1k GB200 market color; upper bound,0,,,,,,,,,,,,,,
+1751284703.625259,2025-06-30,H100,1.75,0,0,undisclosed_neocloud,Undisclosed (likely E2E Networks),[audit 2026-09-15] 32xH100 w/ 3-month upfront payment; term unstated; email screenshot,0,,,,,,,,,,,,,,
+1751284703.625259,2025-06-30,H200,1.90,0,0,undisclosed_neocloud,Undisclosed (likely E2E Networks),[audit 2026-09-15] 32xH200 w/ 3-month upfront payment; term unstated; email screenshot,0,,,,,,,,,,,,,,
+1751475474.634429,2025-07-02,B200,4.50,0,0,undisclosed,Market view (per Prime Intellect),[audit 2026-09-15] $4.50 OD 'very good market price'; $4.45 beats DataCrunch/Lambda/Sesterce,0,,,,,,,,,,,,,,
+1751530267.804169,2025-07-03,B200,4.49,0,0,neocloud,DataCrunch,[audit 2026-09-15] OD fixed price 8xB200 ($35.92/node); screenshot,0,,,,,,,,,,,,,,
+1751530267.804169,2025-07-03,B200,2.88,0,0,neocloud,DataCrunch,"[audit 2026-09-15] OD dynamic price 8xB200 ($23.05/node) spot-like, max 1.5x fixed; screenshot",0,,,,,,,,,,,,,,
+1752855400.171219,2025-07-18,H100,1.50,0,0,neocloud,E2E Networks,[audit 2026-09-15] 32xH100 'updated rate' quote (Bangalore); term unstated; screenshot 1752855381,0,,,,,,,,,,,,,,
+1752855400.171219,2025-07-18,H200,1.70,0,0,neocloud,E2E Networks,[audit 2026-09-15] 32xH200 'updated rate' quote (Bangalore); term unstated; screenshot 1752855381,0,,,,,,,,,,,,,,
+1752855400.171219,2025-07-18,H100,1.90,0,0,neocloud,E2E Networks,[audit 2026-09-15] on-demand H100; screenshot 1752855381,0,,,,,,,,,,,,,,
+1752855400.171219,2025-07-18,H200,2.30,0,0,neocloud,E2E Networks,[audit 2026-09-15] on-demand H200; screenshot 1752855381,0,,,,,,,,,,,,,,
+1755278027.145329,2025-08-15,H100,1.00,12,0,neocloud,CoreWeave,[audit 2026-09-15] '<$1' 128xH100 1yr reservation per prospect; upper bound; thread doubts it (A100 confusion?),0,,,,,,,,,,,,,,
+1755763977.388349,2025-08-21,H100,1.20,0,0,broker,Valdi (gpulist),[audit 2026-09-15] H100 SXM5 8x quoted on gpulist.valdi.ai; thread reply to 1755533710,0,,,,,,,,,,,,,,
+1759152382.073769,2025-09-29,H200,15.44,0,0,hyperscaler,Alibaba,[audit 2026-09-15] list price/GPU/h before 87% discount (US/SG 8xH200 bare metal); quote dated 09-28,0,,,,,,,,,,,,,,
+1759160170.392029,2025-09-29,H100,0.99,0,0,neocloud,Hyperbolic,[audit 2026-09-15] billboard ad on I-80 SF 'H100s two clicks $0.99'; marketplace OD,0,,,,,,,,,,,,,,
+1759767068.390549,2025-10-06,B200,8.60,0,0,neocloud,CoreWeave,[audit 2026-09-15] CoreWeave OD list B200 cited in discount-logic note (1yr ~40% off w/ 25% TCV prepay),0,,,,,,,,,,,,,,
+1759993734.116339,2025-10-09,B200,2.70,12,0,neocloud,Massed Compute,[audit 2026-09-15] '<$2.70' 1000+ B200 RoCE Nov avail; ~1yr per thread; upper bound; distinct from Hydrahost row,0,,,,,,,,,,,,,,
+1759993734.116339,2025-10-09,B300,2.96,12,0,neocloud,Massed Compute,[audit 2026-09-15] '<$2.96' 1000+ B300 RoCE Jan deploy; ~1yr per thread; upper bound,0,,,,,,,,,,,,,,
+1759993734.116339,2025-10-09,B200,2.60,24,20,neocloud,Hydrahost,[audit 2026-09-15] Roman negotiating w/ Hydra: B200 2yr 20% down bare metal; thread reply,1,,,,,,,,,,,,,,
+1759993734.116339,2025-10-09,B300,3.12,24,20,neocloud,Hydrahost,[audit 2026-09-15] Roman negotiating w/ Hydra: B300 2yr 20% down bare metal; thread reply,1,,,,,,,,,,,,,,
+1760604957.327919,2025-10-16,H100,1.97,12,75,neocloud,CoreWeave,[audit 2026-09-15] 2048 H100 1yr 75% prepay tier (25%=$2.03 in store; 50%=$2.00),1,,,,,,,,,,,,,,
+1760604957.327919,2025-10-16,H100,1.94,12,100,neocloud,CoreWeave,[audit 2026-09-15] 2048 H100 1yr 100% prepay tier,1,,,,,,,,,,,,,,
+1760604957.327919,2025-10-16,B200,2.92,12,75,neocloud,CoreWeave,[audit 2026-09-15] 1248 B200 Feb target 1yr 75% prepay tier (25%=$3.02 in store; 50%=$2.97),1,,,,,,,,,,,,,,
+1760604957.327919,2025-10-16,B200,2.88,12,100,neocloud,CoreWeave,[audit 2026-09-15] 1248 B200 Feb target 1yr 100% prepay tier,1,,,,,,,,,,,,,,
+1765267345.620039,2025-12-09,H200,1.30,6,0,undisclosed,Undisclosed,"[audit 2026-09-15] most aggressive H200 seen: ~256 GPUs, 6-12mo term context; thread reply to 1765258716",0,,,,,,,,,,,,,,
+1789491104.048739,2026-09-15,VR,6.30,0,20,neocloud,CoreWeave,"Jane Street: previous deal signed with CoreWeave ~$6.3/hr, 20% upfront, 30k VR; term not stated (Khaled Ibrahim)",1,,,,,,,,,,,,,,
+1789491104.048739,2026-09-15,VR,7.25,0,30,undisclosed,Undisclosed,HRT: seeing low-mid $7s with 30% upfront for VR; midpoint 7.25; provider and term not stated (Khaled Ibrahim),1,,,,,,,,,,,,,,
+1789491003.199359,2026-09-15,VR,6.75,60,22,undisclosed,Undisclosed,"Perplexity: 5-year VR deals mid $6 to low $7, 20-25% down; midpoint 6.75 at 22.5%; two clusters 8k/11k; one provider Q2 timeline (Nav Kala)",1,,,,,,,,,,,,,,
+1789659248.860479,2026-09-17,B300,4.01,60,50,hyperscaler,AWS,1024xB300 5yr 50% prepay India; bundled w/ Trainium cluster,1,,,,,,,,,,,,,,

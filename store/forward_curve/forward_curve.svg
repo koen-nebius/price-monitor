@@ -33,10 +33,10 @@
 <circle cx="523.8" cy="278.2" r="4.0" fill="#ffffff" stroke="#4a90d9" stroke-width="2"><title>H100 24m: $2.27 (thin)</title></circle>
 <rect x="746" y="23" width="14" height="3" fill="#4a90d9"/>
 <text x="766" y="28" fill="#222">H100</text>
-<path d="M56.0,245.0 L211.9,247.1 L367.9,248.9 L459.1,260.9" fill="none" stroke="#7b61ff" stroke-width="2.2"/>
+<path d="M56.0,245.0 L211.9,247.1 L367.9,249.3 L459.1,260.9" fill="none" stroke="#7b61ff" stroke-width="2.2"/>
 <circle cx="56.0" cy="245.0" r="4.0" fill="#ffffff" stroke="#7b61ff" stroke-width="2"><title>H200 3m: $3.04 (thin)</title></circle>
 <circle cx="211.9" cy="247.1" r="4.0" fill="#ffffff" stroke="#7b61ff" stroke-width="2"><title>H200 6m: $2.99 (thin)</title></circle>
-<circle cx="367.9" cy="248.9" r="4.5" fill="#7b61ff" stroke="#7b61ff" stroke-width="2"><title>H200 12m: $2.95 (good)</title></circle>
+<circle cx="367.9" cy="249.3" r="4.5" fill="#7b61ff" stroke="#7b61ff" stroke-width="2"><title>H200 12m: $2.94 (good)</title></circle>
 <circle cx="459.1" cy="260.9" r="4.0" fill="#ffffff" stroke="#7b61ff" stroke-width="2"><title>H200 18m: $2.67 (thin)</title></circle>
 <rect x="746" y="41" width="14" height="3" fill="#7b61ff"/>
 <text x="766" y="46" fill="#222">H200</text>
@@ -48,10 +48,10 @@
 <circle cx="615.1" cy="183.4" r="4.0" fill="#ffffff" stroke="#00b97a" stroke-width="2"><title>B200 36m: $4.47 (thin)</title></circle>
 <rect x="746" y="59" width="14" height="3" fill="#00b97a"/>
 <text x="766" y="64" fill="#222">B200</text>
-<path d="M56.0,156.6 L367.9,139.8 L523.8,131.2 L615.1,166.6" fill="none" stroke="#f5c842" stroke-width="2.2"/>
+<path d="M56.0,156.6 L367.9,139.8 L523.8,131.7 L615.1,166.6" fill="none" stroke="#f5c842" stroke-width="2.2"/>
 <circle cx="56.0" cy="156.6" r="4.0" fill="#ffffff" stroke="#f5c842" stroke-width="2"><title>B300 3m: $5.09 (thin)</title></circle>
 <circle cx="367.9" cy="139.8" r="4.5" fill="#f5c842" stroke="#f5c842" stroke-width="2"><title>B300 12m: $5.48 (good)</title></circle>
-<circle cx="523.8" cy="131.2" r="4.5" fill="#f5c842" stroke="#f5c842" stroke-width="2"><title>B300 24m: $5.68 (good)</title></circle>
+<circle cx="523.8" cy="131.7" r="4.5" fill="#f5c842" stroke="#f5c842" stroke-width="2"><title>B300 24m: $5.67 (good)</title></circle>
 <circle cx="615.1" cy="166.6" r="4.5" fill="#f5c842" stroke="#f5c842" stroke-width="2"><title>B300 36m: $4.86 (good)</title></circle>
 <rect x="746" y="77" width="14" height="3" fill="#f5c842"/>
 <text x="766" y="82" fill="#222">B300</text>

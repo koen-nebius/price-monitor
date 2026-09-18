@@ -1,9 +1,12 @@
 *Pricing changes and exceptions · September 18, 2026*
 No eligible price changes above the 3% reporting threshold.
 *Inputs excluded from current comparisons:*
-• aws: Legacy June constants were stamped as fresh API data; use separately fetched published Capacity Block rates (5 rows excluded)
-• nebius: committed reference expired (verified 2026-06-23) (105 rows excluded)
-• sfcompute: quote outside the 48-hour freshness window (1 rows excluded)
+• coreweave: CoreWeave RTX host memory variant is unspecified; on-demand and spot may describe different configurations (4 rows excluded)
+• coreweave: aggregator source update outside the 48-hour freshness window (13 rows excluded)
+• cp_aquanode: aggregator source update outside the 48-hour freshness window (4 rows excluded)
+• cp_cloud-theai: aggregator source update outside the 48-hour freshness window (8 rows excluded)
+• cp_compute: aggregator source update outside the 48-hour freshness window (2 rows excluded)
+15 further exclusions are listed on the page.
 CRM win aggregates are historical (generated 2026-08-15); they are not a current rolling window.
 Prices describe observed offers. Availability, contract terms and acceptance require separate evidence.
 <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Full change ledger, source dates and expandable evidence>

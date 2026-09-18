@@ -1,4 +1,4 @@
 *GPU pricing · September 18, 2026*
 No observed competitor price changes of 3% or more in the eligible snapshot.
-Comparison exclusions: AWS, Nebius, Sfcompute. Reasons and input dates are on the page.
+Comparison exclusions: Coreweave, Aquanode, Cloud Theai, Compute, Gpuoutlet, Lyceum Technology, Novita, Oblivus, Packet AI, Spheron, Upcloud, Voltage, Zettabytecloud Com, Hyperstack, Lambda, Nebius, Sfcompute, Verda. Reasons and input dates are on the page.
 <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Pricing and change ledger> · <https://nebius.atlassian.net/wiki/pages/viewpage.action?pageId=2164457614|Capacity>
