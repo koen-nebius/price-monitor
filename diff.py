@@ -1243,7 +1243,7 @@ def _load_intel(days: int = 60) -> List[Dict]:
     """
     if not INTEL_CSV.exists():
         return []
-    from intel_schema import is_valid
+    from intel_schema import is_valid, is_expired, scope_key
     cutoff = (date.today() - timedelta(days=days)).isoformat()
     rows = []
     seen = set()
@@ -1254,6 +1254,8 @@ def _load_intel(days: int = 60) -> List[Dict]:
                     continue
                 if not is_valid(row):
                     continue   # schema guard (Phase: forced-structured-output port)
+                if is_expired(row, date.today()) or row.get("quote_status") == "signed_deal":
+                    continue  # signed evidence has its own ledger; not a live asking-price floor
                 try:
                     px_key = round(float(row.get("price_per_gpu_hour_usd", "")), 2)
                 except (ValueError, TypeError):
@@ -1265,6 +1267,7 @@ def _load_intel(days: int = 60) -> List[Dict]:
                     str(row.get("term_months", "")),
                     str(row.get("prepay_pct", "")),
                     (row.get("provider_name", "") or "").strip().lower(),
+                    scope_key(row),
                 )
                 if key in seen:
                     continue
@@ -1421,10 +1424,14 @@ def _run_health_line(provider_status: dict) -> str:
             stale.append(f"{p} no data")
         elif st == "error":
             stale.append(f"{p} error")
+        elif st == "catalogue_only":
+            stale.append(f"{p} catalogue refreshed; no scoped numeric price")
+        else:
+            stale.append(f"{p} {st or 'unknown'}")
     color = "green" if len(live) == total else ("yellow" if live else "red")
     banner = (f'<span data-type="status" data-color="{color}">'
               f'{len(live)}/{total} sources live</span>')
-    detail = f' — stale: {", ".join(stale)}' if stale else " — all sources live this run"
+    detail = f' — other source states: {escape(", ".join(stale))}' if stale else " — all sources live this run"
     return f'<p><em>Data freshness: </em>{banner}<em>{detail}</em></p>'
 
 
@@ -2096,17 +2103,21 @@ def _build_short_term_reserved_section(records):
     rows = [r for r in records if r.consumption_type == 'reserved_short' or r.provider == 'sfcompute']
     best = {}
     for r in rows:
-        key = (r.provider, r.gpu_model, r.region, r.consumption_type)
-        if key not in best or r.price_per_gpu_hour_usd < best[key].price_per_gpu_hour_usd:
-            best[key] = r
+        key = (record_key(r), r.gpu_count, r.gpu_count_relation, r.term_min_days,
+               r.term_max_days, r.term_label, r.price_per_gpu_hour_usd)
+        best[key] = r
     html = ['<h2>Short-term reservations and exchange observations</h2>',
             '<p>Published Capacity Block rates and marketplace observations are separate products. '
             'A listed price does not establish an available booking, cluster size or service guarantee. '
             'SF Compute exchange observations are not treated as interruptible spot.</p>',
-            '<table><tbody><tr><th>Provider / GPU</th><th>$/GPU-h</th><th>Product / region</th><th>Observed UTC / source</th></tr>']
-    for r in sorted(best.values(), key=lambda x: (x.gpu_model, x.provider, x.region)):
+            '<table><tbody><tr><th>Provider / GPU</th><th>$/GPU-h</th><th>Product / region</th><th>Quantity / duration</th><th>Observed UTC / source</th></tr>']
+    for r in sorted(best.values(), key=lambda x: (x.gpu_model, x.provider, x.region, x.gpu_count, x.instance_type)):
+        quantity = f'{r.gpu_count:g}' + ('+' if r.gpu_count_relation == 'minimum' else '')
+        if r.gpu_count_relation == 'unknown': quantity = 'unknown'
+        duration = r.term_label or (' / '.join(str(v) for v in (r.term_min_days, r.term_max_days) if v is not None) + ' days' if r.term_min_days is not None else 'duration unreported')
         html.append(f'<tr><td>{escape(_prov_display(r.provider))} {escape(r.gpu_model)}</td>'
                     f'<td>${r.price_per_gpu_hour_usd:.2f}</td><td>{escape(r.instance_type)} / {escape(r.region)}</td>'
+                    f'<td>{quantity} GPUs · {escape(duration)}</td>'
                     f'<td>{escape(r.fetched_at)} · <a href="{escape(r.source_url, quote=True)}">source</a></td></tr>')
     html.append('</tbody></table>')
     if not best:
@@ -2244,7 +2255,7 @@ def _build_rtx_section(records: List[PriceRecord]) -> str:
     return "\n".join(rows)
 
 
-def format_confluence_table(records, run_date, provider_status=None, diffs=None):
+def format_confluence_table(records, run_date, provider_status=None, diffs=None, catalogue_report=None, quote_report=None):
     raw_records = records
     records, notices = publication_records(records, run_date)
     enrich_comparability(records)
@@ -2276,8 +2287,15 @@ def format_confluence_table(records, run_date, provider_status=None, diffs=None)
     html.append(detail('Direct offers requiring qualification',
                        _aggregator_offers_html(raw_records, run_date, direct_references=True)))
     from coverage_report import build_price_coverage, render_coverage
+    if catalogue_report is not None:
+        from offer_catalogue import render_catalogue
+        html.append(detail('Quote-only products and commercial plans', render_catalogue(catalogue_report)))
+    if quote_report is not None:
+        from quote_evidence import render_quote_report
+        html.append(detail('Negotiated evidence: asking prices and signed deals', render_quote_report(quote_report)))
     html.append(detail('Coverage by competitor, GPU, region and purchase type',
-                       render_coverage(build_price_coverage(raw_records, run_date, provider_status))))
+                       render_coverage(build_price_coverage(raw_records, run_date, provider_status,
+                                        catalogue_offers=(catalogue_report or {}).get("offers", []), quote_report=quote_report))))
     html.append(detail('Regional and term price tables', _build_hyperscaler_tables(records)))
     html.append('<p>Methodology correction, 18 September 2026: the Azure fractional-GPU and Together '
                 'on-demand changes previously reported on 17 September were source corrections. '
@@ -2802,6 +2820,7 @@ def _build_peer_tables(records: List[PriceRecord]) -> str:
 def _build_qualified_catalogue_section(records: List[PriceRecord],
                                        provider_status: dict = None) -> str:
     """Keep constrained public tariffs inspectable without implying buyability."""
+    from comparability import is_crusoe_unscoped_reference
     refs = [r for r in records if is_qualified_catalogue_reference(r) or r.price_basis == "account_catalog"]
     if not refs:
         return ""
@@ -2809,12 +2828,12 @@ def _build_qualified_catalogue_section(records: List[PriceRecord],
                                       r.consumption_type, r.region))
     html = [
         '<h2>Catalogue prices — deployment restricted or unconfirmed</h2>',
-        '<p>Published tariffs whose API reports deployment disabled, no listed '
-        'locations, or unknown deployment eligibility. These records are excluded '
+        '<p>Published tariffs with restricted deployment, unreported configuration '
+        'or unknown deployment eligibility. These records are excluded '
         'from ordinary price comparisons, cheapest-provider statistics and price-move '
         'alerts. They do not establish live stock, account quota, or multi-node access. '
-        'The full configured instance is the minimum priced unit; dividing by GPU '
-        'count does not create a purchasable single-GPU offer.</p>',
+        'Where configuration is documented, the full instance is the minimum priced unit. '
+        'A per-GPU reference with unknown configuration does not establish an instance price.</p>',
         '<table data-layout="full-width"><tbody>',
         '<tr><th>Provider / GPU</th><th>Exact SKU / tier</th>'
         '<th>Minimum priced instance</th><th>$/GPU-hr</th><th>Location</th>'
@@ -2823,6 +2842,8 @@ def _build_qualified_catalogue_section(records: List[PriceRecord],
     for r in refs:
         tier = CT_LABELS.get(r.consumption_type, r.consumption_type)
         label = QUALIFIED_CATALOGUE_BASES.get(r.price_basis, "Account catalogue; deployment and public eligibility unverified")
+        if is_crusoe_unscoped_reference(r):
+            label = 'Public per-GPU tariff; configuration and minimum order unreported'
         source = (f'<a href="{escape(r.source_url, quote=True)}">Official catalogue</a>'
                   if r.source_url else 'Source unavailable')
         location = r.region if r.region not in {'', 'unspecified'} else 'Not listed'
@@ -2843,10 +2864,12 @@ def _build_qualified_catalogue_section(records: List[PriceRecord],
                 freshness += f' (cache age {age:g}h)'
         elif status.get('status') in {'error', 'failed'}:
             freshness = 'Fetch failed; not refreshed this run'
+        unit = (f'{r.gpu_count:g} GPUs · ${r.price_per_hour_usd:.2f}/instance-hr'
+                if not is_crusoe_unscoped_reference(r) else 'Configuration and minimum order unknown')
         html.append(
             f'<tr><td>{escape(_provider_display(r.provider))} / {escape(r.gpu_model)}</td>'
             f'<td>{escape(r.instance_type)}<br />{escape(tier)}</td>'
-            f'<td>{r.gpu_count:g} GPUs · ${r.price_per_hour_usd:.2f}/instance-hr</td>'
+            f'<td>{unit}</td>'
             f'<td>${r.price_per_gpu_hour_usd:.4f}</td><td>{escape(location)}</td>'
             f'<td>{escape(label)}<br />{source}</td>'
             f'<td>{escape(observed_text)}<br />{escape(freshness)}</td></tr>'
@@ -3187,6 +3210,8 @@ def _aggregator_offers_html(records, as_of, direct_references=False):
         stock = {True: "Reported available", False: "Reported unavailable", None: "Unknown"}[row.available]
         term = (f"{row.commitment_months} months" if row.commitment_months is not None
                 else row.consumption_type.replace("_", " "))
+        if row.term_label:
+            term += " / " + row.term_label
         if row.offer_variant:
             term += " / " + row.offer_variant
         source = ''

@@ -76,7 +76,7 @@ def publication_records(records, as_of=None):
                     reason = "quote outside the 48-hour freshness window"
             except (ValueError, TypeError, AttributeError):
                 reason = "quote observation time unknown"
-            if not reason and row.source_feed in {"computeprices", "shadeform"}:
+            if not reason and row.source_feed in {"computeprices", "shadeform", "skypilot"}:
                 if row.source_observed_at:
                     try:
                         source_time = observation_time(row.source_observed_at)

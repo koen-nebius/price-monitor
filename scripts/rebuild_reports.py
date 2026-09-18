@@ -20,9 +20,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import diff as renderer
 from config import ALERT_THRESHOLD_PCT, CONFLUENCE_PAGE_URL, provider_tier
-from report_freshness import publication_records
+from report_freshness import publication_records, observation_time
 from schema import PriceRecord
 from coverage_report import build_price_coverage
+from offer_catalogue import build_catalogue_report
+from quote_evidence import build_quote_report, load_rows as load_quote_rows
 
 
 def _hash(value: bytes) -> str:
@@ -87,16 +89,50 @@ def previous_git_run(repo: Path, before: str):
 def _dated_renderer(day, history_path):
     # Legacy helpers use date.today for rolling windows and the reversion ledger.
     # Anchor those reads to the source report date, not the regeneration day.
-    original_date, original_history = renderer.date, renderer.HISTORY_CSV
+    original_date, original_history, original_intel = renderer.date, renderer.HISTORY_CSV, renderer.INTEL_CSV
     class ReportDate(date):
         @classmethod
         def today(cls):
             return cls(day.year, day.month, day.day)
     renderer.date, renderer.HISTORY_CSV = ReportDate, history_path
+    renderer.INTEL_CSV = Path(history_path).parent / "intel.csv"
     try:
         yield
     finally:
-        renderer.date, renderer.HISTORY_CSV = original_date, original_history
+        renderer.date, renderer.HISTORY_CSV, renderer.INTEL_CSV = original_date, original_history, original_intel
+
+
+def _supplementary_evidence(store_dir, completed_at):
+    """Read local evidence at the retrieval-run clock without refreshing its dates."""
+    catalogue_path, intel_path = store_dir / "catalogue.json", store_dir / "intel.csv"
+    inputs = {}
+    for name, path in (("catalogue", catalogue_path), ("field_intelligence", intel_path)):
+        raw = path.read_bytes() if path.exists() else None
+        inputs[name] = {"path": str(path), "present": raw is not None,
+                        "sha256": _hash(raw) if raw is not None else None,
+                        "bytes": len(raw) if raw is not None else 0}
+    saved = json.loads(catalogue_path.read_bytes()) if catalogue_path.exists() else {}
+    offers = saved.get("offers", []) if isinstance(saved, dict) else saved
+    if not isinstance(offers, list):
+        raise ValueError("Saved catalogue must contain an offer list")
+    as_of = observation_time(completed_at)
+    retained = []
+    for row in offers:
+        # Newer saved evidence is not evidence available to an older report.
+        # Missing source dates remain unknown and are labelled by the report.
+        if any(row.get(key) and observation_time(row[key]) > as_of
+               for key in ("observed_at", "retrieved_at")):
+            continue
+        retained.append(row)
+    inputs["catalogue"].update({"input_records": len(offers), "retained_records": len(retained),
+                                 "later_records_excluded": len(offers) - len(retained)})
+    source_health = saved.get("source_health", {}) if isinstance(saved, dict) else {}
+    catalogue = build_catalogue_report(retained, completed_at, source_health)
+    quote_rows = load_quote_rows(intel_path)
+    quote_report = build_quote_report(quote_rows, completed_at)
+    inputs["field_intelligence"]["input_records"] = len(quote_rows)
+    inputs["field_intelligence"]["retained_observations"] = len(quote_report["observations"])
+    return catalogue, quote_report, inputs
 
 
 def _key(value):
@@ -109,6 +145,7 @@ def rebuild_reports(store_dir=ROOT / "store", *, previous_snapshot=None,
     snapshot_path, manifest_path = store_dir / "last_snapshot.json", store_dir / "run_manifest.json"
     snapshot_bytes, manifest_bytes = snapshot_path.read_bytes(), manifest_path.read_bytes()
     records, original, source = read_run(snapshot_bytes, manifest_bytes, "store/last_snapshot.json")
+    catalogue_report, quote_report, supplementary_inputs = _supplementary_evidence(store_dir, original["completed_at"])
     day = date.fromisoformat(original["run_date"])
     run_date = day.strftime("%B %d, %Y")
     if bool(previous_snapshot) != bool(previous_manifest):
@@ -122,10 +159,10 @@ def rebuild_reports(store_dir=ROOT / "store", *, previous_snapshot=None,
     elif discover_git:
         previous = previous_git_run(store_dir.parent, original["run_date"])
 
-    eligible, exclusions = publication_records(records, run_date)
+    eligible, exclusions = publication_records(records, original["completed_at"])
     eligible_keys = {_key(r) for r in eligible}
     old_records = previous[0] if previous else []
-    old_eligible = publication_records(old_records, previous[1]["run_date"])[0] if previous else []
+    old_eligible = publication_records(old_records, previous[1]["completed_at"])[0] if previous else []
     old_keys = {_key(r) for r in old_eligible}
     with _dated_renderer(day, store_dir / "history.csv"):
         raw_diffs = renderer.compute_diff(old_records, records) if previous else []
@@ -147,13 +184,17 @@ def rebuild_reports(store_dir=ROOT / "store", *, previous_snapshot=None,
                        or any(d.change_type == "restatement" for d in diffs))
         providers = original.get("provider_status", {})
         outputs = {
-            "coverage.json": json.dumps(build_price_coverage(records, original["completed_at"], providers), indent=2),
+            "coverage.json": json.dumps(build_price_coverage(
+                records, original["completed_at"], providers,
+                catalogue_offers=catalogue_report["offers"], quote_report=quote_report), indent=2),
+            "quote_coverage.json": json.dumps(quote_report, indent=2),
             "slack_message.txt": renderer.format_slack_summary(
                 diffs, run_date, CONFLUENCE_PAGE_URL, records=records,
                 provider_status=providers, post_thread=post_thread, weekly=weekly),
             "slack_thread.txt": renderer.format_slack_message(
                 diffs, run_date, CONFLUENCE_PAGE_URL, records=records, provider_status=providers),
-            "confluence_body.html": renderer.format_confluence_table(records, run_date, providers, diffs),
+            "confluence_body.html": renderer.format_confluence_table(
+                records, run_date, providers, diffs, catalogue_report=catalogue_report, quote_report=quote_report),
             "spot_auction_body.html": renderer.format_spot_auction_page(records, run_date),
             f"report_diff_{day.isoformat()}.json": json.dumps([d.to_dict() for d in diffs], indent=2),
         }
@@ -178,9 +219,11 @@ def rebuild_reports(store_dir=ROOT / "store", *, previous_snapshot=None,
                                      "slack_message": True, "slack_thread": True,
                                      "confluence_body": True, "spot_auction_body": True}
     manifest["generated_outputs"]["coverage"] = True
+    manifest["generated_outputs"]["quote_coverage"] = True
     manifest["artifact_generation"] = {
         "mode": "offline_regeneration", "generated_at": generated,
         "source": source, "comparison_baseline": previous[2] if previous else None,
+        "supplementary_inputs": supplementary_inputs,
         "comparison_available": previous is not None,
         "source_exclusions": exclusions,
         "suppressed_ineligible_diff_records": len(raw_diffs) - len(diffs),

@@ -39,7 +39,7 @@ def main(argv) -> int:
         cols.append("prepay_known")
     changed = 0
     for r in rows:
-        v = "1" if prepay_known(r) else "0"
+        v = "1" if r.get("prepay_known") == "1" or prepay_known(r) else "0"
         if r.get("prepay_known") != v:
             changed += 1
         r["prepay_known"] = v

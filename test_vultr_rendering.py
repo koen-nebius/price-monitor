@@ -39,7 +39,8 @@ class VultrRenderingTests(unittest.TestCase):
         self.assertEqual((explicit.form_factor, explicit.interconnect), ("SXM", "InfiniBand"))
         peer = offer("crusoe", basis="")
         enrich_comparability([peer])
-        self.assertEqual(peer.form_factor, "SXM")
+        # A provider/GPU name alone cannot establish Crusoe's source configuration.
+        self.assertEqual((peer.form_factor, peer.interconnect), ("unknown", "unknown"))
 
     def test_restricted_tariff_does_not_win_price_or_peer_comparison(self):
         neb = offer("nebius", basis="", price=4)

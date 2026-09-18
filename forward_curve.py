@@ -227,6 +227,9 @@ def load_bid(path: Path = INTEL_CSV) -> list[dict]:
     load_bid.review = len(review)
     review_ids = {id(x["row"]): x for x in review}
     for r in kept:
+        from intel_schema import is_expired
+        if is_expired(r) or r.get("quote_status") == "signed_deal":
+            continue  # separate transaction evidence from the asking-price curve
         tier = (r.get("gpu_model") or "").strip().upper()
         if tier not in TIERS:
             continue

@@ -25,6 +25,13 @@ def offer(**changes):
 
 
 class ComputePricesOfferTests(unittest.TestCase):
+    def test_lambda_and_crusoe_source_offers_are_retained(self):
+        for provider, slug in [("Lambda Labs", "lambda-labs"), ("Lambda", "lambda"), ("Crusoe", "crusoe")]:
+            rows = cp.parse([offer(provider=provider, provider_slug=slug)], NOW)
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0].source_feed, "computeprices")
+            self.assertEqual(rows[0].provider, "cp_" + slug)
+
     def test_coreweave_rtx_unknown_host_variant_is_retained_but_never_inferred_from_price(self):
         from report_freshness import publication_records
         from comparability import is_public_benchmark_eligible

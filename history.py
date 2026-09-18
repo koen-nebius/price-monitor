@@ -77,6 +77,10 @@ COLUMNS = [
     "available",        # published offer signal, not a cluster stock guarantee
     "gpu_variant",
     "offer_variant",
+    "gpu_count_relation",
+    "term_min_days",
+    "term_max_days",
+    "term_label",
 ]
 
 # Consumption types to include — exclude noisy sub-variants (50pct/30pct upfront)
@@ -87,6 +91,7 @@ INCLUDE_CONSUMPTION_TYPES = {
     "preemptible",
     "capacity_block",        # AWS Capacity Blocks — public, capacity-guaranteed, ≤6mo
     "reserved_1yr",
+    "reserved_short",       # selected short reservation; full tier ladder remains in daily JSON
     "reserved_3yr",
     "committed_short_term",  # ≤6mo commitment (Civo, Genesis Cloud, Together.ai)
     "committed_9mo",

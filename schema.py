@@ -69,6 +69,10 @@ class PriceRecord:
     available: Optional[bool] = None  # source signal only; never cluster stock proof
     gpu_variant: str = ""
     offer_variant: str = ""  # commercial tier, e.g. Secure vs Community Cloud
+    gpu_count_relation: str = "exact"  # exact | minimum; a 256+ tier is not exactly 256 GPUs
+    term_min_days: Optional[int] = None
+    term_max_days: Optional[int] = None
+    term_label: str = ""    # preserve the provider's interval; never force it into a fixed tenor
 
     # Derived analytical correction metadata. Raw observations are retained;
     # price_corrections only sets these fields on copies used for comparisons.

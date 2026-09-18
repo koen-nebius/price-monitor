@@ -47,6 +47,7 @@ METHOD = {
     "gmi":          ("self_reported", "pricing-page badges (provider-declared, unverifiable) — never counted"),
     "coreweave":    ("footprint",     "docs AZ matrix: where deployed, not whether in stock"),
     "crusoe":       ("footprint",     "docs zone matrix: where offered, not live stock; authenticated quantities shown separately when connected"),
+    "crusoe_public": ("footprint",    "independently retrieved public VM documentation: exact GPU SKU and location listings; never stock, quota, cluster availability or price bookability"),
     "gcp":          ("footprint",     "GPU zones docs page: where offered"),
     "azure":        ("footprint",     "retail price API: where priced (can overstate deployment)"),
     "nebius":       ("footprint",     "outside-in: docs region matrix + which SKUs are self-service vs sales-gated"),
@@ -672,6 +673,10 @@ def render_confluence(records: List[AvailabilityRecord],
     h.append(_lambda_instance_table(records, manifest))
     h.append(_scaleway_instance_table(records, manifest))
     h.append("<h2>Offering Footprint — where it is sold (NOT whether in stock)</h2>")
+    if "crusoe_public" in manifest.get("provider_status", {}):
+        h.append("<p><strong>Crusoe public catalogue:</strong> "
+                 + _esc(_provider_read_freshness("crusoe_public", manifest))
+                 + ". Documented SKU/location coverage is independent of authenticated capacity checks.</p>")
     fp_provs = ["coreweave", "crusoe", "gcp", "azure", "nebius"]
     h.append('<table data-layout="full-width"><tbody>')
     h.append("<tr><th>GPU</th>" + "".join(f"<th>{_esc(PROVIDER_LABELS[p])}</th>"
@@ -681,6 +686,17 @@ def render_confluence(records: List[AvailabilityRecord],
     for gpu in FLAGSHIP_GPUS + SECONDARY_GPUS + FOOTPRINT_ONLY_GPUS:
         row, any_cell = [f"<td><strong>{gpu}</strong></td>"], False
         for p in fp_provs:
+            if p == "crusoe":
+                exact = [r for r in records if r.provider == p and r.gpu_model == gpu
+                         and r.product_scope == "public_gpu_vm_catalogue"
+                         and r.metric_type == "listed_offering" and r.data_source == "web_scrape"
+                         and r.instance_type and r.region != "global"]
+                if exact:
+                    zones = len({r.region for r in exact})
+                    skus = len({r.instance_type for r in exact})
+                    row.append(f"<td>{plural(zones, 'zone')}; {plural(skus, 'documented SKU')}</td>")
+                    any_cell = True
+                    continue
             rows = [r for r in records if r.provider == p and r.gpu_model == gpu
                     and r.region == "global" and r.data_source != "aggregator"
                     and insights.signal_class(r) == "footprint"]

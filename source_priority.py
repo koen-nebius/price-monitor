@@ -1,5 +1,5 @@
 """Targeted source selection without dropping uncovered fallback offers."""
-import math
+import re
 from dataclasses import replace
 
 # Keep the established provider keys used by report cohorts. A source prefix is
@@ -22,6 +22,52 @@ PROVIDER_ALIASES = {
 }
 
 
+def _provider_token(value):
+    value = str(value or "").strip().lower()
+    if value.startswith(("cp_", "sf_")):
+        value = value[3:]
+    return re.sub(r"[^a-z0-9]", "", value)
+
+
+_NAME_KEYS = {
+    "aws": "aws", "amazonaws": "aws", "amazonwebservices": "aws",
+    "gcp": "gcp", "googlecloud": "gcp", "googlecloudplatform": "gcp",
+    "azure": "azure", "microsoftazure": "azure", "coreweave": "coreweave",
+    "lambda": "lambda", "lambdalabs": "lambda", "lambdacloud": "lambda",
+    "crusoe": "crusoe", "crusoecloud": "crusoe", "nebius": "nebius",
+    "hyperstack": "hyperstack", "nexgencloud": "hyperstack",
+    "oracle": "oracle", "oraclecloud": "oracle", "oci": "oracle",
+    "verda": "verda", "datacrunch": "verda", "runpod": "runpod",
+    "massedcompute": "massedcompute", "vultr": "vultr", "vultrcloud": "vultr",
+    "vast": "vast", "vastai": "vast", "together": "together", "togetherai": "together",
+    "voltage": "cp_voltage", "voltagepark": "cp_voltage",
+    "gmi": "cp_gmi-cloud", "gmicloud": "cp_gmi-cloud", "scaleway": "cp_scaleway",
+    "denvr": "cp_denvr-dataworks", "denvrdataworks": "cp_denvr-dataworks",
+    "sfcompute": "sfcompute", "sanfranciscocompute": "sfcompute",
+}
+
+
+def canonical_provider(provider):
+    """Normalize supplier naming, never use it to equate their offers.
+
+    Existing cohort keys remain stable even when historically prefixed cp_/sf_.
+    Prefix differences between feeds do not create additional competitors.
+    """
+    token = _provider_token(provider)
+    if token in _NAME_KEYS:
+        return _NAME_KEYS[token]
+    if provider in PROVIDER_ALIASES:
+        return PROVIDER_ALIASES[provider]
+    from config import PROVIDER_TIERS
+    for keys in PROVIDER_TIERS.values():
+        for key in keys:
+            if _provider_token(key) == token:
+                return PROVIDER_ALIASES.get(key, key)
+    if str(provider).startswith(("cp_", "sf_")):
+        return "cp_" + re.sub(r"[^a-z0-9]+", "-", str(provider)[3:].lower()).strip("-")
+    return provider
+
+
 def canonicalize_provider_sources(records):
     """Retain offers from every feed while giving each supplier one identity.
 
@@ -36,7 +82,7 @@ def canonicalize_provider_sources(records):
             feed = "computeprices"
         elif not feed and row.provider.startswith("sf_"):
             feed = "shadeform"
-        result.append(replace(row, provider=PROVIDER_ALIASES.get(row.provider, row.provider),
+        result.append(replace(row, provider=canonical_provider(row.provider),
                               source_feed=feed))
     identities = {}
     for row in result:
@@ -64,29 +110,11 @@ def exclude_superseded_vultr(records):
 
 
 def prefer_massed_direct(records, direct_live):
-    """One Massed source per GPU/tier, preserving every SKU in that source.
+    """Compatibility entry point: retain all source/configuration observations.
 
-    Prefer today's direct account catalogue when it has plausible accepted
-    prices. Otherwise prefer ComputePrices, then Shadeform, then direct cache.
-    Account catalogue is labelled separately from public-list evidence in the
-    rendered output; registration does not promote it into enterprise medians.
+    A live account catalogue cannot supersede a different region, host or
+    commercial offer merely because its GPU family and billing tier match.
+    Canonicalization merges supplier identity; comparison eligibility and exact
+    cross-checks are separate from raw source retention.
     """
-    groups = {}
-    for record in records:
-        if record.provider in MASSED_ALIASES | {"massedcompute"}:
-            key = (record.gpu_model, record.consumption_type)
-            groups.setdefault(key, set()).add(record.provider)
-    chosen = {}
-    for key, providers in groups.items():
-        direct = [r for r in records if r.provider == "massedcompute"
-                  and (r.gpu_model, r.consumption_type) == key]
-        valid = bool(direct) and all(
-            math.isfinite(r.price_per_gpu_hour_usd)
-            and 0.20 <= r.price_per_gpu_hour_usd <= 200 for r in direct
-        )
-        priority = (["massedcompute"] if direct_live and valid else []) + [
-            "cp_massedcompute", "cp_massed-compute", "sf_massedcompute", "massedcompute"
-        ]
-        chosen[key] = next(p for p in priority if p in providers)
-    return [r for r in records if r.provider not in MASSED_ALIASES | {"massedcompute"}
-            or chosen[(r.gpu_model, r.consumption_type)] == r.provider]
+    return list(records)

@@ -35,14 +35,13 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
-from intel_quality import prepay_known  # noqa: E402
-from intel_schema import validate_row   # noqa: E402
+from quote_evidence import payment_known  # noqa: E402
+from intel_schema import validate_row, INTEL_COLUMNS   # noqa: E402
 
 PAGE_ID = "2054817562"
 BASE = "https://nebius.atlassian.net/wiki"
 INTEL_CSV = REPO / "store" / "intel.csv"
-COLUMNS = ["message_ts", "message_date", "gpu_model", "price_per_gpu_hour_usd",
-           "term_months", "prepay_pct", "provider_type", "provider_name", "notes", "prepay_known"]
+COLUMNS = INTEL_COLUMNS
 # prepay_known (2026-09-15): 1 when the quote states its prepayment (any non-zero value or an
 # explicit zero in the notes), 0 when 0 % is only the extractor's default. See intel_quality.py.
 
@@ -66,22 +65,61 @@ def extract_csv_lines(storage: str) -> list:
     """
     Pull candidate CSV lines out of the page's storage XHTML. The inbox keeps
     rows in a code block; depending on the editor that is a CDATA code macro,
-    a <pre>, or a <code> element — accept all three, then keep only lines that
-    look like intel rows (>= 8 commas; the header line is skipped by design).
+    a <pre>, or a <code> element. Retain headers and quoted multiline fields
+    together whenever the block contains a candidate nine-column CSV row.
     """
-    chunks = re.findall(r"<!\[CDATA\[(.*?)\]\]>", storage, re.S)
-    chunks += re.findall(r"<pre[^>]*>(.*?)</pre>", storage, re.S)
-    chunks += re.findall(r"<code[^>]*>(.*?)</code>", storage, re.S)
+    raw_chunks = re.findall(r"<!\[CDATA\[(.*?)\]\]>", storage, re.S)
+    markup_chunks = re.findall(r"<pre[^>]*>(.*?)</pre>", storage, re.S)
+    markup_chunks += re.findall(r"<code[^>]*>(.*?)</code>", storage, re.S)
+    chunks = raw_chunks + [html.unescape(re.sub(r"<[^>]+>", "", chunk)) for chunk in markup_chunks]
     lines = []
+    seen = set()
     for chunk in chunks:
-        text = html.unescape(re.sub(r"<[^>]+>", "\n", chunk))
-        for ln in text.splitlines():
-            ln = ln.strip()
-            if not ln or ln.startswith("message_ts,"):
-                continue
-            if ln.count(",") >= 8:
-                lines.append(ln)
+        # Keep quoted multiline notes intact, including continuation lines with
+        # no commas. CDATA is literal content, not markup to strip from notes.
+        text = chunk.strip()
+        if text in seen or not any(ln.count(",") >= 8 for ln in text.splitlines()):
+            continue
+        seen.add(text)
+        lines.extend(text.splitlines())
     return lines
+
+
+def parse_rows(lines):
+    """Legacy nine-column rows and explicit extended headers share one validator."""
+    columns = COLUMNS
+    rows = []
+    for parts in csv.reader(io.StringIO("\n".join(lines))):
+        if parts and parts[0].strip() == "message_ts":
+            columns = [p.strip() for p in parts]
+            continue
+        if len(parts) < 9 or len(parts) > len(columns):
+            continue
+        rows.append(dict(zip(columns, [p.strip() for p in parts])))
+    return rows
+
+
+def append_preserving_schema(path, additions):
+    """Upgrade the CSV header atomically; never append wider rows under an old header."""
+    import os
+    import tempfile
+    path = Path(path)
+    existing, columns = [], list(COLUMNS)
+    if path.exists():
+        with path.open(newline="") as stream:
+            reader = csv.DictReader(stream)
+            columns = list(dict.fromkeys(list(reader.fieldnames or []) + COLUMNS))
+            existing = list(reader)
+    columns = list(dict.fromkeys(columns + [key for row in additions for key in row]))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix=path.name + ".", dir=path.parent)
+    try:
+        with os.fdopen(fd, "w", newline="") as stream:
+            writer = csv.DictWriter(stream, fieldnames=columns)
+            writer.writeheader(); writer.writerows(existing + additions)
+        os.replace(name, path)
+    finally:
+        if os.path.exists(name): os.unlink(name)
 
 
 def main():
@@ -95,12 +133,7 @@ def main():
 
     try:
         lines = extract_csv_lines(storage)
-        rows = []
-        reader = csv.reader(io.StringIO("\n".join(lines)))
-        for parts in reader:
-            if len(parts) < 9:
-                continue
-            rows.append(dict(zip(COLUMNS, [p.strip() for p in parts[:9]])))
+        rows = parse_rows(lines)
         if not rows:
             print("intel-inbox: no candidate rows on the inbox page — nothing to merge")
             return
@@ -132,16 +165,13 @@ def main():
                     dropped += 1
                     print(f"intel-inbox: dropping invalid row ts={ts}: {problems}")
                     continue
-                r["prepay_known"] = "1" if prepay_known(r) else "0"
+                r["prepay_known"] = "1" if payment_known(r) else "0"
                 out.append(r)
                 appended += 1
             existing_ts.add(ts)   # in-batch dedupe too
 
         if out:
-            with open(INTEL_CSV, "a", newline="") as f:
-                w = csv.DictWriter(f, fieldnames=COLUMNS)
-                for r in out:
-                    w.writerow(r)
+            append_preserving_schema(INTEL_CSV, out)
         print(f"intel-inbox: merged {appended} new row(s), "
               f"{dup} already-known, {dropped} invalid (of {len(rows)} on page)")
     except Exception as e:

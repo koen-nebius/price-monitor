@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 
 PRICING_URL = "https://www.coreweave.com/pricing"
 SOURCE_URL = PRICING_URL
+LAST_CATALOGUE_OFFERS = []
+LAST_FETCH_HEALTH = {}
 
 NEBIUS_GPUS = {"H100", "H200", "B200", "B300", "GB200", "GB300", "L40S", "RTX6000"}
 
@@ -45,6 +47,9 @@ PRODUCT_MAP = {
 
 
 def fetch(regions: List[str] = None) -> List[PriceRecord]:
+    global LAST_CATALOGUE_OFFERS, LAST_FETCH_HEALTH
+    LAST_CATALOGUE_OFFERS = []
+    LAST_FETCH_HEALTH = {}
     now = datetime.now(timezone.utc).isoformat()
     try:
         headers = {
@@ -55,11 +60,41 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
         with urllib.request.urlopen(req, timeout=30) as resp:
             html = resp.read().decode("utf-8", errors="replace")
         records = _parse_html(html, now)
+        LAST_CATALOGUE_OFFERS = _parse_catalogue(html, now)
+        LAST_FETCH_HEALTH = {"status": "live" if records else "catalogue_only" if LAST_CATALOGUE_OFFERS else "failed",
+                             "catalogue_count": len(LAST_CATALOGUE_OFFERS)}
         logger.info(f"CoreWeave: {len(records)} records")
         return records
     except Exception as e:
+        LAST_FETCH_HEALTH = {"status": "failed", "reason": "Public rate-card retrieval or parsing failed",
+                             "error_code": type(e).__name__}
         logger.error(f"CoreWeave scrape failed: {e}")
         return []
+
+
+def _parse_catalogue(html: str, now: str):
+    """Retain quote-only rental cells without treating inference rates as GPU rental."""
+    parser = _PricingRows(); parser.feed(html)
+    offers = []
+    for region, block in parser.rows:
+        heading = re.search(r'<h3\b[^>]*data-product=["\']([^"\']+)["\'][^>]*>(.*?)</h3>', block, re.S | re.I)
+        if not heading: continue
+        gpu, _ = _match_product(heading[1])
+        if not gpu: continue
+        title = unescape(re.sub(r"<[^>]+>", " ", heading[2])).strip()
+        text = re.sub(r"\s+", " ", unescape(re.sub(r"<[^>]+>", " ", block))).strip()
+        if "contact sales" not in text.lower(): continue
+        count = _spec(text, "GPU Count")
+        for kind, label in (("on_demand", "On-Demand Price"), ("spot", "Spot Price")):
+            cell = re.search(re.escape(label) + r":(.*?)(?=(?:Spot|Inference Single (?:CPU|GPU)) Price:|$)", text)
+            if not cell or re.search(r"\$[\d,]|N/A", cell[1], re.I): continue
+            offers.append(dict(provider="coreweave", product_id=heading[1], gpu_model=gpu,
+                               gpu_count=count, gpu_count_relation="exact" if count else "unknown",
+                               region=region, purchase_type=kind, price_status="quote_required",
+                               source_url=SOURCE_URL, observed_at=now, retrieved_at=now,
+                               description=title + "; rate requires a sales quote; availability not established",
+                               commercial_terms={}, offer_variant=title, product_family="gpu_rental"))
+    return offers
 
 
 class _PricingRows(HTMLParser):

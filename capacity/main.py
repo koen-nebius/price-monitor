@@ -34,6 +34,7 @@ MIN_BASELINE_SHARE = 0.5
 # provider key → module under capacity/fetchers/ (where they differ)
 FETCHER_MODULES = {
     "lambda": "lambda_labs",   # "lambda" is a Python keyword
+    "crusoe_public": "crusoe",  # independent public docs, not the paused API
 }
 FETCH_HEALTH = {}
 
@@ -54,9 +55,19 @@ def _legacy_missing_credentials(provider):
 def _fetch_provider(provider: str):
     mod = importlib.import_module(f"capacity.fetchers.{FETCHER_MODULES.get(provider, provider)}")
     try:
+        if provider == "crusoe_public":
+            return mod.fetch_public_footprint()
         return mod.fetch()
     finally:
-        FETCH_HEALTH[provider] = dict(getattr(mod, "LAST_FETCH_HEALTH", {}))
+        health_name = "LAST_PUBLIC_FOOTPRINT_HEALTH" if provider == "crusoe_public" else "LAST_FETCH_HEALTH"
+        FETCH_HEALTH[provider] = dict(getattr(mod, health_name, {}))
+
+
+def _is_crusoe_public(record):
+    return (record.provider == "crusoe" and record.metric_type == "listed_offering"
+            and record.product_scope == "public_gpu_vm_catalogue"
+            and record.data_source == "web_scrape" and record.instance_type
+            and record.region != "global")
 
 
 def run(providers=None, test=False):
@@ -98,6 +109,8 @@ def run(providers=None, test=False):
             # Failed health cannot become a successful cache refresh merely
             # because a collector accidentally returned some rows with it.
             records = []
+        if provider == "crusoe_public":
+            records = [r for r in records if _is_crusoe_public(r)]
         if health.get("status") in {"partial", "empty", "pending"}:
             # A complete empty catalogue does not establish zero GPU inventory.
             # A partial read must not replace a complete cache or look healthy.
@@ -115,6 +128,10 @@ def run(providers=None, test=False):
             logger.info(f"{provider}: {len(records)} records (live)")
         else:
             cached, age_h = store.get_cached_records(provider)
+            if provider == "crusoe_public":
+                # No authenticated cache or older family/global footprint may
+                # substitute for this independent exact-SKU document collector.
+                cached = [r for r in cached if _is_crusoe_public(r)]
             if provider == "scaleway":
                 cached = [r for r in cached if is_scaleway_instance(r)]
             if provider == "lambda":
@@ -163,7 +180,8 @@ def run(providers=None, test=False):
     # retain explicitly labelled aggregator observations, never the paused
     # provider's old authoritative data as today's available/zero stock.
     def usable_during_pause(record):
-        return record.provider not in paused or record.data_source == "aggregator"
+        return (record.provider not in paused or record.data_source == "aggregator"
+                or _is_crusoe_public(record))
     all_records = [r for r in all_records if usable_during_pause(r)]
     old_records = [r for r in old_records if usable_during_pause(r)]
 

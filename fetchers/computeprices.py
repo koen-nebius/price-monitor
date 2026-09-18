@@ -43,14 +43,12 @@ FETCH_KEY = "computeprices"
 # from stale-cached aggregator data.
 DATA_SOURCE = "aggregator"
 
-# Known product exclusions and existing direct-source exclusions. CoreWeave is
-# retained as an independent offer source; assembly resolves exact offer overlap.
+# Known product exclusions and existing direct-source exclusions. CoreWeave,
+# Lambda and Crusoe remain source observations, not family-level substitutes.
 SKIP_PROVIDERS = {
     "amazon aws",
     "google cloud",
     "microsoft azure",
-    "lambda labs",
-    "crusoe",
     "nebius",
     "hyperstack",
     "nexgencloud",
@@ -99,9 +97,8 @@ GPU_NAME_MAP = {
 GPU_SLUGS = ["h100", "h200", "b200", "hgx-b300", "gb200", "gb300", "l40s", "rtx-pro-6000"]
 
 
-# ComputePrices provider name → our direct-fetch provider key. Used by the 1.9
-# cross-check: these providers are skipped in the benchmark (we fetch them directly),
-# but ComputePrices is a useful INDEPENDENT second source to validate our numbers.
+# Additional references for providers excluded from the main aggregator feed.
+# Agreement can relay the same rate card; it is not independent confirmation.
 _XCHECK_NAME_MAP = {
     "amazon aws": "aws", "aws": "aws",
     "google cloud": "gcp", "gcp": "gcp",
@@ -116,25 +113,25 @@ _XCHECK_NAME_MAP = {
 }
 
 
-# Cross-check rows older than this are ignored: ComputePrices relays some prices
-# from third-party directories (e.g. shadeform referral links) that can freeze for
-# days while the provider's own page moves. A stale relay is not a valid check —
-# on 2026-07-14 frozen $1.90 shadeform rows (last_updated 07-08) flagged our
-# CORRECT $2.50 Hyperstack scrape for a week after Hyperstack repriced +30%.
-_CROSSCHECK_MAX_AGE_DAYS = 3
+def _crosscheck_provider(name):
+    from source_priority import canonical_provider
+    return canonical_provider(name) in set(_XCHECK_NAME_MAP.values())
 
 
-def fetch_crosscheck() -> Dict[tuple, float]:
-    """
-    Phase 1.9: return {(direct_provider_key, gpu_model): cheapest FRESH on_demand
-    $/GPU-hr} from ComputePrices for the providers we fetch DIRECTLY — an
-    independent second source to validate our primary numbers. Rows with a
-    last_updated older than _CROSSCHECK_MAX_AGE_DAYS are skipped (stale relays);
-    rows without the field are kept. Does NOT enter the benchmark. Graceful:
-    returns {} on any network/parse failure.
+def fetch_crosscheck() -> List[PriceRecord]:
+    """Retain configured source observations for exact-configuration comparison.
+
+    Missing or stale source time is preserved and disqualifies the comparison
+    downstream. The documented feed has no provider SKU or host RAM; no
+    family-level minimum can stand in for those missing dimensions.
     """
     api_key = os.environ.get("COMPUTEPRICES_API_KEY")
-    out: Dict[tuple, float] = {}
+    if not api_key:
+        logger.info("ComputePrices cross-check unavailable: credential not configured")
+        return []
+    out = []
+    seen = set()
+    now = datetime.now(timezone.utc).isoformat()
     for slug in GPU_SLUGS:
         try:
             url = f"{API_BASE}?{urllib.parse.urlencode({'gpu': slug})}"
@@ -142,32 +139,11 @@ def fetch_crosscheck() -> Dict[tuple, float]:
             with urllib.request.urlopen(req, timeout=30) as resp:
                 data = json.loads(resp.read())
         except Exception as e:
-            logger.warning(f"crosscheck slug={slug} failed: {e}")
+            logger.warning("ComputePrices cross-check slug=%s failed: %s", slug, type(e).__name__)
             continue
-        for item in data.get("data", []):
-            key_prov = _XCHECK_NAME_MAP.get((item.get("provider", "") or "").lower())
-            if not key_prov:
-                continue
-            if (item.get("pricing_type") or "on_demand") != "on_demand":
-                continue
-            lu = item.get("last_updated")
-            if lu:
-                try:
-                    age = datetime.now(timezone.utc) - datetime.fromisoformat(lu)
-                    if age.days > _CROSSCHECK_MAX_AGE_DAYS:
-                        continue
-                except (ValueError, TypeError):
-                    pass
-            gpu_model = GPU_NAME_MAP.get((item.get("gpu", "") or "").lower())
-            if not gpu_model:
-                continue
-            amounts = _price_amounts(item)
-            if amounts is None:
-                continue
-            _, _, px = amounts
-            k = (key_prov, gpu_model)
-            if k not in out or px < out[k]:
-                out[k] = px
+        items = [item for item in data.get("data", []) if isinstance(item, dict)
+                 and _crosscheck_provider(_text(item.get("provider")))]
+        out.extend(parse(items, now, seen, include_direct_references=True))
     return out
 
 
@@ -263,7 +239,8 @@ def _price_amounts(item):
     return count, total, per_gpu
 
 
-def parse(items: list, now: str, seen: Optional[set] = None) -> List[PriceRecord]:
+def parse(items: list, now: str, seen: Optional[set] = None,
+          include_direct_references: bool = False) -> List[PriceRecord]:
     """Normalize offer rows without pooling shapes, regions, tiers or terms.
 
     The public OpenAPI defines ``variant`` as the provider's offering tier, not
@@ -279,7 +256,8 @@ def parse(items: list, now: str, seen: Optional[set] = None) -> List[PriceRecord
         provider_name = _text(item.get("provider"))
         if not provider_name:
             continue
-        if provider_name.lower() in SKIP_PROVIDERS:
+        if provider_name.lower() in SKIP_PROVIDERS and not (
+                include_direct_references and _crosscheck_provider(provider_name)):
             continue
 
         gpu_label = _text(item.get("gpu")).lower()
