@@ -3,6 +3,7 @@ import json
 import os
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -106,6 +107,93 @@ class CapacityPublishTests(unittest.TestCase):
         self.assertTrue(self.receipt()['pages']['123']['ok'])
         self.assertNotEqual(publisher.canonical_storage(actual), publisher.canonical_storage(actual.replace('Available', 'Absent')))
         self.assertNotEqual(publisher.canonical_storage(actual), publisher.canonical_storage(actual + '<table/>'))
+
+    def test_server_named_entities_match_without_weakening_content_checks(self):
+        expected = ('<h2>Capacity &#8212; observations</h2><table><tbody><tr>'
+                    '<td><a href="https://example.invalid/source">Source</a></td>'
+                    '<td>&#8805;8&#160;GPUs</td></tr></tbody></table>')
+        actual = expected.replace('&#8212;', '&mdash;').replace('&#8805;', '&ge;').replace('&#160;', '&nbsp;')
+        publisher.BODY_FILE.write_text(expected)
+        with patch.object(publisher, '_request', side_effect=self.responses(actual_body=actual)):
+            self.assertEqual(publisher.main(['--strict']), 0)
+        self.assertFalse(self.receipt()['pages']['123']['raw_body_equal'])
+        self.assertEqual(publisher.canonical_storage(expected), publisher.canonical_storage(actual))
+        changed = [actual.replace('&ge;8', '&ge;4'),
+                   actual.replace('https://example.invalid/source', 'https://example.invalid/different'),
+                   actual.replace('<td>&ge;', '<th>&ge;').replace('GPUs</td>', 'GPUs</th>'),
+                   actual + '<table/>']
+        for body in changed:
+            with self.subTest(body=body):
+                self.assertNotEqual(publisher.canonical_storage(expected), publisher.canonical_storage(body))
+                with patch.object(publisher, '_request', side_effect=self.responses(actual_body=body)):
+                    self.assertEqual(publisher.main(['--strict']), 1)
+
+    def test_unknown_named_entity_is_rejected_and_does_not_erase_text(self):
+        actual = '<p>Observed &unknown_capacity_entity; stock</p>'
+        with self.assertRaises(ET.ParseError):
+            publisher.canonical_storage(actual)
+        with patch.object(publisher, '_request', side_effect=self.responses(actual_body=actual)) as request:
+            self.assertEqual(publisher.main(['--strict']), 1)
+        self.assertEqual([call.args[0] for call in request.call_args_list], ['GET', 'PUT', 'GET'])
+        self.assertFalse(self.receipt()['ok'])
+        self.assertEqual(self.receipt()['stage'], 'read_back')
+
+    def test_verify_only_reads_current_body_once_and_never_publishes(self):
+        body = to_storage(publisher.BODY_FILE.read_text())
+        response = {'title': 'Keep live title', 'version': {'number': 45},
+                    'body': {'storage': {'value': body}}}
+        with patch.object(publisher, '_request', return_value=response) as request:
+            self.assertEqual(publisher.main(['--strict', '--verify-only']), 0)
+        self.assertEqual(request.call_count, 1)
+        self.assertEqual(request.call_args.args[0], 'GET')
+        self.assertIn('/123?expand=version,body.storage', request.call_args.args[1])
+        receipt = self.receipt()
+        self.assertTrue(receipt['ok'])
+        self.assertFalse(receipt['write_attempted'])
+        self.assertEqual(receipt['verification_mode'], 'verify_only')
+        self.assertEqual(receipt['stage'], 'verified')
+        self.assertIn('verified_at', receipt)
+        self.assertNotIn('published_at', receipt)
+        self.assertEqual(receipt['pages']['123']['version'], 45)
+        self.assertEqual(receipt['pages']['123']['verification'], 'canonical_storage_xml')
+        self.assertTrue(receipt['pages']['123']['raw_body_equal'])
+        self.assertNotIn('SENSITIVE_TEST_TOKEN', publisher.RECEIPT_FILE.read_text())
+
+    def test_verify_only_mismatch_never_repairs_or_retries_a_write(self):
+        response = {'title': 'Keep live title', 'version': {'number': 45},
+                    'body': {'storage': {'value': '<p>Different content</p>'}}}
+        with patch.object(publisher, '_request', return_value=response) as request:
+            self.assertEqual(publisher.main(['--strict', '--verify-only']), 1)
+        self.assertEqual([call.args[0] for call in request.call_args_list], ['GET'])
+        receipt = self.receipt()
+        self.assertFalse(receipt['ok'])
+        self.assertFalse(receipt['write_attempted'])
+        self.assertEqual(receipt['verification_mode'], 'verify_only')
+
+    def test_verify_only_rejects_missing_body_or_invalid_metadata_without_write(self):
+        body = to_storage(publisher.BODY_FILE.read_text())
+        invalid = [{'title': 'Keep live title', 'version': {'number': 45}},
+                   {'title': '', 'version': {'number': 45}, 'body': {'storage': {'value': body}}},
+                   {'title': 'Keep live title', 'version': {'number': '45'}, 'body': {'storage': {'value': body}}}]
+        for response in invalid:
+            with self.subTest(response=response), patch.object(publisher, '_request', return_value=response) as request:
+                self.assertEqual(publisher.main(['--strict', '--verify-only']), 1)
+                self.assertEqual([call.args[0] for call in request.call_args_list], ['GET'])
+                self.assertFalse(self.receipt()['ok'])
+                self.assertFalse(self.receipt()['write_attempted'])
+
+    def test_verify_only_keeps_stale_input_gate_and_dry_run_write_free(self):
+        publisher.MANIFEST_FILE.write_text('{"run_date":"2000-01-01"}')
+        with patch.object(publisher, '_request') as request:
+            self.assertEqual(publisher.main(['--strict', '--verify-only']), 1)
+        request.assert_not_called()
+        self.assertFalse(self.receipt()['write_attempted'])
+        publisher.RECEIPT_FILE.unlink()
+        publisher.MANIFEST_FILE.write_text(json.dumps({'run_date': datetime.now(timezone.utc).date().isoformat()}))
+        with patch.object(publisher, '_request') as request:
+            self.assertEqual(publisher.main(['--strict', '--verify-only', '--dry-run']), 0)
+        request.assert_not_called()
+        self.assertFalse(publisher.RECEIPT_FILE.exists())
 
     def test_dry_run_validates_without_credentials_network_or_receipt(self):
         os.environ.pop('CONFLUENCE_API_TOKEN')
