@@ -10,7 +10,12 @@ name: Scrape peer capacity
 on:
   schedule:
     - cron: "23 2 * * *"   # 02:23 UTC daily
-  workflow_dispatch:       # allow manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      verify_only:
+        description: "Verify the existing Confluence page against committed evidence without collecting or publishing again"
+        type: boolean
+        default: false
 
 jobs:
   scrape:
@@ -43,6 +48,7 @@ jobs:
           python3 -m unittest test_capacity_failed_feeds test_capacity_fetch_health test_coverage_report
 
       - name: Bootstrap Confluence page (idempotent, soft-fail)
+        if: ${{ !inputs.verify_only }}
         # Creates "GPU Competitor Capacity — Live Overview" under the pricing
         # page on the very first run and records its id in
         # capacity/store/confluence_page.json. No-ops on every later run.
@@ -52,6 +58,7 @@ jobs:
         run: python3 capacity/bootstrap_confluence.py
 
       - name: Run capacity pipeline
+        if: ${{ !inputs.verify_only }}
         env:
           # Same secrets as the pricing scrape — capacity fetchers reuse them.
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -83,7 +90,7 @@ jobs:
         env:
           CONFLUENCE_EMAIL: ${{ secrets.CONFLUENCE_EMAIL }}
           CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
-        run: python3 capacity/notify_confluence.py --strict
+        run: python3 capacity/notify_confluence.py --strict ${{ inputs.verify_only && '--verify-only' || '' }}
 
       - name: Commit fresh capacity data + post artifacts if changed
         run: |

@@ -22,7 +22,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from capacity.config import CONFLUENCE_BASE_URL
-from confluence_storage import to_storage, validate_xml
+from confluence_storage import to_storage, validate_xml, _numeric_entities
 
 logger = logging.getLogger("capacity.notify_confluence")
 STORE = Path(__file__).parent / "store"
@@ -44,12 +44,13 @@ def _request(method, url, auth, body=None):
 def canonical_storage(body):
     """Compare XML structure/text, ignoring only server-generated macro metadata.
 
-    Confluence adds macro UUIDs and schema-version attributes after PUT. Those
-    do not change content. All other attributes, table/macro structure, links,
+    Confluence may return named HTML entities rather than numeric XML entities,
+    and adds macro UUIDs and schema-version attributes after PUT. Those do not
+    change content. All other attributes, table/macro structure, links,
     child order and non-whitespace text remain part of verification.
     """
     root = ET.fromstring('<root xmlns:ac="http://atlassian.com/content" '
-                         'xmlns:ri="http://atlassian.com/resource/identifier">' + body + '</root>')
+                         'xmlns:ri="http://atlassian.com/resource/identifier">' + _numeric_entities(body) + '</root>')
     ignored = {"{http://atlassian.com/content}macro-id", "{http://atlassian.com/content}schema-version"}
     clean_text = lambda text: re.sub(r"\s+", " ", text or "").strip()
     def content(node):
@@ -70,11 +71,14 @@ def main(argv=None) -> int:
     parser.add_argument("--strict", action="store_true")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--verify-only", action="store_true",
+                        help="Verify the existing page against the committed artifact without a PUT")
     args = parser.parse_args(argv)
     now = datetime.now(timezone.utc)
     force = args.force or os.environ.get("PUBLISH_FORCE") == "1"
     receipt = {"run_date": "", "attempted_at": now.isoformat(timespec="seconds"),
                "publisher": "capacity/notify_confluence.py", "forced": force,
+               "verification_mode": "verify_only" if args.verify_only else "publish_and_verify",
                "ok": False, "write_attempted": False, "stage": "validation", "pages": {}}
     info = {"file": BODY_FILE.name, "ok": False}
     error = None
@@ -111,22 +115,25 @@ def main(argv=None) -> int:
         auth = "Basic " + base64.b64encode(f"{email}:{token}".encode()).decode()
         api = f"{CONFLUENCE_BASE_URL}/rest/api/content/{page_id}"
         receipt["stage"] = "read_current"
-        current = _request("GET", api + "?expand=version", auth)
+        current = _request("GET", api + ("?expand=version,body.storage" if args.verify_only else "?expand=version"), auth)
         title = current.get("title")
         version = current.get("version", {}).get("number")
         if not isinstance(title, str) or not title.strip() or type(version) is not int:
             raise ValueError("live page title or version missing")
-        expected_version = version + 1
+        expected_version = version if args.verify_only else version + 1
         payload = {"version": {"number": expected_version,
                                "message": f"Capacity observations {run_date}"},
                    "title": title, "type": "page",
                    "body": {"storage": {"value": body, "representation": "storage"}}}
         info.update({"title": title, "expected_version": expected_version})
-        receipt.update({"stage": "write", "write_attempted": True})
-        result = _request("PUT", api, auth, payload)
+        if args.verify_only:
+            result = current
+        else:
+            receipt.update({"stage": "write", "write_attempted": True})
+            result = _request("PUT", api, auth, payload)
         info["returned_version"] = result.get("version", {}).get("number")
         receipt["stage"] = "read_back"
-        confirmed = _request("GET", api + "?expand=version,body.storage", auth)
+        confirmed = current if args.verify_only else _request("GET", api + "?expand=version,body.storage", auth)
         actual_body = confirmed.get("body", {}).get("storage", {}).get("value")
         actual_version = confirmed.get("version", {}).get("number")
         info["version"] = actual_version
@@ -141,8 +148,17 @@ def main(argv=None) -> int:
                      "canonical_body_sha256": hashlib.sha256(canonical_storage(body).encode()).hexdigest()})
         verified_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
         info.update({"ok": True, "verified_at": verified_at})
-        receipt.update({"ok": True, "stage": "verified", "published_at": verified_at})
+        receipt.update({"ok": True, "stage": "verified", "verified_at": verified_at})
+        if not args.verify_only:
+            receipt["published_at"] = verified_at
         logger.info("Capacity page %s verified at version %s", page_id, actual_version)
+    except ET.ParseError as exc:
+        # Parser location and entity names diagnose server serialization without
+        # exposing source excerpts, request headers or credentials.
+        receipt["parse_error"] = {"code": exc.code, "position": list(exc.position)}
+        if receipt["stage"] == "read_back" and isinstance(actual_body, str):
+            receipt["parse_error"]["named_entities"] = sorted(set(re.findall(r'&([A-Za-z][A-Za-z0-9]*);', actual_body)))
+        error = "Confluence storage XML could not be parsed during " + receipt["stage"]
     except ValueError as exc:
         # Known validation messages contain no source data or credentials.
         error = str(exc) if type(exc) is ValueError else "Malformed JSON in publication input or response"
