@@ -9,6 +9,7 @@ triggers, GTM claims with provenance grades, and history streaks.
 import csv
 import json
 import logging
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -137,8 +138,10 @@ def live_reads(records: List[AvailabilityRecord], gpu: str) -> List[dict]:
     Multi-SKU providers: most-available state across DIRECT variant rows wins
     (first-variant-wins misstated RunPod RTX6000 as fully sold out while its
     Server Edition had stock — red-team 2026-08-14). Aggregator rows are a
-    fallback only, and can never prove CLUSTER stock: Shadeform booleans
-    cannot see instance size, so cluster_ok requires a direct 'available'."""
+    fallback only. The legacy cluster_ok key now requires explicit eight-GPU
+    evidence, not a generic 'available' label. User-facing node summaries also
+    include qualified exact-instance sources via node_reads, separately from
+    this fleet-style helper; neither helper establishes multi-node stock."""
     reads = []
     providers = {r.provider for r in records if signal_class(r) == "live"}
     for provider in sorted(providers):
@@ -161,7 +164,7 @@ def live_reads(records: List[AvailabilityRecord], gpu: str) -> List[dict]:
             "label": PROVIDER_LABELS.get(provider, provider),
             "state": row.state,
             "aggregator": is_agg,
-            "cluster_ok": row.state == "available" and not is_agg,
+            "cluster_ok": any(node_observation(r) == "available" for r in pool),
             "detail": row.detail,
         })
     return sorted(reads, key=lambda x: ({"available": 0, "limited": 1, "sold_out": 2}[x["state"]], x["label"]))
@@ -180,6 +183,107 @@ def tightness(records: List[AvailabilityRecord], gpu: str) -> Optional[dict]:
         "k_any": sum(1 for r in reads if r["state"] != "sold_out"),
         "any_aggregator": any(r["aggregator"] for r in reads),
     }
+
+
+# Exact single-node evidence is deliberately separate from fleet-level reads.
+# A positive instance label never establishes simultaneous multi-node capacity.
+def node_observation(record: AvailabilityRecord) -> Optional[str]:
+    """Return available/absent/unknown for an explicitly scoped eight-GPU node.
+
+    None means the source is not an eight-GPU observation. Aggregate GPU counts,
+    inference replicas, marketplace depth and aggregator booleans are not nodes.
+    """
+    r = record
+    if r.data_source != "official_api" or r.consumption_type != "on_demand":
+        return None
+    if ((is_lambda_instance(r) or is_scaleway_instance(r)) and r.gpu_count == 8):
+        return {"available": "available", "limited": "available",
+                "sold_out": "absent"}.get(r.state, "unknown")
+    if r.provider == "runpod" and r.region == "global" and r.metric_type == "stock_status_label":
+        # The fetcher's metric is the result of its explicit gpuCount=8 query.
+        # Low remains positive stock; generic 'limited' also covers 1x-only stock.
+        if re.search(r"8x: (High|Medium|Low)\b", r.detail):
+            return "available"
+        if "no 8-GPU" in r.detail or "no Secure Cloud stock at 1x or 8x" in r.detail:
+            return "absent"
+        return "unknown"
+    if r.provider == "verda" and r.region == "global":
+        # The API enumerates deployable instance sizes. Older global rows retain
+        # the size explicitly in their detail; do not infer it from GPU totals.
+        size = re.search(r"largest node (\d+)x", r.detail)
+        if size:
+            return "available" if int(size.group(1)) == 8 else ("absent" if int(size.group(1)) < 8 else "unknown")
+        if "no 8x node" in r.detail:
+            return "absent"
+        if r.state == "sold_out" and r.detail == "in catalog but deployable in no location":
+            return "absent"
+    return None
+
+
+def node_reads(records: List[AvailabilityRecord], gpu: str, manifest: dict = None) -> List[dict]:
+    """One provider vote for observed eight-GPU configurations, unknown separately.
+
+    Positive means at least one observed SKU/zone has a positive node signal.
+    Absent means all eligible observed configurations report absence, never a
+    claim about the provider's unobserved/private fleet. Cached data is unknown
+    for today's count and remains inspectable in the underlying evidence.
+    """
+    groups = {}
+    for r in records:
+        if (r.gpu_model != gpu or r.provider == "nebius" or r.consumption_type != "on_demand"
+                or signal_class(r) not in {"live", "instance", "instance_stock"}):
+            continue
+        groups.setdefault(r.provider, []).append(r)
+    out = []
+    for provider, rows in sorted(groups.items()):
+        direct = [r for r in rows if r.data_source == "official_api"]
+        scoped = [(r, node_observation(r)) for r in direct]
+        scoped = [(r, state) for r, state in scoped if state is not None]
+        states = [state for _, state in scoped]
+        state = ("available" if "available" in states else
+                 "absent" if states and all(v == "absent" for v in states) else "unknown")
+        feed = (manifest or {}).get("provider_status", {}).get(provider, {})
+        if feed and feed.get("status") != "live":
+            state = "unknown"
+        out.append({"provider": provider, "label": PROVIDER_LABELS.get(provider, provider),
+                    "status": state, "records": [r for r, _ in scoped] or direct or rows,
+                    # Lambda region membership is the measured launchability,
+                    # not a change in which exact SKU was checked. Verda's
+                    # global row switches metric names when all sizes disappear.
+                    "scope": sorted({(r.instance_type, "global" if provider == "lambda" else r.region,
+                                      "eight_gpu_availability" if provider in {"lambda", "verda"} else r.metric_type)
+                                     for r, _ in scoped}),
+                    "basis": "official API" if scoped else "8-GPU scope unverified"})
+    return out
+
+
+def node_summary(records, gpu, manifest=None):
+    reads = node_reads(records, gpu, manifest)
+    return {"gpu": gpu, "reads": reads,
+            "available": [r for r in reads if r["status"] == "available"],
+            "absent": [r for r in reads if r["status"] == "absent"],
+            "unknown": [r for r in reads if r["status"] == "unknown"],
+            "checked": [r for r in reads if r["status"] != "unknown"]}
+
+
+def node_changes(records, old_records, manifest=None):
+    """Matched-provider status changes; changing coverage is reported separately."""
+    changes, coverage = [], []
+    for gpu in FLAGSHIP_GPUS:
+        now = {r["provider"]: r for r in node_reads(records, gpu, manifest)}
+        old = {r["provider"]: r for r in node_reads(old_records, gpu)}
+        now_checked = {p for p, r in now.items() if r["status"] != "unknown"}
+        old_checked = {p for p, r in old.items() if r["status"] != "unknown"}
+        added, lost = now_checked - old_checked, old_checked - now_checked
+        if added or lost:
+            coverage.append({"gpu": gpu, "added": sorted(added), "lost": sorted(lost)})
+        for provider in sorted(now_checked & old_checked):
+            n, o = now[provider], old[provider]
+            if n["scope"] != o["scope"]:
+                coverage.append({"gpu": gpu, "changed_scope": [provider], "added": [], "lost": []})
+            elif n["status"] != o["status"]:
+                changes.append({"gpu": gpu, "provider": provider, "old": o["status"], "new": n["status"]})
+    return changes, coverage
 
 
 # ── Market gauges (marketplace / spot context) ───────────────────────────────
@@ -280,26 +384,8 @@ def price_join(records: List[AvailabilityRecord]) -> Dict[str, dict]:
 
 def gtm_claims(records: List[AvailabilityRecord],
                diff: List[CapacityDiffEntry]) -> dict:
-    """Sellout ammo graded by how safe it is to say in a customer call, plus
-    talk tracks that EXPIRED today (restocks)."""
-    ammo, expired = [], []
-    for gpu in FLAGSHIP_GPUS:
-        for r in live_reads(records, gpu):
-            if r["state"] == "sold_out":
-                grade = "verify first (aggregator)" if r["aggregator"] else "safe (provider's own API)"
-                ammo.append({"gpu": gpu, "provider": r["label"], "grade": grade,
-                             "detail": r["detail"]})
-            elif r["state"] == "limited" and not r["aggregator"]:
-                ammo.append({"gpu": gpu, "provider": r["label"],
-                             "grade": "safe (provider's own API)",
-                             "detail": f"no cluster-scale stock: {r['detail']}"})
-    for c in diff:
-        if (c.change_type == "state_change" and c.old_state == "sold_out"
-                and c.new_state in ("available", "limited")
-                and SIGNAL_CLASS.get(c.provider) == "live"):
-            expired.append(f"{PROVIDER_LABELS.get(c.provider, c.provider)} {c.gpu_model} restocked "
-                           f"({'aggregator read' if not c.instance_type else c.instance_type})")
-    return {"ammo": ammo, "expired": expired}
+    """Automatic customer-facing claims are not supported by point-in-time feeds."""
+    return {"ammo": [], "expired": []}
 
 
 # ── History: streaks + trend maturity ────────────────────────────────────────
@@ -383,38 +469,8 @@ def provider_transitions(records: List[AvailabilityRecord],
 def evaluate_triggers(records: List[AvailabilityRecord],
                       old_records: List[AvailabilityRecord],
                       diff: List[CapacityDiffEntry]) -> List[dict]:
-    """Named, owner-routed trigger conditions. Thresholds are PROPOSALS until
-    the channel agrees them (stated on the Confluence page)."""
+    """Outside-in exceptions only; no fleet-wide or pricing-action inference."""
     fired = []
-
-    # T1 — fleet-wide sellout / FULL restock at a DIRECT live source,
-    # aggregated across SKU variants (a 1x-only partial restock is material
-    # but not a trigger).
-    for t in provider_transitions(records, old_records, direct_only=True):
-        if t["new"] == "sold_out" or (t["old"] == "sold_out" and t["new"] == "available"):
-            verb = "sold out" if t["new"] == "sold_out" else "restocked"
-            label = PROVIDER_LABELS.get(t['provider'], t['provider'])
-            fired.append({
-                "id": "T1", "owner": "pricing",
-                "text": f"{label} {t['gpu']} {verb} in all its regions (per {label}'s API)",
-            })
-
-    # T2 — cluster-scale in-stock share crosses 1/3 or 2/3 on a flagship GPU
-    for gpu in FLAGSHIP_GPUS:
-        new_t = tightness(records, gpu)
-        old_t = tightness(old_records, gpu) if old_records else None
-        if not new_t or not old_t or old_t["n"] == 0 or new_t["n"] == 0:
-            continue
-        new_share = new_t["k_cluster"] / new_t["n"]
-        old_share = old_t["k_cluster"] / old_t["n"]
-        for threshold in (1 / 3, 2 / 3):
-            if (old_share - threshold) * (new_share - threshold) < 0:
-                direction = "fell below" if new_share < old_share else "rose above"
-                fired.append({
-                    "id": "T2", "owner": "pricing",
-                    "text": f"{gpu} cluster-scale in-stock share {direction} "
-                            f"{threshold:.0%}: now {new_t['k_cluster']}/{new_t['n']} live sources",
-                })
 
     # T3 — Nebius canary: listed self-service but not bookable per the
     # aggregator. Fires on TRANSITION only — the same line every day since

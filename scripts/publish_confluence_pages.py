@@ -111,12 +111,12 @@ def main(argv) -> int:
     if run_date != today and os.environ.get("PUBLISH_FORCE") != "1":
         log.warning(f"run_date={run_date!r} != today={today}; not publishing "
                     "(set PUBLISH_FORCE=1 to override)")
-        return 0
+        return 1 if strict else 0
 
     email, token = os.environ.get("CONFLUENCE_EMAIL", ""), os.environ.get("CONFLUENCE_API_TOKEN", "")
     if not dry and not (email and token):
         log.warning("CONFLUENCE_EMAIL / CONFLUENCE_API_TOKEN not set — skipping publish")
-        return 0
+        return 1 if strict else 0
     auth = base64.b64encode(f"{email}:{token}".encode()).decode() if not dry else ""
 
     results, failed = {}, False
@@ -124,6 +124,7 @@ def main(argv) -> int:
         if not path.exists() or not path.read_text().strip():
             log.warning(f"{path.name} missing/empty — skipping page {page_id}")
             results[page_id] = {"file": path.name, "ok": False, "error": "artifact missing/empty"}
+            failed = True
             continue
         raw = path.read_text()
         body = to_storage(raw)
@@ -131,7 +132,10 @@ def main(argv) -> int:
         info = {"file": path.name, "bytes": len(body.encode()),
                 "lozenges": body.count('ac:name="status"'), "xml_warning": xml_err}
         if xml_err:
-            log.warning(f"{path.name}: body is not well-formed XML ({xml_err}); publishing anyway, Confluence decides")
+            log.error(f"{path.name}: invalid storage XML ({xml_err}); publication withheld")
+            results[page_id] = {**info, "ok": False, "error": xml_err}
+            failed = True
+            continue
         if dry:
             log.info(f"DRY RUN page {page_id}: {info}")
             results[page_id] = {**info, "ok": None}

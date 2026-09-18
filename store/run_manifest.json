@@ -196,11 +196,77 @@
     "supply: B200 sold out at 3/7 live-stock providers, +2 WoW (Lambda, RunPod, Verda) \u2014 tightening",
     "supply: B300 sold out at 4/7 live-stock providers (Hyperstack, RunPod, Scaleway, Verda)"
   ],
-  "post_thread": true,
+  "post_thread": false,
   "is_weekly": false,
-  "significant_moves": 3,
+  "significant_moves": 0,
   "generated_outputs": {
     "slack_message": true,
-    "confluence_body": true
+    "confluence_body": true,
+    "slack_thread": true,
+    "spot_auction_body": true
+  },
+  "retrieval_diff_count": 123,
+  "comparison_exclusions": [
+    "aws: Legacy June constants were stamped as fresh API data; use separately fetched published Capacity Block rates (5 rows excluded)",
+    "nebius: committed reference expired (verified 2026-06-23) (105 rows excluded)",
+    "sfcompute: quote outside the 48-hour freshness window (1 rows excluded)"
+  ],
+  "comparison_record_count": 1279,
+  "artifacts_generated_at": "2026-09-18T13:20:08.849961+00:00",
+  "artifact_generation": {
+    "mode": "offline_regeneration",
+    "generated_at": "2026-09-18T13:20:08.849961+00:00",
+    "source": {
+      "source": "store/last_snapshot.json",
+      "run_date": "2026-09-18",
+      "snapshot_sha256": "8cac3ec437558b05c2e54cdcf929126907df9fa748acc4478da3a47a42895fc1",
+      "manifest_sha256": "9359abe13d0685a8ae5f0f262e8ae5520339d680cb60886e389e994908d9eb47",
+      "observation_min": "2026-08-26T02:42:23.774248+00:00",
+      "observation_max": "2026-09-18T06:04:39.343818+00:00"
+    },
+    "comparison_baseline": {
+      "source": "git:ee1d0748038c7378b0dafacb1cd2f4d809525a47:store/last_snapshot.json",
+      "run_date": "2026-09-17",
+      "snapshot_sha256": "668988008f1ca5d3d906bc7c2dd8a4f011ad61ebec4000b2bd2e009110941dc8",
+      "manifest_sha256": "647514ca0b74fb3695f98ae53e17522cd2e41bd92412ac70b6a405b7c7e6de59",
+      "observation_min": "2026-08-26T02:42:23.774248+00:00",
+      "observation_max": "2026-09-17T06:14:50.119975+00:00"
+    },
+    "comparison_available": true,
+    "source_exclusions": [
+      "aws: Legacy June constants were stamped as fresh API data; use separately fetched published Capacity Block rates (5 rows excluded)",
+      "nebius: committed reference expired (verified 2026-06-23) (105 rows excluded)",
+      "sfcompute: quote outside the 48-hour freshness window (1 rows excluded)"
+    ],
+    "suppressed_ineligible_diff_records": 0,
+    "diff_types": {
+      "price_change": 5,
+      "added": 62,
+      "removed": 26,
+      "reversion": 30
+    },
+    "artifacts": {
+      "slack_message.txt": {
+        "sha256": "a704743be559ecfc87013f5b1f0cf88ecd917041d205bb38cbed1cc13855ce90",
+        "bytes": 415
+      },
+      "slack_thread.txt": {
+        "sha256": "f7c3f9884a6b52f6722a98669be121013cf62ab7bce067218d39324978698edb",
+        "bytes": 810
+      },
+      "confluence_body.html": {
+        "sha256": "f2a4d5dbcd38ee077c9e84fb459a7c5685c6c5e6a69dfd23726af2cc6933ff11",
+        "bytes": 114607
+      },
+      "spot_auction_body.html": {
+        "sha256": "017565ffeac4324ed892f7495dd5e7c32a1f2fc41db1a84f74bce944db2312cb",
+        "bytes": 3850
+      },
+      "report_diff_2026-09-18.json": {
+        "sha256": "650c3b33d5e131f404091357b62b1de92679dbe5839997fe599734530658d938",
+        "bytes": 33577
+      }
+    },
+    "raw_observations_unchanged": true
   }
 }

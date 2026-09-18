@@ -1,6 +1,6 @@
 {
  "as_of": "2026-09-18",
- "method_version": "1.4 (2026-09-16)",
+ "method_version": "1.4.1 (2026-09-18)",
  "params": {
   "prepay_a": 0.0345,
   "prepay_m": 2.0,
@@ -64,7 +64,9 @@
   "public_contracts": 20,
   "grid_version": "2026-09-07",
   "list_snapshot": "2026-09-18",
-  "cost_floor": "SemiAnalysis AI-Cloud TCO model (Aug-10-2026), Full TCO row 147, Neocloud Giant profile; VR = NVL72 2300W variant"
+  "cost_floor": "SemiAnalysis AI-Cloud TCO model (Aug-10-2026), Full TCO row 147, Neocloud Giant profile; VR = NVL72 2300W variant",
+  "nebius_committed_reference_verified": "2026-06-23",
+  "nebius_committed_reference_eligible": false
  },
  "grid": {
   "version": "2026-09-07",
@@ -361,15 +363,9 @@
    "bid_median_unstated": null,
    "ask_median": 2.43,
    "list_nebius": null,
-   "list_hyperscaler_min": 3.933,
-   "list_hyperscaler_provider": "aws",
-   "list_hyperscalers": [
-    {
-     "provider": "aws",
-     "price": 3.933,
-     "instance_type": "p5.48xlarge"
-    }
-   ],
+   "list_hyperscaler_min": null,
+   "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
    "list_peers": [
     {
      "provider": "cp_civo",
@@ -479,7 +475,7 @@
    "bid_median_all": 2.86,
    "bid_median_unstated": 2.43,
    "ask_median": 2.56,
-   "list_nebius": 2.3,
+   "list_nebius": null,
    "list_hyperscaler_min": 5.0568,
    "list_hyperscaler_provider": "aws",
    "list_hyperscalers": [
@@ -569,7 +565,7 @@
    "bid_median_all": null,
    "bid_median_unstated": null,
    "ask_median": null,
-   "list_nebius": 2.11,
+   "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
@@ -627,7 +623,7 @@
    "bid_median_all": null,
    "bid_median_unstated": null,
    "ask_median": 2.27,
-   "list_nebius": 2.05,
+   "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
@@ -808,15 +804,9 @@
    "bid_median_unstated": 2.1,
    "ask_median": 3.04,
    "list_nebius": null,
-   "list_hyperscaler_min": 4.975,
-   "list_hyperscaler_provider": "aws",
-   "list_hyperscalers": [
-    {
-     "provider": "aws",
-     "price": 4.975,
-     "instance_type": "p5e.48xlarge"
-    }
-   ],
+   "list_hyperscaler_min": null,
+   "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
    "list_peers": [
     {
      "provider": "cp_civo",
@@ -931,7 +921,7 @@
    "bid_median_all": 3.13,
    "bid_median_unstated": 2.5,
    "ask_median": 2.95,
-   "list_nebius": 2.8,
+   "list_nebius": null,
    "list_hyperscaler_min": 5.8152,
    "list_hyperscaler_provider": "azure",
    "list_hyperscalers": [
@@ -1021,7 +1011,7 @@
    "bid_median_all": null,
    "bid_median_unstated": null,
    "ask_median": 2.67,
-   "list_nebius": 2.51,
+   "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
@@ -1079,7 +1069,7 @@
    "bid_median_all": null,
    "bid_median_unstated": null,
    "ask_median": null,
-   "list_nebius": 2.4,
+   "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
@@ -1255,15 +1245,9 @@
    "bid_median_unstated": null,
    "ask_median": 4.56,
    "list_nebius": null,
-   "list_hyperscaler_min": 10.296,
-   "list_hyperscaler_provider": "aws",
-   "list_hyperscalers": [
-    {
-     "provider": "aws",
-     "price": 10.296,
-     "instance_type": "p6-b200.48xlarge"
-    }
-   ],
+   "list_hyperscaler_min": null,
+   "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
    "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
@@ -1358,7 +1342,7 @@
    "bid_median_all": 4.5,
    "bid_median_unstated": 4.19,
    "ask_median": 5.18,
-   "list_nebius": 4.89,
+   "list_nebius": null,
    "list_hyperscaler_min": 11.1159,
    "list_hyperscaler_provider": "gcp",
    "list_hyperscalers": [
@@ -1487,7 +1471,7 @@
    "bid_median_all": 4.27,
    "bid_median_unstated": 4.19,
    "ask_median": null,
-   "list_nebius": 4.55,
+   "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
@@ -1556,7 +1540,7 @@
    "bid_median_all": 4.47,
    "bid_median_unstated": 4.86,
    "ask_median": null,
-   "list_nebius": 4.15,
+   "list_nebius": null,
    "list_hyperscaler_min": 7.0884,
    "list_hyperscaler_provider": "gcp",
    "list_hyperscalers": [
@@ -1667,15 +1651,9 @@
    "bid_median_unstated": 6.5,
    "ask_median": 5.09,
    "list_nebius": null,
-   "list_hyperscaler_min": 11.7,
-   "list_hyperscaler_provider": "aws",
-   "list_hyperscalers": [
-    {
-     "provider": "aws",
-     "price": 11.7,
-     "instance_type": "p6-b300.48xlarge"
-    }
-   ],
+   "list_hyperscaler_min": null,
+   "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
    "list_peers": [
     {
      "provider": "cp_cloud-theai",
@@ -1776,7 +1754,7 @@
    "bid_median_all": 5.14,
    "bid_median_unstated": 7.94,
    "ask_median": 6.03,
-   "list_nebius": 5.29,
+   "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
@@ -1899,7 +1877,7 @@
    "bid_median_all": 5.55,
    "bid_median_unstated": 4.57,
    "ask_median": 5.68,
-   "list_nebius": 4.95,
+   "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
@@ -1973,7 +1951,7 @@
    "bid_median_all": 4.9,
    "bid_median_unstated": 4.63,
    "ask_median": 4.86,
-   "list_nebius": 4.55,
+   "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
@@ -2078,15 +2056,9 @@
    "bid_median_unstated": null,
    "ask_median": null,
    "list_nebius": null,
-   "list_hyperscaler_min": 10.582,
-   "list_hyperscaler_provider": "aws",
-   "list_hyperscalers": [
-    {
-     "provider": "aws",
-     "price": 10.582,
-     "instance_type": "p6e.36xlarge"
-    }
-   ],
+   "list_hyperscaler_min": null,
+   "list_hyperscaler_provider": "",
+   "list_hyperscalers": [],
    "list_peers": [],
    "list_peer_min": null,
    "list_peer_provider": "",
@@ -2536,7 +2508,7 @@
    "bid_median_all": 6.8,
    "bid_median_unstated": null,
    "ask_median": 7.21,
-   "list_nebius": 5.88,
+   "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
@@ -2643,7 +2615,7 @@
    "bid_median_all": 5.47,
    "bid_median_unstated": 5.47,
    "ask_median": null,
-   "list_nebius": 5.62,
+   "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
@@ -2701,7 +2673,7 @@
    "bid_median_all": 4.62,
    "bid_median_unstated": 4.62,
    "ask_median": 6.83,
-   "list_nebius": 5.19,
+   "list_nebius": null,
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
@@ -8043,6 +8015,7 @@
    "tenor_months": 3,
    "outcome": "lost_capacity",
    "opps": 15,
+   "lines": 17,
    "gpus": 4328,
    "p25": 3.4,
    "med": 3.55,
@@ -8057,6 +8030,7 @@
    "tenor_months": 3,
    "outcome": "lost_other",
    "opps": 4,
+   "lines": 4,
    "gpus": 416,
    "p25": 4.11,
    "med": 4.38,
@@ -8071,6 +8045,7 @@
    "tenor_months": 3,
    "outcome": "won",
    "opps": 27,
+   "lines": 42,
    "gpus": 4899,
    "p25": 3.02,
    "med": 3.5,
@@ -8085,6 +8060,7 @@
    "tenor_months": 6,
    "outcome": "lost_capacity",
    "opps": 9,
+   "lines": 9,
    "gpus": 3610,
    "p25": 3.4,
    "med": 3.4,
@@ -8099,6 +8075,7 @@
    "tenor_months": 6,
    "outcome": "won",
    "opps": 8,
+   "lines": 9,
    "gpus": 1496,
    "p25": 3.35,
    "med": 3.55,
@@ -8113,6 +8090,7 @@
    "tenor_months": 12,
    "outcome": "lost_capacity",
    "opps": 18,
+   "lines": 18,
    "gpus": 19408,
    "p25": 3.3,
    "med": 3.99,
@@ -8127,6 +8105,7 @@
    "tenor_months": 12,
    "outcome": "lost_other",
    "opps": 2,
+   "lines": 2,
    "gpus": 9,
    "p25": 3.42,
    "med": 3.45,
@@ -8141,6 +8120,7 @@
    "tenor_months": 12,
    "outcome": "lost_price_or_competitor",
    "opps": 9,
+   "lines": 9,
    "gpus": 3552,
    "p25": 4.93,
    "med": 5.2,
@@ -8155,6 +8135,7 @@
    "tenor_months": 12,
    "outcome": "won",
    "opps": 13,
+   "lines": 14,
    "gpus": 1112,
    "p25": 4.99,
    "med": 5.16,
@@ -8169,6 +8150,7 @@
    "tenor_months": 18,
    "outcome": "lost_other",
    "opps": 2,
+   "lines": 2,
    "gpus": 136,
    "p25": 2.98,
    "med": 3.15,
@@ -8183,6 +8165,7 @@
    "tenor_months": 36,
    "outcome": "won",
    "opps": 2,
+   "lines": 2,
    "gpus": 1064,
    "p25": 4.48,
    "med": 4.65,
@@ -8197,6 +8180,7 @@
    "tenor_months": 3,
    "outcome": "lost_capacity",
    "opps": 3,
+   "lines": 3,
    "gpus": 2432,
    "p25": 5.03,
    "med": 5.56,
@@ -8211,6 +8195,7 @@
    "tenor_months": 3,
    "outcome": "won",
    "opps": 6,
+   "lines": 7,
    "gpus": 352,
    "p25": 3.4,
    "med": 3.5,
@@ -8225,6 +8210,7 @@
    "tenor_months": 6,
    "outcome": "lost_capacity",
    "opps": 7,
+   "lines": 7,
    "gpus": 3689,
    "p25": 4.13,
    "med": 4.48,
@@ -8239,6 +8225,7 @@
    "tenor_months": 6,
    "outcome": "lost_other",
    "opps": 7,
+   "lines": 7,
    "gpus": 712,
    "p25": 3.4,
    "med": 4.0,
@@ -8253,6 +8240,7 @@
    "tenor_months": 12,
    "outcome": "lost_capacity",
    "opps": 21,
+   "lines": 21,
    "gpus": 15894,
    "p25": 3.99,
    "med": 4.7,
@@ -8267,6 +8255,7 @@
    "tenor_months": 12,
    "outcome": "lost_other",
    "opps": 10,
+   "lines": 10,
    "gpus": 8584,
    "p25": 5.05,
    "med": 5.3,
@@ -8281,6 +8270,7 @@
    "tenor_months": 12,
    "outcome": "lost_price_or_competitor",
    "opps": 15,
+   "lines": 15,
    "gpus": 5849,
    "p25": 5.18,
    "med": 5.57,
@@ -8295,6 +8285,7 @@
    "tenor_months": 12,
    "outcome": "won",
    "opps": 16,
+   "lines": 17,
    "gpus": 11920,
    "p25": 4.7,
    "med": 5.29,
@@ -8309,6 +8300,7 @@
    "tenor_months": 24,
    "outcome": "lost_capacity",
    "opps": 3,
+   "lines": 3,
    "gpus": 7304,
    "p25": 4.17,
    "med": 4.25,
@@ -8323,6 +8315,7 @@
    "tenor_months": 24,
    "outcome": "lost_price_or_competitor",
    "opps": 6,
+   "lines": 6,
    "gpus": 12112,
    "p25": 4.55,
    "med": 4.55,
@@ -8337,6 +8330,7 @@
    "tenor_months": 24,
    "outcome": "won",
    "opps": 6,
+   "lines": 6,
    "gpus": 2672,
    "p25": 4.38,
    "med": 4.98,
@@ -8351,6 +8345,7 @@
    "tenor_months": 36,
    "outcome": "lost_capacity",
    "opps": 2,
+   "lines": 2,
    "gpus": 4224,
    "p25": 4.27,
    "med": 4.43,
@@ -8365,6 +8360,7 @@
    "tenor_months": 36,
    "outcome": "lost_other",
    "opps": 2,
+   "lines": 2,
    "gpus": 6024,
    "p25": 3.64,
    "med": 3.73,
@@ -8379,6 +8375,7 @@
    "tenor_months": 36,
    "outcome": "lost_price_or_competitor",
    "opps": 8,
+   "lines": 9,
    "gpus": 19608,
    "p25": 4.25,
    "med": 4.5,
@@ -8393,6 +8390,7 @@
    "tenor_months": 36,
    "outcome": "won",
    "opps": 3,
+   "lines": 3,
    "gpus": 1456,
    "p25": 3.36,
    "med": 3.48,
@@ -8407,6 +8405,7 @@
    "tenor_months": 12,
    "outcome": "lost_capacity",
    "opps": 2,
+   "lines": 2,
    "gpus": 11304,
    "p25": 6.1,
    "med": 6.1,
@@ -8421,6 +8420,7 @@
    "tenor_months": 12,
    "outcome": "lost_price_or_competitor",
    "opps": 3,
+   "lines": 3,
    "gpus": 4608,
    "p25": 5.8,
    "med": 6.0,
@@ -8435,6 +8435,7 @@
    "tenor_months": 12,
    "outcome": "won",
    "opps": 3,
+   "lines": 3,
    "gpus": 6696,
    "p25": 5.52,
    "med": 5.75,
@@ -8449,6 +8450,7 @@
    "tenor_months": 24,
    "outcome": "lost_capacity",
    "opps": 2,
+   "lines": 2,
    "gpus": 1440,
    "p25": 5.2,
    "med": 5.4,
@@ -8463,6 +8465,7 @@
    "tenor_months": 24,
    "outcome": "lost_price_or_competitor",
    "opps": 3,
+   "lines": 3,
    "gpus": 7056,
    "p25": 5.56,
    "med": 5.83,
@@ -8477,6 +8480,7 @@
    "tenor_months": 36,
    "outcome": "lost_other",
    "opps": 3,
+   "lines": 3,
    "gpus": 20088,
    "p25": 4.87,
    "med": 5.15,
@@ -8491,6 +8495,7 @@
    "tenor_months": 36,
    "outcome": "lost_price_or_competitor",
    "opps": 3,
+   "lines": 3,
    "gpus": 11664,
    "p25": 4.57,
    "med": 4.9,
@@ -8505,6 +8510,7 @@
    "tenor_months": 36,
    "outcome": "won",
    "opps": 5,
+   "lines": 5,
    "gpus": 25488,
    "p25": 5.25,
    "med": 5.43,
@@ -8519,6 +8525,7 @@
    "tenor_months": 3,
    "outcome": "lost_capacity",
    "opps": 4,
+   "lines": 4,
    "gpus": 2554,
    "p25": 1.76,
    "med": 1.84,
@@ -8533,6 +8540,7 @@
    "tenor_months": 3,
    "outcome": "lost_other",
    "opps": 3,
+   "lines": 3,
    "gpus": 472,
    "p25": 1.62,
    "med": 1.7,
@@ -8547,6 +8555,7 @@
    "tenor_months": 3,
    "outcome": "won",
    "opps": 8,
+   "lines": 8,
    "gpus": 627,
    "p25": 1.65,
    "med": 2.5,
@@ -8561,6 +8570,7 @@
    "tenor_months": 6,
    "outcome": "lost_capacity",
    "opps": 18,
+   "lines": 18,
    "gpus": 2732,
    "p25": 1.7,
    "med": 1.9,
@@ -8575,6 +8585,7 @@
    "tenor_months": 6,
    "outcome": "lost_other",
    "opps": 8,
+   "lines": 8,
    "gpus": 320,
    "p25": 1.6,
    "med": 1.77,
@@ -8589,6 +8600,7 @@
    "tenor_months": 6,
    "outcome": "lost_price_or_competitor",
    "opps": 2,
+   "lines": 2,
    "gpus": 24,
    "p25": 2.76,
    "med": 2.82,
@@ -8603,6 +8615,7 @@
    "tenor_months": 6,
    "outcome": "won",
    "opps": 11,
+   "lines": 11,
    "gpus": 1504,
    "p25": 1.73,
    "med": 1.9,
@@ -8617,6 +8630,7 @@
    "tenor_months": 12,
    "outcome": "lost_capacity",
    "opps": 21,
+   "lines": 21,
    "gpus": 8584,
    "p25": 1.9,
    "med": 2.3,
@@ -8631,6 +8645,7 @@
    "tenor_months": 12,
    "outcome": "lost_other",
    "opps": 13,
+   "lines": 13,
    "gpus": 1668,
    "p25": 1.8,
    "med": 2.01,
@@ -8645,6 +8660,7 @@
    "tenor_months": 12,
    "outcome": "lost_price_or_competitor",
    "opps": 9,
+   "lines": 9,
    "gpus": 1056,
    "p25": 1.98,
    "med": 2.45,
@@ -8659,6 +8675,7 @@
    "tenor_months": 12,
    "outcome": "won",
    "opps": 24,
+   "lines": 24,
    "gpus": 4511,
    "p25": 1.69,
    "med": 1.92,
@@ -8673,6 +8690,7 @@
    "tenor_months": 24,
    "outcome": "won",
    "opps": 4,
+   "lines": 4,
    "gpus": 1088,
    "p25": 2.04,
    "med": 2.12,
@@ -8687,6 +8705,7 @@
    "tenor_months": 36,
    "outcome": "lost_price_or_competitor",
    "opps": 2,
+   "lines": 2,
    "gpus": 160,
    "p25": 2.67,
    "med": 3.06,
@@ -8701,6 +8720,7 @@
    "tenor_months": 3,
    "outcome": "lost_capacity",
    "opps": 4,
+   "lines": 4,
    "gpus": 72,
    "p25": 3.14,
    "med": 3.5,
@@ -8715,6 +8735,7 @@
    "tenor_months": 3,
    "outcome": "lost_other",
    "opps": 2,
+   "lines": 2,
    "gpus": 88,
    "p25": 2.41,
    "med": 2.78,
@@ -8729,6 +8750,7 @@
    "tenor_months": 3,
    "outcome": "won",
    "opps": 10,
+   "lines": 12,
    "gpus": 832,
    "p25": 2.12,
    "med": 2.5,
@@ -8743,6 +8765,7 @@
    "tenor_months": 6,
    "outcome": "lost_capacity",
    "opps": 14,
+   "lines": 14,
    "gpus": 3570,
    "p25": 1.9,
    "med": 1.98,
@@ -8757,6 +8780,7 @@
    "tenor_months": 6,
    "outcome": "lost_other",
    "opps": 9,
+   "lines": 9,
    "gpus": 328,
    "p25": 1.85,
    "med": 2.1,
@@ -8771,6 +8795,7 @@
    "tenor_months": 6,
    "outcome": "won",
    "opps": 13,
+   "lines": 14,
    "gpus": 1088,
    "p25": 1.85,
    "med": 2.06,
@@ -8785,6 +8810,7 @@
    "tenor_months": 12,
    "outcome": "lost_capacity",
    "opps": 36,
+   "lines": 37,
    "gpus": 11813,
    "p25": 1.95,
    "med": 2.26,
@@ -8799,6 +8825,7 @@
    "tenor_months": 12,
    "outcome": "lost_other",
    "opps": 17,
+   "lines": 19,
    "gpus": 4068,
    "p25": 1.95,
    "med": 2.26,
@@ -8813,6 +8840,7 @@
    "tenor_months": 12,
    "outcome": "lost_price_or_competitor",
    "opps": 4,
+   "lines": 4,
    "gpus": 1960,
    "p25": 1.84,
    "med": 2.05,
@@ -8827,6 +8855,7 @@
    "tenor_months": 12,
    "outcome": "won",
    "opps": 30,
+   "lines": 32,
    "gpus": 14152,
    "p25": 1.9,
    "med": 2.06,
@@ -8841,6 +8870,7 @@
    "tenor_months": 18,
    "outcome": "lost_capacity",
    "opps": 2,
+   "lines": 2,
    "gpus": 2112,
    "p25": 2.11,
    "med": 2.33,
@@ -8855,6 +8885,7 @@
    "tenor_months": 18,
    "outcome": "won",
    "opps": 3,
+   "lines": 4,
    "gpus": 208,
    "p25": 2.5,
    "med": 2.65,
@@ -8869,6 +8900,7 @@
    "tenor_months": 24,
    "outcome": "won",
    "opps": 2,
+   "lines": 2,
    "gpus": 2128,
    "p25": 2.01,
    "med": 2.02,
@@ -8883,6 +8915,7 @@
    "tenor_months": 36,
    "outcome": "lost_price_or_competitor",
    "opps": 3,
+   "lines": 3,
    "gpus": 2056,
    "p25": 1.87,
    "med": 1.9,
@@ -8897,6 +8930,7 @@
    "tenor_months": 3,
    "outcome": "lost_other",
    "opps": 5,
+   "lines": 6,
    "gpus": 144,
    "p25": 5.39,
    "med": 5.72,
@@ -8911,6 +8945,7 @@
    "tenor_months": 3,
    "outcome": "lost_price_or_competitor",
    "opps": 3,
+   "lines": 3,
    "gpus": 56,
    "p25": 5.5,
    "med": 5.5,
@@ -8925,6 +8960,7 @@
    "tenor_months": 3,
    "outcome": "won",
    "opps": 3,
+   "lines": 4,
    "gpus": 520,
    "p25": 0.7,
    "med": 3.22,
@@ -8939,6 +8975,7 @@
    "tenor_months": 6,
    "outcome": "lost_other",
    "opps": 2,
+   "lines": 2,
    "gpus": 1024,
    "p25": 5.5,
    "med": 5.5,
@@ -8953,6 +8990,7 @@
    "tenor_months": 6,
    "outcome": "won",
    "opps": 2,
+   "lines": 2,
    "gpus": 256,
    "p25": 4.74,
    "med": 4.82,
@@ -8967,6 +9005,7 @@
    "tenor_months": 12,
    "outcome": "lost_capacity",
    "opps": 2,
+   "lines": 2,
    "gpus": 1536,
    "p25": 4.86,
    "med": 5.22,
@@ -8981,6 +9020,7 @@
    "tenor_months": 12,
    "outcome": "lost_other",
    "opps": 9,
+   "lines": 9,
    "gpus": 1400,
    "p25": 5.3,
    "med": 5.5,
@@ -8995,6 +9035,7 @@
    "tenor_months": 12,
    "outcome": "won",
    "opps": 2,
+   "lines": 2,
    "gpus": 768,
    "p25": 3.78,
    "med": 4.55,
@@ -9009,6 +9050,7 @@
    "tenor_months": 24,
    "outcome": "lost_other",
    "opps": 2,
+   "lines": 2,
    "gpus": 384,
    "p25": 4.78,
    "med": 4.87,
@@ -9023,6 +9065,7 @@
    "tenor_months": 36,
    "outcome": "lost_other",
    "opps": 4,
+   "lines": 4,
    "gpus": 2564,
    "p25": 4.45,
    "med": 4.5,
@@ -9037,6 +9080,7 @@
    "tenor_months": 3,
    "outcome": "lost_other",
    "opps": 4,
+   "lines": 7,
    "gpus": 88,
    "p25": 6.1,
    "med": 6.1,
@@ -9051,6 +9095,7 @@
    "tenor_months": 3,
    "outcome": "lost_price_or_competitor",
    "opps": 5,
+   "lines": 6,
    "gpus": 112,
    "p25": 7.1,
    "med": 7.1,
@@ -9065,6 +9110,7 @@
    "tenor_months": 3,
    "outcome": "won",
    "opps": 3,
+   "lines": 3,
    "gpus": 296,
    "p25": 6.25,
    "med": 6.9,
@@ -9079,6 +9125,7 @@
    "tenor_months": 6,
    "outcome": "lost_price_or_competitor",
    "opps": 3,
+   "lines": 3,
    "gpus": 2608,
    "p25": 5.54,
    "med": 5.6,
@@ -9093,6 +9140,7 @@
    "tenor_months": 12,
    "outcome": "lost_capacity",
    "opps": 9,
+   "lines": 10,
    "gpus": 1696,
    "p25": 5.5,
    "med": 5.56,
@@ -9107,6 +9155,7 @@
    "tenor_months": 12,
    "outcome": "lost_other",
    "opps": 10,
+   "lines": 13,
    "gpus": 7400,
    "p25": 5.5,
    "med": 5.75,
@@ -9121,6 +9170,7 @@
    "tenor_months": 12,
    "outcome": "lost_price_or_competitor",
    "opps": 4,
+   "lines": 4,
    "gpus": 1216,
    "p25": 5.59,
    "med": 5.68,
@@ -9135,6 +9185,7 @@
    "tenor_months": 24,
    "outcome": "lost_price_or_competitor",
    "opps": 6,
+   "lines": 6,
    "gpus": 5680,
    "p25": 4.95,
    "med": 5.1,
@@ -9149,6 +9200,7 @@
    "tenor_months": 36,
    "outcome": "lost_other",
    "opps": 3,
+   "lines": 3,
    "gpus": 3856,
    "p25": 4.65,
    "med": 4.8,
@@ -9163,6 +9215,7 @@
    "tenor_months": 12,
    "outcome": "lost_price_or_competitor",
    "opps": 3,
+   "lines": 3,
    "gpus": 1656,
    "p25": 8.35,
    "med": 9.2,
@@ -9177,6 +9230,7 @@
    "tenor_months": 24,
    "outcome": "won",
    "opps": 2,
+   "lines": 2,
    "gpus": 216,
    "p25": 5.46,
    "med": 5.51,
@@ -9191,6 +9245,7 @@
    "tenor_months": 36,
    "outcome": "lost_other",
    "opps": 4,
+   "lines": 4,
    "gpus": 7416,
    "p25": 4.0,
    "med": 4.58,
@@ -9205,6 +9260,7 @@
    "tenor_months": 3,
    "outcome": "lost_other",
    "opps": 2,
+   "lines": 2,
    "gpus": 24,
    "p25": 2.95,
    "med": 2.95,
@@ -9219,6 +9275,7 @@
    "tenor_months": 3,
    "outcome": "lost_price_or_competitor",
    "opps": 2,
+   "lines": 2,
    "gpus": 64,
    "p25": 3.18,
    "med": 3.4,
@@ -9233,6 +9290,7 @@
    "tenor_months": 6,
    "outcome": "lost_capacity",
    "opps": 2,
+   "lines": 2,
    "gpus": 144,
    "p25": 2.62,
    "med": 2.7,
@@ -9247,6 +9305,7 @@
    "tenor_months": 12,
    "outcome": "lost_capacity",
    "opps": 3,
+   "lines": 3,
    "gpus": 64,
    "p25": 2.45,
    "med": 2.45,
@@ -9261,6 +9320,7 @@
    "tenor_months": 12,
    "outcome": "lost_other",
    "opps": 3,
+   "lines": 3,
    "gpus": 192,
    "p25": 2.5,
    "med": 2.55,
@@ -9275,6 +9335,7 @@
    "tenor_months": 3,
    "outcome": "lost_capacity",
    "opps": 3,
+   "lines": 5,
    "gpus": 80,
    "p25": 3.0,
    "med": 3.5,
@@ -9289,6 +9350,7 @@
    "tenor_months": 12,
    "outcome": "lost_capacity",
    "opps": 8,
+   "lines": 8,
    "gpus": 1432,
    "p25": 3.0,
    "med": 3.18,
@@ -9303,6 +9365,7 @@
    "tenor_months": 12,
    "outcome": "lost_other",
    "opps": 5,
+   "lines": 5,
    "gpus": 584,
    "p25": 3.2,
    "med": 3.3,
@@ -9317,6 +9380,7 @@
    "tenor_months": 12,
    "outcome": "lost_price_or_competitor",
    "opps": 2,
+   "lines": 2,
    "gpus": 336,
    "p25": 2.15,
    "med": 2.4,
@@ -11949,16 +12013,16 @@
       "hi": 5.65
      },
      "proposal": {
-      "deals": 8,
+      "deals": 9,
       "months": 2,
-      "gpus": 1432,
+      "gpus": 1464,
       "first_month": "2026-08",
       "latest_month": "2026-09",
       "withheld": false,
       "sources": [
        "salesforce_quotes"
       ],
-      "p0": 5.25,
+      "p0": 5.55,
       "lo": 4.99,
       "hi": 6.31
      }
@@ -11980,16 +12044,16 @@
       "hi": 7.19
      },
      "proposal": {
-      "deals": 21,
+      "deals": 20,
       "months": 2,
-      "gpus": 4304,
+      "gpus": 4176,
       "first_month": "2026-08",
       "latest_month": "2026-09",
       "withheld": false,
       "sources": [
        "salesforce_quotes"
       ],
-      "p0": 5.33,
+      "p0": 5.43,
       "lo": 3.0,
       "hi": 7.19
      }
@@ -12038,9 +12102,9 @@
       "hi": 5.96
      },
      "proposal": {
-      "deals": 1,
+      "deals": 2,
       "months": 1,
-      "gpus": 128,
+      "gpus": 384,
       "first_month": "2026-08",
       "latest_month": "2026-08",
       "withheld": true,
@@ -12099,9 +12163,9 @@
       "hi": 6.1
      },
      "proposal": {
-      "deals": 8,
+      "deals": 9,
       "months": 2,
-      "gpus": 152,
+      "gpus": 168,
       "first_month": "2026-08",
       "latest_month": "2026-09",
       "withheld": false,
@@ -12109,7 +12173,7 @@
        "salesforce_quotes"
       ],
       "p0": 7.1,
-      "lo": 5.32,
+      "lo": 5.31,
       "hi": 7.85
      }
     },
@@ -12130,11 +12194,11 @@
       "hi": 7.87
      },
      "proposal": {
-      "deals": 7,
-      "months": 1,
-      "gpus": 1472,
+      "deals": 8,
+      "months": 2,
+      "gpus": 1568,
       "first_month": "2026-08",
-      "latest_month": "2026-08",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
        "salesforce_quotes"
@@ -12161,16 +12225,16 @@
       "hi": 7.85
      },
      "proposal": {
-      "deals": 54,
+      "deals": 55,
       "months": 2,
-      "gpus": 31272,
+      "gpus": 37352,
       "first_month": "2026-08",
       "latest_month": "2026-09",
       "withheld": false,
       "sources": [
        "salesforce_quotes"
       ],
-      "p0": 5.59,
+      "p0": 5.63,
       "lo": 3.02,
       "hi": 7.89
      }
@@ -12188,11 +12252,11 @@
       ]
      },
      "proposal": {
-      "deals": 2,
-      "months": 2,
-      "gpus": 352,
+      "deals": 1,
+      "months": 1,
+      "gpus": 256,
       "first_month": "2026-08",
-      "latest_month": "2026-09",
+      "latest_month": "2026-08",
       "withheld": true,
       "sources": [
        "salesforce_quotes"
@@ -12201,9 +12265,9 @@
     },
     "24": {
      "lost": {
-      "deals": 23,
+      "deals": 24,
       "months": 8,
-      "gpus": 37328,
+      "gpus": 37392,
       "first_month": "2025-11",
       "latest_month": "2026-09",
       "withheld": false,
@@ -12216,9 +12280,9 @@
       "hi": 6.57
      },
      "proposal": {
-      "deals": 16,
+      "deals": 17,
       "months": 2,
-      "gpus": 4620,
+      "gpus": 5020,
       "first_month": "2026-08",
       "latest_month": "2026-09",
       "withheld": false,
@@ -12247,9 +12311,9 @@
       "hi": 5.76
      },
      "proposal": {
-      "deals": 12,
+      "deals": 13,
       "months": 2,
-      "gpus": 18088,
+      "gpus": 20088,
       "first_month": "2026-08",
       "latest_month": "2026-09",
       "withheld": false,
@@ -12309,18 +12373,18 @@
       ]
      },
      "proposal": {
-      "deals": 4,
-      "months": 1,
-      "gpus": 6336,
+      "deals": 5,
+      "months": 2,
+      "gpus": 10368,
       "first_month": "2026-08",
-      "latest_month": "2026-08",
+      "latest_month": "2026-09",
       "withheld": false,
       "sources": [
        "salesforce_quotes"
       ],
-      "p0": 8.07,
+      "p0": 9.2,
       "lo": 6.42,
-      "hi": 9.2
+      "hi": 13.02
      }
     },
     "6": {
@@ -12364,16 +12428,16 @@
       "hi": 9.25
      },
      "proposal": {
-      "deals": 21,
+      "deals": 20,
       "months": 1,
-      "gpus": 77472,
+      "gpus": 77400,
       "first_month": "2026-08",
       "latest_month": "2026-08",
       "withheld": false,
       "sources": [
        "salesforce_quotes"
       ],
-      "p0": 6.13,
+      "p0": 6.1,
       "lo": 4.93,
       "hi": 9.25
      }
@@ -12395,16 +12459,16 @@
       "hi": 7.07
      },
      "proposal": {
-      "deals": 5,
+      "deals": 6,
       "months": 1,
-      "gpus": 5112,
+      "gpus": 5184,
       "first_month": "2026-08",
       "latest_month": "2026-08",
       "withheld": false,
       "sources": [
        "salesforce_quotes"
       ],
-      "p0": 6.49,
+      "p0": 7.01,
       "lo": 5.6,
       "hi": 9.3
      }
@@ -12426,9 +12490,9 @@
       "hi": 9.2
      },
      "proposal": {
-      "deals": 6,
+      "deals": 7,
       "months": 2,
-      "gpus": 6552,
+      "gpus": 8064,
       "first_month": "2026-08",
       "latest_month": "2026-09",
       "withheld": false,
@@ -12530,9 +12594,9 @@
       "hi": 3.11
      },
      "proposal": {
-      "deals": 17,
+      "deals": 18,
       "months": 2,
-      "gpus": 4454,
+      "gpus": 4462,
       "first_month": "2026-08",
       "latest_month": "2026-09",
       "withheld": false,
@@ -12662,18 +12726,18 @@
       "hi": 3.75
      },
      "proposal": {
-      "deals": 26,
+      "deals": 25,
       "months": 2,
-      "gpus": 4616,
+      "gpus": 4096,
       "first_month": "2026-08",
       "latest_month": "2026-09",
       "withheld": false,
       "sources": [
        "salesforce_quotes"
       ],
-      "p0": 3.07,
+      "p0": 3.14,
       "lo": 1.8,
-      "hi": 4.04
+      "hi": 3.8
      }
     },
     "18": {
@@ -12710,9 +12774,9 @@
       "hi": 2.78
      },
      "proposal": {
-      "deals": 1,
+      "deals": 2,
       "months": 1,
-      "gpus": 2000,
+      "gpus": 2400,
       "first_month": "2026-08",
       "latest_month": "2026-08",
       "withheld": true,
@@ -12741,9 +12805,9 @@
    "VR": {
     "3": {
      "proposal": {
-      "deals": 2,
+      "deals": 1,
       "months": 1,
-      "gpus": 6040,
+      "gpus": 1008,
       "first_month": "2026-08",
       "latest_month": "2026-08",
       "withheld": true,
@@ -12757,6 +12821,17 @@
       "deals": 1,
       "months": 1,
       "gpus": 2592,
+      "first_month": "2026-08",
+      "latest_month": "2026-08",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
+      ]
+     },
+     "proposal": {
+      "deals": 1,
+      "months": 1,
+      "gpus": 5040,
       "first_month": "2026-08",
       "latest_month": "2026-08",
       "withheld": true,
@@ -12818,10 +12893,21 @@
      }
     },
     "60": {
+     "lost": {
+      "deals": 1,
+      "months": 1,
+      "gpus": 1008,
+      "first_month": "2026-09",
+      "latest_month": "2026-09",
+      "withheld": true,
+      "sources": [
+       "salesforce_quotes"
+      ]
+     },
      "proposal": {
       "deals": 5,
       "months": 2,
-      "gpus": 27048,
+      "gpus": 22088,
       "first_month": "2026-08",
       "latest_month": "2026-09",
       "withheld": false,
@@ -12830,18 +12916,18 @@
       ],
       "p0": 8.22,
       "lo": 6.27,
-      "hi": 9.53
+      "hi": 8.61
      }
     }
    }
   },
-  "generated": "2026-09-17",
+  "generated": "2026-09-18",
   "min_deals": 3,
   "window_days": 365,
-  "withheld_cells": 20,
+  "withheld_cells": 22,
   "deals": {
-   "lost": 619,
-   "proposal": 248
+   "lost": 621,
+   "proposal": 256
   },
   "sources": [
    "hubspot",
@@ -12851,19 +12937,6 @@
  },
  "short_term": {
   "H100": [
-   {
-    "provider": "Vast.ai",
-    "key": "vast",
-    "kind": "marketplace",
-    "tenor": 3,
-    "months": 3,
-    "price": 1.4674,
-    "gpus": 3,
-    "date": "2026-09-18",
-    "stale": false,
-    "cluster_class": false,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 3-GPU host, France, FR; not cluster-class"
-   },
    {
     "provider": "SF Compute",
     "key": "sfcompute",
@@ -12876,118 +12949,6 @@
     "stale": false,
     "cluster_class": true,
     "note": "exchange clearing price for short bookings (hours to weeks) on 8-GPU InfiniBand nodes; a spot market, not a committed contract"
-   },
-   {
-    "provider": "aws",
-    "key": "aws",
-    "kind": "marketplace",
-    "tenor": 3,
-    "months": 3,
-    "price": 4.72,
-    "gpus": 8,
-    "date": "2026-09-18",
-    "stale": false,
-    "cluster_class": true,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, us"
-   },
-   {
-    "provider": "lambda",
-    "key": "lambda",
-    "kind": "marketplace",
-    "tenor": 3,
-    "months": 3,
-    "price": 5.54,
-    "gpus": 256,
-    "date": "2026-09-18",
-    "stale": false,
-    "cluster_class": true,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 256-GPU host, us"
-   }
-  ],
-  "H200": [
-   {
-    "provider": "Vast.ai",
-    "key": "vast",
-    "kind": "marketplace",
-    "tenor": 3,
-    "months": 3,
-    "price": 1.9751,
-    "gpus": 1,
-    "date": "2026-09-18",
-    "stale": false,
-    "cluster_class": false,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 1-GPU host, New Jersey, US; not cluster-class"
-   },
-   {
-    "provider": "aws",
-    "key": "aws",
-    "kind": "marketplace",
-    "tenor": 3,
-    "months": 3,
-    "price": 5.97,
-    "gpus": 8,
-    "date": "2026-09-18",
-    "stale": false,
-    "cluster_class": true,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, us"
-   }
-  ],
-  "B200": [
-   {
-    "provider": "lambda",
-    "key": "lambda",
-    "kind": "marketplace",
-    "tenor": 3,
-    "months": 3,
-    "price": 8.87,
-    "gpus": 256,
-    "date": "2026-09-18",
-    "stale": false,
-    "cluster_class": true,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 256-GPU host, us"
-   },
-   {
-    "provider": "aws",
-    "key": "aws",
-    "kind": "marketplace",
-    "tenor": 3,
-    "months": 3,
-    "price": 12.355,
-    "gpus": 8,
-    "date": "2026-09-18",
-    "stale": false,
-    "cluster_class": true,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, US East (Ohio)"
-   }
-  ],
-  "B300": [
-   {
-    "provider": "aws",
-    "key": "aws",
-    "kind": "marketplace",
-    "tenor": 3,
-    "months": 3,
-    "price": 14.04,
-    "gpus": 8,
-    "date": "2026-09-18",
-    "stale": false,
-    "cluster_class": true,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, Asia Pacific (Jakarta)"
-   }
-  ],
-  "GB200": [
-   {
-    "provider": "aws",
-    "key": "aws",
-    "kind": "marketplace",
-    "tenor": 3,
-    "months": 3,
-    "price": 10.582,
-    "gpus": 72,
-    "date": "2026-09-18",
-    "stale": false,
-    "cluster_class": true,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 72-GPU host, US East (Dallas) Local Zone"
    }
   ]
  },

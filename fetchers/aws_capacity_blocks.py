@@ -121,7 +121,8 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
             price_per_gpu_hour_usd=per_gpu,
             fetched_at=now,
             source_url=URL,
-            data_source="official_api",
+            data_source="web_scrape",
+            price_basis="published_capacity_block_rate",
         ))
     if records:
         summary = ", ".join(f"{r.gpu_model} ${r.price_per_gpu_hour_usd:.2f}"

@@ -39,6 +39,7 @@ jobs:
           python3 -m unittest discover -p 'test_together_capacity*.py'
           python3 -m unittest discover -p 'test_lambda_capacity*.py'
           python3 -m unittest discover -p 'test_scaleway*.py'
+          python3 -m unittest discover -p 'test_capacity_review*.py'
 
       - name: Bootstrap Confluence page (idempotent, soft-fail)
         # Creates "GPU Competitor Capacity — Live Overview" under the pricing
@@ -72,14 +73,16 @@ jobs:
           echo "--- Pipeline complete ---"
           grep -E "records|WARNING|ERROR|changes" /tmp/capacity.log || true
 
-      - name: Update Confluence page (soft-fail)
+      - name: Update and verify Confluence page
+        id: capacity_publish
+        continue-on-error: true  # persist failure receipt before marking the job failed
         # Basic-auth REST straight from the build — the 07:10 routine is
         # Slack-only (its Atlassian MCP connector proved flaky on 2026-08-12
         # while this path worked).
         env:
           CONFLUENCE_EMAIL: ${{ secrets.CONFLUENCE_EMAIL }}
           CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
-        run: python3 capacity/notify_confluence.py
+        run: python3 capacity/notify_confluence.py --strict
 
       - name: Commit fresh capacity data + post artifacts if changed
         run: |
@@ -88,7 +91,7 @@ jobs:
           git add capacity/store/peer_cache.json capacity/store/last_snapshot.json \
                   capacity/store/history.csv capacity/store/run_manifest.json \
                   capacity/store/slack_message.txt capacity/store/slack_thread.txt \
-                  capacity/store/confluence_body.html
+                  capacity/store/confluence_body.html capacity/store/confluence_publish.json
           git add capacity/store/confluence_page.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No changes — no commit needed"
@@ -99,3 +102,7 @@ jobs:
             git push
             echo "Capacity data and post artifacts updated and pushed"
           fi
+
+      - name: Require verified Confluence delivery
+        if: steps.capacity_publish.outcome == 'failure'
+        run: exit 1

@@ -35,7 +35,7 @@ _DEFAULT_CONFIDENCE = {
 class PriceRecord:
     provider: str           # aws | gcp | azure | coreweave | lambda | crusoe | nebius
     gpu_model: str          # H100 | H200 | B200 | B300 | GB200 | GB300 | L40S
-    gpu_count: int          # GPUs in THIS priced SKU
+    gpu_count: float        # GPUs in THIS priced SKU; includes fractional Azure cards
     instance_type: str      # provider-specific SKU
     region: str
     consumption_type: str   # on_demand | reserved_1yr | reserved_3yr | spot | preemptible | committed_1yr | committed_3yr
@@ -56,9 +56,17 @@ class PriceRecord:
     # ── Comparability layer (Phase 1.1 / 2.6) ───────────────────────────────
     interconnect: str = ""          # IB | RoCE | Ethernet | NVLink | unknown
     form_factor: str = ""           # SXM | PCIe | NVL | unknown
-    node_gpus: Optional[int] = None # GPUs in the full physical node (defaults to gpu_count)
+    node_gpus: Optional[float] = None # GPUs in the full physical node (defaults to gpu_count)
     price_basis: str = ""           # e.g. account_catalog; blank means not established
     storage_gb: Optional[float] = None # SKU storage as published in GB; not per-GPU
+
+    # Derived analytical correction metadata. Raw observations are retained;
+    # price_corrections only sets these fields on copies used for comparisons.
+    correction_id: str = ""
+    correction_reason: str = ""
+    original_price_per_gpu_hour_usd: Optional[float] = None
+    original_gpu_count: Optional[float] = None
+    comparison_eligible: bool = True
 
     def __post_init__(self):
         # Derive provenance fields from data_source so existing fetchers and old

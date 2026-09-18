@@ -64,7 +64,8 @@ class CrusoeIntegrationTests(unittest.TestCase):
                          metric_type="regions_with_capacity", instance_type="")
         reads = insights.live_reads([legacy, quantity()], "H100")
         self.assertEqual([r["provider"] for r in reads], ["hyperstack"])
-        self.assertTrue(reads[0]["cluster_ok"])
+        self.assertFalse(reads[0]["cluster_ok"])
+        self.assertEqual(insights.node_summary([legacy], "H100")["checked"], [])
         self.assertEqual(insights.tightness([legacy, quantity()], "H100")["n"], 1)
 
     def test_crusoe_cannot_win_broad_price_bookability_join(self):
@@ -120,10 +121,12 @@ class CrusoeIntegrationTests(unittest.TestCase):
         page = render.render_confluence(rows, [], manifest, [])
         self.assertIn("API quantity (exact SKU/location)", page)
         _, thread = render.render_slack(rows, [], manifest, [])
-        self.assertIn("Crusoe API — exact instance/location quantities", thread)
-        self.assertIn("quantity 5", thread)
-        self.assertIn("quantity 8", thread)
-        self.assertIn("not GPU counts", thread)
+        self.assertNotIn("Crusoe API — exact instance/location quantities", thread)
+        self.assertNotIn("quantity 5", thread)
+        self.assertNotIn("quantity 8", thread)
+        self.assertIn("not GPU counts", page)
+        self.assertIn("h100-80gb-sxm-ib.1x", page)
+        self.assertIn("Complete observations", thread)
 
     def test_cached_docs_and_failed_api_render_without_promoting_footprint(self):
         doc = footprint()

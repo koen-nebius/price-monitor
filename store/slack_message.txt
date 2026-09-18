@@ -1,9 +1,4 @@
-*GPU Pricing Daily — September 18, 2026*
-
-*Changed in 24h:* no moves from hyperscalers or major neoclouds — largest small-provider move: Atmoscompute Com H200 on-demand -49% · 2 small-provider moves in thread
-
-*Position:* Nebius on-demand sits 43–49% below hyperscalers (unchanged 13w) and below cluster-peer median (H100, H200, B200). RTX PRO 6000 -18% vs RTX market median (26 providers).
-
-Full tables in thread ↓ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Confluence benchmark>
-
-*Supply:* H100 2/10 sold out (Lambda, Voltage Park) [+1 WoW] · H200 2/7 sold out (Hyperstack, Verda) · B200 3/7 sold out (Lambda, RunPod, Verda) [+2 WoW] · B300 4/7 sold out (Hyperstack, RunPod, Scaleway, Verda) [+1 WoW] · GB300 1/3 sold out (Verda) (capacity run 2026-09-17)
+*GPU pricing · September 18, 2026*
+No observed competitor price changes of 3% or more in the eligible snapshot.
+Comparison exclusions: AWS, Nebius, Sfcompute. Reasons and input dates are on the page.
+<https://nebius.atlassian.net/wiki/spaces/PR/pages/1831469419/GPU+Competitor+Pricing+Live+Overview|Pricing and change ledger> · <https://nebius.atlassian.net/wiki/pages/viewpage.action?pageId=2164457614|Capacity>

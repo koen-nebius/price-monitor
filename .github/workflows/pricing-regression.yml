@@ -1,0 +1,28 @@
+name: Pricing and capacity publication regressions
+
+on:
+  pull_request:
+    paths:
+      - '**.py'
+      - 'templates/**'
+      - '.github/workflows/pricing-regression.yml'
+      - '.github/workflows/scrape.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify source corrections, scope, provenance and generated artifacts
+        run: |
+          python3 -m unittest discover -p 'test*.py'
+          python3 test_consistency.py
+          python3 test_together_parse.py
