@@ -248,19 +248,10 @@ def run(providers=None, test=False):
 
     today = date.today()
 
-    # ── Drop aggregator twins of providers we fetch directly ─────────────────
-    # ComputePrices SKIP_PROVIDERS prevents these on a LIVE fetch, but a ComputePrices
-    # outage triggers a cache fallback that can resurrect the stale cp_* twin, double-
-    # counting against the direct fetcher (e.g. cp_together-ai alongside direct together).
-    # Drop them unconditionally at assembly so direct always wins.
-    SUPERSEDED_AGGREGATORS = {"cp_oracle", "cp_together-ai", "cp_hyperstack",
-                              "cp_verda",   # direct verda.py fetcher since 2026-08-11
-                              # Shadeform twins of providers we already carry directly or via
-                              # ComputePrices (one provider, one vote; 2026-09-15). Net-new sf_
-                              # clouds (boostrun, imwt, horizon, phyntec, amaya) stay.
-                              "sf_lambdalabs", "sf_hyperstack", "sf_verda", "sf_nebius", "sf_crusoe",
-                              "sf_scaleway", "sf_paperspace", "sf_latitude",
-                              "sf_denvr", "sf_vultr", "sf_digitalocean", "sf_voltagepark"}
+    # Retain aggregator coverage even where a public rate-card scraper exists.
+    # Together's known misclassified cluster rates remain excluded; Vultr's
+    # deployment-qualified catalogue has its separate product eligibility rule.
+    SUPERSEDED_AGGREGATORS = {"cp_together-ai", "sf_together", "sf_together-ai"}
     _before = len(all_records)
     all_records = [r for r in all_records if r.provider not in SUPERSEDED_AGGREGATORS]
     if len(all_records) < _before:
@@ -269,11 +260,13 @@ def run(providers=None, test=False):
 
     # Prefer live direct Massed observations only for the GPU/tier actually
     # covered. On a failed direct fetch, retain the aggregator fallback.
-    from source_priority import prefer_massed_direct, exclude_superseded_vultr
+    from source_priority import (prefer_massed_direct, exclude_superseded_vultr,
+                                 canonicalize_provider_sources)
     all_records = exclude_superseded_vultr(all_records)
     all_records = prefer_massed_direct(
         all_records, provider_status.get("massedcompute", {}).get("status") == "live"
     )
+    all_records = canonicalize_provider_sources(all_records)
 
     logger.info(f"Fetched {len(all_records)} total records for {today}")
 
@@ -410,7 +403,7 @@ def run(providers=None, test=False):
                     if downgrade:
                         for r in accepted_records:
                             if (r.provider == k[0] and r.gpu_model == k[1]
-                                    and r.consumption_type == "on_demand"):
+                                    and r.consumption_type == "on_demand" and not r.source_feed):
                                 r.confidence = "low"
             logger.info(f"Cross-check: {len(ours)} direct on-demand prices vs ComputePrices — "
                         f"{n_flagged} flagged")
@@ -509,6 +502,7 @@ def run(providers=None, test=False):
         d for d in diffs
         if d.change_type == "price_change"
         and not d.provider.startswith(("cp_", "sf_"))
+        and d.source_feed not in {"computeprices", "shadeform"}
         and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
         and provider_tier(d.provider) in _tracked
         and d.consumption_type not in INTERRUPTIBLE_CTS

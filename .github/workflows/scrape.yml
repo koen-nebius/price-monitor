@@ -54,6 +54,9 @@ jobs:
           python3 -m unittest test_price_corrections test_rebuild_reports test_azure_gpu_count test_benchmark_review test_capacity_review_nodes
           python3 test_together_parse.py
 
+      - name: Check aggregator offer coverage and provenance
+        run: python3 -m unittest test_computeprices_offers test_shadeform_parse test_aggregator_integration test_aggregator_history
+
       - name: Merge field-intel inbox (Confluence -> intel.csv)
         # Plan-2 migration (2026-07-10): the posting routine parks extracted
         # intel on the Confluence "Field Intel Inbox" page (2054817562) because

@@ -99,7 +99,7 @@ def _dated_renderer(day, history_path):
 
 
 def _key(value):
-    return (value.provider, value.gpu_model, value.instance_type, value.region, value.consumption_type)
+    return renderer.record_key(value)
 
 
 def rebuild_reports(store_dir=ROOT / "store", *, previous_snapshot=None,
@@ -136,6 +136,7 @@ def rebuild_reports(store_dir=ROOT / "store", *, previous_snapshot=None,
                  or (_key(d) in old_keys and _key(d) in eligible_keys)]
         list_moves = [d for d in diffs if d.change_type == "price_change"
                       and not d.provider.startswith(("cp_", "sf_"))
+                      and d.source_feed not in {"computeprices", "shadeform"}
                       and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
                       and provider_tier(d.provider) in {"hyperscaler", "raw_gpu_cloud", "enterprise_gpu_cloud"}
                       and d.consumption_type not in renderer.INTERRUPTIBLE_CTS]

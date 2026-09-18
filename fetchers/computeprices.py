@@ -1,6 +1,6 @@
 """
 ComputePrices.com fetcher.
-Pulls GPU pricing for providers NOT already covered by direct scrapers.
+Pulls distinct GPU offers, retaining their source and comparison dimensions.
 API docs: https://computeprices.com/docs/api
 
 AUTH (changed upstream ~2026-07-09): the keyless tier was removed — every
@@ -12,8 +12,11 @@ Set the COMPUTEPRICES_API_KEY env var; without it every call 401s and the
 pipeline serves the peer cache until the 7-day hard-stale drop.
 """
 import json
+import hashlib
 import logging
+import math
 import os
+import re
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone
@@ -40,12 +43,12 @@ FETCH_KEY = "computeprices"
 # from stale-cached aggregator data.
 DATA_SOURCE = "aggregator"
 
-# Providers already scraped directly — skip them to avoid double-counting
+# Known product exclusions and existing direct-source exclusions. CoreWeave is
+# retained as an independent offer source; assembly resolves exact offer overlap.
 SKIP_PROVIDERS = {
     "amazon aws",
     "google cloud",
     "microsoft azure",
-    "coreweave",
     "lambda labs",
     "crusoe",
     "nebius",
@@ -76,10 +79,11 @@ SKIP_PROVIDERS = {
 # ComputePrices GPU name → our normalized model name
 # Only include GPUs we track; everything else is ignored.
 GPU_NAME_MAP = {
+    "h100":      "H100",
+    "h100 80gb": "H100",   # API documentation label; variant remains explicit/unknown
     "h100 sxm":  "H100",
     "h100 pcie": "H100",
     "h100 nvl":  "H100",
-    "gh200":     "H100",   # Grace Hopper = H100 architecture
     "h200":      "H200",
     "b200":      "B200",
     "hgx b300":  "B300",
@@ -157,12 +161,10 @@ def fetch_crosscheck() -> Dict[tuple, float]:
             gpu_model = GPU_NAME_MAP.get((item.get("gpu", "") or "").lower())
             if not gpu_model:
                 continue
-            gc = item.get("gpu_count") or 1
-            total = item.get("total_hourly_usd") or 0
-            pph = item.get("price_per_hour_usd") or 0
-            px = (total / gc) if total > 0 else pph
-            if px <= 0:
+            amounts = _price_amounts(item)
+            if amounts is None:
                 continue
+            _, _, px = amounts
             k = (key_prov, gpu_model)
             if k not in out or px < out[k]:
                 out[k] = px
@@ -195,38 +197,10 @@ def fetch(regions: List[str] = None) -> List[PriceRecord]:
         except Exception as e:
             logger.warning(f"ComputePrices slug={slug} failed: {e}")
 
-    # Deduplicate: for each (provider, gpu_model, ct), keep the cheapest per-GPU price.
-    # Some providers have incorrect total_hourly_usd values that scale non-linearly with
-    # gpu_count (e.g. UpCloud H100), causing inflated per-GPU prices for multi-GPU nodes.
-    # Keeping the minimum ensures the executive table and diff log reflect the real price.
-    best: Dict[tuple, PriceRecord] = {}
-    for r in records:
-        key = (r.provider, r.gpu_model, r.consumption_type)
-        if key not in best or r.price_per_gpu_hour_usd < best[key].price_per_gpu_hour_usd:
-            best[key] = r
-    records = list(best.values())
-
-    # Sanity filter: drop reserved records where price > on_demand for the same provider+GPU.
-    # ComputePrices occasionally returns inverted reserved pricing (e.g. Gcore H100 reserved_3yr
-    # at $16.24 vs on_demand $1.78). These are data quality issues in the upstream source.
-    od_prices: Dict[tuple, float] = {
-        (r.provider, r.gpu_model): r.price_per_gpu_hour_usd
-        for r in records if r.consumption_type == "on_demand"
-    }
-    filtered = []
-    for r in records:
-        if "reserved" in r.consumption_type or "committed" in r.consumption_type:
-            od = od_prices.get((r.provider, r.gpu_model))
-            if od is not None and r.price_per_gpu_hour_usd > od:
-                logger.warning(
-                    f"  computeprices: dropping inverted reserved price — "
-                    f"{r.provider} {r.gpu_model} {r.consumption_type} "
-                    f"${r.price_per_gpu_hour_usd:.2f} > on_demand ${od:.2f}"
-                )
-                continue
-        filtered.append(r)
-    records = filtered
-
+    # Keep offers, not a cheapest-provider summary. Different regions, sizes,
+    # offering tiers and commitment terms are distinct comparison populations.
+    # A more expensive reserved offer is retained: price ordering alone cannot
+    # establish an upstream error or justify deleting a different configuration.
     logger.info(f"ComputePrices: {len(records)} records from {len(GPU_SLUGS)} GPU slugs")
     return records
 
@@ -243,64 +217,115 @@ def _fetch_slug(
     with urllib.request.urlopen(req, timeout=30) as resp:
         data = json.loads(resp.read())
 
+    return parse(data.get("data", []), now, seen)
+
+
+def _text(value) -> str:
+    return value.strip() if isinstance(value, str) else ""
+
+
+def _positive_number(value) -> Optional[float]:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    try:
+        number = float(value)
+    except (OverflowError, ValueError):
+        return None
+    return number if math.isfinite(number) and number > 0 else None
+
+
+def _positive_integer(value) -> Optional[int]:
+    number = _positive_number(value)
+    return int(number) if number is not None and number.is_integer() else None
+
+
+def _price_amounts(item):
+    """Validate the documented integer count and USD amounts without defaults."""
+    count = _positive_integer(item.get("gpu_count"))
+    if count is None:
+        return None
+    raw_per_gpu = item.get("price_per_hour_usd")
+    if raw_per_gpu is not None and _positive_number(raw_per_gpu) is None:
+        return None
+    raw_total = item.get("total_hourly_usd")
+    if raw_total is not None:
+        total = _positive_number(raw_total)
+        if total is None:
+            return None
+        per_gpu = total / count
+    else:
+        per_gpu = _positive_number(raw_per_gpu)
+        if per_gpu is None:
+            return None
+        total = per_gpu * count
+    if not math.isfinite(total) or not math.isfinite(per_gpu) or per_gpu <= 0:
+        return None
+    return count, total, per_gpu
+
+
+def parse(items: list, now: str, seen: Optional[set] = None) -> List[PriceRecord]:
+    """Normalize offer rows without pooling shapes, regions, tiers or terms.
+
+    The public OpenAPI defines ``variant`` as the provider's offering tier, not
+    GPU form factor. ``last_updated`` is upstream observation time, while ``now``
+    records our retrieval time. Neither a fresh fetch nor a missing stock signal
+    establishes availability.
+    """
+    seen = set() if seen is None else seen
     records = []
-    for item in data.get("data", []):
-        provider_name = item.get("provider", "")
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        provider_name = _text(item.get("provider"))
+        if not provider_name:
+            continue
         if provider_name.lower() in SKIP_PROVIDERS:
             continue
 
-        gpu_label = item.get("gpu", "").lower()
+        gpu_label = _text(item.get("gpu")).lower()
         gpu_model = GPU_NAME_MAP.get(gpu_label)
         if gpu_model is None:
             continue
 
-        # Use total_hourly_usd / gpu_count as the authoritative per-GPU price.
-        # ComputePrices `price_per_hour_usd` is per-GPU for most providers but
-        # some (e.g. UpCloud) return total node price, causing it to scale
-        # linearly with gpu_count. total_hourly_usd / gpu_count is always correct.
-        gpu_count = item.get("gpu_count") or 1
-        total_usd = item.get("total_hourly_usd") or 0
-        price_per_hour_usd_field = item.get("price_per_hour_usd") or 0
-
-        if total_usd > 0:
-            price_usd = total_usd / gpu_count   # true per-GPU price
-        elif price_per_hour_usd_field > 0:
-            price_usd = price_per_hour_usd_field
-        else:
+        amounts = _price_amounts(item)
+        if amounts is None:
             continue
-
-        if price_usd <= 0:
-            continue
-        pricing_type = item.get("pricing_type", "on_demand")
-        commitment_months = item.get("commitment_months")
+        gpu_count, total_usd, price_usd = amounts
+        pricing_type = _text(item.get("pricing_type"))
+        commitment_months = _positive_integer(item.get("commitment_months"))
 
         ct = _map_consumption_type(pricing_type, commitment_months)
         if ct is None:
             continue
 
-        provider_slug = item.get("provider_slug", provider_name.lower().replace(" ", "_"))
-        source = item.get("source_url") or SOURCE_URL
-
-        # Region: ComputePrices doesn't expose region per-record, use provider slug as proxy
-        region = "global"
+        provider_slug = _text(item.get("provider_slug")) or provider_name.lower().replace(" ", "_")
+        source = _text(item.get("source_url")) or SOURCE_URL
+        region = _text(item.get("region")) or "unspecified"
+        variant = _text(item.get("variant"))
+        gpu_variant = _text(item.get("gpu"))
 
         # Node size comes from the row's own max_gpus_per_node — GPUs in the physical
         # node this SKU is carved from (a 1-GPU slice of an 8-GPU host carries 8; a
         # whole host carries its own count). The payload has NO vCPU or system-RAM
         # field (vram_gb is per-GPU memory, not RAM), so vcpu/ram_gb stay None.
-        try:
-            node_gpus = int(item.get("max_gpus_per_node") or 0)
-        except (TypeError, ValueError):
-            node_gpus = 0
-        node_gpus = node_gpus if node_gpus > 0 else None
+        node_gpus = _positive_integer(item.get("max_gpus_per_node"))
         # A node can't be smaller than the slice priced from it; treat an
         # upstream contradiction as unknown so schema falls back to gpu_count.
         if node_gpus is not None and isinstance(gpu_count, (int, float)) and node_gpus < gpu_count:
             node_gpus = None
 
-        key = (provider_slug, gpu_model, gpu_count, ct)
+        # No price, retrieval timestamp or stock signal in identity: updates to
+        # an existing offer must not masquerade as a newly added configuration.
+        identity = (provider_slug, gpu_label, variant, region, gpu_count, ct, commitment_months)
+        offer_id = "computeprices:" + hashlib.sha256(
+            json.dumps(identity, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()[:24]
+        # Remove exact repeated observations only, not competing offers or a
+        # distinct upstream observation of the same offer.
+        observed_at = _text(item.get("last_updated"))
+        available = item.get("available") if isinstance(item.get("available"), bool) else None
+        key = (offer_id, observed_at, total_usd, available)
         if key in seen:
-            # Keep cheapest when same provider/gpu/count/type appears twice
             continue
         seen.add(key)
 
@@ -308,40 +333,39 @@ def _fetch_slug(
             provider=f"cp_{provider_slug}",   # prefix to distinguish from direct scrapers
             gpu_model=gpu_model,
             gpu_count=gpu_count,
-            instance_type=f"{provider_slug}-{gpu_model.lower()}-{gpu_count}x",
+            instance_type=f"{provider_slug}-{re.sub(r'[^a-z0-9]+', '-', gpu_label).strip('-')}-{gpu_count}x",
             region=region,
             consumption_type=ct,
-            price_per_hour_usd=price_usd * gpu_count,
+            price_per_hour_usd=total_usd,
             price_per_gpu_hour_usd=price_usd,
             fetched_at=now,
             source_url=source,
             data_source=DATA_SOURCE,
             node_gpus=node_gpus,
+            source_feed=FETCH_KEY,
+            source_observed_at=observed_at,
+            offer_id=offer_id,
+            commitment_months=commitment_months,
+            available=available,
+            gpu_variant=gpu_variant,
+            offer_variant=variant,
+            form_factor=("SXM" if "sxm" in gpu_label else "PCIe" if "pcie" in gpu_label
+                         else "NVL" if "nvl" in gpu_label else "unknown"),
+            parser_version="aggregator-offers-1",
         ))
 
     return records
 
 
 def _map_consumption_type(pricing_type: str, commitment_months: Optional[int]) -> Optional[str]:
-    pt = pricing_type.lower()
+    pt = _text(pricing_type).lower()
     if pt == "spot":
         return "spot"
     if pt == "on_demand":
         return "on_demand"
     if pt == "reserved":
         if commitment_months is None:
-            return "on_demand"
-        # Short-term committed capacity (<= 6mo): meaningful data but not comparable
-        # to standard 1yr/2yr/3yr buckets — store separately.
-        if commitment_months <= 6:
-            return "committed_short_term"
-        if commitment_months <= 12:
-            return "reserved_1yr"    # canonical 1yr bucket
-        if commitment_months <= 24:
-            return "committed_2yr"   # canonical 2yr bucket (Nebius also uses this)
-        if commitment_months <= 36:
-            return "reserved_3yr"    # canonical 3yr bucket
-        if commitment_months <= 48:
-            return "committed_4yr"   # kept for reference (e.g. Vultr B200 48mo)
-        return None
+            return "reserved_unknown"
+        return {12: "reserved_1yr", 24: "committed_2yr", 36: "reserved_3yr",
+                48: "committed_4yr"}.get(commitment_months, f"committed_{commitment_months}mo")
     return None

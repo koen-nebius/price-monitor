@@ -95,6 +95,11 @@ def _classify(r: PriceRecord) -> Tuple[str, str]:
     it = (r.instance_type or "").lower()
     model = (r.gpu_model or "").upper()
 
+    if r.source_feed in {"computeprices", "shadeform"} and r.parser_version == "aggregator-offers-1":
+        # These collectors retain the actual variant. Missing SKU evidence must
+        # not be filled from a provider-wide or GPU-family assumption.
+        return "unknown", "unknown"
+
     # Massed's authenticated inventory has generic H100 SKUs alongside explicit
     # SXM/NVL/PCIe variants. Missing form-factor evidence must stay unknown;
     # the broad H100 -> SXM default would silently promote an entry VM.
@@ -126,6 +131,7 @@ def enrich_comparability(records: List[PriceRecord]) -> List[PriceRecord]:
         prov = r.provider.lower()
         base = prov[3:] if prov.startswith("cp_") else prov
         if base in _PER_GPU_CLUSTER_PROVIDERS and r.form_factor == "SXM" \
+                and not r.source_feed and r.source_type != "aggregator" \
                 and (getattr(r, "node_gpus", 0) or 0) < 8:
             r.node_gpus = 8
     return records
@@ -164,5 +170,10 @@ def is_public_benchmark_eligible(record: PriceRecord) -> bool:
     Existing unqualified sources retain their behavior; passing this gate does
     not establish live stock, multi-node access, or configuration equivalence.
     """
-    return (record.price_basis != "account_catalog"
-            and not is_qualified_catalogue_reference(record))
+    return (record.comparison_eligible
+            and not (record.provider == "nebius" and record.source_feed)
+            and record.price_basis != "account_catalog"
+            and not is_qualified_catalogue_reference(record)
+            and record.available is not False
+            and not (record.source_feed in {"computeprices", "shadeform"}
+                     and not record.source_observed_at))

@@ -150,7 +150,8 @@ def _provider_display(p: str) -> str:
 # ---------------------------------------------------------------------------
 
 def record_key(r: PriceRecord) -> tuple:
-    return (r.provider, r.gpu_model, r.instance_type, r.region, r.consumption_type)
+    return (r.provider, r.gpu_model, r.instance_type, r.region, r.consumption_type,
+            r.source_feed, r.offer_id)
 
 
 # Reversion damper (2026-07-27): a "price move" whose new level was already seen
@@ -247,6 +248,9 @@ def compute_diff(old: List[PriceRecord], new: List[PriceRecord]) -> List[DiffEnt
                     if any(l > 0 and abs(new_p - l) / l <= REVERSION_MATCH_TOL
                            for l in levels):
                         change = "reversion"
+                if change == "price_change" and (
+                        new_rec.source_type == "aggregator" or new_rec.source_feed in {"computeprices", "shadeform"}):
+                    change = "aggregator_update"
                 diffs.append(DiffEntry(
                     provider=new_rec.provider,
                     gpu_model=new_rec.gpu_model,
@@ -257,6 +261,7 @@ def compute_diff(old: List[PriceRecord], new: List[PriceRecord]) -> List[DiffEnt
                     old_price=old_p,
                     new_price=new_p,
                     delta_pct=(new_p - old_p) / old_p * 100,
+                    source_feed=new_rec.source_feed, offer_id=new_rec.offer_id,
                 ))
         else:
             diffs.append(DiffEntry(
@@ -267,6 +272,7 @@ def compute_diff(old: List[PriceRecord], new: List[PriceRecord]) -> List[DiffEnt
                 instance_type=new_rec.instance_type,
                 change_type="added",
                 new_price=new_rec.price_per_gpu_hour_usd,
+                source_feed=new_rec.source_feed, offer_id=new_rec.offer_id,
             ))
 
     for key, old_rec in old_map.items():
@@ -279,6 +285,7 @@ def compute_diff(old: List[PriceRecord], new: List[PriceRecord]) -> List[DiffEnt
                 instance_type=old_rec.instance_type,
                 change_type="removed",
                 old_price=old_rec.price_per_gpu_hour_usd,
+                source_feed=old_rec.source_feed, offer_id=old_rec.offer_id,
             ))
 
     def sort_key(d: DiffEntry):
@@ -374,6 +381,8 @@ def _is_cluster_peer(r) -> bool:
     """
     if (r.form_factor or "").upper() != "SXM":
         return False
+    if r.source_feed in {"computeprices", "shadeform"} and r.parser_version == "aggregator-offers-1":
+        return (r.gpu_count or 0) >= 8
     return (r.gpu_count or 0) >= 8 or (getattr(r, "node_gpus", 0) or 0) >= 8
 
 
@@ -386,7 +395,7 @@ def _position_for_tier(records, gpu, cts, label, cluster_only=False):
     """
     nebius_candidates = [r for r in records
                          if r.gpu_model == gpu and r.consumption_type in cts
-                         and r.provider == "nebius"]
+                         and r.provider == "nebius" and is_public_benchmark_eligible(r)]
     nebius_rec = min(nebius_candidates, key=lambda r: r.price_per_gpu_hour_usd) \
         if nebius_candidates else None
 
@@ -439,6 +448,7 @@ def _position_for_tier(records, gpu, cts, label, cluster_only=False):
         "nebius_price": nebius_rec.price_per_gpu_hour_usd if nebius_rec else None,
         "cheapest_peer": cheapest_peer.price_per_gpu_hour_usd if cheapest_peer else None,
         "cheapest_peer_name": cheapest_peer.provider if cheapest_peer else None,
+        "cheapest_peer_source": cheapest_peer.source_feed if cheapest_peer else "",
         "cheapest_peers_detail": cheapest_peers_detail,
         "median_peer": median_peer,
         "vs_cheapest_pct": vs_cheapest_pct,
@@ -1083,6 +1093,7 @@ def _group_significant_moves(diffs: List[DiffEntry]) -> list:
         if d.change_type == "price_change"
         and d.provider != "nebius"
         and not d.provider.startswith(("cp_", "sf_"))
+        and d.source_feed not in {"computeprices", "shadeform"}
         and (provider_tier(d.provider) in ("raw_gpu_cloud", "hyperscaler",
                                            "enterprise_gpu_cloud")
              or d.provider in DIRECT_PLATFORM_PROVIDERS)
@@ -2260,6 +2271,8 @@ def format_confluence_table(records, run_date, provider_status=None, diffs=None)
     html.append(detail('Full provider evidence, account catalogues and managed platforms',
                        _build_peer_tables(records) + _build_qualified_catalogue_section(raw_records, provider_status)
                        + _build_platform_section(records) + _build_rtx_section(records)))
+    html.append(detail('Aggregator offers by configuration, region and term',
+                       _aggregator_offers_html(raw_records, run_date)))
     html.append(detail('Regional and term price tables', _build_hyperscaler_tables(records)))
     html.append('<p>Methodology correction, 18 September 2026: the Azure fractional-GPU and Together '
                 'on-demand changes previously reported on 17 September were source corrections. '
@@ -2298,8 +2311,11 @@ def _build_executive_table(records: List[PriceRecord]) -> str:
         nebius_td = _price_td(row["nebius_price"] if row else None)
 
         if row and row["cheapest_peer"]:
+            source_label = {"computeprices": "ComputePrices", "shadeform": "Shadeform"}.get(
+                row.get("cheapest_peer_source"), row.get("cheapest_peer_source", ""))
+            source_note = f' · via {escape(source_label)}' if source_label else ''
             peer_td = (f'<td>${row["cheapest_peer"]:.2f} '
-                       f'<em>({_provider_display(row["cheapest_peer_name"]) if row["cheapest_peer_name"] else ""})</em></td>')
+                       f'<em>({_provider_display(row["cheapest_peer_name"]) if row["cheapest_peer_name"] else ""})</em>{source_note}</td>')
         else:
             peer_td = '<td>—</td>'
 
@@ -3128,7 +3144,7 @@ def _input_notice_html(notices):
 def _input_dates_html(records):
     by_source = defaultdict(list)
     for r in records:
-        by_source[(r.provider, r.data_source)].append(r.fetched_at)
+        by_source[(r.provider, r.source_feed or r.data_source)].append(r.source_observed_at or r.fetched_at)
     html = ['<table><tbody><tr><th>Input</th><th>Observation time range (UTC)</th><th>Rows</th></tr>']
     for (provider, source), dates in sorted(by_source.items()):
         html.append(f'<tr><td>{escape(provider)} / {escape(source)}</td><td>{escape(min(dates))} to {escape(max(dates))}</td><td>{len(dates)}</td></tr>')
@@ -3136,14 +3152,58 @@ def _input_dates_html(records):
     return '\n'.join(html)
 
 
+def _aggregator_offers_html(records, as_of):
+    """Inspectable offer evidence, including stale and unavailable listings."""
+    from urllib.parse import urlsplit
+    from source_priority import canonicalize_provider_sources
+    rows = [r for r in canonicalize_provider_sources(records)
+            if r.source_type == "aggregator" or r.source_feed in {"computeprices", "shadeform"}]
+    if not rows:
+        return '<p>No aggregator observations in this snapshot.</p>'
+    html = ['<p>Each row is a source observation. Different configurations, regions, commercial tiers and terms '
+            'are retained. A provider contributes once to the peer benchmark, even when several feeds cover it. '
+            'Aggregator listings are not negotiated transaction prices or proof of multi-node capacity. '
+            'Stale, undated and explicitly unavailable offers remain below but are excluded from current comparisons. '
+            'Payment terms are unknown unless separately documented.</p>',
+            '<table data-layout="full-width"><tbody><tr><th>Provider / feed</th><th>GPU / offer</th>'
+            '<th>Region / configuration</th><th>Term / tier</th><th>USD per GPU-hour</th>'
+            '<th>Source stock signal</th><th>Source update / fetched (UTC)</th><th>Comparison status / source</th></tr>']
+    for row in sorted(rows, key=lambda r: (r.provider, r.gpu_model, r.region,
+                                          r.consumption_type, r.instance_type, r.source_feed, r.offer_id)):
+        eligible, notices = publication_records([row], as_of)
+        status = "Current listing; availability unverified" if row.available is None else "Current listing"
+        if not eligible:
+            status = "; ".join(notices)
+        elif not is_public_benchmark_eligible(row):
+            status = "Reference only; excluded from public benchmark"
+        stock = {True: "Reported available", False: "Reported unavailable", None: "Unknown"}[row.available]
+        term = (f"{row.commitment_months} months" if row.commitment_months is not None
+                else row.consumption_type.replace("_", " "))
+        if row.offer_variant:
+            term += " / " + row.offer_variant
+        source = ''
+        if urlsplit(row.source_url).scheme in {"https", "http"}:
+            source = f'<br /><a href="{escape(row.source_url, quote=True)}">Source</a>'
+        html.append(
+            f'<tr><td>{escape(_provider_display(row.provider))}<br />{escape(row.source_feed or "aggregator")}</td>'
+            f'<td>{escape(row.gpu_variant or row.gpu_model)}<br />{escape(row.instance_type)}</td>'
+            f'<td>{escape(row.region)}<br />{row.gpu_count:g} GPU(s), {escape(row.form_factor or "unknown")} / '
+            f'{escape(row.interconnect or "unknown")}</td>'
+            f'<td>{escape(term)}</td><td>${row.price_per_gpu_hour_usd:.4f}</td><td>{stock}</td>'
+            f'<td>{escape(row.source_observed_at or "Source date unknown")}<br />Fetched: {escape(row.fetched_at)}</td>'
+            f'<td>{escape(status)}{source}</td></tr>')
+    html.append('</tbody></table>')
+    return '\n'.join(html)
+
+
 def _publication_diffs(diffs, records):
     keys = {record_key(r) for r in records if is_public_benchmark_eligible(r)}
     return [d for d in (diffs or []) if d.change_type == 'restatement' or
-            (d.provider, d.gpu_model, d.instance_type, d.region, d.consumption_type) in keys]
+            record_key(d) in keys]
 
 
 def _secondary_changes_html(diffs):
-    rows = [d for d in (diffs or []) if d.change_type in ('reversion', 'catalog_reference_change', 'coverage_reference_change') or
+    rows = [d for d in (diffs or []) if d.change_type in ('reversion', 'catalog_reference_change', 'coverage_reference_change', 'aggregator_update') or
             (d.change_type == 'price_change' and d.provider.startswith(('cp_', 'sf_')))]
     if not rows:
         return ''
