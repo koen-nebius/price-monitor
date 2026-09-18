@@ -1,15 +1,16 @@
 {
   "run_date": "2026-09-18",
-  "attempted_at": "2026-09-18T15:59:17+00:00",
+  "attempted_at": "2026-09-18T16:10:34+00:00",
   "publisher": "capacity/notify_confluence.py",
   "forced": false,
-  "ok": false,
-  "write_attempted": true,
-  "stage": "read_back",
+  "verification_mode": "verify_only",
+  "ok": true,
+  "write_attempted": false,
+  "stage": "verified",
   "pages": {
     "2164457614": {
       "file": "confluence_body.html",
-      "ok": false,
+      "ok": true,
       "bytes": 402070,
       "body_sha256": "92295c276efd3e2db7168536abd9994fbb0be9345684e2327c722557cae2a84a",
       "title": "GPU Competitor Capacity \u2014 Live Overview",
@@ -17,8 +18,11 @@
       "returned_version": 45,
       "version": 45,
       "readback_body_sha256": "693db7b140ab369bdd5b82c7f3c267b099381dd9ee54eadbe2b5c3115fb900eb",
-      "error": "ParseError during read_back; delivery not verified"
+      "verification": "canonical_storage_xml",
+      "raw_body_equal": false,
+      "canonical_body_sha256": "8317f3bf9eb506454209ce7fda6638088bce1042263965e1ab55c9bb338c0e8c",
+      "verified_at": "2026-09-18T16:10:35+00:00"
     }
   },
-  "error": "ParseError during read_back; delivery not verified"
+  "verified_at": "2026-09-18T16:10:35+00:00"
 }
