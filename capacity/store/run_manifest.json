@@ -1,15 +1,14 @@
 {
  "run_date": "2026-09-18",
- "started_at": "2026-09-18T07:28:49.331348+00:00",
- "completed_at": "2026-09-18T07:32:30.571159+00:00",
+ "started_at": "2026-09-18T15:58:47.071987+00:00",
+ "completed_at": "2026-09-18T15:59:17.497788+00:00",
  "status": "partial",
- "record_count": 458,
- "diff_count": 146,
- "provider_count": 19,
- "live_provider_count": 16,
+ "record_count": 482,
+ "diff_count": 51,
+ "provider_count": 20,
+ "live_provider_count": 17,
  "failed_providers": [
-  "aws_capacity_blocks",
-  "voltage_park"
+  "aws_capacity_blocks"
  ],
  "stale_providers": [],
  "paused_providers": [
@@ -18,7 +17,7 @@
  "provider_status": {
   "lambda": {
    "status": "live",
-   "record_count": 9
+   "record_count": 10
   },
   "coreweave": {
    "status": "live",
@@ -38,6 +37,38 @@
   },
   "aws_capacity_blocks": {
    "status": "failed",
+   "reason": "AWS account describe limit reached; remaining checks deferred",
+   "error_code": "CapacityBlockDescribeLimitExceeded",
+   "failure_class": "account_limit",
+   "planned_checks": 16,
+   "completed_checks": 0,
+   "failed_checks": 1,
+   "unqueried_checks": [
+    "us-east-1/p5en.48xlarge",
+    "us-east-1/p6-b200.48xlarge",
+    "us-east-1/p6-b300.48xlarge",
+    "us-east-2/p5.48xlarge",
+    "us-east-2/p5en.48xlarge",
+    "us-east-2/p6-b200.48xlarge",
+    "us-east-2/p6-b300.48xlarge",
+    "us-west-2/p5.48xlarge",
+    "us-west-2/p5en.48xlarge",
+    "us-west-2/p6-b200.48xlarge",
+    "us-west-2/p6-b300.48xlarge",
+    "eu-north-1/p5.48xlarge",
+    "eu-north-1/p5en.48xlarge",
+    "eu-north-1/p6-b200.48xlarge",
+    "eu-north-1/p6-b300.48xlarge"
+   ],
+   "errors": [
+    {
+     "check": "us-east-1/p5.48xlarge",
+     "code": "CapacityBlockDescribeLimitExceeded"
+    }
+   ],
+   "requests_attempted": 1,
+   "pages_fetched": 0,
+   "pagination_complete": false,
    "record_count": 0
   },
   "crusoe": {
@@ -45,9 +76,24 @@
    "reason": "Organization suspended; authenticated capacity checks paused pending access review",
    "record_count": 0
   },
+  "crusoe_public": {
+   "status": "live",
+   "reason": "public VM documentation; footprint only, not live stock",
+   "record_count": 19,
+   "invalid_rows": 0,
+   "excluded_untracked_skus": [
+    "a100-80gb-sxm-ib.8x",
+    "a100-80gb.1x",
+    "a100-80gb.2x",
+    "a100-80gb.4x",
+    "a100-80gb.8x",
+    "mi300x-192gb-ib.8x",
+    "mi355x-288gb-roce.8x"
+   ]
+  },
   "runpod": {
    "status": "live",
-   "record_count": 72
+   "record_count": 73
   },
   "vast": {
    "status": "live",
@@ -58,7 +104,19 @@
    "record_count": 16
   },
   "voltage_park": {
-   "status": "failed",
+   "status": "empty",
+   "reason": "endpoint returned no locations; GPU inventory is unknown, not zero",
+   "error_code": null,
+   "planned_checks": 1,
+   "completed_checks": 1,
+   "failed_checks": 0,
+   "unqueried_checks": [],
+   "requests_attempted": 1,
+   "pages_fetched": 1,
+   "pagination_complete": true,
+   "reported_locations": 0,
+   "parsed_locations": 0,
+   "invalid_locations": 0,
    "record_count": 0
   },
   "gmi": {
@@ -79,7 +137,7 @@
   },
   "hyperstack": {
    "status": "live",
-   "record_count": 12
+   "record_count": 13
   },
   "together": {
    "status": "live",
@@ -87,11 +145,11 @@
   },
   "verda": {
    "status": "live",
-   "record_count": 19
+   "record_count": 20
   },
   "massedcompute": {
    "status": "live",
-   "record_count": 44
+   "record_count": 45
   }
  },
  "post_thread": true

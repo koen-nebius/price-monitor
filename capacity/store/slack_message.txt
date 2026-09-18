@@ -1,6 +1,5 @@
 *GPU Capacity Daily — 2026-09-18*
-*Changed:* RunPod H100: absent → available (observed 8-GPU configurations)
-*8-GPU node signals:* H100 2/4 (+3 unknown) · H200 0/2 (+2 unknown) · B200 0/3 (+1 unknown) · B300 0/3 (+2 unknown)
-*Coverage changed:* H100, B200, B300; details in thread.
+*Changed:* RunPod H100: available → absent (observed 8-GPU configurations)
+*8-GPU node signals:* H100 1/4 (+3 unknown) · H200 0/2 (+2 unknown) · B200 0/3 (+1 unknown) · B300 0/3 (+2 unknown)
 _Positive / checked providers; unknown excluded from denominator. Single-node signals; multi-node capacity unverified._
-_Feeds: 16/17 live (down: Voltage Park) · 1 awaiting access · access paused: Crusoe_ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/2164457614/GPU+Competitor+Capacity+%E2%80%94+Live+Overview|full evidence and method>
+_Feeds: 17/19 live (down: aws_capacity_blocks; empty catalogue: Voltage Park) · access paused: Crusoe_ · <https://nebius.atlassian.net/wiki/spaces/PR/pages/2164457614/GPU+Competitor+Capacity+%E2%80%94+Live+Overview|full evidence and method>

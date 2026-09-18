@@ -1,21 +1,21 @@
-*Changes and exceptions — since previous run, 17 Sep 07:52 UTC*
+*Changes and exceptions — since previous run, 18 Sep 07:32 UTC*
 
-• RunPod H100: absent → available (observed 8-GPU configurations)
-• Coverage: H100 — now checked: Lambda, Scaleway
-• Coverage: B200 — now checked: Lambda
-• Coverage: B300 — now checked: Scaleway
-• RunPod B200 NVIDIA B200 (1x/8x stock labels): zero reported → limited signal; now 1x stock Low, but no 8-GPU (cluster) stock
-• RunPod H100 NVIDIA H100 PCIe (1x/8x stock labels): zero reported → limited signal; now 1x stock Low, but no 8-GPU (cluster) stock
-• Vast.ai H100: listed depth 51 → 29 (marketplace)
-• Vast.ai H200: listed depth 62 → 35 (marketplace)
-• Vast.ai B300: listed depth 9 → 27 (marketplace)
-• Vast.ai RTX6000: listed depth 60 → 90 (marketplace)
-• Hyperstack H200 (aggregate GPU count): zero reported → limited signal; now stock in 1 region, best 8+
-• Verda RTX6000 (deployable instance sizes): positive signal → limited signal; now deployable in 1 location, largest node 2x (no 8x node) (spot)
-• AWS Capacity Blocks: API access pending; no fresh observations; current availability unknown.
+• RunPod H100: available → absent (observed 8-GPU configurations)
+_Changes apply only to the named instance and region:_
+_Changes apply only to the named instance and zone:_
+• Lambda on-demand instance gpu_1x_h100_pcie (1 GPU/instance) global: none reported (observed 2026-09-18 15:58:47 UTC; not 1ClickClusters stock)
+• Lambda on-demand instance gpu_2x_h100_sxm5 (2 GPUs/instance) global: 2.0 regions reported (observed 2026-09-18 15:58:47 UTC; not 1ClickClusters stock)
+• Scaleway H100-1-80G (1 GPU/instance) pl-waw-2: limited → sold_out; shortage (observed 2026-09-18 15:58:59 UTC; single-instance status only)
+• Scaleway H100-SXM-4-80G (4 GPUs/instance) fr-par-2: available → sold_out; shortage (observed 2026-09-18 15:58:59 UTC; single-instance status only)
+• Scaleway H100-SXM-8-80G (8 GPUs/instance) fr-par-2: available → limited; scarce (observed 2026-09-18 15:58:59 UTC; single-instance status only)
+• Scaleway L40S-1-48G (1 GPU/instance) fr-par-2: sold_out → limited; scarce (observed 2026-09-18 15:58:59 UTC; single-instance status only)
+• Together AI dedicated inference ins_CbJEugN8RRtfHCsCbu7ms us-central-5: current replica headroom 2 replicas (exact) (observed 2026-09-18 15:59:11 UTC; not raw GPU cluster stock)
+• Together AI dedicated inference ins_CetcVhjQpuN8brgT8fsKX ca-west-1: current replica headroom 1 replica (exact) (observed 2026-09-18 15:59:11 UTC; not raw GPU cluster stock)
+_8 further changes in the Confluence evidence._
+• AWS Capacity Blocks: Fetch failed; observations not refreshed this run; AWS account describe limit reached; remaining checks deferred; CapacityBlockDescribeLimitExceeded; 0/16 checks completed; 15 checks unqueried; current availability unknown.
 • Crusoe: Access paused: Organization suspended; authenticated capacity checks paused pending access review; current availability unknown.
 _Historical API cache is not reused. Aggregator observations remain separate._
-• Voltage Park: Fetch failed; observations not refreshed this run; current availability unknown.
+• Voltage Park: Empty catalogue; current GPU inventory unknown; endpoint returned no locations; GPU inventory is unknown, not zero; 1/1 checks completed; current availability unknown.
 • Lambda: 2 legacy observations excluded; exact product scope unverified.
 • Scaleway: 3 legacy or aggregator observations excluded; exact product scope unverified.
 _Complete observations, timestamps, sources and all changes are on Confluence. Unknown availability is not zero stock; no multi-node or customer-quota claim._
