@@ -108,6 +108,7 @@ AZURE_REGIONS = [
 ]
 
 PROVIDERS = ["aws", "gcp", "azure", "coreweave", "lambda", "crusoe", "nebius", "nebius_committed", "computeprices", "oracle", "hyperstack", "runpod", "sfcompute", "together",
+             "coreweave_plans",  # public commercial terms; catalogue-only, no numeric-price or stock claims
              "vast_reserved",   # short-term reserved marketplace floor (see analysis/reserve_price_sources.md)
              "verda",           # ex-DataCrunch; only GB300 public API price besides Oracle (2026-08-11 research)
              "aws_capacity_blocks",  # published effective CB rates (reserved_short; B300 $14.04 etc.)

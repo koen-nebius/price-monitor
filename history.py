@@ -22,8 +22,9 @@ from typing import List, Dict, Tuple
 
 from store import STORE_DIR, list_snapshot_dates, load_snapshot
 from schema import PriceRecord
-from comparability import is_qualified_catalogue_reference
+from comparability import is_public_benchmark_eligible
 from price_corrections import correct_history_rows
+from report_freshness import publication_records
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,22 @@ COLUMNS = [
     "vcpu",             # threads of the priced SKU
     "ram_gb",           # system RAM of the priced SKU, GB as published
     "node_gpus",        # GPUs in the full physical node (the priced SKU may be a slice)
+    # Selected-offer provenance: daily JSON retains all offers at their full grain.
+    "fetched_at",       # retrieval time, distinct from the upstream observation
+    "source_url",
+    "price_basis",
+    "source_feed",      # provider identity must not stand in for feed identity
+    "parser_version",   # distinguishes legacy rows from dated full-offer ingestion
+    "source_observed_at",
+    "offer_id",
+    "commitment_months",
+    "available",        # published offer signal, not a cluster stock guarantee
+    "gpu_variant",
+    "offer_variant",
+    "gpu_count_relation",
+    "term_min_days",
+    "term_max_days",
+    "term_label",
 ]
 
 # Consumption types to include — exclude noisy sub-variants (50pct/30pct upfront)
@@ -74,6 +91,7 @@ INCLUDE_CONSUMPTION_TYPES = {
     "preemptible",
     "capacity_block",        # AWS Capacity Blocks — public, capacity-guaranteed, ≤6mo
     "reserved_1yr",
+    "reserved_short",       # selected short reservation; full tier ladder remains in daily JSON
     "reserved_3yr",
     "committed_short_term",  # ≤6mo commitment (Civo, Genesis Cloud, Together.ai)
     "committed_9mo",
@@ -96,10 +114,10 @@ def _cheapest_per_combo(
     for r in records:
         if r.consumption_type not in INCLUDE_CONSUMPTION_TYPES:
             continue
-        # Trend CSV has no deployment fields; keeping restricted catalogue
-        # rows here would turn them back into ordinary PAYG/Spot anchors.
-        # The exact qualified evidence remains in the dated JSON snapshots.
-        if is_qualified_catalogue_reference(r):
+        # Only public benchmark candidates enter this cheapest-offer summary.
+        # Account/restricted catalogues, unavailable offers and new aggregator
+        # rows with unknown source dates retain their evidence in daily JSON.
+        if not is_public_benchmark_eligible(r):
             continue
         key = (r.provider, r.gpu_model, r.consumption_type)
         if key not in best or r.price_per_gpu_hour_usd < best[key].price_per_gpu_hour_usd:
@@ -107,32 +125,34 @@ def _cheapest_per_combo(
     return best
 
 
+def _history_row(record: PriceRecord, day: date) -> dict:
+    """Serialize one selected offer without dropping its source or product basis."""
+    row = {column: getattr(record, column, "") for column in COLUMNS
+           if column != "snapshot_date"}
+    row["snapshot_date"] = day.isoformat()
+    row["price_per_gpu_hour_usd"] = round(record.price_per_gpu_hour_usd, 4)
+    row["price_per_hour_usd"] = round(record.price_per_hour_usd, 4)
+    return {column: "" if value is None else value for column, value in row.items()}
+
+
+def _publication_candidates(records: List[PriceRecord], day: date) -> List[PriceRecord]:
+    """Apply dated publication eligibility without rewriting raw source prices.
+
+    The analytical reader applies numerical corrections to copies. Historical
+    writers retain original denominators and prices for that audit trail.
+    """
+    return [record for record in records if publication_records([record], day)[0]]
+
+
 def _rows_for_date(day: date) -> List[dict]:
     records = load_snapshot(day)
     if not records:
         return []
+    records = _publication_candidates(records, day)
     best = _cheapest_per_combo(records)
     rows = []
     for r in sorted(best.values(), key=lambda x: (x.provider, x.gpu_model, x.consumption_type)):
-        rows.append({
-            "snapshot_date":          day.isoformat(),
-            "provider":               r.provider,
-            "gpu_model":              r.gpu_model,
-            "consumption_type":       r.consumption_type,
-            "region":                 r.region,
-            "instance_type":          r.instance_type,
-            "gpu_count":              r.gpu_count,
-            "price_per_gpu_hour_usd": round(r.price_per_gpu_hour_usd, 4),
-            "price_per_hour_usd":     round(r.price_per_hour_usd, 4),
-            "data_source":            getattr(r, "data_source", ""),
-            "source_type":            getattr(r, "source_type", ""),
-            "confidence":             getattr(r, "confidence", ""),
-            "interconnect":           getattr(r, "interconnect", ""),
-            "form_factor":            getattr(r, "form_factor", ""),
-            "vcpu":                   getattr(r, "vcpu", None) if getattr(r, "vcpu", None) is not None else "",
-            "ram_gb":                 getattr(r, "ram_gb", None) if getattr(r, "ram_gb", None) is not None else "",
-            "node_gpus":              getattr(r, "node_gpus", None) if getattr(r, "node_gpus", None) is not None else "",
-        })
+        rows.append(_history_row(r, day))
     return rows
 
 
@@ -228,32 +248,14 @@ def append_records(records: List[PriceRecord], day: date = None) -> Path:
     day = day or date.today()
     day_str = day.isoformat()
 
-    best = _cheapest_per_combo(records)
+    eligible = _publication_candidates(records, day)
+    best = _cheapest_per_combo(eligible)
     new_rows = []
     for r in sorted(best.values(), key=lambda x: (x.provider, x.gpu_model, x.consumption_type)):
-        new_rows.append({
-            "snapshot_date":          day_str,
-            "provider":               r.provider,
-            "gpu_model":              r.gpu_model,
-            "consumption_type":       r.consumption_type,
-            "region":                 r.region,
-            "instance_type":          r.instance_type,
-            "gpu_count":              r.gpu_count,
-            "price_per_gpu_hour_usd": round(r.price_per_gpu_hour_usd, 4),
-            "price_per_hour_usd":     round(r.price_per_hour_usd, 4),
-            "data_source":            getattr(r, "data_source", ""),
-            "source_type":            getattr(r, "source_type", ""),
-            "confidence":             getattr(r, "confidence", ""),
-            "interconnect":           getattr(r, "interconnect", ""),
-            "form_factor":            getattr(r, "form_factor", ""),
-            "vcpu":                   getattr(r, "vcpu", None) if getattr(r, "vcpu", None) is not None else "",
-            "ram_gb":                 getattr(r, "ram_gb", None) if getattr(r, "ram_gb", None) is not None else "",
-            "node_gpus":              getattr(r, "node_gpus", None) if getattr(r, "node_gpus", None) is not None else "",
-        })
+        new_rows.append(_history_row(r, day))
 
     if not new_rows:
-        logger.warning(f"history.csv: no valid records for {day_str} — nothing to write")
-        return HISTORY_CSV
+        logger.warning(f"history.csv: no eligible records for {day_str} — clearing any prior same-day summary")
 
     # Read existing rows, dropping any that belong to this date (we're replacing them)
     with open(HISTORY_CSV, newline="") as f:

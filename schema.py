@@ -60,6 +60,20 @@ class PriceRecord:
     price_basis: str = ""           # e.g. account_catalog; blank means not established
     storage_gb: Optional[float] = None # SKU storage as published in GB; not per-GPU
 
+    # Provider identity is independent of the feed that observed the offer.
+    # Keep source time separate: fetching an old aggregator row does not refresh it.
+    source_feed: str = ""
+    source_observed_at: str = ""
+    offer_id: str = ""
+    commitment_months: Optional[int] = None
+    available: Optional[bool] = None  # source signal only; never cluster stock proof
+    gpu_variant: str = ""
+    offer_variant: str = ""  # commercial tier, e.g. Secure vs Community Cloud
+    gpu_count_relation: str = "exact"  # exact | minimum; a 256+ tier is not exactly 256 GPUs
+    term_min_days: Optional[int] = None
+    term_max_days: Optional[int] = None
+    term_label: str = ""    # preserve the provider's interval; never force it into a fixed tenor
+
     # Derived analytical correction metadata. Raw observations are retained;
     # price_corrections only sets these fields on copies used for comparisons.
     correction_id: str = ""
@@ -99,6 +113,8 @@ class DiffEntry:
     old_price: Optional[float] = None
     new_price: Optional[float] = None
     delta_pct: Optional[float] = None
+    source_feed: str = ""
+    offer_id: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)

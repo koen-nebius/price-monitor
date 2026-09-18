@@ -13,20 +13,21 @@ def offer(provider, gpu="B200", tier="on_demand", sku="test", price=5.43):
 
 
 class IntegrationTests(unittest.TestCase):
-    def test_fresh_direct_replaces_only_covered_gpu_and_tier(self):
+    def test_fresh_direct_preserves_other_source_configurations(self):
         direct = [offer("massedcompute", sku="one"), offer("massedcompute", sku="two")]
         uncovered = [offer("cp_massedcompute", "H200"), offer("cp_massedcompute", tier="spot")]
         rows = direct + uncovered + [offer("cp_massedcompute"), offer("sf_massedcompute")]
-        self.assertEqual(prefer_massed_direct(rows, True), direct + uncovered)
+        self.assertEqual(prefer_massed_direct(rows, True), rows)
 
-    def test_live_failure_keeps_aggregator_not_duplicate_cached_direct(self):
+    def test_live_failure_retains_each_sources_observation_for_qualification(self):
         fallback = offer("cp_massedcompute")
         rows = [offer("massedcompute"), fallback, offer("sf_massedcompute")]
-        self.assertEqual(prefer_massed_direct(rows, False), [fallback])
+        self.assertEqual(prefer_massed_direct(rows, False), rows)
 
     def test_unsupported_direct_price_does_not_displace_fallback(self):
         fallback = offer("cp_massedcompute")
-        self.assertEqual(prefer_massed_direct([offer("massedcompute", price=.01), fallback], True), [fallback])
+        rows = [offer("massedcompute", price=.01), fallback]
+        self.assertEqual(prefer_massed_direct(rows, True), rows)
 
     def test_missing_direct_does_not_drop_sole_shadeform(self):
         rows = [offer("sf_massedcompute")]

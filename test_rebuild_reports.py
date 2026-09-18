@@ -1,5 +1,6 @@
 """Offline regeneration must preserve retrieval evidence and never imply delivery."""
 from contextlib import ExitStack
+import csv
 import json
 from pathlib import Path
 import tempfile
@@ -59,9 +60,104 @@ class OfflineReportRebuildTests(unittest.TestCase):
             self.assertFalse(output["artifact_generation"]["comparison_available"])
             self.assertIn("comparison was not regenerated", (folder / "slack_message.txt").read_text())
             self.assertEqual(set(output["artifact_generation"]["artifacts"]),
-                             {"slack_message.txt", "slack_thread.txt", "confluence_body.html", "spot_auction_body.html", "report_diff_2026-09-18.json"})
+                             {"slack_message.txt", "slack_thread.txt", "confluence_body.html", "spot_auction_body.html", "report_diff_2026-09-18.json", "coverage.json", "quote_coverage.json"})
             for name, raw in protected.items(): self.assertEqual((folder / name).read_bytes(), raw)
             self.assertNotIn("delivered", output["artifact_generation"])
+
+    def test_saved_catalogue_and_intel_are_rebuilt_at_original_clock_without_refresh_or_input_writes(self):
+        with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+            folder = Path(directory) / "store"
+            original = fixture(folder)
+            offers = [
+                {"provider": "lambda", "product_id": "dated-quote-product", "gpu_model": "H100",
+                 "price_status": "quote_required", "source_url": "https://lambda.ai/pricing",
+                 "observed_at": "2026-09-01T06:00:00+00:00", "retrieved_at": "2026-09-18T06:00:00+00:00"},
+                {"provider": "coreweave", "product_id": "future-product", "gpu_model": "B300",
+                 "price_status": "quote_required", "source_url": "https://www.coreweave.com/pricing",
+                 "observed_at": "2026-09-19T06:00:00+00:00", "retrieved_at": "2026-09-19T06:00:00+00:00"},
+            ]
+            (folder / "catalogue.json").write_text(json.dumps({"as_of": "2026-09-19", "offers": offers}))
+            quote = {"message_ts": "1.0", "message_date": "2026-09-17", "gpu_model": "H100",
+                     "price_per_gpu_hour_usd": "3.00", "term_months": "12", "prepay_pct": "0",
+                     "prepay_known": "1", "provider_type": "neocloud", "provider_name": "lambda", "notes": "",
+                     "quote_id": "source-quote", "quote_status": "asking_price", "source_url": "https://example.com/quote",
+                     "source_observed_at": "2026-09-16", "expires_on": "2026-09-19", "instance_type": "gpu_8x_h100_sxm5",
+                     "gpu_variant": "H100 SXM", "region": "us-west-3", "gpu_count": "8", "gpu_count_relation": "exact",
+                     "delivery_start": "2026-09-20", "delivery_end": "2027-09-20", "currency": "USD", "tax_basis": "excluded"}
+            future = {**quote, "message_ts": "2.0", "message_date": "2026-09-19", "quote_id": "future-quote"}
+            with (folder / "intel.csv").open("w", newline="") as stream:
+                writer = csv.DictWriter(stream, fieldnames=list(quote))
+                writer.writeheader(); writer.writerows([quote, future])
+            protected = {name: (folder / name).read_bytes() for name in
+                         ("catalogue.json", "intel.csv", "last_snapshot.json", "history.csv")}
+            render_stubs(stack)
+            original_intel = rebuild.renderer.INTEL_CSV
+            coverage = stack.enter_context(patch.object(rebuild, "build_price_coverage", wraps=rebuild.build_price_coverage))
+            observed_paths = []
+            def confluence(*args, **kwargs):
+                observed_paths.append(rebuild.renderer.INTEL_CSV)
+                from offer_catalogue import render_catalogue
+                from quote_evidence import render_quote_report
+                return render_catalogue(kwargs["catalogue_report"]) + render_quote_report(kwargs["quote_report"])
+            rebuild.renderer.format_confluence_table.side_effect = confluence
+            result = rebuild.rebuild_reports(folder, discover_git=False, generated_at="2026-10-01T12:00:00+00:00")
+            self.assertEqual(observed_paths, [folder.resolve() / "intel.csv"])
+            self.assertEqual(rebuild.renderer.INTEL_CSV, original_intel)
+            quote_report = json.loads((folder / "quote_coverage.json").read_text())
+            self.assertEqual(quote_report["as_of"], original["completed_at"])
+            self.assertEqual(len(quote_report["observations"]), 1)
+            self.assertEqual(quote_report["observations"][0]["quote_id"], "source-quote")
+            self.assertEqual(quote_report["observations"][0]["status"], "qualified_asking_price")
+            self.assertEqual(quote_report["observations"][0]["source_observed_at"], "2026-09-16")
+            catalogue = rebuild.renderer.format_confluence_table.call_args.kwargs["catalogue_report"]
+            self.assertEqual(catalogue["as_of"], original["completed_at"])
+            self.assertEqual(len(catalogue["offers"]), 1)
+            self.assertEqual(catalogue["offers"][0]["freshness"], "dated")
+            self.assertEqual(catalogue["offers"][0]["observed_at"], offers[0]["observed_at"])
+            self.assertEqual(coverage.call_args.kwargs["quote_report"], quote_report)
+            self.assertEqual(coverage.call_args.kwargs["catalogue_offers"], catalogue["offers"])
+            html = (folder / "confluence_body.html").read_text()
+            self.assertIn("dated-quote-product", html)
+            self.assertIn("source-quote", html)
+            self.assertNotIn("future-product", html)
+            self.assertNotIn("future-quote", html)
+            self.assertTrue(result["generated_outputs"]["quote_coverage"])
+            inputs = result["artifact_generation"]["supplementary_inputs"]
+            self.assertEqual(inputs["catalogue"]["later_records_excluded"], 1)
+            for name in ("catalogue", "field_intelligence"):
+                self.assertTrue(inputs[name]["present"])
+                self.assertEqual(len(inputs[name]["sha256"]), 64)
+            for name, before in protected.items():
+                self.assertEqual((folder / name).read_bytes(), before)
+
+    def test_missing_supplementary_inputs_produce_empty_views_without_reading_global_intel(self):
+        with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+            folder = Path(directory) / "store"
+            original = fixture(folder)
+            render_stubs(stack)
+            result = rebuild.rebuild_reports(folder, discover_git=False)
+            quote_report = json.loads((folder / "quote_coverage.json").read_text())
+            self.assertEqual(quote_report["observations"], [])
+            self.assertEqual(quote_report["as_of"], original["completed_at"])
+            args = rebuild.renderer.format_confluence_table.call_args.kwargs
+            self.assertEqual(args["catalogue_report"]["offers"], [])
+            self.assertEqual(args["quote_report"], quote_report)
+            self.assertFalse((folder / "catalogue.json").exists())
+            self.assertFalse((folder / "intel.csv").exists())
+            inputs = result["artifact_generation"]["supplementary_inputs"]
+            self.assertFalse(inputs["catalogue"]["present"])
+            self.assertFalse(inputs["field_intelligence"]["present"])
+
+    def test_bad_catalogue_fails_before_writing_any_generated_artifact(self):
+        with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+            folder = Path(directory) / "store"
+            fixture(folder)
+            (folder / "catalogue.json").write_text('{"offers": "invalid"}')
+            before = {p.name: p.read_bytes() for p in folder.iterdir()}
+            render_stubs(stack)
+            with self.assertRaisesRegex(ValueError, "offer list"):
+                rebuild.rebuild_reports(folder, discover_git=False)
+            self.assertEqual({p.name: p.read_bytes() for p in folder.iterdir()}, before)
 
     def test_previous_run_must_be_coherent_and_precede_current(self):
         with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:

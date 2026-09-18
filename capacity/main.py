@@ -11,6 +11,7 @@ posts the artifacts verbatim — this pipeline decides all content.
 import argparse
 import importlib
 import logging
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -33,12 +34,40 @@ MIN_BASELINE_SHARE = 0.5
 # provider key → module under capacity/fetchers/ (where they differ)
 FETCHER_MODULES = {
     "lambda": "lambda_labs",   # "lambda" is a Python keyword
+    "crusoe_public": "crusoe",  # independent public docs, not the paused API
 }
+FETCH_HEALTH = {}
+
+
+def _legacy_missing_credentials(provider):
+    """Infer pending only for old collectors that do not emit fetch health."""
+    from capacity.config import PENDING_ACTIVATION
+    required = {
+        "aws_capacity_blocks": ("AWS_ACCESS_KEY_ID",),
+        "hyperstack": ("HYPERSTACK_API_KEY",),
+        "verda": ("VERDA_CLIENT_ID", "VERDA_CLIENT_SECRET"),
+        "lambda": ("LAMBDA_API_KEY",), "together": ("TOGETHER_API_KEY",),
+    }.get(provider)
+    return bool(provider in PENDING_ACTIVATION and required
+                and any(not os.environ.get(key, "").strip() for key in required))
 
 
 def _fetch_provider(provider: str):
     mod = importlib.import_module(f"capacity.fetchers.{FETCHER_MODULES.get(provider, provider)}")
-    return mod.fetch()
+    try:
+        if provider == "crusoe_public":
+            return mod.fetch_public_footprint()
+        return mod.fetch()
+    finally:
+        health_name = "LAST_PUBLIC_FOOTPRINT_HEALTH" if provider == "crusoe_public" else "LAST_FETCH_HEALTH"
+        FETCH_HEALTH[provider] = dict(getattr(mod, health_name, {}))
+
+
+def _is_crusoe_public(record):
+    return (record.provider == "crusoe" and record.metric_type == "listed_offering"
+            and record.product_scope == "public_gpu_vm_catalogue"
+            and record.data_source == "web_scrape" and record.instance_type
+            and record.region != "global")
 
 
 def run(providers=None, test=False):
@@ -60,21 +89,49 @@ def run(providers=None, test=False):
                 }
                 logger.info("Crusoe: authenticated capacity access paused; no fetch or cache fallback")
                 continue
+        FETCH_HEALTH.pop(provider, None)
+        fetch_error = None
         try:
             records = _fetch_provider(provider)
         except Exception as e:
-            logger.error(f"{provider}: fetch raised {e}")
+            fetch_error = type(e).__name__
+            logger.error("%s: fetch raised %s", provider, fetch_error)
             records = []
 
+        health = FETCH_HEALTH.get(provider, {})
+        if fetch_error:
+            health = {**health, "status": "failed", "reason": "fetcher raised an exception",
+                      "error_code": fetch_error}
+        elif not health and not records and _legacy_missing_credentials(provider):
+            health = {"status": "pending", "reason": "required API credentials are not configured",
+                      "error_code": "missing_credentials"}
+        if health.get("status") in {"failed", "error"}:
+            # Failed health cannot become a successful cache refresh merely
+            # because a collector accidentally returned some rows with it.
+            records = []
+        if provider == "crusoe_public":
+            records = [r for r in records if _is_crusoe_public(r)]
+        if health.get("status") in {"partial", "empty", "pending"}:
+            # A complete empty catalogue does not establish zero GPU inventory.
+            # A partial read must not replace a complete cache or look healthy.
+            provider_status[provider] = {**health, "record_count": len(records)}
+            if health["status"] == "partial":
+                failed.append(provider)
+            all_records.extend(records)
+            continue
         if provider == "scaleway":
             from capacity.insights import is_scaleway_instance
             records = [r for r in records if is_scaleway_instance(r)]
         if records:
             store.update_peer_cache(provider, records)
-            provider_status[provider] = {"status": "live", "record_count": len(records)}
+            provider_status[provider] = {**health, "status": "live", "record_count": len(records)}
             logger.info(f"{provider}: {len(records)} records (live)")
         else:
             cached, age_h = store.get_cached_records(provider)
+            if provider == "crusoe_public":
+                # No authenticated cache or older family/global footprint may
+                # substitute for this independent exact-SKU document collector.
+                cached = [r for r in cached if _is_crusoe_public(r)]
             if provider == "scaleway":
                 cached = [r for r in cached if is_scaleway_instance(r)]
             if provider == "lambda":
@@ -102,6 +159,7 @@ def run(providers=None, test=False):
                 records = cached
                 stale.append(provider)
                 provider_status[provider] = {
+                    **health,
                     "status": "cached", "record_count": len(records),
                     "cache_age_hours": round(age_h, 1),
                 }
@@ -109,7 +167,7 @@ def run(providers=None, test=False):
                                f"cached ({age_h:.1f}h old)")
             else:
                 failed.append(provider)
-                provider_status[provider] = {"status": "failed", "record_count": 0}
+                provider_status[provider] = {**health, "status": "failed", "record_count": 0}
                 logger.error(f"{provider}: 0 records and no usable cache")
 
         all_records.extend(records)
@@ -122,7 +180,8 @@ def run(providers=None, test=False):
     # retain explicitly labelled aggregator observations, never the paused
     # provider's old authoritative data as today's available/zero stock.
     def usable_during_pause(record):
-        return record.provider not in paused or record.data_source == "aggregator"
+        return (record.provider not in paused or record.data_source == "aggregator"
+                or _is_crusoe_public(record))
     all_records = [r for r in all_records if usable_during_pause(r)]
     old_records = [r for r in old_records if usable_during_pause(r)]
 
@@ -132,16 +191,20 @@ def run(providers=None, test=False):
         store.save_snapshot(all_records, today)
         store.append_history(all_records, today)
 
-    from capacity.config import PENDING_ACTIVATION
     live_count = sum(1 for s in provider_status.values() if s["status"] == "live")
-    real_failed = [p for p in failed if p not in PENDING_ACTIVATION]
+    # A partial collector still supplied bounded evidence. Keep that distinct
+    # from a run where every attempted active collector failed completely.
+    has_partial = any(s["status"] == "partial" for s in provider_status.values())
+    real_failed = [p for p in failed if provider_status[p]["status"] == "failed"]
+    incomplete = [p for p, s in provider_status.items()
+                  if s["status"] in {"partial", "empty", "cached", "pending"}]
     manifest = {
         "run_date": today.isoformat(),
         "started_at": started.isoformat(),
         "completed_at": datetime.now(timezone.utc).isoformat(),
-        # Pending-activation providers (missing keys) are not failures — a
-        # permanently "partial" status would train readers to ignore it.
-        "status": "success" if not real_failed else ("partial" if live_count else "failed"),
+        # Explicit pending credentials are distinct from failed authenticated
+        # checks. A static activation list must never hide a runtime failure.
+        "status": ("partial" if incomplete else "success") if not real_failed else ("partial" if live_count or has_partial else "failed"),
         "record_count": len(all_records),
         "diff_count": len(diff),
         "provider_count": len(selected),

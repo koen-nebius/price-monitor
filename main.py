@@ -54,6 +54,7 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s — %(message)s",
 )
 logger = logging.getLogger("main")
+FETCH_METADATA = {}
 
 from config import CONFLUENCE_PAGE_URL
 
@@ -130,6 +131,7 @@ def validate_prices(new_records: List[PriceRecord], old_records: List[PriceRecor
 def run(providers=None, test=False):
     providers = providers or PROVIDERS
     all_records: List[PriceRecord] = []
+    catalogue_offers = []
     errors: List[str] = []
     warnings: List[str] = []
     started_at = datetime.now(timezone.utc).isoformat()
@@ -161,6 +163,7 @@ def run(providers=None, test=False):
 
     # ── Fetch all providers ──────────────────────────────────────────────────
     for provider in providers:
+        FETCH_METADATA.pop(provider, None)
         try:
             records = _fetch_provider(provider)
         except Exception as e:
@@ -169,12 +172,35 @@ def run(providers=None, test=False):
             provider_status[provider] = {"status": "error", "record_count": 0}
             records = []
 
+        metadata = FETCH_METADATA.get(provider, {})
+        health = metadata.get("health", {})
+        from offer_catalogue import normalize_offers
+        try:
+            offers = normalize_offers(metadata.get("catalogue", []))
+        except (ValueError, TypeError):
+            offers = []
+            health = {**health, "status": "partial" if records else "failed",
+                      "reason": "Catalogue metadata failed validation"}
+        catalogue_offers.extend(offers)
+        if health:
+            health = {**health, "fetch_status": health.get("status", "unknown")}
+        if health.get("status") in {"failed", "error", "empty"}:
+            records = []
+            if provider not in errors:
+                errors.append(provider)
+        if health.get("status") == "catalogue_only" and offers:
+            provider_status[provider] = {**health, "record_count": 0, "catalogue_count": len(offers)}
+            # Successfully observed unpriced/unscoped products must not revive
+            # an old, artificially scoped price from the cache.
+            continue
         if records:
             # Live fetch succeeded — update peer cache so a future empty/blocked
             # run (e.g. GHA runner IPs blocked by Azure/Oracle/RunPod) can fall back
-            update_peer_cache(provider, records)
+            if health.get("status") not in {"partial", "fallback"}:
+                update_peer_cache(provider, records)
             logger.info(f"{provider}: {len(records)} records (live)")
-            provider_status[provider] = {"status": "live", "record_count": len(records)}
+            provider_status[provider] = {**health, "status": health.get("status", "live"),
+                                         "record_count": len(records), "catalogue_count": len(offers)}
         else:
             # Fetch returned nothing — fall back to peer_cache.json.
             # Applies to ALL providers, not just web scrapes: API providers also
@@ -189,6 +215,7 @@ def run(providers=None, test=False):
                     f"falling back to {len(records)} cached records ({age_str})"
                 )
                 provider_status[provider] = {
+                    **health,
                     "status": "cache",
                     "record_count": len(records),
                     "cache_age_hours": round(cache_age, 1) if cache_age is not None else None,
@@ -232,10 +259,10 @@ def run(providers=None, test=False):
                     f"{provider}: live fetch returned 0 records and no cache available. "
                     f"Run main.py locally once to populate peer_cache.json."
                 )
-                provider_status[provider] = {"status": "missing", "record_count": 0}
+                provider_status[provider] = {**health, "status": "missing", "record_count": 0}
 
         # Detect SkyPilot fallback for lambda (all records have data_source="aggregator")
-        if provider == "lambda" and records and all(
+        if provider == "lambda" and not health and records and all(
             getattr(r, "data_source", "") == "aggregator" for r in records
         ):
             provider_status[provider] = {
@@ -248,32 +275,24 @@ def run(providers=None, test=False):
 
     today = date.today()
 
-    # ── Drop aggregator twins of providers we fetch directly ─────────────────
-    # ComputePrices SKIP_PROVIDERS prevents these on a LIVE fetch, but a ComputePrices
-    # outage triggers a cache fallback that can resurrect the stale cp_* twin, double-
-    # counting against the direct fetcher (e.g. cp_together-ai alongside direct together).
-    # Drop them unconditionally at assembly so direct always wins.
-    SUPERSEDED_AGGREGATORS = {"cp_oracle", "cp_together-ai", "cp_hyperstack",
-                              "cp_verda",   # direct verda.py fetcher since 2026-08-11
-                              # Shadeform twins of providers we already carry directly or via
-                              # ComputePrices (one provider, one vote; 2026-09-15). Net-new sf_
-                              # clouds (boostrun, imwt, horizon, phyntec, amaya) stay.
-                              "sf_lambdalabs", "sf_hyperstack", "sf_verda", "sf_nebius", "sf_crusoe",
-                              "sf_scaleway", "sf_paperspace", "sf_latitude",
-                              "sf_denvr", "sf_vultr", "sf_digitalocean", "sf_voltagepark"}
+    # Retain aggregator coverage even where a public rate-card scraper exists.
+    # Together's known misclassified cluster rates remain excluded; Vultr's
+    # deployment-qualified catalogue has its separate product eligibility rule.
+    SUPERSEDED_AGGREGATORS = {"cp_together-ai", "sf_together", "sf_together-ai"}
     _before = len(all_records)
     all_records = [r for r in all_records if r.provider not in SUPERSEDED_AGGREGATORS]
     if len(all_records) < _before:
         logger.info(f"Dropped {_before - len(all_records)} superseded aggregator records "
                     f"(direct fetchers exist): {sorted(SUPERSEDED_AGGREGATORS)}")
 
-    # Prefer live direct Massed observations only for the GPU/tier actually
-    # covered. On a failed direct fetch, retain the aggregator fallback.
-    from source_priority import prefer_massed_direct, exclude_superseded_vultr
+    # Retain direct and aggregator observations with their source provenance.
+    from source_priority import (prefer_massed_direct, exclude_superseded_vultr,
+                                 canonicalize_provider_sources)
     all_records = exclude_superseded_vultr(all_records)
     all_records = prefer_massed_direct(
         all_records, provider_status.get("massedcompute", {}).get("status") == "live"
     )
+    all_records = canonicalize_provider_sources(all_records)
 
     logger.info(f"Fetched {len(all_records)} total records for {today}")
 
@@ -331,135 +350,30 @@ def run(providers=None, test=False):
     except Exception as e:
         logger.debug(f"consistency check skipped: {e}")
 
-    # ── Independent price cross-check (Phase 1.9) ────────────────────────────
-    # Validate our directly-fetched on-demand prices against ComputePrices as an
-    # independent second source. >5% disagreement → flag in manifest + downgrade the
-    # affected records' confidence to "low". Replaces ad-hoc verification agents with
-    # a standing daily check. Graceful: any failure just skips.
-    try:
-        from fetchers.computeprices import fetch_crosscheck
-        xcheck = fetch_crosscheck()
-        if xcheck:
-            # Plausibility floor per GPU — below this, ComputePrices is the suspect
-            # source (it carries occasional absurd values and committed-as-on-demand
-            # mislabels), so we flag CP rather than undermining our own number.
-            _CP_FLOOR = {"H100": 0.8, "H200": 1.0, "B200": 2.0, "B300": 2.5,
-                         "GB200": 2.0, "GB300": 3.0, "L40S": 0.25}
-            # cheapest direct on-demand price + its source per (provider, gpu).
-            # Skip Nebius: it's our own product (we have verified internal prices);
-            # an aggregator's third-hand Nebius data isn't a valid check on us.
-            ours: Dict[tuple, tuple] = {}
-            for r in accepted_records:
-                if r.provider == "nebius" or is_qualified_catalogue_reference(r):
-                    continue
-                if r.consumption_type == "on_demand" and r.data_source in ("official_api", "web_scrape"):
-                    k = (r.provider, r.gpu_model)
-                    if k not in ours or r.price_per_gpu_hour_usd < ours[k][0]:
-                        ours[k] = (r.price_per_gpu_hour_usd, r.data_source)
-            n_flagged = 0
-            for k, (our_px, src) in ours.items():
-                xp = xcheck.get(k)
-                if not xp or our_px <= 0:
-                    continue
-                gap = abs(our_px - xp) / our_px * 100
-                is_scrape = (src == "web_scrape")
-                cp_implausible = xp < _CP_FLOOR.get(k[1], 0)
-                if cp_implausible:
-                    # CP value is below a sane floor — treat CP as the bad source.
-                    if gap > 15:
-                        n_flagged += 1
-                        msg = (f"{k[0]} {k[1]} on-demand: ComputePrices ${xp:.2f} is implausibly "
-                               f"low vs ours ${our_px:.2f} — ignoring CP (likely error/mislabel)")
-                        logger.warning(f"Cross-check: {msg}")
-                        warnings.append(f"cross-check: {msg}")
-                    continue
-                # Direction matters for scrapes (2026-07-14, Hyperstack incident):
-                # we deliberately keep the provider's CHEAPEST variant, while CP's
-                # fresh coverage may only include a pricier variant (e.g. SXM $3.20
-                # when we correctly emit plain $2.50). Ours ABOVE CP's floor is the
-                # real mis-parse signature (picking the pricey variant — the June
-                # regression); ours moderately BELOW it is normal coverage
-                # asymmetry. Only a huge low-side gap (>40%, e.g. parsing a CPU row
-                # as a GPU) is treated as a suspect parse.
-                # Our provider-API prices are authoritative → only flag a LARGE gap,
-                # never downgrade because a flaky aggregator disagrees.
-                if is_scrape:
-                    if our_px > xp:
-                        flag, downgrade = gap > 5, True
-                        note = "our scrape may be mis-parsed — verify"
-                    elif gap > 40:
-                        flag, downgrade = True, True
-                        note = ("ours far below CP's freshest coverage — verify we "
-                                "didn't parse a non-GPU/spot row")
-                    else:
-                        flag, downgrade = False, False
-                        if gap > 5:
-                            logger.info(
-                                f"Cross-check: {k[0]} {k[1]} ours ${our_px:.2f} below "
-                                f"CP ${xp:.2f} ({gap:.0f}%) — cheapest-variant coverage "
-                                f"asymmetry, not flagged")
-                else:
-                    flag, downgrade = gap > 15, False
-                    note = "ComputePrices likely off (provider API is authoritative)"
-                if flag:
-                    n_flagged += 1
-                    msg = (f"{k[0]} {k[1]} on-demand: ours ${our_px:.2f} ({'scrape' if is_scrape else 'api'}) "
-                           f"vs ComputePrices ${xp:.2f} ({gap:.0f}% gap) — {note}")
-                    logger.warning(f"Cross-check disagreement: {msg}")
-                    warnings.append(f"cross-check: {msg}")
-                    if downgrade:
-                        for r in accepted_records:
-                            if (r.provider == k[0] and r.gpu_model == k[1]
-                                    and r.consumption_type == "on_demand"):
-                                r.confidence = "low"
-            logger.info(f"Cross-check: {len(ours)} direct on-demand prices vs ComputePrices — "
-                        f"{n_flagged} flagged")
-    except Exception as e:
-        logger.debug(f"cross-check skipped: {e}")
-
-    # ── Second, independent cross-check: dstack gpuhunt catalogs (2026-09-15) ──
-    # ComputePrices and gpuhunt collect prices independently (gpuhunt with its own
-    # credentialed provider accounts), so a direct price that BOTH disagree with is
-    # a strong mis-parse signal, while agreement from either is reassurance. This
-    # is the "double-check the automated benchmarks" condition (Danila, 2026-08-21)
-    # made mechanical. Warnings only — no confidence downgrade from this source.
-    try:
-        from fetchers.gpuhunt import fetch_crosscheck as gh_fetch_crosscheck, LAST_VERSIONS as gh_versions
-        gh = gh_fetch_crosscheck()
-        if gh:
-            ours_gh: Dict[tuple, tuple] = {}
-            for r in accepted_records:
-                if r.provider == "nebius" or is_qualified_catalogue_reference(r):
-                    continue
-                if r.consumption_type == "on_demand" and r.data_source in ("official_api", "web_scrape"):
-                    k = (r.provider, r.gpu_model)
-                    if k not in ours_gh or r.price_per_gpu_hour_usd < ours_gh[k][0]:
-                        ours_gh[k] = (r.price_per_gpu_hour_usd, r.data_source)
-            n_gh, n_cmp = 0, 0
-            for k, (our_px, src) in ours_gh.items():
-                xp = gh.get(k)
-                if not xp or our_px <= 0:
-                    continue
-                n_cmp += 1
-                gap = abs(our_px - xp) / our_px * 100
-                # Direction-aware like the ComputePrices check: gpuhunt often carries
-                # only the pricier variant (e.g. RunPod SXM $3.49 while we correctly
-                # keep the PCIe pod at $2.89), so ours BELOW gpuhunt is coverage
-                # asymmetry unless huge; ours ABOVE gpuhunt is the mis-parse signature.
-                if src == "web_scrape":
-                    flag = (our_px > xp and gap > 5) or (our_px < xp and gap > 40)
-                else:
-                    flag = (our_px > xp and gap > 15) or (our_px < xp and gap > 40)
-                if flag:
-                    n_gh += 1
-                    msg = (f"{k[0]} {k[1]} on-demand: ours ${our_px:.2f} ({'scrape' if src == 'web_scrape' else 'api'}) "
-                           f"vs gpuhunt ${xp:.2f} ({gap:.0f}% gap)")
-                    logger.warning(f"Cross-check (gpuhunt) disagreement: {msg}")
-                    warnings.append(f"cross-check(gpuhunt): {msg}")
-            logger.info(f"Cross-check (gpuhunt): {n_cmp} direct on-demand prices compared, {n_gh} flagged; "
-                        f"catalog versions {sorted(set(gh_versions.values()))}")
-    except Exception as e:
-        logger.debug(f"gpuhunt cross-check skipped: {e}")
+    # ── Exact-configuration price cross-checks ───────────────────────────────
+    # Source disagreement is neutral evidence, not a reason to downgrade a
+    # provider/GPU family. Unknown SKU/host/region/terms remain not comparable.
+    # Agreement may relay one rate card; source independence is not established.
+    import importlib
+    from price_crosscheck import compare_price_observations
+    crosscheck_reports = {}
+    for feed, module_name in (("computeprices", "fetchers.computeprices"),
+                              ("gpuhunt", "fetchers.gpuhunt")):
+        try:
+            module = importlib.import_module(module_name)
+            references = module.fetch_crosscheck()
+            report = compare_price_observations(
+                [r for r in accepted_records if r.provider != "nebius"
+                 and not is_qualified_catalogue_reference(r)],
+                references, as_of=datetime.now(timezone.utc))
+            crosscheck_reports[feed] = report
+            warnings.extend(report["warnings"])
+            for message in report["warnings"]:
+                logger.warning("%s", message)
+            logger.info("%s configuration cross-check: %s", feed, report["summary"])
+        except Exception as e:
+            crosscheck_reports[feed] = {"status": "unavailable", "error_code": type(e).__name__}
+            logger.warning("%s cross-check unavailable: %s", feed, type(e).__name__)
 
     # ── Write canonical outputs (using validated records) ────────────────────
     save_snapshot(all_records, today)              # raw snapshot — includes everything
@@ -509,6 +423,7 @@ def run(providers=None, test=False):
         d for d in diffs
         if d.change_type == "price_change"
         and not d.provider.startswith(("cp_", "sf_"))
+        and d.source_feed not in {"computeprices", "shadeform"}
         and abs(d.delta_pct or 0) >= ALERT_THRESHOLD_PCT
         and provider_tier(d.provider) in _tracked
         and d.consumption_type not in INTERRUPTIBLE_CTS
@@ -586,9 +501,20 @@ def run(providers=None, test=False):
     with open(thread_path, "w") as f:
         f.write(slack_thread)
 
+    from offer_catalogue import build_catalogue_report
+    catalogue_report = build_catalogue_report(catalogue_offers, datetime.now(timezone.utc), provider_status)
+    (STORE_DIR / "catalogue.json").write_text(json.dumps(catalogue_report, indent=2) + "\n")
+    from quote_evidence import build_quote_report, load_rows
+    quote_report = build_quote_report(load_rows(STORE_DIR / "intel.csv"), catalogue_report["as_of"])
+    (STORE_DIR / "quote_coverage.json").write_text(json.dumps(quote_report, indent=2) + "\n")
     confluence_body = format_confluence_table(accepted_records, run_date,
                                               provider_status=provider_status,
-                                              diffs=diffs)
+                                              diffs=diffs, catalogue_report=catalogue_report,
+                                              quote_report=quote_report)
+    from coverage_report import build_price_coverage
+    pricing_coverage = build_price_coverage(accepted_records, datetime.now(timezone.utc), provider_status,
+                                           catalogue_offers=catalogue_offers, quote_report=quote_report)
+    (STORE_DIR / "coverage.json").write_text(json.dumps(pricing_coverage, indent=2) + "\n")
     # Separate competitor spot/auction page for the PVM Auctions project (own pipeline output)
     spot_auction_body = format_spot_auction_page(accepted_records, run_date)
     with open(STORE_DIR / "spot_auction_body.html", "w") as f:
@@ -603,8 +529,8 @@ def run(providers=None, test=False):
 
     # ── Write run manifest ────────────────────────────────────────────────────
     completed_at = datetime.now(timezone.utc).isoformat()
-    stale_providers = [p for p, s in provider_status.items() if s["status"] in ("cache", "fallback", "missing")]
-    run_status = "failed" if len(errors) >= len(providers) // 2 else \
+    stale_providers = [p for p, s in provider_status.items() if s["status"] in ("cache", "fallback", "missing", "partial", "failed")]
+    run_status = "failed" if errors and len(errors) >= max(1, (len(providers) + 1) // 2) else \
                  "partial" if (errors or stale_providers) else "success"
 
     # ── Per-source freshness summary ──────────────────────────────────────────
@@ -621,7 +547,7 @@ def run(providers=None, test=False):
         if raw_status == "live":
             fr_status = "live"
         elif raw_status == "fallback":
-            fr_status = "live"  # SkyPilot catalog is a live alternate source, not a cache
+            fr_status = "fallback"  # retrieval does not establish the upstream price date
         elif raw_status == "cache":
             verdict = s.get("stale_verdict")
             fr_status = "stale" if verdict == "stale" else "cached"
@@ -643,6 +569,7 @@ def run(providers=None, test=False):
         "status":            run_status,
         "record_count":      len(accepted_records),
         "raw_record_count":  len(all_records),
+        "catalogue_record_count": len(catalogue_offers),
         "anomaly_count":     len(anomalies),
         "quarantined_count": quarantined_count,
         "diff_count":        len(diffs),
@@ -650,6 +577,7 @@ def run(providers=None, test=False):
         "stale_providers":   stale_providers,
         "provider_status":   provider_status,
         "provider_freshness": provider_freshness,
+        "price_crosschecks": crosscheck_reports,
         "comparison_exclusions": comparison_exclusions,
         "comparison_record_count": len(comparison_records),
         "warnings":          warnings,
@@ -660,6 +588,9 @@ def run(providers=None, test=False):
         "generated_outputs": {
             "slack_message":    True,
             "confluence_body":  True,
+            "coverage":         True,
+            "catalogue":        True,
+            "quote_coverage":   True,
         },
     }
     save_run_manifest(manifest)
@@ -685,6 +616,7 @@ PROVIDER_MODULES = {
     "gcp": "gcp",
     "azure": "azure",
     "coreweave": "coreweave",
+    "coreweave_plans": "coreweave_plans",
     "lambda": "lambda_labs",
     "crusoe": "crusoe",
     "nebius": "nebius",
@@ -712,7 +644,14 @@ def _fetch_provider(provider: str):
     if module is None:
         raise ValueError(f"Unknown provider: {provider} — add it to PROVIDER_MODULES")
     import importlib
-    return importlib.import_module(f"fetchers.{module}").fetch()
+    mod = importlib.import_module(f"fetchers.{module}")
+    for name, value in (("LAST_CATALOGUE_OFFERS", []), ("LAST_FETCH_HEALTH", {})):
+        if hasattr(mod, name): setattr(mod, name, value)
+    try:
+        return mod.fetch()
+    finally:
+        FETCH_METADATA[provider] = {"catalogue": list(getattr(mod, "LAST_CATALOGUE_OFFERS", [])),
+                                    "health": dict(getattr(mod, "LAST_FETCH_HEALTH", {}))}
 
 
 if __name__ == "__main__":

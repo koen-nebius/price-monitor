@@ -74,7 +74,9 @@ import sys as _sys  # noqa: E402
 _sys.path.insert(0, str(ROOT))
 from intel_quality import classify as intel_classify, dedupe as intel_dedupe, prepay_known as intel_prepay_known  # noqa: E402
 from history import load_comparison_history  # noqa: E402
-from report_freshness import committed_reference_fresh  # noqa: E402
+from report_freshness import committed_reference_fresh, publication_records  # noqa: E402
+from comparability import is_public_benchmark_eligible  # noqa: E402
+from schema import PriceRecord  # noqa: E402
 STORE = ROOT / "store"
 OUT_DIR = STORE / "forward_curve"
 INTEL_CSV = STORE / "intel.csv"
@@ -225,6 +227,9 @@ def load_bid(path: Path = INTEL_CSV) -> list[dict]:
     load_bid.review = len(review)
     review_ids = {id(x["row"]): x for x in review}
     for r in kept:
+        from intel_schema import is_expired
+        if is_expired(r) or r.get("quote_status") == "signed_deal":
+            continue  # separate transaction evidence from the asking-price curve
         tier = (r.get("gpu_model") or "").strip().upper()
         if tier not in TIERS:
             continue
@@ -313,12 +318,63 @@ def load_contracts(path: Path = CONTRACTS_CSV) -> list[dict]:
     return obs
 
 
+def _on_demand_rows(history: Path, snapshot: Path | None, as_of: date | None) -> tuple[list, str | None]:
+    """Use accepted full-grain offers before selecting the cluster-class cohort.
+
+    A cheapest-only history row can be an entry VM and hide another eligible
+    cluster offer. The default snapshot stays beside the supplied history path,
+    so isolated historical builds never read this checkout's current snapshot.
+    Explicit snapshot inputs must be accepted observations supplied by the caller.
+    """
+    snapshot = Path(snapshot) if snapshot is not None else Path(history).parent / "last_snapshot.json"
+    if snapshot.exists():
+        try:
+            payload = json.loads(snapshot.read_text())
+            if not isinstance(payload, list):
+                return [], None
+            records = [PriceRecord.from_dict(row) for row in payload]
+        except (OSError, ValueError, TypeError, KeyError):
+            return [], None
+        eligible, _ = publication_records(records, as_of)
+        rows = [r.to_dict() for r in eligible if is_public_benchmark_eligible(r)]
+        latest = max((r.get("fetched_at", "")[:10] for r in rows if r.get("fetched_at")), default=None)
+        # This is one accepted snapshot with independently dated source rows;
+        # keep every fresh source, even if its retrieval date differs by a day.
+        return [{**r, "snapshot_date": latest} for r in rows], latest
+    rows = [r for r in load_comparison_history(history)
+            if r.get("consumption_type") in ("on_demand", "spot", "preemptible")] if history.exists() else []
+    if as_of:
+        rows = [r for r in rows if r.get("snapshot_date", "") <= as_of.isoformat()]
+    latest = max((r.get("snapshot_date", "") for r in rows), default=None)
+    selected = []
+    for row in rows:
+        if row.get("snapshot_date") != latest:
+            continue
+        # Newly retained aggregator history has enough provenance to recheck
+        # current eligibility. Legacy rows remain explicitly snapshot-dated.
+        if row.get("source_feed") in {"computeprices", "shadeform"}:
+            try:
+                values = dict(row)
+                for field in ("gpu_count", "price_per_hour_usd", "price_per_gpu_hour_usd"):
+                    values[field] = float(values[field])
+                values["available"] = {"true": True, "false": False}.get(str(values.get("available", "")).lower())
+                values["comparison_eligible"] = str(values.get("comparison_eligible", True)).lower() not in {"false", "0"}
+                record = PriceRecord.from_dict(values)
+                eligible, _ = publication_records([record], as_of)
+                if not eligible or not is_public_benchmark_eligible(eligible[0]):
+                    continue
+            except (KeyError, ValueError, TypeError):
+                continue
+        selected.append(row)
+    return selected, latest
+
+
 def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, realised: Path = PAYG_REALISED_CSV,
-                   as_of: date | None = None) -> dict:
+                   as_of: date | None = None, snapshot: Path | None = None) -> dict:
     """The 0-month anchor per tier, kept as separate classes (never pooled into the curve):
     Nebius on-demand list and preemptible list (latest scraper snapshot), enterprise-peer
     on-demand median and cheapest hyperscaler on-demand for cluster-class SKUs (>= 8 GPUs
-    when the node size is known), on-demand competitor quotes from #price-intelligence
+    in newly ingested aggregator offers; verified direct per-GPU conventions retained), on-demand competitor quotes from #price-intelligence
     (term 0, last 90 days) and Nebius realised PAYG $/GPU-hour (last 30 days, external,
     non-preemptible, from the Analytics consumption dataset)."""
     out = {t: {} for t in TIERS}
@@ -326,10 +382,10 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
         from config import provider_tag
     except Exception:  # pragma: no cover
         provider_tag = lambda p: "peer"  # noqa: E731
-    if history.exists():
-        rows = [r for r in load_comparison_history(history) if r.get("consumption_type") in ("on_demand", "spot", "preemptible")]
+    rows, latest = _on_demand_rows(history, snapshot, as_of)
+    if rows:
+        rows = [r for r in rows if r.get("consumption_type") in ("on_demand", "spot", "preemptible")]
         if rows:
-            latest = max(r["snapshot_date"] for r in rows)
             per = defaultdict(lambda: {"peer": [], "hyper": [], "other": []})
             for r in rows:
                 if r["snapshot_date"] != latest:
@@ -338,7 +394,9 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
                 if tier not in TIERS:
                     continue
                 try:
-                    p = float(r["price_per_gpu_hour_usd"]); gc = int(float(r.get("gpu_count") or 0))
+                    p = float(r["price_per_gpu_hour_usd"])
+                    priced_gpus = float(r.get("gpu_count") or 0)
+                    gc = float(r.get("node_gpus") or r.get("gpu_count") or 0)
                 except (TypeError, ValueError):
                     continue
                 prov, ct = r["provider"], r["consumption_type"]
@@ -347,23 +405,32 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
                     continue
                 if ct != "on_demand" or (gc and gc < 8):
                     continue
+                if r.get("form_factor") in ("PCIe", "NVL"):
+                    continue
+                if (r.get("source_feed") in {"computeprices", "shadeform"}
+                        and r.get("parser_version") == "aggregator-offers-1"
+                        and (r.get("form_factor") != "SXM" or priced_gpus < 8)):
+                    continue
                 tag = provider_tag(prov)
                 inst = r.get("instance_type") or ""
                 if tag == "peer":
-                    per[tier]["peer"].append((p, prov, inst))
+                    per[tier]["peer"].append((p, prov, inst, r))
                 elif tag == "hyperscaler":
-                    per[tier]["hyper"].append((p, prov, inst))
+                    per[tier]["hyper"].append((p, prov, inst, r))
                 else:
-                    per[tier]["other"].append((p, prov, inst))   # price fighters / platforms, PAYG term only
+                    per[tier]["other"].append((p, prov, inst, r))   # price fighters / platforms, PAYG term only
             for tier, d in per.items():
                 def cheapest(rows):   # cheapest SKU per provider: {provider: (price, instance_type)}
                     best = {}
-                    for p, prov, inst in rows:
+                    for p, prov, inst, row in rows:
                         if prov not in best or p < best[prov][0]:
-                            best[prov] = (p, inst)
+                            best[prov] = (p, inst, row)
                     return best
                 def as_list(best):
-                    return [{"provider": k, "price": round(v[0], 4), "instance_type": v[1]} for k, v in sorted(best.items(), key=lambda kv: kv[1][0])]
+                    return [{"provider": k, "price": round(v[0], 4), "instance_type": v[1],
+                             **{field: v[2].get(field, "") for field in (
+                                 "source_feed", "source_observed_at", "fetched_at", "source_url", "offer_id", "node_gpus")}}
+                            for k, v in sorted(best.items(), key=lambda kv: kv[1][0])]
                 if d["peer"]:
                     best = cheapest(d["peer"])
                     vals = sorted(v[0] for v in best.values())
@@ -372,7 +439,7 @@ def load_on_demand(history: Path = HISTORY_CSV, intel_obs: list | None = None, r
                     out[tier]["peer_od_min"] = round(vals[0], 2)
                     out[tier]["peer_list"] = as_list(best)
                 if d["hyper"]:
-                    p, prov, _ = min(d["hyper"])
+                    p, prov, _, _ = min(d["hyper"], key=lambda row: row[0])
                     out[tier]["hyperscaler_od_min"] = round(p, 2); out[tier]["hyperscaler_od_provider"] = prov
                     out[tier]["hyper_list"] = as_list(cheapest(d["hyper"]))
                 if d["other"]:
@@ -826,7 +893,7 @@ def aggregate_asks(asks: list[dict], min_deals: int = ASK_MIN_DEALS) -> list[dic
 
 def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
           history=HISTORY_CSV, contracts=CONTRACTS_CSV, grid=GRID_JSON, segment=DEFAULT_SEGMENT,
-          crm_asks=CRM_ASKS_CSV, index=INDEX_QUOTES_CSV, snapshot=LATEST_SNAPSHOT_JSON) -> dict:
+          crm_asks=CRM_ASKS_CSV, index=INDEX_QUOTES_CSV, snapshot=None) -> dict:
     as_of = as_of or date.today()
     raw = load_bid(intel) + load_ask(reserve) + load_contracts(contracts)
     grids = load_grid(grid)
@@ -1035,7 +1102,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         "shape": shape,
         "observations": export,
         "economics": (json.loads(ECONOMICS_JSON.read_text()) if ECONOMICS_JSON.exists() else {}),
-        "on_demand": load_on_demand(history, od_quotes, as_of=as_of),
+        "on_demand": load_on_demand(history, od_quotes, as_of=as_of, snapshot=snapshot),
         "cohorts": load_cohorts(),
         "ask_paths": load_ask_paths(),
         "sa": load_sa_reference(as_of),
@@ -1043,7 +1110,7 @@ def build(as_of: date | None = None, intel=INTEL_CSV, reserve=RESERVE_TENOR_CSV,
         # other evidence classes: shown on the page with their own labels, never pooled into a mark
         "index": load_index(index),
         "crm_asks": load_crm_asks(crm_asks, as_of=as_of),
-        "short_term": load_short_term(history, snapshot, as_of=as_of),
+        "short_term": load_short_term(history, snapshot if snapshot is not None else Path(history).parent / "last_snapshot.json", as_of=as_of),
         "node_specs": load_node_specs(),
     }
 

@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "cloudId": "NVIDIA H100 PCIe",
+      "gpuType": "H100_80GB",
+      "socket": "PCIe",
+      "provider": "runpod",
+      "region": "united_states",
+      "dataCenter": "US-KS-2",
+      "country": "US",
+      "gpuCount": 1,
+      "gpuMemory": 80,
+      "disk": {
+        "minCount": 80,
+        "defaultCount": 80,
+        "maxCount": 1000,
+        "pricePerUnit": 0.00014,
+        "step": 1,
+        "defaultIncludedInPrice": false,
+        "additionalInfo": null
+      },
+      "vcpu": {"defaultCount": 16},
+      "memory": {"defaultCount": 251},
+      "internetSpeed": null,
+      "interconnect": null,
+      "interconnectType": null,
+      "provisioningTime": null,
+      "stockStatus": "Low",
+      "security": "secure_cloud",
+      "prices": {"onDemand": 2.69, "isVariable": false, "currency": "USD"},
+      "images": ["ubuntu_22_cuda_12"],
+      "isSpot": null,
+      "prepaidTime": null
+    }
+  ],
+  "totalCount": 1
+}

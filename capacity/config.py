@@ -21,6 +21,7 @@ PROVIDER_ORDER = [
 PROVIDER_LABELS = {
     "nebius": "Nebius", "coreweave": "CoreWeave", "lambda": "Lambda",
     "crusoe": "Crusoe", "hyperstack": "Hyperstack", "verda": "Verda",
+    "crusoe_public": "Crusoe public catalogue",
     "scaleway": "Scaleway", "voltage_park": "Voltage Park", "gmi": "GMI Cloud",
     "together": "Together AI", "massedcompute": "Massed Compute",
     "runpod": "RunPod", "vast": "Vast.ai",
@@ -105,6 +106,7 @@ PROVIDERS = [
     "aws_spot_advisor",  # public S3 JSON — spot pools + interruption pressure (emits provider=aws)
     "aws_capacity_blocks",  # boto3; activates when ec2:DescribeCapacityBlockOfferings IAM lands
     "crusoe",            # access paused; explicit status, no authenticated checks/cache
+    "crusoe_public",     # independent public exact-SKU/location footprint; no stock inference
     "runpod",            # public GraphQL — live stock labels + per-DC availability
     "vast",              # public marketplace search — live offer depth
     "scaleway",          # public availability API — exact GPU VM SKU/zone stock label

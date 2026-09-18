@@ -1,10 +1,9 @@
 """
 Comparability tagging (Phase 1.3 / 2.6).
 
-gpu_count is NOT a reliable cluster signal — many enterprise neoclouds (Nebius,
-Crusoe, Voltage, GMI, Scaleway) record their 8×SXM HGX clusters as per-GPU rows
-with gpu_count=1, while AWS/GCP/Oracle use gpu_count=8. So form factor is assigned
-from provider + SKU + GPU model, not node size.
+gpu_count describes the priced SKU, not independently verified cluster stock.
+Generic per-GPU tariffs do not establish a VM's purchase size or fabric. Preserve
+explicit source configuration; unknown Crusoe tariffs remain references only.
 
 Why it matters: the headline "cheapest hyperscaler H100" must not be Azure's
 NC40ads ($6.98, a single H100 NVL on PCIe with no InfiniBand) compared against a
@@ -37,28 +36,14 @@ _RULES: List[Tuple[str, str, str, str]] = [
 # (form_factor=SXM is what drives cluster-class; interconnect label is informational).
 _SXM_FABRIC = {
     "aws": "EFA", "gcp": "GPUDirect", "azure": "InfiniBand", "nebius": "InfiniBand",
-    "crusoe": "InfiniBand",   # all Crusoe SXM capacity runs on HGX nodes with IB fabric
 }
-
-# Providers whose DIRECT-fetch records price 8×SXM HGX cluster products as per-GPU
-# rows (gpu_count=1) — the exact pattern the module docstring warns about. For these,
-# enrichment stamps node_gpus=8 on SXM records so diff._is_cluster_peer treats them
-# as the like-for-like cluster set (fix 2026-07-06: Crusoe H100 $3.90 / H200 $4.29,
-# high-confidence direct prices, were silently excluded from the peer median by the
-# gpu_count>=8 gate).
-# Deliberately NOT included:
-#   - hyperstack: SXM-priced VMs, but IB fabric is not guaranteed on the on-demand
-#     tier — enterprise peer (see config PROVIDER_TIERS), not cluster-class.
-#   - voltage / gmi-cloud aggregator rows: Ethernet/unknown entry SKUs — the
-#     _is_cluster_peer docstring's own counter-examples. Revisit only with evidence.
-_PER_GPU_CLUSTER_PROVIDERS = {"crusoe"}
 
 # ── Local storage bundling (product-attribute normalization, attribute #1) ──
 # The 2026-07-14 external review flagged that the report normalizes form factor /
 # interconnect but no product attributes. This is the first: whether the $/GPU-hr
 # list price INCLUDES local NVMe scratch. Near-static product config verified by
-# hand from provider pages/docs (not scraped) — same pattern as
-# _PER_GPU_CLUSTER_PROVIDERS. Keys are base provider names (cp_ prefix stripped).
+# hand from provider pages/docs (not scraped). Keys are base provider names
+# (cp_ prefix stripped). A generic Crusoe GPU tariff does not identify a VM's disk.
 # "note" is the per-8-GPU-node detail rendered verbatim in footnotes; dict order
 # is display order (bundled entries roughly largest-first).
 LOCAL_STORAGE_VERIFIED = "2026-07-22"
@@ -69,7 +54,6 @@ LOCAL_STORAGE_BUNDLED = {
     "azure":      {"included": True,  "note": "28TiB (ND H100 v5)"},
     "lambda":     {"included": True,  "note": "22TiB"},
     "vultr":      {"included": True,  "note": "13TB VM / 30.72TB bare metal"},
-    "crusoe":     {"included": True,  "note": "7.7TB H100 / 15.4TB H200-B200"},
     "gcp":        {"included": True,  "note": "6TB (a3, mandatory; a3-ultra 12TB)"},
     "scaleway":   {"included": True,  "note": "3.2-12.8TB (24TB B300)"},
     "together":   {"included": True,  "note": "size unpublished"},
@@ -95,11 +79,16 @@ def _classify(r: PriceRecord) -> Tuple[str, str]:
     it = (r.instance_type or "").lower()
     model = (r.gpu_model or "").upper()
 
+    if r.parser_version in {"aggregator-offers-1", "direct-offers-1"}:
+        # These collectors retain the actual variant. Missing SKU evidence must
+        # not be filled from a provider-wide or GPU-family assumption.
+        return "unknown", "unknown"
+
     # Massed's authenticated inventory has generic H100 SKUs alongside explicit
     # SXM/NVL/PCIe variants. Missing form-factor evidence must stay unknown;
     # the broad H100 -> SXM default would silently promote an entry VM.
     # Vultr's public plans likewise do not establish form factor or fabric.
-    if base in {"massedcompute", "vultr"}:
+    if base in {"massedcompute", "vultr", "crusoe"}:
         return "unknown", "unknown"
 
     for p, rx, ff, ic in _RULES:
@@ -116,18 +105,19 @@ def _classify(r: PriceRecord) -> Tuple[str, str]:
 def enrich_comparability(records: List[PriceRecord]) -> List[PriceRecord]:
     """Stamp form_factor/interconnect on every record (idempotent — fills blanks only)."""
     for r in records:
+        if is_crusoe_unscoped_reference(r):
+            # Older snapshots already carry fabricated eight-GPU/IB defaults.
+            # Removing the default rule alone would leave those values active.
+            r.node_gpus = None
+            r.form_factor = r.interconnect = "unknown"
+            r.price_basis = "public_gpu_tariff_configuration_unknown"
+            r.comparison_eligible = False
+            continue
         if not r.form_factor or r.form_factor == "unknown":
             ff, ic = _classify(r)
             r.form_factor = ff
             if not r.interconnect or r.interconnect == "unknown":
                 r.interconnect = ic
-        # Known per-GPU-priced cluster products: stamp node size so the cluster-class
-        # peer gate (form_factor SXM AND node_gpus>=8) sees them like-for-like.
-        prov = r.provider.lower()
-        base = prov[3:] if prov.startswith("cp_") else prov
-        if base in _PER_GPU_CLUSTER_PROVIDERS and r.form_factor == "SXM" \
-                and (getattr(r, "node_gpus", 0) or 0) < 8:
-            r.node_gpus = 8
     return records
 
 
@@ -143,6 +133,7 @@ def is_cluster_class(r: PriceRecord) -> bool:
 # Record-level qualification lets a later enabled plan with published locations
 # join ordinary comparison without a permanent provider-wide exclusion.
 QUALIFIED_CATALOGUE_BASES = {
+    "public_gpu_tariff_configuration_unknown": "Published GPU tariff; purchase configuration and region unverified",
     "public_catalog_ondemand_disabled": "On-demand deployment disabled",
     "public_catalog_preemptible_disabled": "Preemptible deployment disabled",
     "public_catalog_no_locations": "No deployment locations listed",
@@ -150,12 +141,22 @@ QUALIFIED_CATALOGUE_BASES = {
 }
 
 
+def is_crusoe_unscoped_reference(record: PriceRecord) -> bool:
+    """Legacy generic Crusoe tariffs cannot establish an exact VM configuration."""
+    provider = re.sub(r"^(?:cp_|sf_)", "", record.provider.lower())
+    sku = (record.instance_type or "").lower()
+    return provider == "crusoe" and (
+        record.price_basis == "public_gpu_tariff_configuration_unknown"
+        or not sku
+        or re.fullmatch(r"crusoe-(?:h100|h200|b200|b300|gb200|gb300|l40s)(?:-manual)?", sku) is not None)
+
+
 def is_qualified_catalogue_reference(record: PriceRecord) -> bool:
     """Tariff whose deployment qualification precludes ordinary comparison.
 
     This is a catalogue qualification, never a claim about real-time stock.
     """
-    return record.price_basis in QUALIFIED_CATALOGUE_BASES
+    return record.price_basis in QUALIFIED_CATALOGUE_BASES or is_crusoe_unscoped_reference(record)
 
 
 def is_public_benchmark_eligible(record: PriceRecord) -> bool:
@@ -164,5 +165,10 @@ def is_public_benchmark_eligible(record: PriceRecord) -> bool:
     Existing unqualified sources retain their behavior; passing this gate does
     not establish live stock, multi-node access, or configuration equivalence.
     """
-    return (record.price_basis != "account_catalog"
-            and not is_qualified_catalogue_reference(record))
+    return (record.comparison_eligible
+            and not (record.provider == "nebius" and record.source_feed)
+            and record.price_basis != "account_catalog"
+            and not is_qualified_catalogue_reference(record)
+            and record.available is not False
+            and not (record.source_feed in {"computeprices", "shadeform"}
+                     and not record.source_observed_at))

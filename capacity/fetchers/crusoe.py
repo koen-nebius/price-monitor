@@ -12,6 +12,7 @@ inferred. API errors and partial credentials never fall back to docs.
 """
 import logging
 import re
+from html import unescape
 from dataclasses import replace
 from datetime import datetime, timezone
 from typing import List
@@ -51,65 +52,76 @@ _TYPE_GPU = [
 ]
 
 _ZONE_RE = re.compile(r"\b(?:us|eu|ap|me)-[a-z]+\d-[a-z]\b")
-_LIMITED_MAX_ZONES = 1
+LAST_PUBLIC_FOOTPRINT_HEALTH = {}
+
+
+def _parse_public_footprint(html: str, now: str) -> List[AvailabilityRecord]:
+    """Retain each documented GPU VM SKU/location; never assign stock state."""
+    records, invalid, excluded = {}, 0, set()
+    clean = lambda text: " ".join(unescape(re.sub(r"<[^>]+>", " ", text)).split())
+    for table in re.findall(r"<table\b[^>]*>(.*?)</table>", html, re.S | re.I):
+        rows = re.findall(r"<tr\b[^>]*>(.*?)</tr>", table, re.S | re.I)
+        if not rows:
+            continue
+        headers = [clean(cell).lower() for cell in re.findall(r"<th\b[^>]*>(.*?)</th>", rows[0], re.S | re.I)]
+        if not {"type", "gpu", "zones"}.issubset(headers):
+            continue
+        for row in rows[1:]:
+            cells = [clean(cell) for cell in re.findall(r"<td\b[^>]*>(.*?)</td>", row, re.S | re.I)]
+            if len(cells) != len(headers):
+                invalid += 1
+                continue
+            values = dict(zip(headers, cells))
+            sku = values["type"]
+            if not re.fullmatch(r"[a-z0-9][a-z0-9_.-]{0,159}", sku):
+                invalid += 1
+                continue
+            model = _gpu_model(sku)
+            if not model:
+                excluded.add(sku)
+                continue
+            zones = sorted(set(_ZONE_RE.findall(values["zones"])))
+            count_match = re.match(r"^(\d+)x\s", values["gpu"], re.I)
+            if not zones or not count_match:
+                invalid += 1
+                continue
+            gpu_count = int(count_match[1])
+            if gpu_count <= 0:
+                invalid += 1
+                continue
+            for zone in zones:
+                records[(sku, zone)] = AvailabilityRecord(
+                    provider="crusoe", gpu_model=model, region=zone,
+                    consumption_type="on_demand", state="unknown",
+                    metric_type="listed_offering", metric_value=None,
+                    detail=f"Documented VM: {values['gpu']}; SKU/location listing only; stock, quota and bookability unverified",
+                    instance_type=sku, gpu_count=gpu_count,
+                    fetched_at=now, source_url=SOURCE_URL, data_source="web_scrape",
+                    parser_version="crusoe-public-footprint-1", product_scope="public_gpu_vm_catalogue")
+    LAST_PUBLIC_FOOTPRINT_HEALTH.update(
+        status="partial" if invalid else "live" if records else "failed",
+        reason="public VM documentation; footprint only, not live stock" if records else "no tracked GPU SKU/location rows parsed",
+        record_count=len(records), invalid_rows=invalid, excluded_untracked_skus=sorted(excluded))
+    return list(records.values())
+
+
+def fetch_public_footprint() -> List[AvailabilityRecord]:
+    """Independent public-document collector; does not inspect or use API credentials."""
+    LAST_PUBLIC_FOOTPRINT_HEALTH.clear()
+    LAST_PUBLIC_FOOTPRINT_HEALTH.update(status="failed", reason="public documentation not retrieved", record_count=0)
+    try:
+        from fetchers._http import http_get
+        html = http_get(URL, timeout=25, retries=1).decode("utf-8", "replace")
+    except Exception as exc:
+        LAST_PUBLIC_FOOTPRINT_HEALTH.update(reason="public documentation retrieval failed", error_code=type(exc).__name__)
+        logger.error("Crusoe docs fetch failed (%s)", type(exc).__name__)
+        return []
+    return _parse_public_footprint(html, datetime.now(timezone.utc).isoformat())
 
 
 def _fetch_docs() -> List[AvailabilityRecord]:
-    now = datetime.now(timezone.utc).isoformat()
-    try:
-        from fetchers._http import http_get
-        html = http_get(URL, timeout=45).decode("utf-8", "replace")
-    except Exception as e:
-        logger.error("Crusoe docs fetch failed (%s)", type(e).__name__)
-        return []
-
-    # Table rows: instance-type slug cell followed by a zone-list cell
-    rows = re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.DOTALL)
-    model_zones: dict = {}
-    for row in rows:
-        cells = [re.sub(r"<[^>]+>", " ", c) for c in
-                 re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", row, re.DOTALL)]
-        if not cells:
-            continue
-        row_text = " ".join(cells).lower()
-        type_match = re.search(r"\b([a-z0-9]+(?:-[a-z0-9.]+)+x?)\b", row_text)
-        gpu_model = None
-        for frag, model in _TYPE_GPU:
-            if type_match and frag in type_match.group(1):
-                gpu_model = model
-                break
-        if not gpu_model:
-            # Fallback: fragment anywhere in a type-looking token
-            for frag, model in _TYPE_GPU:
-                if re.search(rf"\b{frag}-\d+gb", row_text):
-                    gpu_model = model
-                    break
-        if not gpu_model:
-            continue
-        zones = set(_ZONE_RE.findall(row_text))
-        if zones:
-            model_zones.setdefault(gpu_model, set()).update(zones)
-
-    if not model_zones:
-        logger.error("Crusoe docs: no GPU type→zone rows parsed — layout changed?")
-        return []
-
-    records: List[AvailabilityRecord] = []
-    for model, zones in sorted(model_zones.items()):
-        n = len(zones)
-        state = "limited" if n <= _LIMITED_MAX_ZONES else "available"
-        records.append(AvailabilityRecord(
-            provider="crusoe", gpu_model=model, region="global",
-            consumption_type="on_demand", state=state,
-            metric_type="listed_offering", metric_value=float(n),
-            detail=f"offered in {plural(n, 'zone')}: {', '.join(sorted(zones))} "
-                   f"(footprint, not live stock)",
-            fetched_at=now, source_url=SOURCE_URL, data_source="web_scrape",
-        ))
-
-    logger.info(f"Crusoe docs: {len(records)} records "
-                f"({', '.join(f'{m}:{len(z)}z' for m, z in sorted(model_zones.items()))})")
-    return records
+    """Compatibility wrapper for the pre-existing unconfigured-API path."""
+    return fetch_public_footprint()
 
 
 def _gpu_model(instance_type):

@@ -24,6 +24,7 @@ consumer, and the refresh script adds a prepay_known column plus the duplicates 
 from __future__ import annotations
 
 import re
+import math
 from datetime import date
 
 PREPAY_UNKNOWN_RE = re.compile(
@@ -59,7 +60,14 @@ def prepay_known(row: dict) -> bool:
     """True when the row's prepayment is stated (any non-zero value, or an explicit zero
     in the notes); False when 0 % is just the parser default."""
     try:
-        if float(row.get("prepay_pct") or 0) > 0:
+        amount = float(row.get("prepay_pct") or 0)
+        if not math.isfinite(amount) or not 0 <= amount <= 100:
+            return False
+        if row.get("prepay_known") == "0":
+            return False
+        if row.get("prepay_known") == "1":
+            return row.get("prepay_pct") not in {None, ""}
+        if amount > 0:
             return True
     except (TypeError, ValueError):
         return False
@@ -122,6 +130,11 @@ def _same_cell(k: dict, r: dict) -> bool:
 
 
 def _same_offer_shape(k: dict, r: dict, price: float, window_days: int) -> bool:
+    from intel_schema import scope_key
+    # Distinct quantities, regions, delivery windows, evidence or closing status
+    # cannot be collapsed merely because the GPU/price/term bucket match.
+    if scope_key(k) != scope_key(r):
+        return False
     if not _same_cell(k, r):
         return False
     if abs(float(k["price_per_gpu_hour_usd"]) - price) > 0.011:

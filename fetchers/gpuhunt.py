@@ -1,5 +1,5 @@
 """
-dstack gpuhunt public catalogs -> INDEPENDENT cross-check of our direct fetchers.
+dstack gpuhunt public catalogs -> configuration-level source cross-check.
 
 Source (verified 2026-09-15, source-discovery sweep): dstack publishes per-provider
 price catalogs to a public-read S3 bucket, refreshed hourly by GitHub Actions
@@ -12,12 +12,9 @@ CSV columns: instance_name, location, price (USD per INSTANCE-hour), cpu, memory
 gpu_count, gpu_name (normalized: H100, H200, B200, B300, RTXPRO6000 ...), gpu_memory,
 spot (True/False), disk_size, gpu_vendor, flags, cpu_arch, provider_data.
 
-Role: this is NOT a provider in the tables (every catalogued cloud already has a
-direct fetcher, so records would only be superseded twins). It is the second
-independent verifier next to ComputePrices for Danila's 2026-08-21 condition:
-"no PAYG increase approval without double-checking automated competitor
-benchmarks". main.py compares each direct on-demand price to the gpuhunt
-value and raises a manifest warning on a material gap.
+Role: retain each catalog configuration for comparison with the same direct
+offer. A shared GPU family is insufficient. Source agreement may repeat one
+provider rate card and does not establish independent verification.
 
 Terms: catalog objects are published with --acl public-read for anonymous
 download (publish_catalog.sh); dstack's own client hard-codes these URLs. We
@@ -25,10 +22,18 @@ fetch each provider once per run (<= 8 requests).
 """
 import csv
 import io
+import hashlib
+import json
 import logging
+import math
+import re
 import urllib.request
 import zipfile
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from typing import Dict, List, Optional
+
+from schema import PriceRecord
 
 logger = logging.getLogger(__name__)
 
@@ -63,31 +68,49 @@ GPU_MAP = {
 }
 
 LAST_VERSIONS: Dict[str, str] = {}   # provider slug -> catalog version seen this run
+LAST_SOURCE_TIMES: Dict[str, str] = {}  # URL -> observed object Last-Modified header
+LAST_CATALOG_TIMES: Dict[str, str] = {}  # provider slug -> catalog publication time
 
 
 def _get(url: str, timeout: int = 60) -> bytes:
     req = urllib.request.Request(url, headers=UA)
     with urllib.request.urlopen(req, timeout=timeout) as r:
+        LAST_SOURCE_TIMES.pop(url, None)
+        value = r.headers.get("Last-Modified")
+        if value:
+            try:
+                published = parsedate_to_datetime(value)
+                if published.tzinfo is not None:
+                    LAST_SOURCE_TIMES[url] = published.astimezone(timezone.utc).isoformat()
+            except (ValueError, TypeError, OverflowError):
+                pass
         return r.read()
 
 
 def load_catalog(slug: str) -> List[dict]:
     """Rows of the provider's current catalog CSV (empty list on any failure)."""
+    LAST_VERSIONS.pop(slug, None)
+    LAST_CATALOG_TIMES.pop(slug, None)
     try:
         version = _get(f"{BASE}/{slug}/version", 30).decode("utf-8", "replace").strip()
-        blob = _get(f"{BASE}/{slug}/{version}/catalog.zip", 90)
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", version):
+            raise ValueError("invalid catalog version")
+        url = f"{BASE}/{slug}/{version}/catalog.zip"
+        LAST_SOURCE_TIMES.pop(url, None)
+        blob = _get(url, 90)
         z = zipfile.ZipFile(io.BytesIO(blob))
         name = next(n for n in z.namelist() if n.endswith(".csv"))
         rows = list(csv.DictReader(io.TextIOWrapper(z.open(name), encoding="utf-8")))
         LAST_VERSIONS[slug] = version
+        LAST_CATALOG_TIMES[slug] = LAST_SOURCE_TIMES.get(url, "")
         return rows
     except Exception as e:                      # network, zip, csv — all non-fatal
-        logger.warning(f"gpuhunt {slug}: catalog unavailable ({e})")
+        logger.warning("gpuhunt %s: catalog unavailable (%s)", slug, type(e).__name__)
         return []
 
 
 def parse_min_on_demand(rows: List[dict], provider_key: str) -> Dict[tuple, float]:
-    """(provider_key, gpu_model) -> cheapest on-demand USD per GPU-hour in these rows."""
+    """Legacy descriptive minimum; never used to cross-check a different offer."""
     out: Dict[tuple, float] = {}
     for r in rows:
         gpu = GPU_MAP.get((r.get("gpu_name") or "").strip())
@@ -119,14 +142,75 @@ def parse_min_on_demand(rows: List[dict], provider_key: str) -> Dict[tuple, floa
     return out
 
 
-def fetch_crosscheck(providers: Optional[Dict[str, str]] = None) -> Dict[tuple, float]:
-    """Cheapest on-demand $/GPU-hr per (our provider key, gpu_model) from gpuhunt."""
-    result: Dict[tuple, float] = {}
+def parse_offers(rows, provider_key, fetched_at, source_observed_at="", source_url=""):
+    """Retain SKU, region, GPU count and host metadata without pooling minima.
+
+    Catalog object publication time is distinct from our retrieval. A missing
+    header remains unknown rather than being derived from a version/date label.
+    """
+    def number(value):
+        if isinstance(value, bool):
+            return None
+        try:
+            result = float(value)
+        except (TypeError, ValueError, OverflowError):
+            return None
+        return result if math.isfinite(result) and result > 0 else None
+    out, seen = [], set()
+    for row in rows:
+        gpu = GPU_MAP.get(str(row.get("gpu_name") or "").strip())
+        spot = str(row.get("spot", "")).strip().lower()
+        sku = str(row.get("instance_name") or "").strip()
+        if not gpu or spot not in {"false", "true"} or "edgegpu" in sku.lower():
+            continue
+        if "dws" in str(row.get("flags", "")).lower():
+            continue
+        count, price = number(row.get("gpu_count")), number(row.get("price"))
+        if count is None or price is None:
+            continue
+        per_gpu = price / count
+        if not math.isfinite(per_gpu) or per_gpu <= 0:
+            continue
+        region = str(row.get("location") or "").strip() or "unspecified"
+        ct = "spot" if spot == "true" else "on_demand"
+        cpu, memory, disk = (number(row.get(field)) for field in ("cpu", "memory", "disk_size"))
+        identity = (provider_key, sku, region, gpu, count, ct, cpu, memory, disk,
+                    str(row.get("provider_data") or ""), str(row.get("flags") or ""))
+        offer_id = "gpuhunt:" + hashlib.sha256(json.dumps(identity).encode()).hexdigest()[:24]
+        observation = (offer_id, price, source_observed_at)
+        if observation in seen:
+            continue
+        seen.add(observation)
+        form = "SXM" if "sxm" in sku.lower() else "PCIe" if "pcie" in sku.lower() else "NVL" if "nvl" in sku.lower() else "unknown"
+        # Opaque provider metadata may distinguish commercial/host variants.
+        # Preserve it conservatively; an unparsed tier cannot match a blank
+        # direct tier simply because provider SKU and GPU family agree.
+        raw_variant = "; ".join(f"{key}={row[key]}" for key in ("flags", "provider_data")
+                                if row.get(key) not in (None, "", "{}", "[]"))
+        out.append(PriceRecord(
+            provider=provider_key, gpu_model=gpu, gpu_count=count, instance_type=sku,
+            region=region, consumption_type=ct, price_per_hour_usd=price,
+            price_per_gpu_hour_usd=per_gpu, fetched_at=fetched_at,
+            source_observed_at=source_observed_at, source_url=source_url,
+            data_source="aggregator", source_feed="gpuhunt", offer_id=offer_id,
+            vcpu=int(cpu) if cpu is not None and cpu.is_integer() else None,
+            ram_gb=memory, storage_gb=disk, form_factor=form,
+            gpu_variant=str(row.get("gpu_name") or ""), offer_variant=raw_variant,
+            parser_version="gpuhunt-offers-1",
+        ))
+    return out
+
+
+def fetch_crosscheck(providers: Optional[Dict[str, str]] = None) -> List[PriceRecord]:
+    """Full source observations; price_crosscheck decides comparison eligibility."""
+    result = []
+    now = datetime.now(timezone.utc).isoformat()
     for slug, key in (providers or PROVIDERS).items():
         rows = load_catalog(slug)
         if rows:
-            result.update(parse_min_on_demand(rows, key))
-    logger.info(f"gpuhunt cross-check: {len(result)} (provider, gpu) prices from "
+            result.extend(parse_offers(rows, key, now, LAST_CATALOG_TIMES.get(slug, ""),
+                                       f"{BASE}/{slug}/{LAST_VERSIONS.get(slug, '')}/catalog.zip"))
+    logger.info(f"gpuhunt cross-check: {len(result)} configuration observations from "
                 f"{len(LAST_VERSIONS)} catalogs {sorted(set(LAST_VERSIONS.values()))}")
     return result
 

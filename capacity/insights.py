@@ -502,12 +502,15 @@ def evaluate_triggers(records: List[AvailabilityRecord],
 def freshness(manifest: dict) -> dict:
     status = manifest.get("provider_status", {})
     failed = [p for p, s in status.items()
-              if s.get("status") == "failed" and p not in PENDING_ACTIVATION]
+              if s.get("status") in {"failed", "error"}]
     pending = [p for p, s in status.items()
-               if s.get("status") == "failed" and p in PENDING_ACTIVATION]
-    stale = [p for p, s in status.items() if s.get("status") == "cached"]
+               if s.get("status") == "pending"]
+    partial = [p for p, s in status.items() if s.get("status") == "partial"]
+    empty = [p for p, s in status.items() if s.get("status") == "empty"]
+    stale = [p for p, s in status.items() if s.get("status") in {"cached", "cache"}]
     paused = [p for p, s in status.items() if s.get("status") == "paused"]
     activated = [p for p in status if p not in pending and p not in paused]
     live = [p for p, s in status.items() if s.get("status") == "live"]
     return {"live": live, "failed": failed, "stale": stale,
-            "pending": pending, "paused": paused, "activated": activated}
+            "pending": pending, "partial": partial, "empty": empty,
+            "paused": paused, "activated": activated}

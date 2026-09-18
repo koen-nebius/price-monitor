@@ -1,10 +1,25 @@
 """Publication-only freshness filter. Never rewrites archived observations."""
 from collections import Counter
 from datetime import datetime, time, timezone
+import re
 
 from price_corrections import correct_snapshot
 
 MAX_QUOTE_AGE_HOURS = 48
+
+
+def observation_time(value):
+    """Parse ISO source timestamps, including variable fractional precision.
+
+    Python 3.9 accepts only three or six fractional digits; upstream timestamps
+    legitimately use other precisions. Preserve raw text and normalize only
+    for the comparison clock.
+    """
+    value = str(value).replace("Z", "+00:00")
+    value = re.sub(r"(T\d{2}:\d{2}:\d{2})\.(\d+)",
+                   lambda match: match[1] + "." + (match[2] + "000000")[:6], value)
+    result = datetime.fromisoformat(value)
+    return result.replace(tzinfo=result.tzinfo or timezone.utc)
 
 
 def report_time(value=None):
@@ -21,7 +36,7 @@ def report_time(value=None):
             return now if day == now.date() else datetime.combine(day, time.max, timezone.utc)
         except ValueError:
             pass
-    return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    return observation_time(value)
 
 
 def committed_reference_fresh(as_of=None):
@@ -45,19 +60,33 @@ def publication_records(records, as_of=None):
         reason = None
         if not row.comparison_eligible:
             reason = row.correction_reason or "source correction"
+        elif row.provider == "nebius" and row.source_feed:
+            reason = "external Nebius listing; own-price anchor uses the direct source"
+        elif row.available is False:
+            reason = "aggregator reports this offer unavailable; retained in source evidence"
         elif row.provider == "aws" and row.consumption_type == "capacity_block":
             reason = "retired static Capacity Block reference; use the dated published-rate feed"
         elif row.provider == "nebius" and row.consumption_type.startswith("committed") and not fresh_committed:
             reason = "committed reference expired (verified %s)" % (verified or "unknown")
         else:
             try:
-                observed = datetime.fromisoformat(row.fetched_at.replace("Z", "+00:00"))
-                observed = observed.replace(tzinfo=observed.tzinfo or timezone.utc)
+                observed = observation_time(row.fetched_at)
                 age = (now - observed).total_seconds() / 3600
                 if age > MAX_QUOTE_AGE_HOURS or age < -24:
                     reason = "quote outside the 48-hour freshness window"
             except (ValueError, TypeError, AttributeError):
                 reason = "quote observation time unknown"
+            if not reason and row.source_feed in {"computeprices", "shadeform", "skypilot"}:
+                if row.source_observed_at:
+                    try:
+                        source_time = observation_time(row.source_observed_at)
+                        source_age = (now - source_time).total_seconds() / 3600
+                        if source_age > MAX_QUOTE_AGE_HOURS or source_age < -24:
+                            reason = "aggregator source update outside the 48-hour freshness window"
+                    except (ValueError, TypeError, AttributeError):
+                        reason = "aggregator source update time invalid"
+                else:
+                    reason = "aggregator source update time unknown"
         if reason:
             excluded[(row.provider, reason)] += 1
         else:
