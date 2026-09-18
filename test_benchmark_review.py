@@ -186,6 +186,24 @@ class BenchmarkPublicationReview(unittest.TestCase):
         self.assertIn('&lt;unknown&gt;', body)
         self.assertIsNone(validate_xml(to_storage(body)))
 
+    def test_interactive_references_are_portable_without_changing_raw_provenance(self):
+        result = result_fixture()
+        local = '/Users/researcher/Claude PM/gb300-pricing/scripts/build_final_v4.py:455'
+        result['perf'] = {'_source': local, '_extracted': '2026-09-15',
+                          'pairs': [{'sku': 'B300', 'versus': 'GB300', 'sources': [local]}]}
+        result['sources']['working_reference'] = '/private/tmp/review/source.json'
+        raw = json.dumps(result, sort_keys=True)
+        rendered = fc.render_view_html(result)
+        self.assertIn('gb300-pricing/scripts/build_final_v4.py:455', rendered)
+        self.assertNotIn('/Users/', rendered)
+        self.assertNotIn('/private/tmp', rendered)
+        self.assertEqual(json.dumps(result, sort_keys=True), raw)
+        payload = fc.view_payload(result)
+        self.assertEqual(payload['as_of'], '2026-09-18')
+        self.assertEqual(payload['perf']['_extracted'], '2026-09-15')
+        self.assertEqual(payload['perf']['pairs'][0]['sources'],
+                         ['gb300-pricing/scripts/build_final_v4.py:455'])
+
     def test_interactive_source_medians_and_script_syntax(self):
         node = shutil.which('node')
         if not node:

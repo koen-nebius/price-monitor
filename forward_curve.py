@@ -1410,6 +1410,21 @@ def render_confluence_body(result: dict, with_images: bool = False) -> str:
 TEMPLATE = ROOT / "templates" / "forward_view.html"
 
 
+def _portable_view_data(value):
+    """Copy publication data with portable references; retain raw input provenance."""
+    if isinstance(value, str):
+        # Keep the repository, file and line reference without the researcher's
+        # checkout location. Other local references retain a neutral location.
+        value = re.sub(r"(?:/Users/[^/]+/|/private/tmp/)(?:[^/\n\"<>]+/)*?(?=gb300-pricing/)", "", value)
+        value = re.sub(r"/Users/[^/\s]+(?=/|$)", "[local]", value)
+        return value.replace("/private/tmp", "[temporary]")
+    if isinstance(value, dict):
+        return {key: _portable_view_data(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_portable_view_data(item) for item in value]
+    return value
+
+
 def view_payload(result: dict) -> dict:
     """Compact copy of the build result for the interactive page: drops fields the view
     never reads and rounds numbers, so the embedded JSON stays small enough for
@@ -1424,7 +1439,7 @@ def view_payload(result: dict) -> dict:
     perf = result.get("perf") or {}
     out["perf"] = {"_source": perf.get("_source"), "_method": perf.get("_method"), "_extracted": perf.get("_extracted"),
                    "pairs": [{"sku": p.get("sku"), "versus": p.get("versus"), "low": p.get("low"), "base": p.get("base"), "high": p.get("high"),
-                              "basis": (p.get("basis") or "")[:260], "sources": [s[:160] for s in (p.get("sources") or [])[:3]]}
+                              "basis": (p.get("basis") or "")[:260], "sources": [_portable_view_data(s)[:160] for s in (p.get("sources") or [])[:3]]}
                              for p in perf.get("pairs", [])]}
     out["marks"] = [{k: m.get(k) for k in keep_mark} for m in result["marks"]]
     # node configuration: the page needs the figures and provenance, not the research notes
@@ -1443,7 +1458,7 @@ def view_payload(result: dict) -> dict:
                             **({"deals": o.get("deals"), "bucket": o.get("bucket"), "withheld": o.get("withheld", False),
                                 "lines": o.get("lines", 1), "date_from": o.get("date_from", o["date"])} if o["side"] == "ask" else {})}
                            for o in result.get("observations", [])]
-    return out
+    return _portable_view_data(out)
 
 
 def render_view_fragment(result: dict) -> str:
