@@ -1,5 +1,5 @@
 {
- "as_of": "2026-09-18",
+ "as_of": "2026-09-19",
  "method_version": "1.4.1 (2026-09-18)",
  "params": {
   "prepay_a": 0.0345,
@@ -63,7 +63,7 @@
   "reserve_tenor_generated": "2026-09-15",
   "public_contracts": 20,
   "grid_version": "2026-09-07",
-  "list_snapshot": "2026-09-18",
+  "list_snapshot": "2026-09-19",
   "cost_floor": "SemiAnalysis AI-Cloud TCO model (Aug-10-2026), Full TCO row 147, Neocloud Giant profile; VR = NVL72 2300W variant",
   "nebius_committed_reference_verified": "2026-06-23",
   "nebius_committed_reference_eligible": false
@@ -489,20 +489,9 @@
      "instance_type": "a3-highgpu-8g"
     }
    ],
-   "list_peers": [
-    {
-     "provider": "cp_1legion-com",
-     "price": 2.4,
-     "instance_type": "1legion-com-h100-sxm-8x"
-    },
-    {
-     "provider": "cp_civo",
-     "price": 2.69,
-     "instance_type": "civo-h100-sxm-1x"
-    }
-   ],
-   "list_peer_min": 2.4,
-   "list_peer_provider": "cp_1legion-com",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 1.55,
    "mark": 2.56,
    "has_mark": true,
@@ -616,20 +605,9 @@
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
-   "list_peers": [
-    {
-     "provider": "cp_1legion-com",
-     "price": 2.2,
-     "instance_type": "1legion-com-h100-sxm-8x"
-    },
-    {
-     "provider": "cp_civo",
-     "price": 2.59,
-     "instance_type": "civo-h100-sxm-1x"
-    }
-   ],
-   "list_peer_min": 2.2,
-   "list_peer_provider": "cp_1legion-com",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 1.55,
    "mark": 2.27,
    "has_mark": true,
@@ -692,15 +670,9 @@
      "instance_type": "a3-highgpu-8g"
     }
    ],
-   "list_peers": [
-    {
-     "provider": "cp_civo",
-     "price": 2.49,
-     "instance_type": "civo-h100-sxm-1x"
-    }
-   ],
-   "list_peer_min": 2.49,
-   "list_peer_provider": "cp_civo",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 1.55,
    "mark": null,
    "has_mark": false,
@@ -914,25 +886,9 @@
      "instance_type": "a3-ultragpu-8g"
     }
    ],
-   "list_peers": [
-    {
-     "provider": "cp_1legion-com",
-     "price": 2.49,
-     "instance_type": "1legion-com-h200-8x"
-    },
-    {
-     "provider": "cp_civo",
-     "price": 3.19,
-     "instance_type": "civo-h200-1x"
-    },
-    {
-     "provider": "cp_cloud-theai",
-     "price": 3.2,
-     "instance_type": "cloud-theai-h200-8x"
-    }
-   ],
-   "list_peer_min": 2.49,
-   "list_peer_provider": "cp_1legion-com",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 1.59,
    "mark": 2.94,
    "has_mark": true,
@@ -1046,20 +1002,9 @@
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
-   "list_peers": [
-    {
-     "provider": "cp_1legion-com",
-     "price": 2.36,
-     "instance_type": "1legion-com-h200-8x"
-    },
-    {
-     "provider": "cp_civo",
-     "price": 3.09,
-     "instance_type": "civo-h200-1x"
-    }
-   ],
-   "list_peer_min": 2.36,
-   "list_peer_provider": "cp_1legion-com",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 1.59,
    "mark": null,
    "has_mark": false,
@@ -1117,15 +1062,9 @@
      "instance_type": "Standard_ND96isr_H200_v5"
     }
    ],
-   "list_peers": [
-    {
-     "provider": "cp_civo",
-     "price": 2.99,
-     "instance_type": "civo-h200-1x"
-    }
-   ],
-   "list_peer_min": 2.99,
-   "list_peer_provider": "cp_civo",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 1.59,
    "mark": null,
    "has_mark": false,
@@ -1325,20 +1264,9 @@
      "instance_type": "a4-highgpu-8g"
     }
    ],
-   "list_peers": [
-    {
-     "provider": "cp_civo",
-     "price": 4.49,
-     "instance_type": "civo-b200-8x"
-    },
-    {
-     "provider": "cp_1legion-com",
-     "price": 4.74,
-     "instance_type": "1legion-com-b200-8x"
-    }
-   ],
-   "list_peer_min": 4.49,
-   "list_peer_provider": "cp_civo",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 2.07,
    "mark": 5.18,
    "has_mark": true,
@@ -1443,20 +1371,9 @@
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
-   "list_peers": [
-    {
-     "provider": "cp_civo",
-     "price": 3.99,
-     "instance_type": "civo-b200-8x"
-    },
-    {
-     "provider": "cp_1legion-com",
-     "price": 4.74,
-     "instance_type": "1legion-com-b200-8x"
-    }
-   ],
-   "list_peer_min": 3.99,
-   "list_peer_provider": "cp_civo",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 2.07,
    "mark": 4.73,
    "has_mark": true,
@@ -1518,15 +1435,9 @@
      "instance_type": "a4-highgpu-8g"
     }
    ],
-   "list_peers": [
-    {
-     "provider": "cp_civo",
-     "price": 3.79,
-     "instance_type": "civo-b200-8x"
-    }
-   ],
-   "list_peer_min": 3.79,
-   "list_peer_provider": "cp_civo",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 2.07,
    "mark": 4.47,
    "has_mark": true,
@@ -1720,25 +1631,9 @@
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
-   "list_peers": [
-    {
-     "provider": "cp_1legion-com",
-     "price": 5.0,
-     "instance_type": "1legion-com-hgx-b300-8x"
-    },
-    {
-     "provider": "cp_cloud-theai",
-     "price": 5.3,
-     "instance_type": "cloud-theai-hgx-b300-8x"
-    },
-    {
-     "provider": "cp_civo",
-     "price": 6.49,
-     "instance_type": "civo-hgx-b300-8x"
-    }
-   ],
-   "list_peer_min": 5.0,
-   "list_peer_provider": "cp_1legion-com",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 2.43,
    "mark": 5.48,
    "has_mark": true,
@@ -1843,25 +1738,9 @@
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
-   "list_peers": [
-    {
-     "provider": "cp_cloud-theai",
-     "price": 4.9,
-     "instance_type": "cloud-theai-hgx-b300-8x"
-    },
-    {
-     "provider": "cp_1legion-com",
-     "price": 5.0,
-     "instance_type": "1legion-com-hgx-b300-8x"
-    },
-    {
-     "provider": "cp_civo",
-     "price": 5.99,
-     "instance_type": "civo-hgx-b300-8x"
-    }
-   ],
-   "list_peer_min": 4.9,
-   "list_peer_provider": "cp_cloud-theai",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 2.43,
    "mark": 5.67,
    "has_mark": true,
@@ -1917,15 +1796,9 @@
    "list_hyperscaler_min": null,
    "list_hyperscaler_provider": "",
    "list_hyperscalers": [],
-   "list_peers": [
-    {
-     "provider": "cp_civo",
-     "price": 5.49,
-     "instance_type": "civo-hgx-b300-8x"
-    }
-   ],
-   "list_peer_min": 5.49,
-   "list_peer_provider": "cp_civo",
+   "list_peers": [],
+   "list_peer_min": null,
+   "list_peer_provider": "",
    "cost_floor": 2.43,
    "mark": 4.86,
    "has_mark": true,
@@ -7575,8 +7448,8 @@
      "price": 3.99,
      "instance_type": "gpu_8x_h100_sxm5",
      "source_feed": "lambda_api",
-     "source_observed_at": "2026-09-18T15:54:01.179846+00:00",
-     "fetched_at": "2026-09-18T15:54:01.179846+00:00",
+     "source_observed_at": "2026-09-19T06:03:55.143884+00:00",
+     "fetched_at": "2026-09-19T06:03:55.143884+00:00",
      "source_url": "https://cloud.lambdalabs.com/api/v1/instance-types",
      "offer_id": "lambda:3e149af04a6b915e6e9f5c5a",
      "node_gpus": 0
@@ -7587,7 +7460,7 @@
      "instance_type": "together-hgx-h100",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:54:17.958016+00:00",
+     "fetched_at": "2026-09-19T06:04:12.941081+00:00",
      "source_url": "https://www.together.ai/pricing",
      "offer_id": "",
      "node_gpus": 8
@@ -7597,8 +7470,8 @@
      "price": 6.155,
      "instance_type": "hgx-h100",
      "source_feed": "",
-     "source_observed_at": "2026-09-18T15:54:00.675786+00:00",
-     "fetched_at": "2026-09-18T15:54:00.675786+00:00",
+     "source_observed_at": "2026-09-19T06:03:54.479146+00:00",
+     "fetched_at": "2026-09-19T06:03:54.479146+00:00",
      "source_url": "https://www.coreweave.com/pricing",
      "offer_id": "coreweave:0dbba5fb4aac10874c5fb0d8",
      "node_gpus": 8
@@ -7613,7 +7486,7 @@
      "instance_type": "p5.48xlarge",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:53:01.906414+00:00",
+     "fetched_at": "2026-09-19T06:02:30.111743+00:00",
      "source_url": "https://aws.amazon.com/ec2/pricing/on-demand/",
      "offer_id": "",
      "node_gpus": 8
@@ -7624,7 +7497,7 @@
      "instance_type": "a3-highgpu-8g",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:53:47.676596+00:00",
+     "fetched_at": "2026-09-19T06:03:41.259801+00:00",
      "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones",
      "offer_id": "",
      "node_gpus": 8
@@ -7635,7 +7508,7 @@
      "instance_type": "oracle-cloud-infrastructure---compute---gpu---h100",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:54:07.942416+00:00",
+     "fetched_at": "2026-09-19T06:04:02.149558+00:00",
      "source_url": "https://www.oracle.com/cloud/price-list/",
      "offer_id": "",
      "node_gpus": 8
@@ -7646,7 +7519,7 @@
      "instance_type": "Standard_ND96is_H100_v5",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:53:55.380955+00:00",
+     "fetched_at": "2026-09-19T06:03:49.646862+00:00",
      "source_url": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/",
      "offer_id": "",
      "node_gpus": 8
@@ -7659,42 +7532,20 @@
      "instance_type": "lium-h100-sxm-8x",
      "source_feed": "computeprices",
      "source_observed_at": "2026-09-18T05:06:17.173432+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
+     "fetched_at": "2026-09-19T06:03:57.086349+00:00",
      "source_url": "https://lium.io/browse-pods/d4093d0c-8d7c-448a-b4e0-a34e44468ea8",
      "offer_id": "computeprices:de8f77b39d801569606cde7d",
      "node_gpus": 8
     },
     {
      "provider": "cp_gcore",
-     "price": 1.7566,
+     "price": 1.7534,
      "instance_type": "gcore-h100-sxm-8x",
      "source_feed": "computeprices",
-     "source_observed_at": "2026-09-18T05:55:25.730539+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
+     "source_observed_at": "2026-09-19T05:55:25.59521+00:00",
+     "fetched_at": "2026-09-19T06:03:57.086349+00:00",
      "source_url": "https://gcore.com/pricing/ai",
      "offer_id": "computeprices:2342c53433bfa0269df49c87",
-     "node_gpus": 8
-    },
-    {
-     "provider": "vast",
-     "price": 2.2669,
-     "instance_type": "vast-h100-sxm-8x",
-     "source_feed": "computeprices",
-     "source_observed_at": "2026-09-17T05:20:25.172369+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
-     "source_url": "https://cloud.vast.ai/?ref_id=236521",
-     "offer_id": "computeprices:334f6584593ddfe0d2723cee",
-     "node_gpus": 8
-    },
-    {
-     "provider": "cp_1legion-com",
-     "price": 2.42,
-     "instance_type": "1legion-com-h100-sxm-8x",
-     "source_feed": "computeprices",
-     "source_observed_at": "2026-09-16T16:01:23.450531+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
-     "source_url": "https://1legion.com/gpu-instances",
-     "offer_id": "computeprices:f6e037f9cebe3b4cb4efef76",
      "node_gpus": 8
     },
     {
@@ -7703,7 +7554,7 @@
      "instance_type": "denvr-dataworks-h100-sxm-8x",
      "source_feed": "computeprices",
      "source_observed_at": "2026-09-17T18:00:50.276641+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
+     "fetched_at": "2026-09-19T06:03:57.086349+00:00",
      "source_url": "https://www.denvr.com/pricing",
      "offer_id": "computeprices:82c4f89b97e305c640d349c7",
      "node_gpus": 8
@@ -7714,20 +7565,9 @@
      "instance_type": "koyeb-h100-sxm-8x",
      "source_feed": "computeprices",
      "source_observed_at": "2026-09-18T12:01:15.131849+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
+     "fetched_at": "2026-09-19T06:03:57.086349+00:00",
      "source_url": "https://www.koyeb.com/pricing",
      "offer_id": "computeprices:93476f9ed855bd80e65ca95e",
-     "node_gpus": 8
-    },
-    {
-     "provider": "cp_civo",
-     "price": 2.99,
-     "instance_type": "civo-h100-sxm-8x",
-     "source_feed": "computeprices",
-     "source_observed_at": "2026-09-17T04:03:37.539612+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
-     "source_url": "https://www.civo.com/pricing",
-     "offer_id": "computeprices:004a1b0234995a954d53c578",
      "node_gpus": 8
     },
     {
@@ -7735,19 +7575,19 @@
      "price": 3.14,
      "instance_type": "massedcompute-h100-sxm-8x",
      "source_feed": "computeprices",
-     "source_observed_at": "2026-09-18T05:29:34.801905+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
+     "source_observed_at": "2026-09-19T05:29:35.120452+00:00",
+     "fetched_at": "2026-09-19T06:03:57.086349+00:00",
      "source_url": "https://vm.massedcompute.com/api/v1/gpu-inventory",
      "offer_id": "computeprices:67910a107472e3616f18ebcf",
      "node_gpus": 8
     },
     {
      "provider": "verda",
-     "price": 3.2975,
+     "price": 3.3475,
      "instance_type": "verda-h100-sxm-8x",
      "source_feed": "computeprices",
-     "source_observed_at": "2026-09-18T05:11:39.80941+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
+     "source_observed_at": "2026-09-19T05:11:39.270576+00:00",
+     "fetched_at": "2026-09-19T06:03:57.086349+00:00",
      "source_url": "https://api.verda.com/v1/docs#tag/instance-types/GET/v1/instance-types",
      "offer_id": "computeprices:de697eb967840bf86b33b1ee",
      "node_gpus": 8
@@ -7757,8 +7597,8 @@
      "price": 3.6261,
      "instance_type": "acecloud-h100-sxm-8x",
      "source_feed": "computeprices",
-     "source_observed_at": "2026-09-18T05:42:19.409104+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
+     "source_observed_at": "2026-09-19T05:42:19.118042+00:00",
+     "fetched_at": "2026-09-19T06:03:57.086349+00:00",
      "source_url": "https://acecloud.ai/pricing/",
      "offer_id": "computeprices:c0ddd0d5dcaefb83fde98bbe",
      "node_gpus": 8
@@ -7768,8 +7608,8 @@
      "price": 4.0463,
      "instance_type": "atmoscompute-com-h100-sxm-8x",
      "source_feed": "computeprices",
-     "source_observed_at": "2026-09-18T05:24:35.559076+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
+     "source_observed_at": "2026-09-19T05:24:35.066385+00:00",
+     "fetched_at": "2026-09-19T06:03:57.086349+00:00",
      "source_url": "https://atmoscompute.com/prices/gpu/h100-80gb-pcie",
      "offer_id": "computeprices:397b154aa72323151e134348",
      "node_gpus": 8
@@ -7779,8 +7619,8 @@
      "price": 4.41,
      "instance_type": "digitalocean-h100-sxm-8x",
      "source_feed": "computeprices",
-     "source_observed_at": "2026-09-18T05:40:25.189665+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
+     "source_observed_at": "2026-09-19T05:40:26.29185+00:00",
+     "fetched_at": "2026-09-19T06:03:57.086349+00:00",
      "source_url": "https://www.digitalocean.com/pricing/gpu-droplets?refcode=6dc17d11e796",
      "offer_id": "computeprices:8d71f867ce4faab9308d00b8",
      "node_gpus": 8
@@ -7790,8 +7630,8 @@
      "price": 5.95,
      "instance_type": "paperspace-h100-sxm-8x",
      "source_feed": "computeprices",
-     "source_observed_at": "2026-09-18T05:14:41.21318+00:00",
-     "fetched_at": "2026-09-18T15:54:03.767086+00:00",
+     "source_observed_at": "2026-09-19T05:14:41.456953+00:00",
+     "fetched_at": "2026-09-19T06:03:57.086349+00:00",
      "source_url": "https://paperspace.com/pricing",
      "offer_id": "computeprices:ff4754589044fe0d29aeed94",
      "node_gpus": 8
@@ -7802,13 +7642,13 @@
      "instance_type": "H100:8",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:54:20.978999+00:00",
+     "fetched_at": "2026-09-19T06:04:16.981152+00:00",
      "source_url": "https://www.baseten.co/pricing/",
      "offer_id": "",
      "node_gpus": 8
     }
    ],
-   "list_snapshot": "2026-09-18",
+   "list_snapshot": "2026-09-19",
    "quotes_od_median": 3.2,
    "quotes_od_n": 5,
    "quotes": [
@@ -7868,7 +7708,7 @@
      "instance_type": "together-hgx-h200",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:54:17.958016+00:00",
+     "fetched_at": "2026-09-19T06:04:12.941081+00:00",
      "source_url": "https://www.together.ai/pricing",
      "offer_id": "",
      "node_gpus": 8
@@ -7878,8 +7718,8 @@
      "price": 6.305,
      "instance_type": "hgx-h200",
      "source_feed": "",
-     "source_observed_at": "2026-09-18T15:54:00.675786+00:00",
-     "fetched_at": "2026-09-18T15:54:00.675786+00:00",
+     "source_observed_at": "2026-09-19T06:03:54.479146+00:00",
+     "fetched_at": "2026-09-19T06:03:54.479146+00:00",
      "source_url": "https://www.coreweave.com/pricing",
      "offer_id": "coreweave:6edab1d2620167d606400440",
      "node_gpus": 8
@@ -7894,7 +7734,7 @@
      "instance_type": "p5en.48xlarge",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:53:01.906414+00:00",
+     "fetched_at": "2026-09-19T06:02:30.111743+00:00",
      "source_url": "https://aws.amazon.com/ec2/pricing/on-demand/",
      "offer_id": "",
      "node_gpus": 8
@@ -7905,7 +7745,7 @@
      "instance_type": "a3-ultragpu-8g",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:53:47.676596+00:00",
+     "fetched_at": "2026-09-19T06:03:41.259801+00:00",
      "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones",
      "offer_id": "",
      "node_gpus": 8
@@ -7916,7 +7756,7 @@
      "instance_type": "oci---compute---gpu---h200",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:54:07.942416+00:00",
+     "fetched_at": "2026-09-19T06:04:02.149558+00:00",
      "source_url": "https://www.oracle.com/cloud/price-list/",
      "offer_id": "",
      "node_gpus": 8
@@ -7927,7 +7767,7 @@
      "instance_type": "Standard_ND96isr_H200_v5",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:53:55.380955+00:00",
+     "fetched_at": "2026-09-19T06:03:49.646862+00:00",
      "source_url": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/",
      "offer_id": "",
      "node_gpus": 8
@@ -7939,8 +7779,8 @@
      "price": 4.37,
      "instance_type": "8H200.141S.176V",
      "source_feed": "",
-     "source_observed_at": "2026-09-18T15:54:19.158152+00:00",
-     "fetched_at": "2026-09-18T15:54:19.158152+00:00",
+     "source_observed_at": "2026-09-19T06:04:14.376222+00:00",
+     "fetched_at": "2026-09-19T06:04:14.376222+00:00",
      "source_url": "https://api.verda.com/v1/instance-types",
      "offer_id": "verda:0c63f6c42a76df264ce83b71",
      "node_gpus": 8
@@ -7951,13 +7791,13 @@
      "instance_type": "H200:8",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:54:20.978999+00:00",
+     "fetched_at": "2026-09-19T06:04:16.981152+00:00",
      "source_url": "https://www.baseten.co/pricing/",
      "offer_id": "",
      "node_gpus": 8
     }
    ],
-   "list_snapshot": "2026-09-18",
+   "list_snapshot": "2026-09-19",
    "quotes_od_median": 4.23,
    "quotes_od_n": 2,
    "quotes": [
@@ -7995,8 +7835,8 @@
      "price": 6.69,
      "instance_type": "gpu_8x_b200_sxm6",
      "source_feed": "lambda_api",
-     "source_observed_at": "2026-09-18T15:54:01.179846+00:00",
-     "fetched_at": "2026-09-18T15:54:01.179846+00:00",
+     "source_observed_at": "2026-09-19T06:03:55.143884+00:00",
+     "fetched_at": "2026-09-19T06:03:55.143884+00:00",
      "source_url": "https://cloud.lambdalabs.com/api/v1/instance-types",
      "offer_id": "lambda:96cb010569b50e76e90c931d",
      "node_gpus": 0
@@ -8007,7 +7847,7 @@
      "instance_type": "together-hgx-b200",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:54:17.958016+00:00",
+     "fetched_at": "2026-09-19T06:04:12.941081+00:00",
      "source_url": "https://www.together.ai/pricing",
      "offer_id": "",
      "node_gpus": 8
@@ -8017,8 +7857,8 @@
      "price": 8.6,
      "instance_type": "nvidia-b200",
      "source_feed": "",
-     "source_observed_at": "2026-09-18T15:54:00.675786+00:00",
-     "fetched_at": "2026-09-18T15:54:00.675786+00:00",
+     "source_observed_at": "2026-09-19T06:03:54.479146+00:00",
+     "fetched_at": "2026-09-19T06:03:54.479146+00:00",
      "source_url": "https://www.coreweave.com/pricing",
      "offer_id": "coreweave:3216c2d8505ed50378835a93",
      "node_gpus": 8
@@ -8033,7 +7873,7 @@
      "instance_type": "oci---compute---gpu---b200",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:54:07.942416+00:00",
+     "fetched_at": "2026-09-19T06:04:02.149558+00:00",
      "source_url": "https://www.oracle.com/cloud/price-list/",
      "offer_id": "",
      "node_gpus": 8
@@ -8044,7 +7884,7 @@
      "instance_type": "p6-b200.48xlarge",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:53:01.906414+00:00",
+     "fetched_at": "2026-09-19T06:02:30.111743+00:00",
      "source_url": "https://aws.amazon.com/ec2/pricing/on-demand/",
      "offer_id": "",
      "node_gpus": 8
@@ -8055,7 +7895,7 @@
      "instance_type": "a4-highgpu-8g",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:53:47.676596+00:00",
+     "fetched_at": "2026-09-19T06:03:41.259801+00:00",
      "source_url": "https://cloud.google.com/compute/gpus/gpu-regions-zones",
      "offer_id": "",
      "node_gpus": 8
@@ -8067,8 +7907,8 @@
      "price": 6.485,
      "instance_type": "8B200.240V",
      "source_feed": "",
-     "source_observed_at": "2026-09-18T15:54:19.158152+00:00",
-     "fetched_at": "2026-09-18T15:54:19.158152+00:00",
+     "source_observed_at": "2026-09-19T06:04:14.376222+00:00",
+     "fetched_at": "2026-09-19T06:04:14.376222+00:00",
      "source_url": "https://api.verda.com/v1/instance-types",
      "offer_id": "verda:3d97e1da11043545ef080d9d",
      "node_gpus": 8
@@ -8079,13 +7919,13 @@
      "instance_type": "B200:8",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:54:20.978999+00:00",
+     "fetched_at": "2026-09-19T06:04:16.981152+00:00",
      "source_url": "https://www.baseten.co/pricing/",
      "offer_id": "",
      "node_gpus": 8
     }
    ],
-   "list_snapshot": "2026-09-18",
+   "list_snapshot": "2026-09-19",
    "quotes_od_median": 6.0,
    "quotes_od_n": 1,
    "quotes": [
@@ -8116,7 +7956,7 @@
      "instance_type": "oracle-cloud-infrastructure---compute---gpu---b300",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:54:07.942416+00:00",
+     "fetched_at": "2026-09-19T06:04:02.149558+00:00",
      "source_url": "https://www.oracle.com/cloud/price-list/",
      "offer_id": "",
      "node_gpus": 8
@@ -8127,7 +7967,7 @@
      "instance_type": "p6-b300.48xlarge",
      "source_feed": "",
      "source_observed_at": "",
-     "fetched_at": "2026-09-18T15:53:01.906414+00:00",
+     "fetched_at": "2026-09-19T06:02:30.111743+00:00",
      "source_url": "https://aws.amazon.com/ec2/pricing/on-demand/",
      "offer_id": "",
      "node_gpus": 8
@@ -8139,14 +7979,14 @@
      "price": 7.8825,
      "instance_type": "8B300.240V",
      "source_feed": "",
-     "source_observed_at": "2026-09-18T15:54:19.158152+00:00",
-     "fetched_at": "2026-09-18T15:54:19.158152+00:00",
+     "source_observed_at": "2026-09-19T06:04:14.376222+00:00",
+     "fetched_at": "2026-09-19T06:04:14.376222+00:00",
      "source_url": "https://api.verda.com/v1/instance-types",
      "offer_id": "verda:2f7d9f80ef7265938ad0d0bf",
      "node_gpus": 8
     }
    ],
-   "list_snapshot": "2026-09-18",
+   "list_snapshot": "2026-09-19",
    "realised_payg": 7.62,
    "realised_payg_hours": 129538,
    "realised_window_days": 30,
@@ -8155,10 +7995,10 @@
    "realised_preemptible_hours": 117120
   },
   "GB200": {
-   "list_snapshot": "2026-09-18"
+   "list_snapshot": "2026-09-19"
   },
   "GB300": {
-   "list_snapshot": "2026-09-18",
+   "list_snapshot": "2026-09-19",
    "quotes_od_median": 4.75,
    "quotes_od_n": 1,
    "quotes": [
@@ -8172,7 +8012,7 @@
    ]
   },
   "VR": {
-   "list_snapshot": "2026-09-18"
+   "list_snapshot": "2026-09-19"
   }
  },
  "cohorts": [
@@ -13104,19 +12944,6 @@
  "short_term": {
   "H100": [
    {
-    "provider": "Vast.ai",
-    "key": "vast",
-    "kind": "marketplace",
-    "tenor": 3,
-    "months": 3,
-    "price": 1.4689,
-    "gpus": 1,
-    "date": "2026-09-18",
-    "stale": false,
-    "cluster_class": false,
-    "note": "cheapest marketplace reservation (1-6 months prepaid), 1-GPU host, France, FR; not cluster-class"
-   },
-   {
     "provider": "SF Compute",
     "key": "sfcompute",
     "kind": "clearing",
@@ -13137,7 +12964,7 @@
     "months": 3,
     "price": 4.72,
     "gpus": 8,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": true,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, us"
@@ -13150,7 +12977,7 @@
     "months": 3,
     "price": 5.54,
     "gpus": 256,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": true,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 256-GPU host, unknown"
@@ -13163,7 +12990,7 @@
     "months": 3,
     "price": 5.85,
     "gpus": 64,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": true,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 64-GPU host, unknown"
@@ -13176,7 +13003,7 @@
     "months": 3,
     "price": 6.16,
     "gpus": 16,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": true,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 16-GPU host, unknown"
@@ -13191,7 +13018,7 @@
     "months": 3,
     "price": 1.9751,
     "gpus": 1,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": false,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 1-GPU host, New Jersey, US; not cluster-class"
@@ -13204,7 +13031,7 @@
     "months": 3,
     "price": 5.97,
     "gpus": 8,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": true,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, us"
@@ -13219,7 +13046,7 @@
     "months": 3,
     "price": 8.87,
     "gpus": 256,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": true,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 256-GPU host, unknown"
@@ -13232,7 +13059,7 @@
     "months": 3,
     "price": 9.36,
     "gpus": 64,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": true,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 64-GPU host, unknown"
@@ -13245,7 +13072,7 @@
     "months": 3,
     "price": 9.86,
     "gpus": 16,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": true,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 16-GPU host, unknown"
@@ -13258,7 +13085,7 @@
     "months": 3,
     "price": 12.355,
     "gpus": 8,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": true,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, US East (Ohio)"
@@ -13273,7 +13100,7 @@
     "months": 3,
     "price": 14.04,
     "gpus": 8,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": true,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 8-GPU host, Asia Pacific (Jakarta)"
@@ -13288,7 +13115,7 @@
     "months": 3,
     "price": 10.582,
     "gpus": 72,
-    "date": "2026-09-18",
+    "date": "2026-09-19",
     "stale": false,
     "cluster_class": true,
     "note": "cheapest marketplace reservation (1-6 months prepaid), 72-GPU host, US East (Dallas) Local Zone"
@@ -13296,7 +13123,7 @@
   ]
  },
  "node_specs": {
-  "_generated": "2026-09-18",
+  "_generated": "2026-09-19",
   "_method": "One entry per priced SKU. Figures come from the provider's own documentation (research + independent verification of each figure against its source URL; 'verified' false = a figure could not be confirmed) or, where the provider API reports them, from the daily monitor snapshot. vCPU = threads (physical cores x2 where the page lists cores); RAM in GB as published (GiB accepted). Nothing is estimated from a typical HGX configuration.",
   "providers": {
    "1legion": {
@@ -13372,8 +13199,8 @@
       "verified": true,
       "notes": "Docs spec table: 2048.00 GiB memory (GiB, not GB), AMD EPYC 7R13, 192 vCPU = 96 cores x 2 threads, 8 x NVIDIA H100 GPU 640 GiB (8 x 80 GiB), instance store 8 x 3800 GB NVMe SSD (= 30.4 TB; marketing page rounds to 8 x 3.84 TB), network 3200 Gigabit with EFA/ENA Express, EBS 80 Gbps. Marketing page (aws.amazon.com/ec2/instance-types/p5) adds GPU peer-to-peer 900 GB/s NVSwitch and GPUDirect RDMA yes. SXM/PCIe form factor not printed on either page, so left null; NVSwitch peer-to-peer is the only interconnect statement. Nitro v4 per docs family summary. | verifier: Opened docs page (performance, network, EBS, instance-store tables) and marketing p5 page. Confirmed verbatim: 2048.00 GiB | AMD EPYC 7R13 | 192 vCPU | 96 cores | 2 threads | 8 x NVIDIA H100 GPU 640 GiB; network '3200 Gigabit', EFA Yes; instance store '8 x 3800 GB NVMe SSD'; EBS 80000 Mbps. Marketing: 192 vCPU, 2 TiB, 8 H100, 3200 Gbps EFA, 900 GB/s NVSwitch, 8 x 3.84 NVMe, 80 Gbps EBS. Unit flag: ram_gb value is GiB as printed (2048 GiB = ~2199 GB decimal). 'EFAv2' label is inferred from the marketing sentence that P5en uses third-generation EFA 'compared to P5 that uses the previous generation'; the literal string 'EFAv2' was not in my fetch, so I removed it from the network string. No corrections to figures.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "p5.4xlarge",
@@ -13390,7 +13217,7 @@
       "verified": true,
       "notes": "1-GPU H100 SKU published alongside p5.48xlarge. Docs table: 256.00 GiB memory, AMD EPYC 7R13, 16 vCPU = 8 cores x 2 threads, 1 x NVIDIA H100 GPU 80 GiB, instance store 1 x 3800 GB NVMe SSD, network 100 Gigabit EFA, EBS 10 Gbps. Marketing page: GPUDirect RDMA 'No' and GPU peer-to-peer N/A for this size. Form factor not printed. Only P5 size that supports Windows per docs family summary. | verifier: Confirmed verbatim on docs page: 256.00 GiB | AMD EPYC 7R13 | 16 | 8 | 2 | 1 x NVIDIA H100 GPU 80 GiB; network '100 Gigabit' EFA Yes; instance store '1 x 3800 GB NVMe SSD'; EBS 10000 Mbps. Marketing: 16 vCPU, 256 GiB, 1 H100, 100 Gbps EFA, GPUDirect RDMA No, 3.84 NVMe SSD, EBS 10. ram_gb is GiB as printed. No corrections.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "H200": [
@@ -13425,8 +13252,8 @@
       "verified": true,
       "notes": "Docs table: 2048.00 GiB memory (GiB), Intel Xeon Sapphire Rapids, 192 vCPU = 96 cores x 2 threads, 8 x NVIDIA H200 GPU 1128 GiB (8 x 141 GiB), instance store 8 x 3800 GB NVMe SSD (marketing: 8 x 3.84 TB), network 3200 Gigabit EFA, EBS 100 Gbps (vs 80 on p5e). Marketing page: 'P5en instances pair NVIDIA H200 Tensor Core GPUs with high performance Intel Sapphire Rapids CPU'; 'third generation of EFA using Nitro v5'; 900 GB/s NVSwitch peer-to-peer. Docs family summary: Nitro v5, Intel (x86_64). Form factor not printed. | verifier: Confirmed verbatim on docs page: 2048.00 GiB | Intel Xeon Sapphire Rapids | 192 | 96 | 2 | 8 x NVIDIA H200 GPU 1128 GiB; network '3200 Gigabit' EFA Yes; '8 x 3800 GB NVMe SSD'; EBS 100000 Mbps. Marketing: 192 vCPU, 2 TiB, 8 H200, 3200 Gbps EFA, 900 GB/s NVSwitch, 8 x 3.84 NVMe, EBS 100; Sapphire Rapids and third-gen EFA / Nitro v5 sentences present. ram_gb is GiB as printed. No corrections.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "B200": [
@@ -13445,8 +13272,8 @@
       "verified": true,
       "notes": "Docs table: 2048.00 GiB memory (GiB), Intel Xeon Emerald Rapids, 192 vCPU = 96 cores x 2 threads, 8 x NVIDIA B200 GPU 1432 GiB (8 x 179 GiB), instance store 8 x 3800 GB NVMe SSD (marketing: 8 x 3.84 TB), network 3200 Gigabit EFA, EBS 100 Gbps. Marketing page (aws.amazon.com/ec2/instance-types/p6): '5th Generation Intel Xeon Scalable processors (Emerald Rapids)', 'up to 14.4 TBp/s of total bidirectional NVLink bandwidth', 'fourth-generation Elastic Fabric Adapter networking (EFAv4)'; 1,432 GB GPU memory. Docs family summary: Nitro v6. SXM/HGX not printed; form factor null. | verifier: Confirmed verbatim on docs page: 2048.00 GiB | Intel Xeon Emerald Rapids | 192 | 96 | 2 | 8 x NVIDIA B200 GPU 1432 GiB (8 x 179 GiB); network '3200 Gigabit' EFA Yes; '8 x 3800 GB NVMe SSD'; EBS 100000 Mbps. Marketing p6 page: 8 GPUs, 192 vCPUs, 2,048 GiB, 1,432 GB GPU memory, 8 x 3.84 TB, 3.2 Tbps, 100 Gbps EBS; Emerald Rapids / 5th Gen and EFAv4 sentences present. ram_gb is GiB as printed. No corrections.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "B300": [
@@ -13465,8 +13292,8 @@
       "verified": true,
       "notes": "Docs table: 4096.00 GiB memory (GiB; double the B200 node), Intel Xeon Emerald Rapids (docs page only; the marketing page does not name the B300 CPU), 192 vCPU = 96 cores x 2 threads, 8 x NVIDIA B300 GPU 2148 GiB (8 x 268 GiB; marketing table says 2,144 GB HBM3e), instance store 8 x 3800 GB NVMe SSD (marketing: 8 x 3.84 TB), network 6400 Gigabit EFA, EBS 100 Gbps. Marketing page: '8 Ultra' Blackwell Ultra GPUs, 6.4 Tbps, EFAv4. Docs family summary: Nitro v6. Form factor not printed. | verifier: Confirmed verbatim on docs page: 4096.00 GiB | Intel Xeon Emerald Rapids | 192 | 96 | 2 | 8 x NVIDIA B300 GPU 2148 GiB (8 x 268 GiB); network '6400 Gigabit' EFA Yes; '8 x 3800 GB NVMe SSD'; EBS 100000 Mbps. Marketing p6 page: 8 Ultra, 192 vCPUs, 4,096 GiB, 2,144 GB GPU memory, 8 x 3.84 TB, 6.4 Tbps, 100 Gbps EBS. GPU-memory discrepancy docs 2148 GiB vs marketing 2,144 GB is on the pages, not a researcher error. ram_gb is GiB as printed. No corrections.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "GB200": [
@@ -13517,7 +13344,7 @@
       "network": "none",
       "form_factor": "NVL",
       "source_url": "https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -13541,7 +13368,7 @@
       "notes": "Host spec table: 96 vCPUs, Intel Xeon (Sapphire Rapids) [x86-64], 1,850 GiB memory (GiB), local storage 1 disk 1,024 GiB temp + 'Max NVMe Disks 8 / NVMe Disk Size (TiB) 28' (28 TiB = 30.8 TB entered), 16 remote disks, 8 NICs 80,000 Mbps, 8 x Nvidia H200 GPU (141GB) = 1,128 GB. Prose: 'eight NVIDIA H200 ... interconnected with 900 GB/s NVLink', '3.2Tb/s of interconnect bandwidth per VM', 'dedicated ... 400 Gbps NVIDIA Quantum-2 CX7 InfiniBand connection' per GPU, GPUDirect RDMA. Page lists vCPUs only (no cores/threads split). SXM not printed; form factor null. | verifier: Opened page; confirmed verbatim: 96 vCPUs Intel Xeon (Sapphire Rapids) [x86-64]; 1,850 GiB; 1 Disk 1,024 GiB; NVMe 8 disks / 28 TiB; 16 remote disks; 8 NICs 80,000 Mbps; 8 GPUs Nvidia H200 GPU (141GB), 1,128 GB; prose 900 GB/s NVLink, 3.2Tb/s per VM, 400 Gbps per GPU. local_storage_tb 30.8 is derived from printed 28 TiB. ram_gb is GiB as printed. No corrections.",
       "source": "provider documentation",
       "api_check": "mismatch: ram_gb doc 1850 vs 1100.0",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "GB200": [
@@ -13560,7 +13387,7 @@
       "verified": true,
       "notes": "Host spec table: 128 vCPUs 'Nvidia Grace CPU', 900 GiB LPDDR5X (GiB), local storage '4 Disks 16 TiB (NVMe)' (size table says 'Temp Disk Size (TB) 16' -- page mixes TB/TiB; 16 entered as printed, would be 17.6 TB if TiB), remote 16 disks 80,000 IOPS / 1,200 MBps, 1 NIC 160 Gbps Ethernet, 4 x Nvidia Blackwell GPU (192 GiB each; accelerator table prints 192 GB). Prose: 'two NVIDIA Grace CPUs and four NVIDIA Blackwell GPUs', '4x 1.8 TB/s NVLink bandwidth per VM', scale-out '4x 400 GB/s NVIDIA Quantum-2 CX7 InfiniBand connections per VM' (prose unit typo GB/s vs Gbps elsewhere), 'NVL72 connects up to 72 GPUs per rack ... groups of 18 ND GB200 v6 VMs ... 28.8Tb/s scale-out networking'. Page lists vCPUs only; no cores/threads split, no 2x conversion applied. | verifier: Opened page; confirmed verbatim: 128 vCPUs Nvidia Grace CPU; 900 GiB LPDDR5X; 4 Disks 16 TiB (NVMe) / sizes table 'Temp Disk Size (TB) 16'; 1 NICs 160 Gbps Ethernet; 4 GPUs Nvidia Blackwell GPU (192 GiB); prose two Grace CPUs, 4x 1.8 TB/s NVLink, 4x 400 GB/s IB (sic), 18 VMs / 72 GPUs per rack, 28.8Tb/s. Page-internal inconsistencies to flag: (a) sizes network table prints 'Max Front-end Bandwidth (Mbps) 160' vs host table '160 Gbps Ethernet'; (b) network table lists Scale-up 4 NICs 400 Gbps and Scale-out 4 NICs 1.8 TBps, which is the reverse of the prose (NVLink 1.8 TB/s is scale-up, IB 400 Gb/s is scale-out) -- researcher's reading follows the prose and is the physically sensible one; (c) the 1.6 Tb/s IB total is not printed anywhere, it is 4 x 400 Gbps (and 28.8 Tb/s / 18 VMs), so I relabelled it 'derived' in the network string. local_storage_tb 16 is as-printed with ambiguous unit. No figure corrections.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      }
     ],
     "GB300": [
@@ -13599,7 +13426,7 @@
       "verified": true,
       "notes": "Docs table row: 'H100:8 | $0.86664/min | 128 vCPU | 944 GiB | 8 NVIDIA H100s | 640 GiB' = $52.00/hr = $6.50/GPU-hr. UNIT: RAM is published in GiB; 944 GiB = ~1,014 GB decimal - the ram_gb field carries the page-literal GiB number. Pricing page https://www.baseten.co/pricing/ lists per-GPU H100 at $0.10833/min ($6.50/hr), consistent with 8x. Form factor, CPU model, local storage and network are not published by Baseten. | verifier: Opened docs table 2026-09-16: 128 vCPU, 944 GiB, 8 GPUs, $0.86664/min all confirmed. Pricing page cross-check confirmed. Flagged GiB-vs-GB unit: figure is GiB as published, not converted.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      },
      {
       "instance_type": "H100 (1x H100 dedicated deployment instance)",
@@ -13634,7 +13461,7 @@
       "verified": true,
       "notes": "Docs table row: 'H200:8 | $1.00000/min | 128 vCPU | 1600 GiB | 8 NVIDIA H200s | 1128 GiB' = $60.00/hr = $7.50/GPU-hr. UNIT: 1600 GiB = ~1,718 GB decimal; ram_gb carries GiB as published. Single-GPU H200 row: 16 vCPU, 200 GiB, $0.12500/min ($7.50/hr); H200:2 32 vCPU/400 GiB; H200:4 64 vCPU/800 GiB. H200 does not appear on the public pricing page (only in docs). Form factor, CPU model, storage, network not published. | verifier: Added from the same docs table the researcher cited (they mentioned H200:8 in notes but did not list it). All figures read directly from the table 2026-09-16.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      }
     ],
     "B200": [
@@ -13653,7 +13480,7 @@
       "verified": true,
       "notes": "Docs table row: 'B200:8 | $1.33064/min | 128 vCPU | 1792 GiB | 8 NVIDIA B200s | 1440 GiB' = $79.84/hr = $9.98/GPU-hr. UNIT: 1792 GiB = ~1,924 GB decimal; ram_gb carries GiB as published. Single-GPU B200 row: 16 vCPU, 224 GiB, $0.16633/min ($9.98/hr) - matches pricing page https://www.baseten.co/pricing/ 'B200 | 180 GiB | $0.16633/min'. B200:2 32 vCPU/448 GiB; B200:4 64 vCPU/896 GiB. Form factor, CPU model, storage, network not published. | verifier: Added from the same docs table (researcher mentioned B200:8 in notes only). Figures read from the table 2026-09-16; per-GPU price cross-checked on pricing page.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      }
     ]
    },
@@ -13674,7 +13501,7 @@
       "verified": true,
       "notes": "Docs spec table: 8x NVIDIA H100 80 GB, CPU Intel Sapphire Rapids 8462Y+, vCPUs 128 (page uses 'vCPUs'), RAM 2048 GB, usable storage 30.72 TB from 8x 7.68 TB RAID 10 (raw 61.44 TB, which is the 'Local Storage' figure shown on www.coreweave.com/pricing), NIC dual-port 100GbE, GPU connectivity 'InfiniBand & NVLink'; prose: 'Nodes are linked with a 400G NDR InfiniBand fabric'. HCA count / per-node IB total is not stated on this page (unlike B200). On-demand list price on https://www.coreweave.com/pricing (North America, 2026-09-16): $49.24 per node-hour (= $6.155/GPU-hr computed), spot $19.71/node-hr. Default GPU driver 595. | verifier: Opened docs page 2026-09-16: 8x H100 80 GB, 'Intel Sapphire Rapids 8462Y+ (2.80 GHz)', 128 vCPUs, 2048 GB RAM, '8x 7.68 TB RAID 10' -> 30.72 TB usable, 'Dual-port 100GbE', '400G NDR InfiniBand fabric' all present verbatim. Pricing page opened: HGX H100 row 8 GPUs / 128 vCPU / 2,048 GB / 61.44 TB / $49.24 / spot $19.71 confirmed; 61.44 is raw, docs 30.72 is usable (RAID 10), so the two pages are consistent, not conflicting. RAM unit on CoreWeave is GB as displayed. No correction needed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      }
     ],
     "H200": [
@@ -13693,7 +13520,7 @@
       "verified": true,
       "notes": "Docs spec table: 8x NVIDIA H200 141 GB, CPU Intel Emerald Rapids 8562Y+, vCPUs 128 (page uses 'vCPUs'), RAM 2048 GB, usable storage 30.72 TB from 8x 7.68 TB RAID 10 (raw 61.44 TB shown on pricing page), NIC dual-port 100GbE; prose: 'NVIDIA ConnectX-7 adapters providing a 400G NDR InfiniBand fabric'. Per-node IB total is not printed on the docs page; CoreWeave's own blog https://www.coreweave.com/blog/coreweave-is-the-first-cloud-provider-to-deploy-nvidia-h200-tensor-core-gpus states '3200Gbps of NVIDIA Quantum-2 InfiniBand networking', Intel 5th-gen Xeon (Emerald Rapids) and BlueField-3 DPUs for H200 instances. On-demand list price on https://www.coreweave.com/pricing (2026-09-16): $50.44 per node-hour (= $6.305/GPU-hr computed), spot $20.93/node-hr. | verifier: Opened docs page: 8x H200 141 GB, 'Intel Emerald Rapids 8562Y+ (2.80 GHz)', 128 vCPUs, 2048 GB, '8x 7.68 TB RAID 10' -> 30.72 TB usable, 'Dual-port 100GbE', 'NVIDIA ConnectX-7 adapters providing a 400G NDR InfiniBand fabric' all present. Blog opened: '3200Gbps of NVIDIA Quantum-2 InfiniBand networking', 'fifth-generation Xeon CPUs (Emerald Rapids)', 'Bluefield-3 DPUs' confirmed verbatim (the blog is a launch announcement, so 3200 Gbps is a stated per-node figure but is not on the current spec page). Pricing page row 8 / 128 / 2,048 / 61.44 / $50.44 / $20.93 confirmed. No correction needed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      }
     ],
     "B200": [
@@ -13712,7 +13539,7 @@
       "verified": true,
       "notes": "Docs spec table: 8x NVIDIA B200 180 GB HBM3e, CPU Intel Emerald Rapids 8562Y+, vCPUs 128 (page uses 'vCPUs'), RAM 2048 GB, usable storage 30.72 TB from 8x 7.68 TB RAID 10 (raw 61.44 TB shown on pricing page), NIC dual-port 100GbE; prose names 'eight NVIDIA ConnectX-7 InfiniBand host channel adapters' on a '400G NDR non-blocking NVIDIA Quantum-2 InfiniBand fabric' and a BlueField-3 DPU. The page does not print an aggregate figure; 8 HCAs x 400G = 3.2 Tb/s is arithmetic, not a stated value. Regions listed: EU-SOUTH-04A, US-CENTRAL-07A, US-EAST-13A, US-EAST-15A, US-WEST-09B. On-demand list price on https://www.coreweave.com/pricing (2026-09-16): $68.80 per node-hour (= $8.60/GPU-hr computed), spot $34.11/node-hr. | verifier: Opened docs page: 8x B200 180 GB, 'Intel Emerald Rapids 8562Y+ (2.80 GHz)', 128 vCPUs, 2048 GB, '8x 7.68 TB RAID 10' -> 30.72 TB usable, 'Dual-port 100GbE', 'eight NVIDIA ConnectX-7 InfiniBand host channel adapters (HCAs)', '400G NDR non-blocking NVIDIA Quantum-2 InfiniBand fabric', 'NVIDIA BlueField-3 DPU', 'NVLink and NVLink Switch', regions EU-SOUTH-04A/US-CENTRAL-07A/US-EAST-13A/US-EAST-15A/US-WEST-09B all confirmed. Pricing row 8 / 128 / 2,048 / 61.44 / $68.80 / $34.11 confirmed. Researcher correctly flagged 3.2 Tb/s as derived, not stated. No correction needed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      }
     ],
     "GB200": [
@@ -13731,7 +13558,7 @@
       "verified": true,
       "notes": "Docs spec table: 4x NVIDIA GB200, GPU RAM 186 GB, CPU '2x NVIDIA Grace Arm v9 (3.10 GHz)', vCPUs 144 (page uses 'vCPUs'; Grace core count is not printed on the page), RAM 960 GB, usable storage 15.36 TB from 4x 7.68 TB RAID 10 (raw 30.72 TB, which is the figure shown on www.coreweave.com/pricing), NIC dual-port 100GbE. The 400 Gb/s NDR / Quantum-2 InfiniBand statement and the 18-node full-rack deployment rule come from https://docs.coreweave.com/platform/instances/nvl72 ('powered by 4x NVIDIA GB200 GPUs and connected with 400 Gb/s NDR InfiniBand'); a per-node IB aggregate is not published. Pricing footnote: each instance = 2 GB200 Superchips, each with 1 Grace CPU and 2 Blackwell GPUs. On-demand list price on https://www.coreweave.com/pricing (2026-09-16): $42.00 per 4-GPU instance-hour (= $10.50/GPU-hr computed); no spot. | verifier: Opened docs page: 4x GB200, 186 GB GPU RAM, '2x NVIDIA Grace Arm v9 (3.10 GHz)', 144 vCPUs, 960 GB, '4x 7.68 TB RAID 10' -> 15.36 TB usable, 'Dual-port 100GbE', 'InfiniBand & NVLink' confirmed; page also cites 'fifth-generation NVLink with up to 130 TB/s total bandwidth' rack-wide. NVL72 overview page opened: 'powered by 4x NVIDIA GB200 GPUs', 'connected with 400 Gb/s NDR InfiniBand, built on the NVIDIA Quantum-2', 'must be deployed as full racks of 18 Nodes', 'CKS enforces full-rack deployment' confirmed. Pricing row 4 / 144 / 960 / 30.72 / $42.00 / N/A and the Superchip footnote confirmed. No correction needed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      }
     ],
     "B300": [
@@ -13750,7 +13577,7 @@
       "verified": true,
       "notes": "ADDED BY VERIFIER (missed by researcher). Docs spec table: 8x NVIDIA B300, GPU RAM 270 GB, CPU '2 x Intel Granite Rapids (6747P) (2.70 GHz)', vCPUs 192, RAM 4096 GB, storage '8x 7.68 TB RAID 10' with 30.72 TB usable (raw 61.44 TB, which is the figure shown on www.coreweave.com/pricing), NIC 'Dual-port 200GbE', GPU connectivity 'Quantum-X800 InfiniBand & NVLink'. Regions: US-CENTRAL-06A, US-EAST-13A, US-WEST-01A, US-WEST-10A. Default driver 595. Pricing page (2026-09-16): on-demand 'Contact sales', spot $35.84/node-hr; row shows 8 GPUs / 192 vCPUs / 4,096 GB / 61.44 TB. | verifier: New entry. Every figure taken verbatim from the docs page opened 2026-09-16 and cross-checked against the pricing page row (8 / 192 / 4,096 / 61.44 raw). No aggregate IB figure or HCA count is printed on this page, so network is qualitative only. No on-demand list price published.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      }
     ],
     "GB300": [
@@ -14019,7 +13846,7 @@
       "verified": true,
       "notes": "Table row verbatim: 208 vCPU | 1,872 GB instance memory | 6,000 GiB attached Local SSD (= 6.44 TB decimal) | 5 physical NICs | 1,000 Gbps | 8 GPUs | 640 GB HBM3 (80 GB per GPU). GCP defines a vCPU as a single hardware hyper-thread. Page states 'A3 High machine types have NVIDIA H100 SXM GPUs' and 'only available on the Sapphire Rapids CPU platform'. Original URL cloud.google.com/compute/docs/accelerator-optimized-machines 301-redirects to this docs.cloud.google.com URL; same figures also on docs.cloud.google.com/compute/docs/gpus. | verifier: Parsed the raw HTML table on 2026-09-16: a3-highgpu-8g | 208 | 1,872 | 6,000 | 5 | 1,000 | 8 | 640 matches exactly. Footnote 'A vCPU is implemented as a single hardware hyper-thread' present. 'A3 High machine types have NVIDIA H100 SXM GPUs', 'only available on the Sapphire Rapids CPU platform', '4th Generation Intel Xeon Scalable processor (Sapphire Rapids) ... up to 3.3 GHz sustained single-core max turbo', and GPUDirect-TCPX for a3-highgpu-8g all present. 6,000 GiB x 1.0737 = 6,442 GB = 6.44 TB, conversion correct. No corrections.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "a3-megagpu-8g",
@@ -14235,7 +14062,7 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14270,7 +14097,7 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14304,7 +14131,7 @@
       "network": "unknown",
       "form_factor": "unknown",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14322,7 +14149,7 @@
       "network": "unknown",
       "form_factor": "unknown",
       "source_url": "https://www.hyperstack.cloud/gpu-pricing",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14401,8 +14228,8 @@
       "verified": true,
       "notes": "Pricing page 8-GPU row: NVIDIA H100 SXM, 80 GB VRAM, 208 vCPUs, 1800 GiB RAM (GiB as displayed; ~1933 GB), 22 TiB SSD (TiB as displayed; ~24.2 TB), $3.99/GPU-hr on-demand. CPU model not published on any Lambda page found; Lambda's 1-Click Clusters blog (https://lambda.ai/blog/introducing-lambda-1-click-clusters-a-new-way-to-train-large-ai-models) describes the HGX H100 worker node as '208 vCPUs (104 cores)', '1.9TB RAM', '24TB local NVMe', 1:1 ConnectX-7 per GPU, Quantum-2 400 Gb/s IB with '3200 Gb/s node-to-node' and up to 200 Gb/s Ethernet, but that is the cluster product, not the on-demand SKU; the pricing page and docs.lambda.ai/public-cloud/on-demand/ state no network figure for on-demand instances, so network is null. API name: the string gpu_8x_h100_sxm5 was not found on a Lambda-owned page (only third-party); Lambda's OpenAPI spec (https://docs-api.lambda.ai/api/cloud/spec.json) uses the example name 'gpu_8x_h100_sxm5gdr' with description '8x H100 (80 GB SXM5)' and example specs vcpus 208 / memory_gib 1800 / storage_gib 24780 / gpus 8; console label per docs is '8x H100 (80 GB SXM5)'. | verifier: Opened lambda.ai/pricing 2026-09-16: 8x 'NVIDIA H100 SXM, 80 GB VRAM, 208 vCPUs, 1800 GiB RAM, 22 TiB SSD, $3.99/GPU/hr' confirmed. Also confirmed on docs.lambda.ai/public-cloud/on-demand/ (table 'Last Updated December 2025') and lambda.ai/instances. Downloaded the OpenAPI spec and grepped: InstanceType.name example 'gpu_8x_h100_sxm5gdr', description '8x H100 (80 GB SXM5)', vcpus example 208, storage_gib example 24780 are all present as schema examples, not an enumerated list. Unit caution: ram_gb=1800 and local_storage_tb=22 are the GiB/TiB values as displayed, not converted (1800 GiB = 1933 GB; 22 TiB = 24.2 TB) \u2014 the notes disclose this. Note the 2023 launch blog quoted 220 vCPUs / 1.8 TB / 24.3 TiB for the original 8x H100 SXM instance; the current page says 208 vCPUs, so the researcher's figure reflects the current spec. CPU model and per-instance network remain unpublished for on-demand; nulls are appropriate.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "4x NVIDIA H100 SXM 80 GB (pricing page row; API name not shown)",
@@ -14419,8 +14246,8 @@
       "verified": true,
       "notes": "Pricing page 4-GPU row: H100 SXM 80 GB, 104 vCPUs, 900 GiB RAM (GiB), 11 TiB SSD (TiB), $4.09/GPU-hr on-demand. Sub-node slice of the 8x host. CPU model and network not published for on-demand instances. | verifier: Opened lambda.ai/pricing: 4x 'NVIDIA H100 SXM: 80 GB, 104 vCPUs, 900 GiB RAM, 11 TiB SSD, $4.09/GPU/hr' confirmed; same row on docs.lambda.ai/public-cloud/on-demand/. Values are GiB/TiB as displayed (not converted to GB/TB). No correction needed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "2x NVIDIA H100 SXM 80 GB (pricing page row; API name not shown)",
@@ -14437,8 +14264,8 @@
       "verified": true,
       "notes": "Pricing page 2-GPU row: H100 SXM 80 GB, 52 vCPUs, 450 GiB RAM (GiB), 5.5 TiB SSD (TiB), $4.19/GPU-hr on-demand. CPU model and network not published for on-demand instances. | verifier: Opened lambda.ai/pricing: 2x 'NVIDIA H100 SXM: 80 GB, 52 vCPUs, 450 GiB RAM, 5.5 TiB SSD, $4.19/GPU/hr' confirmed; same row on docs on-demand page. GiB/TiB as displayed. No correction needed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "1x NVIDIA H100 SXM 80 GB (pricing page row; console label '1x H100 (80 GB SXM5)')",
@@ -14491,8 +14318,8 @@
       "verified": true,
       "notes": "Pricing page 8-GPU row: NVIDIA B200 SXM6, 180 GB VRAM, 208 vCPUs, 2900 GiB RAM (GiB as displayed; ~3114 GB), 22 TiB SSD (TiB as displayed; ~24.2 TB), $6.69/GPU-hr on-demand. API name gpu_8x_b200_sxm6 is confirmed on Lambda's own bare-metal blog (https://lambda.ai/blog/lambda-bare-metal-instances, 2026-05-21: 'Instead of selecting an instance type like gpu_8x_b200_sxm6...'); console label '8x B200 (180 GB SXM6)'. CPU model not published; network not stated for on-demand (1-Click Cluster B200 nodes are described with Quantum-2 IB up to 3200 Gb/s and 2x100 Gb/s Ethernet at https://docs.lambda.ai/public-cloud/1-click-clusters/, cluster product only). Lambda's B200 launch blog gives '2900 GiB of system memory' and 'Starting at $4.99/GPU-hr' (launch promo, superseded by the $6.69 list). | verifier: Opened lambda.ai/pricing: 8x 'NVIDIA B200 SXM6: 180 GB VRAM, 208 vCPUs, 2900 GiB RAM, 22 TiB SSD, $6.69/GPU/hr' confirmed; same on docs on-demand page and lambda.ai/instances. Bare-metal blog opened: sentence 'Instead of selecting an instance type like gpu_8x_b200_sxm6, you select a bare metal type' present (dated May 21, 2026, updated June 5, 2026). Unit caution: ram_gb=2900 is GiB as displayed (~3114 GB); local_storage_tb=22 is TiB (~24.2 TB). No correction needed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "4x NVIDIA B200 SXM6 180 GB (pricing page row; API name not shown)",
@@ -14525,8 +14352,8 @@
       "verified": true,
       "notes": "Pricing page 2-GPU row: B200 SXM6 180 GB, 52 vCPUs, 720 GiB RAM (GiB), 5.5 TiB SSD (TiB), $6.89/GPU-hr on-demand. CPU model and network not published. | verifier: Opened lambda.ai/pricing: 2x 'NVIDIA B200 SXM6: 180 GB, 52 vCPUs, 720 GiB RAM, 5.5 TiB SSD, $6.89/GPU/hr' confirmed; same on docs on-demand page. GiB/TiB as displayed. No correction needed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "1x NVIDIA B200 SXM6 180 GB (pricing page row; console label '1x B200 (180 GB SXM6)')",
@@ -14543,8 +14370,8 @@
       "verified": true,
       "notes": "Pricing page 1-GPU row: B200 SXM6 180 GB, 26 vCPUs, 360 GiB RAM (GiB), 2.75 TiB SSD (TiB), $6.99/GPU-hr on-demand. Console label per https://docs.lambda.ai/education/large-language-models/deploying-nemotron-3-nano/. CPU model and network not published. | verifier: Opened lambda.ai/pricing: 1x 'NVIDIA B200 SXM6: 180 GB, 26 vCPUs, 360 GiB RAM, 2.75 TiB SSD, $6.99/GPU/hr' confirmed; same on docs on-demand page. GiB/TiB as displayed. No correction needed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ]
    },
@@ -14560,7 +14387,7 @@
       "network": "unknown",
       "form_factor": "unknown",
       "source_url": "https://vm.massedcompute.com/api/mcp",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14577,7 +14404,7 @@
       "network": "unknown",
       "form_factor": "unknown",
       "source_url": "https://vm.massedcompute.com/api/mcp",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14594,7 +14421,7 @@
       "network": "unknown",
       "form_factor": "unknown",
       "source_url": "https://vm.massedcompute.com/api/mcp",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14611,7 +14438,7 @@
       "network": "unknown",
       "form_factor": "unknown",
       "source_url": "https://vm.massedcompute.com/api/mcp",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14630,12 +14457,12 @@
       "network": "unknown",
       "form_factor": "NVL",
       "source_url": "https://vm.massedcompute.com/api/mcp",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
       "notes": "vCPU and RAM from the provider API as recorded by the daily monitor; storage and network bandwidth not captured",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      },
      {
       "instance_type": "gpu_4x_h200_nvl",
@@ -14647,12 +14474,12 @@
       "network": "unknown",
       "form_factor": "NVL",
       "source_url": "https://vm.massedcompute.com/api/mcp",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
       "notes": "vCPU and RAM from the provider API as recorded by the daily monitor; storage and network bandwidth not captured",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      },
      {
       "instance_type": "gpu_2x_h200_nvl",
@@ -14664,7 +14491,7 @@
       "network": "unknown",
       "form_factor": "NVL",
       "source_url": "https://vm.massedcompute.com/api/mcp",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14680,7 +14507,7 @@
       "network": "unknown",
       "form_factor": "NVL",
       "source_url": "https://vm.massedcompute.com/api/mcp",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14698,7 +14525,7 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://vm.massedcompute.com/api/mcp",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14716,7 +14543,7 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://vm.massedcompute.com/api/mcp",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -14741,7 +14568,7 @@
       "verified": true,
       "notes": "Docs preset table: 8 GPUs, 128 vCPUs, 1600 GiB RAM (RAM is GiB in docs; nebius.com/prices labels it GB). GPU table row: H100 SXM 80 GB HBM3, 'InfiniBand interconnect 400 Gbps (8x ConnectX-7)', 'Network adapter ConnectX-6 100 Gbps', CPU Intel Xeon Platinum 8468. Per-node 3.2 Tbps is stated on https://docs.nebius.com/compute/clusters/gpu. Only this 8-GPU preset is cluster (InfiniBand) compatible. Local NVMe = 0: https://docs.nebius.com/compute/storage/local-disks states local SSD disks are available only on gpu-b300-sxm 8gpu preset. Region eu-north1. Price (nebius.com/prices, 2026-09-16): $3.85/GPU-hr on-demand, $2.15 preemptible; commitment discounts 'up to 35%' for multi-month cluster reservations, no figures published. | verifier: Opened docs types page: 8gpu-128vcpu-1600gb = 8 GPUs / 128 vCPUs / 1600 GiB confirmed; CPU Xeon Platinum 8468, IB '400 Gbps (8x ConnectX-7)', adapter 'ConnectX-6 100 Gbps' confirmed; 'Sapphire Rapids' confirmed via clusters/gpu fabric table ('H100 NVLink with Intel Sapphire Rapids'). clusters/gpu confirms 400 Gbps per GPU NIC and 'total bandwidth for a node is 3.2 Tbps'. local-disks page confirms local SSD only on B300 8-GPU preset, so 0 is a documented absence. Unit note: ram_gb=1600 is 1600 GiB (~1718 GB decimal). Caveat: the marketing page nebius.com/compute/h100 spec table prints 'Networking bandwidth: 0.4 Tb/s' (NVIDIA HGX datasheet row), which conflicts with the docs' 3.2 Tbps; docs treated as authoritative for Nebius's actual config.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "gpu-h100-sxm / 1gpu-16vcpu-200gb",
@@ -14758,8 +14585,8 @@
       "verified": true,
       "notes": "Docs preset table: 1 GPU, 16 vCPUs, 200 GiB RAM. This is the row shown on nebius.com/prices (16 vCPU / 200 GB) priced at $3.85/GPU-hr on-demand, $2.15 preemptible (2026-09-16). Docs: 'Other presets and platforms are not compatible with GPU clusters' - only the 8-GPU preset joins InfiniBand clusters. Local NVMe = 0 per https://docs.nebius.com/compute/storage/local-disks (local SSD only on B300 8-GPU preset). Region eu-north1. | verifier: Docs types page confirms 1gpu-16vcpu-200gb = 1 GPU / 16 vCPUs / 200 GiB, CPU 8468, adapter ConnectX-6 100 Gbps, and the statement that only the 8-GPU presets are GPU-cluster compatible. nebius.com/prices row 'NVIDIA HGX H100 | 16 | 200 GB | $2.15 | $3.85' confirmed. RAM unit: docs say GiB, prices page says GB (same number).",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "H200": [
@@ -14778,7 +14605,7 @@
       "verified": true,
       "notes": "Docs preset table: 8 GPUs, 128 vCPUs, 1600 GiB RAM. GPU table row: H200 SXM 141 GB HBM3e, 'InfiniBand interconnect 400 Gbps (8x ConnectX-7)', 'Network adapter BlueField-3 200 Gbps', CPU Intel Xeon Platinum 8468. Per-node 3.2 Tbps stated on https://docs.nebius.com/compute/clusters/gpu. nebius.com/compute/h200 adds 'NVIDIA Quantum-2 InfiniBand at 400 Gb/s per GPU'. Local NVMe = 0 per https://docs.nebius.com/compute/storage/local-disks. Regions eu-north1, eu-north2 (private), eu-west1, us-central1. Price (nebius.com/prices, 2026-09-16): $4.50/GPU-hr on-demand, $2.45 preemptible. | verifier: Docs types page confirms 8/128/1600 GiB, CPU 8468, IB 400 Gbps (8x ConnectX-7), adapter BlueField-3 200 Gbps, regions. clusters/gpu confirms 3.2 Tbps per node and 'H200 NVLink with Intel Sapphire Rapids'. nebius.com/compute/h200 confirms 'NVIDIA Quantum-2 InfiniBand at 400 Gb/s per GPU'. local-disks confirms no local SSD on this platform. Price row confirmed. Caveat: nebius.com/compute/h200 spec table prints 'Networking bandwidth: 0.4 Tb/s' (NVIDIA datasheet figure) - conflicts with docs 3.2 Tbps; docs used.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "gpu-h200-sxm / 1gpu-16vcpu-200gb",
@@ -14795,8 +14622,8 @@
       "verified": true,
       "notes": "Docs preset table: 1 GPU, 16 vCPUs, 200 GiB RAM; matches the nebius.com/prices row (16 vCPU / 200 GB) at $4.50/GPU-hr on-demand, $2.45 preemptible (2026-09-16). Only the 8-GPU preset is cluster compatible. Local NVMe = 0 per https://docs.nebius.com/compute/storage/local-disks. | verifier: Docs types page confirms 1/16/200 GiB, CPU 8468, BlueField-3 200 Gbps, cluster-incompatibility of non-8-GPU presets. Prices row 'HGX H200 | 16 | 200 GB | $2.45 | $4.50' confirmed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "B200": [
@@ -14815,7 +14642,7 @@
       "verified": true,
       "notes": "Docs preset table: 8 GPUs, 160 vCPUs, 1792 GiB RAM (same preset on both B200 platform IDs). GPU table row: B200 SXM 180 GB HBM3e, 'InfiniBand interconnect 400 Gbps (8x ConnectX-7)', 'Network adapter BlueField-3 400 Gbps', CPUs Xeon Platinum 8580 / 8570. Per-node 3.2 Tbps stated on https://docs.nebius.com/compute/clusters/gpu; nebius.com/compute/b200 adds 'Quantum-2 InfiniBand at 400 Gb/s per GPU'. Local NVMe = 0 per https://docs.nebius.com/compute/storage/local-disks. Price (nebius.com/prices, 2026-09-16): $7.15/GPU-hr on-demand, $3.95 preemptible, same for both platform IDs (docs.nebius.com/compute/resources/pricing). | verifier: Docs types page confirms 8/160/1792 GiB on both gpu-b200-sxm (Xeon Platinum 8580, us-central1) and gpu-b200-sxm-a (Xeon Platinum 8570, me-west1); IB 400 Gbps (8x ConnectX-7); adapter BlueField-3 400 Gbps. 'Emerald Rapids' confirmed in clusters/gpu fabric table ('B200 NVLink with Intel Emerald Rapids'). 3.2 Tbps per node: clusters/gpu states 400 Gbps per GPU and 3.2 Tbps per 8-GPU node as a general statement, not B200-specific, but consistent with the B200 IB row. nebius.com/compute/b200 confirms 'NVIDIA Quantum-2 InfiniBand at 400 Gb/s per GPU'. docs pricing page confirms $7.15/$3.95 for both IDs. Caveat: nebius.com/compute/b200 prints 'Networking bandwidth 0.8 Tb/s' (NVIDIA datasheet row) - conflicts with docs; docs used.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "gpu-b200-sxm / gpu-b200-sxm-a / 1gpu-20vcpu-224gb",
@@ -14832,8 +14659,8 @@
       "verified": true,
       "notes": "Docs preset table: 1 GPU, 20 vCPUs, 224 GiB RAM; matches the nebius.com/prices row (20 vCPU / 224 GB) at $7.15/GPU-hr on-demand, $3.95 preemptible (2026-09-16). Only the 8-GPU preset is cluster compatible. Local NVMe = 0 per https://docs.nebius.com/compute/storage/local-disks. | verifier: Docs types page confirms 1gpu-20vcpu-224gb = 1/20/224 GiB on both B200 platform IDs, CPUs 8580/8570, BlueField-3 400 Gbps. Prices row 'HGX B200 | 20 | 224 GB | $3.95 | $7.15' confirmed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "B300": [
@@ -14852,7 +14679,7 @@
       "verified": true,
       "notes": "Docs preset table: 8 GPUs, 192 vCPUs, 2768 GiB RAM. GPU table row: B300 SXM 288 GB HBM3e, 'InfiniBand interconnect 800 Gbps (8x ConnectX-8)', 'Network adapter BlueField-3 400 Gbps', CPU Intel Xeon 6776P. nebius.com/compute/b300: 'NVIDIA Quantum-X800 InfiniBand at 800 Gb/s per GPU', 'air-cooled 8-GPU server node'. Local storage: https://docs.nebius.com/compute/storage/local-disks - local SSD (NVMe) available only on this platform+preset, '6 x 3.84 TB' = 23.04 TB, ephemeral, enabled at VM creation, regions uk-south1 (public), eu-west2 and us-north1 (private). Regions uk-south1, eu-west2 (private), us-north1 (private). Price (nebius.com/prices, 2026-09-16): $7.85/GPU-hr on-demand, $4.30 preemptible. | verifier: Docs types page confirms 8/192/2768 GiB, CPU Intel Xeon 6776P, IB '800 Gbps (8x ConnectX-8)', adapter BlueField-3 400 Gbps, regions. 'Granite Rapids' confirmed in clusters/gpu fabric table and local-disks page ('B300 NVLink with Intel Granite Rapids'). local-disks confirms '6 x 3.84 TB' only on gpu-b300-sxm 8gpu-192vcpu-2768gb, so 23.04 TB is correct arithmetic on printed figures. nebius.com/compute/b300 confirms 'Quantum-X800 InfiniBand at 800 Gb/s per GPU' and 'Air-cooled 8-GPU server node'. CORRECTION: the researcher's '6.4 Tb/s per node' is printed nowhere; the docs clusters/gpu per-node statement is the generic '400 Gbps ... 3.2 Tbps' text and the b300 marketing spec table prints 'Networking bandwidth: 1.6 Tb/s' - network field rewritten to label 6.4 as derived and record the conflicting printed figure. Also note the marketing page says 'Total memory: 2.1 TB HBM3e' (~270 GB/GPU) vs docs 288 GB HBM3e per GPU; not a verified field here. Confidence kept medium because of these marketing/docs inconsistencies.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "gpu-b300-sxm / 1gpu-24vcpu-346gb",
@@ -14869,8 +14696,8 @@
       "verified": true,
       "notes": "Docs preset table: 1 GPU, 24 vCPUs, 346 GiB RAM; matches the nebius.com/prices row (24 vCPU / 346 GB) at $7.85/GPU-hr on-demand, $4.30 preemptible (2026-09-16). Local NVMe = 0: local-disks doc restricts local SSD to the 8gpu-192vcpu-2768gb preset. Only the 8-GPU preset is cluster compatible. | verifier: Docs types page confirms 1gpu-24vcpu-346gb = 1/24/346 GiB, CPU 6776P, BlueField-3 400 Gbps; local-disks page explicitly restricts local SSD to the eight-GPU preset, so 0 is documented. Prices row 'HGX B300 | 24 | 346 GB | $4.30 | $7.85' confirmed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "GB200": [
@@ -14927,7 +14754,7 @@
       "verified": true,
       "notes": "Table row verbatim: OCPU 112 | GPU memory 640 GB | CPU memory 2048 GB | Local disk '16 x 3.84 TB NVMe' | Max network bandwidth '1 x 100 Gbps 8 x 2 x 200 Gbps RDMA' | Max VNICs 256 | Windows not supported. Series text: 'X10-based GPU compute. GPU: 8x H100 80 GB CPU: Intel Sapphire Rapids 8480+ 2x 56c. Base frequency 2 GHz, max boost frequency 3.8 GHz.' vCPU = 2 x OCPU = 224; the same page states 'one OCPU is the equal of two vCPUs for x86-based compute'. Local disk 16 x 3.84 = 61.44 TB (twice the NVMe of the H200/B200 shapes); oracle.com/cloud/compute/gpu states '61.4 TB with H100 GPUs' and the OCI H100 quick-start gives '16 x 3.5 TB NVMe (~54 TB usable)' (3.5 TiB = 3.84 TB, so the same drives; ~54 TB is usable after formatting). RDMA protocol: OCI H100 quick-start (docs.oracle.com/en-us/iaas/Content/Compute/gpu-quick-start/nvidia/H100/README-H100.htm) column 'RDMA (ROCe) NICs: 8 x 2 x 200 Gb/s = 3.2 Tb/s' and 'RoCE-capable scale-out networking'. GPU form factor (SXM/HGX) not stated on either page. | verifier: Raw HTML of the shapes page confirms OCPU 112, 640, 2048, '16 x 3.84 TB NVMe', '1 x 100 Gbps 8 x 2 x 200 Gbps RDMA', and the series text incl. 2 GHz base / 3.8 GHz boost. vCPU 224 is derived via the page's own stated rule (1 OCPU on x86 = 2 vCPUs). Added RoCE to network string from the official OCI H100 quick-start page, which also confirms 112 cores, 2 TB DDR5, 100 Gb/s host NIC. Unit note: quick-start's '3.5 TB' per drive is TiB (= 3.84 TB decimal); 61.44 TB is raw capacity, ~54 TB usable.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "H200": [
@@ -14946,7 +14773,7 @@
       "verified": true,
       "notes": "Table row verbatim: OCPU 112 | GPU memory 1128 GB | CPU memory 3072 GB | Local disk '8 x 3.84 TB NVMe' | Max network bandwidth '1 x 200 Gbps 8 x 400 Gbps RDMA' | Max VNICs 256 | Windows not supported. Series text: 'GPU: 8x NVIDIA H200 Tensor Core GPUs 141 GB CPU: 2 x 56-core Intel Sapphire Rapids 8480+'. vCPU = 2 x 112 OCPU = 224 (page defines OCPU = 2 vCPU for x86). Local disk 8 x 3.84 = 30.72 TB. OCI H200 quick-start (docs.oracle.com/.../gpu-quick-start/nvidia/H200/README-H200.htm) confirms 8 x 141 GB, 2 x Xeon 8480+ 112 cores, 3 TB DDR5, '8 x 3.5 TB NVMe = 28 TB' (TiB drives), 'RDMA (ROCe) NICs 8 x 1 x 400 Gb/s = 3.2 Tb/s' but lists the host NIC as 100 Gb/s where the shapes page says 1 x 200 Gbps; shapes page figure kept. Form factor not stated. | verifier: Raw HTML of the shapes page confirms OCPU 112, 1128, 3072, '8 x 3.84 TB NVMe', '1 x 200 Gbps 8 x 400 Gbps RDMA' and series text. vCPU 224 derived via the page's x86 rule. Added RoCE from the official H200 quick-start. Discrepancy flagged: quick-start says host NIC 100 Gb/s vs shapes page 1 x 200 Gbps; shapes page is the reference the quick-start itself points to.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "B200": [
@@ -14965,7 +14792,7 @@
       "verified": true,
       "notes": "Table row verbatim: OCPU 128 | GPU memory 1440 GB | CPU memory 4096 GB | Local disk '8 x 3.84 TB NVMe' | Max network bandwidth '2 x 200 Gbps 8 x 400 Gbps RDMA' | Max VNICs 256 | Windows not supported. Series text: 'GPU: 8x NVIDIA B200 Tensor Core GPUs 180 GB CPU: 2 x 64-core Intel Emerald Rapids 8592+'. vCPU = 2 x 128 OCPU = 256 (page defines OCPU = 2 vCPU for x86); the OCI B300 quick-start states the same 2 x 8592+ CPUs as '128 Cores (256 with HT)'. Local disk 8 x 3.84 = 30.72 TB. Caution: the OCI B200 quick-start (docs.oracle.com/.../gpu-quick-start/nvidia/B200/README-B200.htm) table says 'vCPU 128' and 'System Memory 2048 GB' and 'GPU Memory 192 GB' for this shape; those are inconsistent with the shapes page (128 is the OCPU/core count, 4096 GB, 180 GB per GPU) and the quick-start defers to the shapes page, so shapes-page figures are kept. Form factor not stated. | verifier: Raw HTML of the shapes page confirms OCPU 128, 1440, 4096, '8 x 3.84 TB NVMe', '2 x 200 Gbps 8 x 400 Gbps RDMA' and series text. vCPU 256 via the page's x86 rule, corroborated by '128 Cores (256 with HT)' on the official B300 quick-start for the identical CPU pair. Flagged the official B200 quick-start's conflicting 'vCPU 128 / 2048 GB' as a cores-vs-threads and memory slip on that secondary page.",
       "source": "provider documentation",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "B300": [
@@ -15061,9 +14888,9 @@
      {
       "instance_type": "Instant Clusters H100 node (8 GPUs/node, 2-8 nodes on-demand) - added by verifier",
       "node_gpus": 8,
-      "vcpu": null,
+      "vcpu": 224,
       "cpu_model": null,
-      "ram_gb": null,
+      "ram_gb": 2008.0,
       "local_storage_tb": null,
       "network": "3200 Gbps per node inter-node ('network speed', InfiniBand or RoCE v2 per product page)",
       "form_factor": null,
@@ -15072,23 +14899,105 @@
       "confidence": "medium",
       "verified": true,
       "notes": "Docs table: 'H100 | 3200 Gbps | 2-8 nodes (16-64 GPUs)' => 8 GPUs per node; larger clusters up to 512 GPUs via sales. Product page https://www.runpod.io/product/instant-clusters: '1,600-3,200 Gbps east-west bandwidth via InfiniBand or RoCE v2', billed by the second, no minimum commitment; per-GPU price not shown on either page. vCPU, RAM, storage, CPU model not published. Network figure is per node (8 GPUs), i.e. 400 Gbps per GPU - do not read it as per-GPU. | verifier: Added: researcher listed no multi-GPU Runpod SKU. node_gpus (8) is derived from '2-8 nodes (16-64 GPUs)'; 3200 Gbps read verbatim from the docs table 2026-09-16. Fabric type (IB vs RoCE) not pinned per GPU type.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "filled_from": "vcpu, ram_gb from dstack gpuhunt catalog 20260919-19643",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "NVIDIA H100 80GB HBM3",
+      "node_gpus": 7,
+      "vcpu": 196,
+      "cpu_model": null,
+      "ram_gb": 1757.0,
+      "local_storage_tb": null,
+      "network": null,
+      "form_factor": null,
+      "source_url": "https://github.com/dstackai/gpuhunt",
+      "as_of": "2026-09-19",
+      "confidence": "catalog",
+      "verified": true,
+      "source": "dstack gpuhunt catalog 20260919-19643",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (CA-MTL-1); network not carried"
+     },
+     {
+      "instance_type": "NVIDIA H100 80GB HBM3",
+      "node_gpus": 6,
+      "vcpu": 168,
+      "cpu_model": null,
+      "ram_gb": 1506.0,
+      "local_storage_tb": null,
+      "network": null,
+      "form_factor": null,
+      "source_url": "https://github.com/dstackai/gpuhunt",
+      "as_of": "2026-09-19",
+      "confidence": "catalog",
+      "verified": true,
+      "source": "dstack gpuhunt catalog 20260919-19643",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (AP-IN-1); network not carried"
+     },
+     {
+      "instance_type": "NVIDIA H100 80GB HBM3",
+      "node_gpus": 5,
+      "vcpu": 140,
+      "cpu_model": null,
+      "ram_gb": 1255.0,
+      "local_storage_tb": null,
+      "network": null,
+      "form_factor": null,
+      "source_url": "https://github.com/dstackai/gpuhunt",
+      "as_of": "2026-09-19",
+      "confidence": "catalog",
+      "verified": true,
+      "source": "dstack gpuhunt catalog 20260919-19643",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (AP-IN-1); network not carried"
+     },
+     {
+      "instance_type": "NVIDIA H100 80GB HBM3",
+      "node_gpus": 4,
+      "vcpu": 112,
+      "cpu_model": null,
+      "ram_gb": 1004.0,
+      "local_storage_tb": null,
+      "network": null,
+      "form_factor": null,
+      "source_url": "https://github.com/dstackai/gpuhunt",
+      "as_of": "2026-09-19",
+      "confidence": "catalog",
+      "verified": true,
+      "source": "dstack gpuhunt catalog 20260919-19643",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (AP-IN-1); network not carried"
+     },
+     {
+      "instance_type": "NVIDIA H100 80GB HBM3",
+      "node_gpus": 3,
+      "vcpu": 84,
+      "cpu_model": null,
+      "ram_gb": 753.0,
+      "local_storage_tb": null,
+      "network": null,
+      "form_factor": null,
+      "source_url": "https://github.com/dstackai/gpuhunt",
+      "as_of": "2026-09-19",
+      "confidence": "catalog",
+      "verified": true,
+      "source": "dstack gpuhunt catalog 20260919-19643",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (AP-IN-1); network not carried"
+     },
+     {
+      "instance_type": "NVIDIA H100 PCIe",
       "node_gpus": 2,
-      "vcpu": 56,
+      "vcpu": 32,
       "cpu_model": null,
       "ram_gb": 502.0,
       "local_storage_tb": null,
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260918-19629",
-      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (AP-IN-1); network not carried"
+      "source": "dstack gpuhunt catalog 20260919-19643",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (US-KS-2); network not carried"
      },
      {
       "instance_type": "H100 SXM 1-GPU pod (Secure Cloud)",
@@ -15105,7 +15014,7 @@
       "verified": true,
       "notes": "Pricing card: 'H100 SXM - 80 GB VRAM, 125 GB RAM, 20 vCPUs, $3.49/hr' (Secure Cloud). Community Cloud $2.69/hr per https://www.runpod.io/gpu-models/h100-sxm (confirmed). Docs GPU-types table lists GPU ID 'NVIDIA H100 80GB HBM3' with display name 'H100 SXM'. Per-GPU pod figures (RAM/vCPU are the per-GPU allocation; a multi-GPU pod scales these). CPU model, container/volume disk and network bandwidth not published on pricing page, gpu-models page or docs. Storage billed separately: network storage from $0.05/GB-month, container disk $0.10/GB-month. For multi-node H100 with InfiniBand see the separate Instant Clusters entry. | verifier: Opened pricing page 2026-09-16: 125 GB RAM, 20 vCPUs, $3.49/hr confirmed. gpu-models page confirmed $2.69 Community. Docs gpu-types confirmed SXM display name. Nothing to correct.",
       "source": "provider documentation",
-      "catalog_check": "mismatch: vcpu doc 20 vs 28; ram_gb doc 125 vs 251.0"
+      "catalog_check": "mismatch: vcpu doc 20 vs 16; ram_gb doc 125 vs 251.0"
      },
      {
       "instance_type": "H100 PCIe 1-GPU pod (Secure Cloud) - added by verifier",
@@ -15144,9 +15053,9 @@
      {
       "instance_type": "Instant Clusters H200 node (8 GPUs/node, 2-8 nodes on-demand) - added by verifier",
       "node_gpus": 8,
-      "vcpu": null,
+      "vcpu": 256,
       "cpu_model": null,
-      "ram_gb": null,
+      "ram_gb": 1504.0,
       "local_storage_tb": null,
       "network": "3200 Gbps per node inter-node ('network speed', InfiniBand or RoCE v2 per product page)",
       "form_factor": null,
@@ -15155,71 +15064,89 @@
       "confidence": "medium",
       "verified": true,
       "notes": "Docs table: 'H200 | 3200 Gbps | 2-8 nodes (16-64 GPUs)' => 8 GPUs per node. Other details as for the H100 Instant Clusters entry. Per-node bandwidth, not per-GPU. | verifier: Added; figures read from docs table 2026-09-16; node_gpus derived from the nodes/GPUs column.",
-      "source": "provider documentation"
+      "source": "provider documentation",
+      "filled_from": "vcpu, ram_gb from dstack gpuhunt catalog 20260919-19643",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
+     },
+     {
+      "instance_type": "NVIDIA H200",
+      "node_gpus": 6,
+      "vcpu": 72,
+      "cpu_model": null,
+      "ram_gb": 1506.0,
+      "local_storage_tb": null,
+      "network": null,
+      "form_factor": null,
+      "source_url": "https://github.com/dstackai/gpuhunt",
+      "as_of": "2026-09-19",
+      "confidence": "catalog",
+      "verified": true,
+      "source": "dstack gpuhunt catalog 20260919-19643",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (EUR-IS-4); network not carried"
      },
      {
       "instance_type": "NVIDIA H200",
       "node_gpus": 5,
-      "vcpu": 60,
+      "vcpu": 80,
       "cpu_model": null,
       "ram_gb": 1255.0,
       "local_storage_tb": null,
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260918-19629",
-      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (EUR-IS-4); network not carried"
+      "source": "dstack gpuhunt catalog 20260919-19643",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (HR); network not carried"
      },
      {
       "instance_type": "NVIDIA H200",
       "node_gpus": 4,
-      "vcpu": 48,
+      "vcpu": 64,
       "cpu_model": null,
       "ram_gb": 1004.0,
       "local_storage_tb": null,
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260918-19629",
-      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (EUR-IS-4); network not carried"
+      "source": "dstack gpuhunt catalog 20260919-19643",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (HR); network not carried"
      },
      {
       "instance_type": "NVIDIA H200",
       "node_gpus": 3,
-      "vcpu": 36,
+      "vcpu": 48,
       "cpu_model": null,
       "ram_gb": 753.0,
       "local_storage_tb": null,
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260918-19629",
-      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (EUR-IS-4); network not carried"
+      "source": "dstack gpuhunt catalog 20260919-19643",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (HR); network not carried"
      },
      {
       "instance_type": "NVIDIA H200",
       "node_gpus": 2,
-      "vcpu": 24,
+      "vcpu": 32,
       "cpu_model": null,
       "ram_gb": 502.0,
       "local_storage_tb": null,
       "network": null,
       "form_factor": null,
       "source_url": "https://github.com/dstackai/gpuhunt",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "catalog",
       "verified": true,
-      "source": "dstack gpuhunt catalog 20260918-19629",
-      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (EUR-IS-4); network not carried"
+      "source": "dstack gpuhunt catalog 20260919-19643",
+      "notes": "CPU threads, memory GB and disk from the dstack gpuhunt catalog (HR); network not carried"
      },
      {
       "instance_type": "H200 SXM 1-GPU pod (Secure Cloud)",
@@ -15270,8 +15197,7 @@
       "confidence": "high",
       "verified": true,
       "notes": "Pricing card: 'B200 - 180 GB VRAM, 283 GB RAM, 28 vCPUs, $6.79/hr' (Secure Cloud). Community Cloud $5.98/hr per https://www.runpod.io/gpu-models/b200 (confirmed). Form factor not stated on any Runpod page (docs GPU ID 'NVIDIA B200'), left null. CPU model, disk, network not published. | verifier: Opened pricing page 2026-09-16: 283 GB, 28 vCPUs, $6.79/hr confirmed. gpu-models page $5.98 Community confirmed. Nothing to correct.",
-      "source": "provider documentation",
-      "catalog_check": "mismatch: vcpu doc 28 vs 24; ram_gb doc 283 vs 251.0"
+      "source": "provider documentation"
      }
     ],
     "B300": [
@@ -15696,8 +15622,8 @@
       "verified": true,
       "notes": "Public catalog endpoint (no auth). Row: gpu '8x H100 SXM5 80GB', cpu '176 CPU' (number_of_cores 176; verda.com/h100 calls the per-1x figure '30 CPU threads', so treated as threads/vCPU), memory '1360GB RAM', gpu_memory 640 GB, p2p '900 GB/s' (NVLink), price_per_hour $26.26 (= $3.28/GPU-h), spot $13.13. storage 'dynamic' = no bundled local NVMe; block NVMe attached separately at $0.20/GiB-month (verda.com/pricing). CPU model not in the live catalog for GPU SKUs. Node network bandwidth not published; InfiniBand offered only for Instant Clusters (16x-64x H100). | verifier: Fetched the JSON catalog (60 instance types). Row 8H100.80S.176V: '8x H100 SXM5 80GB', cpu number_of_cores 176, memory 1360 GB, storage 'dynamic', gpu_memory 640 GB, p2p '900 GB/s', price 26.26, spot 13.13. All non-null figures confirmed. Unit caution: the API field is named number_of_cores while verda.com/h100 says 'CPU threads'; treated as vCPU/threads.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "4H100.80S.176V",
@@ -15709,12 +15635,12 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://api.verda.com/v1/instance-types",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
       "notes": "vCPU and RAM from the provider API as recorded by the daily monitor; storage and network bandwidth not captured",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "2H100.80S.80V",
@@ -15726,12 +15652,12 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://api.verda.com/v1/instance-types",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
       "notes": "vCPU and RAM from the provider API as recorded by the daily monitor; storage and network bandwidth not captured",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "1H100.80S.30V",
@@ -15749,7 +15675,7 @@
       "notes": "Pricing page row '1x H100 SXM5 80GB: 30 CPUs, 120 GB RAM, 80 GB VRAM, $3.28/h' (catalog $3.282, spot $1.641). A second 1x variant 1H100.80S.32V (32 CPU, 170 GB RAM) is in the catalog at the same price. verda.com/h100 words the CPU figure as '30 CPU threads'. Storage is attached block NVMe ($0.20/GiB-month), not bundled; CPU model and network not published. | verifier: verda.com/pricing row '1x H100 SXM5 80GB | 30 | 120 GB | 80 GB | $3.28/h | $1.64/h' confirmed; catalog 1H100.80S.30V (30 cores, 120 GB, 3.282/1.641) and 1H100.80S.32V (32 cores, 170 GB, same price) confirmed; verda.com/h100 '30 CPU threads' confirmed. All non-null figures confirmed.",
       "source": "provider documentation",
       "api_check": "mismatch: vcpu doc 30 vs 32; ram_gb doc 120 vs 170.0",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "H200": [
@@ -15768,8 +15694,8 @@
       "verified": true,
       "notes": "Catalog row: gpu '8x H200 SXM5 141GB', cpu '176 CPU' (threads; per-1x figure is '44 CPU threads' on verda.com/h200), memory '1360GB RAM', gpu_memory 1128 GB, p2p '900 GB/s' NVLink, price_per_hour $34.27 (= $4.28/GPU-h), spot $17.14. storage 'dynamic' (block NVMe separate). CPU model and node network not published; InfiniBand only for Instant Clusters (16x-64x, $4.28/GPU-h). | verifier: Catalog row 8H200.141S.176V: '8x H200 SXM5 141GB', cores 176, memory 1360 GB, storage dynamic, gpu_memory 1128 GB, p2p '900 GB/s', price 34.27, spot 17.14. verda.com/h200 confirms '44 CPU threads', '170 GB', '141 GB', 16x-64x clusters. All non-null figures confirmed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "4H200.141S.176V",
@@ -15781,12 +15707,12 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://api.verda.com/v1/instance-types",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
       "notes": "vCPU and RAM from the provider API as recorded by the daily monitor; storage and network bandwidth not captured",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "2H200.141S.88V",
@@ -15798,12 +15724,12 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://api.verda.com/v1/instance-types",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
       "notes": "vCPU and RAM from the provider API as recorded by the daily monitor; storage and network bandwidth not captured",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "1H200.141S.44V",
@@ -15820,8 +15746,8 @@
       "verified": true,
       "notes": "Pricing page row '1x H200 SXM5 141GB: 44 CPUs, 170 GB RAM, 141 GB VRAM, $4.28/h' (catalog $4.284, spot $2.142). Storage attached separately; CPU model and network not published. | verifier: verda.com/pricing row '1x H200 SXM5 141GB | 44 | 170 GB | 141 GB | $4.28/h | $2.14/h' confirmed; catalog 1H200.141S.44V 44 cores / 170 GB / 4.284 / 2.142 confirmed; verda.com/h200 '44 CPU threads', '170 GB' confirmed. All non-null figures confirmed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "B200": [
@@ -15840,8 +15766,8 @@
       "verified": true,
       "notes": "Catalog row: gpu '8x B200 SXM6 180GB', cpu '240 CPU' (threads; per-1x '30 CPU threads' on verda.com/b200), memory '1360GB RAM', gpu_memory 1440 GB, p2p '1.8 TB/s' NVLink, price_per_hour $50.86 (= $6.36/GPU-h), spot $25.43. storage 'dynamic' (block NVMe separate). CPU model and node network not published; InfiniBand only for Instant Clusters (16x-128x, $6.36/GPU-h). Confidential-computing variant 8B200.240V.CC (same CPU/RAM) is $49.86/h. | verifier: Catalog row 8B200.240V: '8x B200 SXM6 180GB', cores 240, memory 1360 GB, storage dynamic, gpu_memory 1440 GB, p2p '1.8 TB/s', price 50.86, spot 25.43; 8B200.240V.CC price 49.86 also present. verda.com/b200 confirms '30 CPU threads', 16x-128x clusters. All non-null figures confirmed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "4B200.120V",
@@ -15853,13 +15779,13 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://api.verda.com/v1/instance-types",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
       "notes": "vCPU and RAM from the provider API as recorded by the daily monitor; storage and network bandwidth not captured",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "2B200.60V",
@@ -15871,13 +15797,13 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://api.verda.com/v1/instance-types",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
       "notes": "vCPU and RAM from the provider API as recorded by the daily monitor; storage and network bandwidth not captured",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "1B200.30V",
@@ -15894,8 +15820,8 @@
       "verified": true,
       "notes": "Pricing page row '1x B200 SXM6 180GB: 30 CPUs, 170 GB RAM, 180 GB VRAM, $6.36/h' (catalog $6.357, spot $3.179). Storage attached separately; CPU model and network not published. | verifier: verda.com/pricing row '1x B200 SXM6 180GB | 30 | 170 GB | 180 GB | $6.36/h | $3.18/h' confirmed; catalog 1B200.30V 30 cores / 170 GB / 6.357 / 3.179 confirmed; verda.com/b200 '30 CPU threads', '170 GB RAM' confirmed. All non-null figures confirmed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "B300": [
@@ -15914,8 +15840,8 @@
       "verified": true,
       "notes": "Catalog row: gpu '8x B300 SXM6 268GB' (Verda exposes 268 GB usable per GPU), cpu '240 CPU' (threads; per-1x '30 CPU threads' on verda.com/b300), memory '2040GB RAM', gpu_memory 2144 GB, p2p '1.8 TB/s' NVLink, price_per_hour $61.82 (= $7.73/GPU-h), spot $30.91. storage 'dynamic' (block NVMe separate). CPU model and node network not published; InfiniBand only for Instant Clusters (16x-144x, $7.72/GPU-h). CC variant 8B300.240V.CC is $61.20/h. | verifier: Catalog row 8B300.240V: '8x B300 SXM6 268GB', cores 240, memory 2040 GB, storage dynamic, gpu_memory 2144 GB, p2p '1.8 TB/s', price 61.82, spot 30.91; 8B300.240V.CC 61.20. verda.com/b300 confirms '30 CPU threads', '255 GB', '268 GB', 16x-144x at $7.72/h. All non-null figures confirmed. Note the Sesterce AZ_29 8x B300 VM offer (240 vCPU / 2040 GB, Helsinki, $67.80/h) is the same shape resold.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "4B300.120V",
@@ -15927,13 +15853,13 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://api.verda.com/v1/instance-types",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
       "notes": "vCPU and RAM from the provider API as recorded by the daily monitor; storage and network bandwidth not captured",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "2B300.60V",
@@ -15945,12 +15871,12 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://api.verda.com/v1/instance-types",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
       "notes": "vCPU and RAM from the provider API as recorded by the daily monitor; storage and network bandwidth not captured",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      },
      {
       "instance_type": "1B300.30V",
@@ -15967,8 +15893,8 @@
       "verified": true,
       "notes": "Pricing page row '1x B300 SXM6 268GB: 30 CPUs, 255 GB RAM, 268 GB VRAM, $7.73/h' (catalog $7.728, spot $3.864). Storage attached separately; CPU model and network not published. | verifier: verda.com/pricing row '1x B300 SXM6 268GB | 30 | 255 GB | 268 GB | $7.73/h | $3.86/h' confirmed; catalog 1B300.30V 30 cores / 255 GB / 7.728 / 3.864 confirmed; verda.com/b300 '30 CPU threads', '255 GB', '268 GB' confirmed. All non-null figures confirmed.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18",
-      "catalog_check": "matches dstack gpuhunt catalog 20260918-19629"
+      "api_check": "matches provider snapshot 2026-09-19",
+      "catalog_check": "matches dstack gpuhunt catalog 20260919-19643"
      }
     ],
     "GB300": [
@@ -15987,7 +15913,7 @@
       "verified": true,
       "notes": "Largest on-demand GB300 SKU; no 8-GPU GB300 instance exists (1x/2x/4x only; 18-tray NVL72 racks via sales). Catalog row (api.verda.com/v1/instance-types): gpu '4x GB300 SXM6 288GB', cpu '128 CPU', memory '900GB RAM', gpu_memory 1152 GB, p2p '1.8 TB/s', price_per_hour $35.55 (= $8.89/GPU-h), spot $17.77. verda.com/gb300: 'Each tray contains 4x GB300 GPUs and 2x Grace CPUs', '1152 GB GPU VRAM', '900 GB GPU RAM', '128 2x Grace CPU cores', '1800 Gbit NVLink v5 bandwidth', 'Each GPU is equipped with 288GB of HBM3e memory'; Grace has no SMT so 128 cores = 128 threads. storage 'dynamic' (block NVMe separate). NVL72 rack = 18 trays on NVLink v5; '2+ NVL72 racks' connected via InfiniBand; per-tray external bandwidth not published. | verifier: Catalog row 4GB300.128V confirms 4 GPUs, 128 cores, 900 GB, price 35.55 / spot 17.77. The cpu_model 'NVIDIA Grace' is not in the API payload, so source_url switched to verda.com/gb300, which carries every non-null figure: '4x GB300 GPUs and 2x Grace CPUs' per tray, '128 2x Grace CPU cores', '900 GB GPU RAM'. Note Verda labels the 900 GB as 'GPU RAM' on that page although it is the tray's LPDDR5X system memory.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      },
      {
       "instance_type": "2GB300.64V",
@@ -15999,7 +15925,7 @@
       "network": "unknown",
       "form_factor": "SXM",
       "source_url": "https://api.verda.com/v1/instance-types",
-      "as_of": "2026-09-18",
+      "as_of": "2026-09-19",
       "confidence": "snapshot",
       "verified": true,
       "source": "provider API snapshot",
@@ -16020,7 +15946,7 @@
       "verified": true,
       "notes": "Pricing page row '1x GB300 SXM6 288GB: 32 CPUs, 225 GB RAM, 288 GB VRAM, $8.89/h' (catalog $8.887, spot $4.444). One quarter of a 4-GPU/2-Grace tray (verda.com/gb300: 'Each tray contains 4x GB300 GPUs and 2x Grace CPUs', '128 2x Grace CPU cores', '900 GB'). Catalog also lists 2GB300.64V (64 CPU, 450 GB, $17.77/h). Storage attached separately; per-slice network not published. | verifier: verda.com/pricing row '1x GB300 SXM6 288GB | 32 | 225 GB | 288 GB | $8.89/h | $4.44/h' confirmed; catalog 1GB300.32V 32 cores / 225 GB / 8.887 / 4.444 confirmed. The Grace cpu_model is not stated on the pricing page; it is confirmed on verda.com/gb300 ('2x Grace CPUs' per 4-GPU tray, 128 cores, so 32 per GPU slice) and is inherent to the GB300 superchip. All numeric figures confirmed on the source page.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      }
     ]
    },
@@ -16041,7 +15967,7 @@
       "verified": true,
       "notes": "Source is Vultr's public unauthenticated plans API (GET /v2/plans-metal), read 2026-09-16: physical_cpus 2, cpu_model 'EPYC 9575F', cpu_cores 128, cpu_threads 256 (vCPU = threads, no conversion needed), ram 3145728 MB = 3072 GiB (3 TiB), disk 3576 GB x disk_count 8 = 28,608 GB NVMe (type 'NVMe'), gpu_count 8, gpu_vram_gb 1536 (192 GB per GPU), bandwidth 15360 GB. Prices in the API: hourly_cost $68.00/node ($8.50/GPU-hr), monthly_cost $45,696; hourly_cost_preemptible $25.60 ($3.20/GPU-hr); deploy_ondemand false (reserve via sales). Product page https://www.vultr.com/products/cloud-gpu/nvidia-b200/ (read via server-side fetch) prints 'Starting at $3.500 / hour' and 'NVIDIA HGX B200' and says Vultr Clusters are 'connected by ... NVIDIA InfiniBand networking' but prints no per-node NIC/fabric figure; the bare-metal page states 'Starting from' pricing is per GPU per hour for pre-paid contract terms. Search-engine snippets of vultr.com/pricing show '2 x 1.92 TB NVMe, 8 x 3.84 TB NVMe ... 8 x 400 Gbps GPU Network and 200 Gbps Network' but that rendered table could not be loaded (HTTP 403 to WebFetch/curl, JS tabs stripped by server-side fetch), so those figures are NOT used here; the API disk list (8 x 3.58 TB) likely omits the 2 boot drives. No B200 VM/fractional SKU exists (GET /v2/plans?type=vcg lists no H100/B200 plans). confidence medium because fabric/form-factor come from a second Vultr page and per-node fabric bandwidth is unpublished on readable pages. | verifier: Re-opened api.vultr.com/v2/plans-metal 2026-09-16: id vbm-256c-3072gb-8-b200-gpu, physical_cpus 2, cpu_cores 128, cpu_threads 256, cpu_model 'EPYC 9575F' (AMD), ram 3145728, disk 3576 x disk_count 8, bandwidth 15360, gpu_count 8, gpu_vram_gb 1536, gpu_type NVIDIA_B200, hourly_cost 68, monthly_cost 45696, hourly_cost_preemptible 25.6, deploy_ondemand false - every non-null figure confirmed (ram 3145728 MB / 1024 = 3072 GiB; 8 x 3576 GB = 28.6 TB). Product page nvidia-b200 (server-side fetch) confirms 'NVIDIA HGX B200', 'Starting at $3.500 / hour' and 'connected by high performance, low-latency NVIDIA Infiniband networking'. Corrected cpu_model wording: the '3.3 GHz' clock is not in the API or on any readable Vultr page (search snippet only), so flagged as unverified. vultr.com/pricing and /products/bare-metal still return 403 to WebFetch and only nav/headings to the server-side fetch, so '8 x 400 Gbps GPU Network + 200 Gbps' and the 2 x 1.92 TB boot drives remain unconfirmed. Caution: two different search snippets of vultr.com/pricing show '$2.990/GPU/hour' and '$3.500/GPU/hour' for this node, so neither snippet price should be used; the product page's $3.500 is the verified 'starting at' figure. Unit check: API 'ram' is in MB (binary); 3072 GiB = 3.30 TB decimal.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      }
     ],
     "H100": [
@@ -16060,7 +15986,7 @@
       "verified": true,
       "notes": "Source is Vultr's public unauthenticated plans API (GET /v2/plans-metal), read 2026-09-16: physical_cpus 2, cpu_manufacturer Intel, cpu_model 'Platinum 8480+', cpu_cores 112, cpu_threads 224 (vCPU = threads, no conversion needed), ram 2063722 MB = 2015.4 GiB (plan name says 2048gb; API value reported), disk 960 GB x disk_count 2 = 1,920 GB NVMe (type 'NVMe'), gpu_count 8, gpu_vram_gb 640 (80 GB per GPU), bandwidth 15360 GB. Prices in the API: hourly_cost $23.92/node ($2.99/GPU-hr), monthly_cost $16,074.24; hourly_cost_preemptible $18.40 ($2.30/GPU-hr) which matches 'Starting at $2.300 / hour' (per GPU, pre-paid contract) on https://www.vultr.com/products/cloud-gpu/nvidia-h100/; deploy_ondemand false. The 3200 Gb/s InfiniBand and 'H100 SXM' statements are on that product page (read via server-side fetch), not in the API. A search-engine snippet of vultr.com/pricing shows '8 x 400 Gbps GPU Network, 25 Gbps Network' for this node but the rendered table could not be loaded (403), so the per-NIC breakdown is not used. No H100 VM/fractional SKU exists (GET /v2/plans?type=vcg lists no H100 plans). No H200 plan exists in the plans-metal API either. confidence medium because fabric/form-factor come from a second Vultr page. | verifier: Re-opened api.vultr.com/v2/plans-metal 2026-09-16: id vbm-112c-2048gb-8-h100-gpu, physical_cpus 2, cpu_cores 112, cpu_threads 224, cpu_model 'Platinum 8480+' (Intel), ram 2063722, disk 960 x disk_count 2, bandwidth 15360, gpu_count 8, gpu_vram_gb 640, gpu_type NVIDIA_H100, hourly_cost 23.92, monthly_cost 16074.24, hourly_cost_preemptible 18.4, deploy_ondemand false - all confirmed (2063722 MB / 1024 = 2015.35 GiB, so 2015 is right and the '2048gb' in the plan name is a marketing round-up; 2 x 960 GB = 1.92 TB). Product page nvidia-h100 (server-side fetch, also mirrored at /products/cloud-gpu/h100/) confirms verbatim 'Connected by NVIDIA Quantum-2 3200Gb/s InfiniBand Networking with Non-Blocking InfiniBand Network Design', 'NVIDIA H100 SXM with FP8 Support available' and 'Starting at $2.300 / hour'. Corrected cpu_model wording: '2.0 GHz' is not on any readable Vultr page. Vultr H100 datasheet PDF (marketing-sales-files/datasheet-GPU-H100.pdf) extracted locally: GPU-level specs and 'NDR NVIDIA InfiniBand' only, no node NIC/drive detail. The 3200 Gb/s is a per-node aggregate claim on a marketing page (consistent with 8 x 400 Gb/s NDR), not a per-GPU figure.",
       "source": "provider documentation",
-      "api_check": "matches provider snapshot 2026-09-18"
+      "api_check": "matches provider snapshot 2026-09-19"
      }
     ]
    }

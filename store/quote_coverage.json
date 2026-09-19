@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "as_of": "2026-09-18T15:54:39.140339+00:00",
+  "as_of": "2026-09-19T06:04:37.257831+00:00",
   "providers": [
     {
       "provider": "coreweave",
