@@ -1,21 +1,23 @@
-*Changes and exceptions — since previous run, 18 Sep 07:32 UTC*
+*Changes and exceptions — since previous run, 18 Sep 15:59 UTC*
 
-• RunPod H100: available → absent (observed 8-GPU configurations)
+• RunPod H100: absent → available (observed 8-GPU configurations)
+• RunPod H200: absent → available (observed 8-GPU configurations)
 _Changes apply only to the named instance and region:_
 _Changes apply only to the named instance and zone:_
-• Lambda on-demand instance gpu_1x_h100_pcie (1 GPU/instance) global: none reported (observed 2026-09-18 15:58:47 UTC; not 1ClickClusters stock)
-• Lambda on-demand instance gpu_2x_h100_sxm5 (2 GPUs/instance) global: 2.0 regions reported (observed 2026-09-18 15:58:47 UTC; not 1ClickClusters stock)
-• Scaleway H100-1-80G (1 GPU/instance) pl-waw-2: limited → sold_out; shortage (observed 2026-09-18 15:58:59 UTC; single-instance status only)
-• Scaleway H100-SXM-4-80G (4 GPUs/instance) fr-par-2: available → sold_out; shortage (observed 2026-09-18 15:58:59 UTC; single-instance status only)
-• Scaleway H100-SXM-8-80G (8 GPUs/instance) fr-par-2: available → limited; scarce (observed 2026-09-18 15:58:59 UTC; single-instance status only)
-• Scaleway L40S-1-48G (1 GPU/instance) fr-par-2: sold_out → limited; scarce (observed 2026-09-18 15:58:59 UTC; single-instance status only)
-• Together AI dedicated inference ins_CbJEugN8RRtfHCsCbu7ms us-central-5: current replica headroom 2 replicas (exact) (observed 2026-09-18 15:59:11 UTC; not raw GPU cluster stock)
-• Together AI dedicated inference ins_CetcVhjQpuN8brgT8fsKX ca-west-1: current replica headroom 1 replica (exact) (observed 2026-09-18 15:59:11 UTC; not raw GPU cluster stock)
-_8 further changes in the Confluence evidence._
+• Lambda on-demand instance gpu_2x_h100_sxm5 (2 GPUs/instance) global: none reported (observed 2026-09-19 07:24:45 UTC; not 1ClickClusters stock)
+• Scaleway H100-1-80G (1 GPU/instance) fr-par-2: sold_out → available; available (observed 2026-09-19 07:24:52 UTC; single-instance status only)
+• Scaleway H100-1-80G (1 GPU/instance) pl-waw-2: sold_out → available; available (observed 2026-09-19 07:24:52 UTC; single-instance status only)
+• Scaleway H100-2-80G (2 GPUs/instance) fr-par-2: sold_out → limited; scarce (observed 2026-09-19 07:24:52 UTC; single-instance status only)
+• Scaleway H100-2-80G (2 GPUs/instance) pl-waw-2: sold_out → available; available (observed 2026-09-19 07:24:52 UTC; single-instance status only)
+• Scaleway H100-SXM-4-80G (4 GPUs/instance) fr-par-2: sold_out → available; available (observed 2026-09-19 07:24:52 UTC; single-instance status only)
+• Scaleway H100-SXM-8-80G (8 GPUs/instance) fr-par-2: limited → available; available (observed 2026-09-19 07:24:52 UTC; single-instance status only)
+• Scaleway L40S-1-48G (1 GPU/instance) fr-par-2: limited → available; available (observed 2026-09-19 07:24:52 UTC; single-instance status only)
+_9 further changes in the Confluence evidence._
 • AWS Capacity Blocks: Fetch failed; observations not refreshed this run; AWS account describe limit reached; remaining checks deferred; CapacityBlockDescribeLimitExceeded; 0/16 checks completed; 15 checks unqueried; current availability unknown.
 • Crusoe: Access paused: Organization suspended; authenticated capacity checks paused pending access review; current availability unknown.
 _Historical API cache is not reused. Aggregator observations remain separate._
-• Voltage Park: Empty catalogue; current GPU inventory unknown; endpoint returned no locations; GPU inventory is unknown, not zero; 1/1 checks completed; current availability unknown.
+• Massed Compute: Cached observation; not refreshed this run (cache age 15.4h); current availability unknown.
+_Observed: 2026-09-18 15:59:17 UTC_
 • Lambda: 2 legacy observations excluded; exact product scope unverified.
 • Scaleway: 3 legacy or aggregator observations excluded; exact product scope unverified.
 _Complete observations, timestamps, sources and all changes are on Confluence. Unknown availability is not zero stock; no multi-node or customer-quota claim._

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "capacity",
-  "as_of": "2026-09-18T15:59:17.497788+00:00",
+  "as_of": "2026-09-19T07:25:10.978597+00:00",
   "scope": "Recorded observations and configured collector panel; not a complete market census. Unobserved means no record in this snapshot, not unavailable or not offered. Regions remain provider-native; feeds may repeat the same underlying source. Own Nebius observations are excluded from competitor counts.",
   "tracked_gpus": [
     "H100",
@@ -31,8 +31,8 @@
     "verda",
     "voltage_park"
   ],
-  "observations": 460,
-  "observed_cells": 334,
+  "observations": 463,
+  "observed_cells": 336,
   "cells": [
     {
       "provider": "aws",
@@ -44,7 +44,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -67,7 +67,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -90,7 +90,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -113,7 +113,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -136,7 +136,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -159,7 +159,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -182,7 +182,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -205,7 +205,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -228,7 +228,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -251,7 +251,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -274,7 +274,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -297,7 +297,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -320,7 +320,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -343,7 +343,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -366,7 +366,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -389,7 +389,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -412,7 +412,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -435,7 +435,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -458,7 +458,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -481,7 +481,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -504,7 +504,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -527,7 +527,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -550,7 +550,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -573,7 +573,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -596,7 +596,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -619,7 +619,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -642,7 +642,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -665,7 +665,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -688,7 +688,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -711,7 +711,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -734,7 +734,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -757,7 +757,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -780,7 +780,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -803,7 +803,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -826,7 +826,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -849,7 +849,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -872,7 +872,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -895,7 +895,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -918,7 +918,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -941,7 +941,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:53.836359+00:00",
+      "latest_observed_at": "2026-09-19T07:24:49.055249+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "aws_spot_advisor"
@@ -964,7 +964,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:51.040596+00:00",
+      "latest_observed_at": "2026-09-19T07:24:47.063333+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "azure_regions"
@@ -987,7 +987,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:51.040596+00:00",
+      "latest_observed_at": "2026-09-19T07:24:47.063333+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "azure_regions"
@@ -1010,7 +1010,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:51.040596+00:00",
+      "latest_observed_at": "2026-09-19T07:24:47.063333+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "azure_regions"
@@ -1033,7 +1033,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:51.040596+00:00",
+      "latest_observed_at": "2026-09-19T07:24:47.063333+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "azure_regions"
@@ -1056,7 +1056,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:51.040596+00:00",
+      "latest_observed_at": "2026-09-19T07:24:47.063333+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "azure_regions"
@@ -1079,7 +1079,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:51.040596+00:00",
+      "latest_observed_at": "2026-09-19T07:24:47.063333+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "azure_regions"
@@ -1102,7 +1102,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1125,7 +1125,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1148,7 +1148,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1171,7 +1171,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1194,7 +1194,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1217,7 +1217,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1240,7 +1240,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1263,7 +1263,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1286,7 +1286,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1309,7 +1309,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1332,7 +1332,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1355,7 +1355,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1378,7 +1378,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1401,7 +1401,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1424,7 +1424,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1447,7 +1447,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1470,7 +1470,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1493,7 +1493,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1516,7 +1516,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1539,7 +1539,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1562,7 +1562,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1585,7 +1585,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1608,7 +1608,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1631,7 +1631,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1654,7 +1654,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1677,7 +1677,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1700,7 +1700,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1723,7 +1723,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1746,7 +1746,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1769,7 +1769,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1792,7 +1792,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1815,7 +1815,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1838,7 +1838,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1861,7 +1861,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1884,7 +1884,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1907,7 +1907,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1930,7 +1930,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1953,7 +1953,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1976,7 +1976,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -1999,7 +1999,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2022,7 +2022,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2045,7 +2045,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2068,7 +2068,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2091,7 +2091,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2114,7 +2114,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2137,7 +2137,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2160,7 +2160,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2183,7 +2183,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2206,7 +2206,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2229,7 +2229,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2252,7 +2252,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2275,7 +2275,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2298,7 +2298,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2321,7 +2321,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2344,7 +2344,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2367,7 +2367,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:47.448372+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.043056+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "coreweave"
@@ -2390,7 +2390,7 @@
         "unknown_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.557983+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.356984+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "crusoe_public"
@@ -2415,7 +2415,7 @@
         "unknown_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.557983+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.356984+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "crusoe_public"
@@ -2440,7 +2440,7 @@
         "unknown_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.557983+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.356984+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "crusoe_public"
@@ -2465,7 +2465,7 @@
         "unknown_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.557983+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.356984+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "crusoe_public"
@@ -2490,7 +2490,7 @@
         "unknown_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.557983+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.356984+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "crusoe_public"
@@ -2515,7 +2515,7 @@
         "unknown_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.557983+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.356984+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "crusoe_public"
@@ -2540,7 +2540,7 @@
         "unknown_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.557983+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.356984+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "crusoe_public"
@@ -2565,7 +2565,7 @@
         "unknown_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.557983+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.356984+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "crusoe_public"
@@ -2590,7 +2590,7 @@
         "unknown_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.557983+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.356984+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "crusoe_public"
@@ -2615,7 +2615,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:07.839266+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.641912+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "shadeform"
@@ -2638,7 +2638,7 @@
         "unknown_signal": 5
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.557983+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.356984+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "crusoe_public"
@@ -2671,7 +2671,7 @@
         "unknown_signal": 5
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.557983+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.356984+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "crusoe_public"
@@ -2704,7 +2704,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2727,7 +2727,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2750,7 +2750,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2773,7 +2773,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2796,7 +2796,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2819,7 +2819,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2842,7 +2842,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2865,7 +2865,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2888,7 +2888,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2911,7 +2911,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2934,7 +2934,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2957,7 +2957,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -2980,7 +2980,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3003,7 +3003,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3026,7 +3026,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3049,7 +3049,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3072,7 +3072,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3095,7 +3095,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3118,7 +3118,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3141,7 +3141,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3164,7 +3164,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3187,7 +3187,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3210,7 +3210,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3233,7 +3233,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3256,7 +3256,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3279,7 +3279,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3302,7 +3302,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3325,7 +3325,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3348,7 +3348,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3371,7 +3371,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3394,7 +3394,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3417,7 +3417,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3440,7 +3440,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3463,7 +3463,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3486,7 +3486,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3509,7 +3509,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3532,7 +3532,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3555,7 +3555,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3578,7 +3578,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3601,7 +3601,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3624,7 +3624,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3647,7 +3647,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3670,7 +3670,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3693,7 +3693,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3716,7 +3716,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3739,7 +3739,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3762,7 +3762,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3785,7 +3785,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3808,7 +3808,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3831,7 +3831,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3854,7 +3854,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3877,7 +3877,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3900,7 +3900,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3923,7 +3923,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3946,7 +3946,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3969,7 +3969,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -3992,7 +3992,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4015,7 +4015,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4038,7 +4038,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4061,7 +4061,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4084,7 +4084,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4107,7 +4107,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4130,7 +4130,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4153,7 +4153,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4176,7 +4176,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4199,7 +4199,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4222,7 +4222,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4245,7 +4245,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4268,7 +4268,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4291,7 +4291,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4314,7 +4314,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:48.958395+00:00",
+      "latest_observed_at": "2026-09-19T07:24:45.329685+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gcp_zones"
@@ -4337,7 +4337,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:06.710389+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.200484+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gmi"
@@ -4360,7 +4360,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:06.710389+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.200484+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gmi"
@@ -4383,7 +4383,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:06.710389+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.200484+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gmi"
@@ -4406,7 +4406,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:06.710389+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.200484+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gmi"
@@ -4429,7 +4429,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:06.710389+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.200484+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "gmi"
@@ -4452,7 +4452,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:10.892658+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.342398+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "hyperstack"
@@ -4475,7 +4475,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:10.892658+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.342398+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "hyperstack"
@@ -4498,7 +4498,7 @@
         "observed_signal": 5
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:10.892658+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.342398+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "hyperstack"
@@ -4525,7 +4525,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:10.892658+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.342398+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "hyperstack",
@@ -4550,7 +4550,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:10.892658+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.342398+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "hyperstack"
@@ -4573,7 +4573,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:10.892658+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.342398+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "hyperstack"
@@ -4596,7 +4596,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:10.892658+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.342398+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "hyperstack"
@@ -4620,7 +4620,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:10.892658+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.342398+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "hyperstack"
@@ -4643,7 +4643,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:07.839266+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.641912+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "shadeform"
@@ -4666,7 +4666,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:07.839266+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.641912+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "lambda",
@@ -4694,7 +4694,7 @@
         "observed_signal": 6
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:07.839266+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.641912+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "lambda",
@@ -4715,63 +4715,17 @@
       "reasons": []
     },
     {
-      "provider": "lambda",
-      "gpu": "H100",
-      "region": "us-south-2",
-      "purchase_type": "on_demand",
-      "observations": 1,
-      "statuses": {
-        "observed_signal": 1
-      },
-      "direct_instance_observations": 1,
-      "latest_observed_at": "2026-09-18T15:58:47.438582+00:00",
-      "latest_age_hours": 0.0,
-      "feeds": [
-        "lambda"
-      ],
-      "evidence_types": [
-        "instance: instance_launchability"
-      ],
-      "configurations": [
-        "gpu_2x_h100_sxm5"
-      ],
-      "reasons": []
-    },
-    {
-      "provider": "lambda",
-      "gpu": "H100",
-      "region": "us-southeast-1",
-      "purchase_type": "on_demand",
-      "observations": 1,
-      "statuses": {
-        "observed_signal": 1
-      },
-      "direct_instance_observations": 1,
-      "latest_observed_at": "2026-09-18T15:58:47.438582+00:00",
-      "latest_age_hours": 0.0,
-      "feeds": [
-        "lambda"
-      ],
-      "evidence_types": [
-        "instance: instance_launchability"
-      ],
-      "configurations": [
-        "gpu_2x_h100_sxm5"
-      ],
-      "reasons": []
-    },
-    {
       "provider": "massedcompute",
       "gpu": "B200",
       "region": "unreported",
       "purchase_type": "on_demand",
       "observations": 1,
       "statuses": {
-        "unknown_signal": 1
+        "source_problem": 1
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -4782,7 +4736,7 @@
         "gpu_8x_b200_SXM6"
       ],
       "reasons": [
-        "Listed SKU; no region stock reported; capacity_available=0 (unit unverified)"
+        "source status: cached"
       ]
     },
     {
@@ -4792,11 +4746,11 @@
       "purchase_type": "on_demand",
       "observations": 1,
       "statuses": {
-        "unknown_signal": 1
+        "source_problem": 1
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -4807,7 +4761,7 @@
         "gpu_8x_b300_SXM6"
       ],
       "reasons": [
-        "Listed SKU; no region stock reported; capacity_available=0 (unit unverified)"
+        "source status: cached"
       ]
     },
     {
@@ -4817,11 +4771,11 @@
       "purchase_type": "on_demand",
       "observations": 4,
       "statuses": {
-        "unknown_signal": 4
+        "source_problem": 4
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -4835,7 +4789,7 @@
         "gpu_8x_h100_nvl_nvlink"
       ],
       "reasons": [
-        "Listed SKU; no region stock reported; capacity_available=0 (unit unverified)"
+        "source status: cached"
       ]
     },
     {
@@ -4845,11 +4799,11 @@
       "purchase_type": "spot",
       "observations": 1,
       "statuses": {
-        "unknown_signal": 1
+        "source_problem": 1
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -4860,7 +4814,7 @@
         "gpu_8x_h100_spot"
       ],
       "reasons": [
-        "Listed SKU; no region stock reported; capacity_available=0 (unit unverified)"
+        "source status: cached"
       ]
     },
     {
@@ -4870,11 +4824,11 @@
       "purchase_type": "on_demand",
       "observations": 2,
       "statuses": {
-        "observed_signal": 2
+        "source_problem": 2
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -4885,7 +4839,9 @@
         "gpu_1x_H100_SXM5",
         "gpu_8x_H100_SXM5"
       ],
-      "reasons": []
+      "reasons": [
+        "source status: cached"
+      ]
     },
     {
       "provider": "massedcompute",
@@ -4894,11 +4850,11 @@
       "purchase_type": "on_demand",
       "observations": 6,
       "statuses": {
-        "observed_signal": 6
+        "source_problem": 6
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -4913,7 +4869,9 @@
         "gpu_4x_h100",
         "gpu_4x_h100_nvl"
       ],
-      "reasons": []
+      "reasons": [
+        "source status: cached"
+      ]
     },
     {
       "provider": "massedcompute",
@@ -4922,11 +4880,11 @@
       "purchase_type": "spot",
       "observations": 3,
       "statuses": {
-        "observed_signal": 3
+        "source_problem": 3
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -4938,7 +4896,9 @@
         "gpu_2x_h100_spot",
         "gpu_4x_h100_spot"
       ],
-      "reasons": []
+      "reasons": [
+        "source status: cached"
+      ]
     },
     {
       "provider": "massedcompute",
@@ -4947,11 +4907,11 @@
       "purchase_type": "on_demand",
       "observations": 2,
       "statuses": {
-        "observed_signal": 2
+        "source_problem": 2
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -4962,7 +4922,9 @@
         "gpu_1x_H100_SXM5",
         "gpu_8x_H100_SXM5"
       ],
-      "reasons": []
+      "reasons": [
+        "source status: cached"
+      ]
     },
     {
       "provider": "massedcompute",
@@ -4971,11 +4933,11 @@
       "purchase_type": "on_demand",
       "observations": 3,
       "statuses": {
-        "unknown_signal": 3
+        "source_problem": 3
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -4988,7 +4950,7 @@
         "gpu_8x_h200_nvl_nvlink"
       ],
       "reasons": [
-        "Listed SKU; no region stock reported; capacity_available=0 (unit unverified)"
+        "source status: cached"
       ]
     },
     {
@@ -4998,11 +4960,11 @@
       "purchase_type": "spot",
       "observations": 2,
       "statuses": {
-        "unknown_signal": 2
+        "source_problem": 2
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -5014,7 +4976,7 @@
         "gpu_8x_h200_nvl_nvlink_spot"
       ],
       "reasons": [
-        "Listed SKU; no region stock reported; capacity_available=0 (unit unverified)"
+        "source status: cached"
       ]
     },
     {
@@ -5024,11 +4986,11 @@
       "purchase_type": "on_demand",
       "observations": 3,
       "statuses": {
-        "observed_signal": 3
+        "source_problem": 3
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -5040,7 +5002,9 @@
         "gpu_2x_h200_nvl",
         "gpu_4x_h200_nvl"
       ],
-      "reasons": []
+      "reasons": [
+        "source status: cached"
+      ]
     },
     {
       "provider": "massedcompute",
@@ -5049,11 +5013,11 @@
       "purchase_type": "on_demand",
       "observations": 4,
       "statuses": {
-        "observed_signal": 4
+        "source_problem": 4
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -5066,7 +5030,9 @@
         "gpu_4x_l40s",
         "gpu_8x_l40s"
       ],
-      "reasons": []
+      "reasons": [
+        "source status: cached"
+      ]
     },
     {
       "provider": "massedcompute",
@@ -5075,11 +5041,11 @@
       "purchase_type": "on_demand",
       "observations": 3,
       "statuses": {
-        "observed_signal": 3
+        "source_problem": 3
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -5091,7 +5057,9 @@
         "gpu_2x_l40s",
         "gpu_4x_l40s"
       ],
-      "reasons": []
+      "reasons": [
+        "source status: cached"
+      ]
     },
     {
       "provider": "massedcompute",
@@ -5100,11 +5068,11 @@
       "purchase_type": "on_demand",
       "observations": 1,
       "statuses": {
-        "unknown_signal": 1
+        "source_problem": 1
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -5115,7 +5083,7 @@
         "gpu_8x_pro_6000_blackwell"
       ],
       "reasons": [
-        "Listed SKU; no region stock reported; capacity_available=0 (unit unverified)"
+        "source status: cached"
       ]
     },
     {
@@ -5125,11 +5093,11 @@
       "purchase_type": "on_demand",
       "observations": 3,
       "statuses": {
-        "observed_signal": 3
+        "source_problem": 3
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -5141,7 +5109,9 @@
         "gpu_2x_pro_6000_blackwell",
         "gpu_4x_pro_6000_blackwell"
       ],
-      "reasons": []
+      "reasons": [
+        "source status: cached"
+      ]
     },
     {
       "provider": "massedcompute",
@@ -5150,11 +5120,11 @@
       "purchase_type": "on_demand",
       "observations": 2,
       "statuses": {
-        "observed_signal": 2
+        "source_problem": 2
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -5165,7 +5135,9 @@
         "gpu_1x_pro_6000_blackwell",
         "gpu_2x_pro_6000_blackwell"
       ],
-      "reasons": []
+      "reasons": [
+        "source status: cached"
+      ]
     },
     {
       "provider": "massedcompute",
@@ -5174,11 +5146,11 @@
       "purchase_type": "on_demand",
       "observations": 4,
       "statuses": {
-        "observed_signal": 4
+        "source_problem": 4
       },
       "direct_instance_observations": 0,
       "latest_observed_at": "2026-09-18T15:59:17.395234+00:00",
-      "latest_age_hours": 0.0,
+      "latest_age_hours": 15.4,
       "feeds": [
         "massedcompute"
       ],
@@ -5191,7 +5163,9 @@
         "gpu_4x_pro_6000_blackwell_low_storage",
         "gpu_8x_pro_6000_blackwell_low_storage"
       ],
-      "reasons": []
+      "reasons": [
+        "source status: cached"
+      ]
     },
     {
       "provider": "runpod",
@@ -5203,7 +5177,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5226,7 +5200,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5249,7 +5223,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5272,7 +5246,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5295,7 +5269,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5318,7 +5292,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5341,7 +5315,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5364,7 +5338,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5387,7 +5361,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5410,7 +5384,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5433,7 +5407,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5456,7 +5430,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5479,7 +5453,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5502,7 +5476,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5525,7 +5499,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5548,7 +5522,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5571,7 +5545,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5594,7 +5568,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5617,7 +5591,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5641,7 +5615,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5665,7 +5639,7 @@
         "observed_signal": 3
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5690,7 +5664,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5713,7 +5687,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5736,7 +5710,7 @@
         "observed_signal": 3
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5761,7 +5735,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5784,7 +5758,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5807,7 +5781,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5830,7 +5804,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5853,7 +5827,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5876,7 +5850,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5899,7 +5873,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5922,7 +5896,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5945,7 +5919,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5968,7 +5942,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -5991,7 +5965,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6014,7 +5988,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6037,7 +6011,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6060,7 +6034,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6084,7 +6058,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6107,7 +6081,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6130,7 +6104,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6153,7 +6127,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6176,7 +6150,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6199,7 +6173,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6222,7 +6196,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6245,7 +6219,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6268,7 +6242,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6291,7 +6265,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6314,7 +6288,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6338,7 +6312,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6361,7 +6335,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6385,7 +6359,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6409,7 +6383,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6432,7 +6406,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6455,7 +6429,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6478,7 +6452,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6501,7 +6475,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6524,7 +6498,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6547,7 +6521,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6570,7 +6544,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6593,7 +6567,7 @@
         "observed_signal": 3
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:55.567552+00:00",
+      "latest_observed_at": "2026-09-19T07:24:50.368464+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "runpod"
@@ -6618,7 +6592,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 1,
-      "latest_observed_at": "2026-09-18T15:58:59.577049+00:00",
+      "latest_observed_at": "2026-09-19T07:24:52.792917+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "scaleway"
@@ -6641,7 +6615,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:07.839266+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.641912+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "shadeform"
@@ -6664,7 +6638,7 @@
         "observed_signal": 5
       },
       "direct_instance_observations": 5,
-      "latest_observed_at": "2026-09-18T15:58:59.577049+00:00",
+      "latest_observed_at": "2026-09-19T07:24:52.792917+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "scaleway"
@@ -6691,7 +6665,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:07.839266+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.641912+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "shadeform"
@@ -6714,7 +6688,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 2,
-      "latest_observed_at": "2026-09-18T15:58:59.577049+00:00",
+      "latest_observed_at": "2026-09-19T07:24:52.792917+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "scaleway"
@@ -6738,7 +6712,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 4,
-      "latest_observed_at": "2026-09-18T15:58:59.577049+00:00",
+      "latest_observed_at": "2026-09-19T07:24:52.792917+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "scaleway"
@@ -6764,7 +6738,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:07.839266+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.641912+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "shadeform"
@@ -6787,7 +6761,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 4,
-      "latest_observed_at": "2026-09-18T15:58:59.577049+00:00",
+      "latest_observed_at": "2026-09-19T07:24:52.792917+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "scaleway"
@@ -6813,7 +6787,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:07.218894+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.408009+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "sfcompute"
@@ -6836,7 +6810,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -6862,7 +6836,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -6888,7 +6862,7 @@
         "unknown_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -6919,7 +6893,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -6945,7 +6919,7 @@
         "observed_signal": 3
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -6970,7 +6944,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -6996,7 +6970,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -7022,7 +6996,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -7048,7 +7022,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -7075,7 +7049,7 @@
         "unknown_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -7103,7 +7077,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -7129,7 +7103,7 @@
         "unknown_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -7160,7 +7134,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -7186,7 +7160,7 @@
         "unknown_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -7218,7 +7192,7 @@
         "unknown_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -7246,7 +7220,7 @@
         "observed_signal": 4
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.821115+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.948347+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "together"
@@ -7272,7 +7246,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:56.602736+00:00",
+      "latest_observed_at": "2026-09-19T07:24:51.142353+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "vast"
@@ -7295,7 +7269,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:56.602736+00:00",
+      "latest_observed_at": "2026-09-19T07:24:51.142353+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "vast"
@@ -7318,7 +7292,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:56.602736+00:00",
+      "latest_observed_at": "2026-09-19T07:24:51.142353+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "vast"
@@ -7341,7 +7315,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:56.602736+00:00",
+      "latest_observed_at": "2026-09-19T07:24:51.142353+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "vast"
@@ -7364,7 +7338,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:56.602736+00:00",
+      "latest_observed_at": "2026-09-19T07:24:51.142353+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "vast"
@@ -7387,7 +7361,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:56.602736+00:00",
+      "latest_observed_at": "2026-09-19T07:24:51.142353+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "vast"
@@ -7410,7 +7384,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:58:56.602736+00:00",
+      "latest_observed_at": "2026-09-19T07:24:51.142353+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "vast"
@@ -7433,7 +7407,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "shadeform",
@@ -7458,7 +7432,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "shadeform",
@@ -7483,7 +7457,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "verda"
@@ -7506,7 +7480,53 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
+      "latest_age_hours": 0.0,
+      "feeds": [
+        "verda"
+      ],
+      "evidence_types": [
+        "live: binary"
+      ],
+      "configurations": [
+        "unspecified"
+      ],
+      "reasons": []
+    },
+    {
+      "provider": "verda",
+      "gpu": "H100",
+      "region": "FIN-02",
+      "purchase_type": "spot",
+      "observations": 1,
+      "statuses": {
+        "observed_signal": 1
+      },
+      "direct_instance_observations": 0,
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
+      "latest_age_hours": 0.0,
+      "feeds": [
+        "verda"
+      ],
+      "evidence_types": [
+        "spot: binary"
+      ],
+      "configurations": [
+        "unspecified"
+      ],
+      "reasons": []
+    },
+    {
+      "provider": "verda",
+      "gpu": "H100",
+      "region": "FIN-03",
+      "purchase_type": "on_demand",
+      "observations": 1,
+      "statuses": {
+        "observed_signal": 1
+      },
+      "direct_instance_observations": 0,
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "verda"
@@ -7529,7 +7549,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "shadeform",
@@ -7546,124 +7566,7 @@
     },
     {
       "provider": "verda",
-      "gpu": "H200",
-      "region": "FIN-02",
-      "purchase_type": "on_demand",
-      "observations": 1,
-      "statuses": {
-        "observed_signal": 1
-      },
-      "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
-      "latest_age_hours": 0.0,
-      "feeds": [
-        "verda"
-      ],
-      "evidence_types": [
-        "live: binary"
-      ],
-      "configurations": [
-        "unspecified"
-      ],
-      "reasons": []
-    },
-    {
-      "provider": "verda",
-      "gpu": "H200",
-      "region": "FIN-02",
-      "purchase_type": "spot",
-      "observations": 1,
-      "statuses": {
-        "observed_signal": 1
-      },
-      "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
-      "latest_age_hours": 0.0,
-      "feeds": [
-        "verda"
-      ],
-      "evidence_types": [
-        "spot: binary"
-      ],
-      "configurations": [
-        "unspecified"
-      ],
-      "reasons": []
-    },
-    {
-      "provider": "verda",
-      "gpu": "H200",
-      "region": "FIN-03",
-      "purchase_type": "on_demand",
-      "observations": 1,
-      "statuses": {
-        "observed_signal": 1
-      },
-      "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
-      "latest_age_hours": 0.0,
-      "feeds": [
-        "verda"
-      ],
-      "evidence_types": [
-        "live: binary"
-      ],
-      "configurations": [
-        "unspecified"
-      ],
-      "reasons": []
-    },
-    {
-      "provider": "verda",
-      "gpu": "H200",
-      "region": "FIN-03",
-      "purchase_type": "spot",
-      "observations": 1,
-      "statuses": {
-        "observed_signal": 1
-      },
-      "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
-      "latest_age_hours": 0.0,
-      "feeds": [
-        "verda"
-      ],
-      "evidence_types": [
-        "spot: binary"
-      ],
-      "configurations": [
-        "unspecified"
-      ],
-      "reasons": []
-    },
-    {
-      "provider": "verda",
-      "gpu": "H200",
-      "region": "global",
-      "purchase_type": "on_demand",
-      "observations": 2,
-      "statuses": {
-        "observed_signal": 2
-      },
-      "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
-      "latest_age_hours": 0.0,
-      "feeds": [
-        "shadeform",
-        "verda"
-      ],
-      "evidence_types": [
-        "aggregator: regions_with_capacity",
-        "live: regions_with_capacity"
-      ],
-      "configurations": [
-        "unspecified"
-      ],
-      "reasons": []
-    },
-    {
-      "provider": "verda",
-      "gpu": "H200",
+      "gpu": "H100",
       "region": "global",
       "purchase_type": "spot",
       "observations": 1,
@@ -7671,13 +7574,199 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "verda"
       ],
       "evidence_types": [
         "spot: regions_with_capacity"
+      ],
+      "configurations": [
+        "unspecified"
+      ],
+      "reasons": []
+    },
+    {
+      "provider": "verda",
+      "gpu": "H200",
+      "region": "FIN-02",
+      "purchase_type": "on_demand",
+      "observations": 1,
+      "statuses": {
+        "observed_signal": 1
+      },
+      "direct_instance_observations": 0,
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
+      "latest_age_hours": 0.0,
+      "feeds": [
+        "verda"
+      ],
+      "evidence_types": [
+        "live: binary"
+      ],
+      "configurations": [
+        "unspecified"
+      ],
+      "reasons": []
+    },
+    {
+      "provider": "verda",
+      "gpu": "H200",
+      "region": "FIN-02",
+      "purchase_type": "spot",
+      "observations": 1,
+      "statuses": {
+        "observed_signal": 1
+      },
+      "direct_instance_observations": 0,
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
+      "latest_age_hours": 0.0,
+      "feeds": [
+        "verda"
+      ],
+      "evidence_types": [
+        "spot: binary"
+      ],
+      "configurations": [
+        "unspecified"
+      ],
+      "reasons": []
+    },
+    {
+      "provider": "verda",
+      "gpu": "H200",
+      "region": "FIN-03",
+      "purchase_type": "on_demand",
+      "observations": 1,
+      "statuses": {
+        "observed_signal": 1
+      },
+      "direct_instance_observations": 0,
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
+      "latest_age_hours": 0.0,
+      "feeds": [
+        "verda"
+      ],
+      "evidence_types": [
+        "live: binary"
+      ],
+      "configurations": [
+        "unspecified"
+      ],
+      "reasons": []
+    },
+    {
+      "provider": "verda",
+      "gpu": "H200",
+      "region": "FIN-03",
+      "purchase_type": "spot",
+      "observations": 1,
+      "statuses": {
+        "observed_signal": 1
+      },
+      "direct_instance_observations": 0,
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
+      "latest_age_hours": 0.0,
+      "feeds": [
+        "verda"
+      ],
+      "evidence_types": [
+        "spot: binary"
+      ],
+      "configurations": [
+        "unspecified"
+      ],
+      "reasons": []
+    },
+    {
+      "provider": "verda",
+      "gpu": "H200",
+      "region": "global",
+      "purchase_type": "on_demand",
+      "observations": 2,
+      "statuses": {
+        "observed_signal": 2
+      },
+      "direct_instance_observations": 0,
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
+      "latest_age_hours": 0.0,
+      "feeds": [
+        "shadeform",
+        "verda"
+      ],
+      "evidence_types": [
+        "aggregator: regions_with_capacity",
+        "live: regions_with_capacity"
+      ],
+      "configurations": [
+        "unspecified"
+      ],
+      "reasons": []
+    },
+    {
+      "provider": "verda",
+      "gpu": "H200",
+      "region": "global",
+      "purchase_type": "spot",
+      "observations": 1,
+      "statuses": {
+        "observed_signal": 1
+      },
+      "direct_instance_observations": 0,
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
+      "latest_age_hours": 0.0,
+      "feeds": [
+        "verda"
+      ],
+      "evidence_types": [
+        "spot: regions_with_capacity"
+      ],
+      "configurations": [
+        "unspecified"
+      ],
+      "reasons": []
+    },
+    {
+      "provider": "verda",
+      "gpu": "L40S",
+      "region": "FIN-02",
+      "purchase_type": "on_demand",
+      "observations": 1,
+      "statuses": {
+        "observed_signal": 1
+      },
+      "direct_instance_observations": 0,
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
+      "latest_age_hours": 0.0,
+      "feeds": [
+        "verda"
+      ],
+      "evidence_types": [
+        "live: binary"
+      ],
+      "configurations": [
+        "unspecified"
+      ],
+      "reasons": []
+    },
+    {
+      "provider": "verda",
+      "gpu": "L40S",
+      "region": "FIN-02",
+      "purchase_type": "spot",
+      "observations": 1,
+      "statuses": {
+        "observed_signal": 1
+      },
+      "direct_instance_observations": 0,
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
+      "latest_age_hours": 0.0,
+      "feeds": [
+        "verda"
+      ],
+      "evidence_types": [
+        "spot: binary"
       ],
       "configurations": [
         "unspecified"
@@ -7694,7 +7783,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "shadeform",
@@ -7702,7 +7791,30 @@
       ],
       "evidence_types": [
         "aggregator: regions_with_capacity",
-        "live: binary"
+        "live: regions_with_capacity"
+      ],
+      "configurations": [
+        "unspecified"
+      ],
+      "reasons": []
+    },
+    {
+      "provider": "verda",
+      "gpu": "L40S",
+      "region": "global",
+      "purchase_type": "spot",
+      "observations": 1,
+      "statuses": {
+        "observed_signal": 1
+      },
+      "direct_instance_observations": 0,
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
+      "latest_age_hours": 0.0,
+      "feeds": [
+        "verda"
+      ],
+      "evidence_types": [
+        "spot: regions_with_capacity"
       ],
       "configurations": [
         "unspecified"
@@ -7719,36 +7831,13 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "verda"
       ],
       "evidence_types": [
         "live: binary"
-      ],
-      "configurations": [
-        "unspecified"
-      ],
-      "reasons": []
-    },
-    {
-      "provider": "verda",
-      "gpu": "RTX6000",
-      "region": "FIN-01",
-      "purchase_type": "spot",
-      "observations": 1,
-      "statuses": {
-        "observed_signal": 1
-      },
-      "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
-      "latest_age_hours": 0.0,
-      "feeds": [
-        "verda"
-      ],
-      "evidence_types": [
-        "spot: binary"
       ],
       "configurations": [
         "unspecified"
@@ -7765,36 +7854,13 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "verda"
       ],
       "evidence_types": [
         "live: binary"
-      ],
-      "configurations": [
-        "unspecified"
-      ],
-      "reasons": []
-    },
-    {
-      "provider": "verda",
-      "gpu": "RTX6000",
-      "region": "FIN-02",
-      "purchase_type": "spot",
-      "observations": 1,
-      "statuses": {
-        "observed_signal": 1
-      },
-      "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
-      "latest_age_hours": 0.0,
-      "feeds": [
-        "verda"
-      ],
-      "evidence_types": [
-        "spot: binary"
       ],
       "configurations": [
         "unspecified"
@@ -7811,7 +7877,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "verda"
@@ -7834,7 +7900,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "verda"
@@ -7857,7 +7923,7 @@
         "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "shadeform",
@@ -7882,7 +7948,7 @@
         "observed_signal": 1
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:11.831184+00:00",
+      "latest_observed_at": "2026-09-19T07:25:02.959783+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
         "verda"
@@ -7900,23 +7966,27 @@
       "gpu": "H100",
       "region": "global",
       "purchase_type": "on_demand",
-      "observations": 1,
+      "observations": 2,
       "statuses": {
-        "observed_signal": 1
+        "observed_signal": 2
       },
       "direct_instance_observations": 0,
-      "latest_observed_at": "2026-09-18T15:59:07.839266+00:00",
+      "latest_observed_at": "2026-09-19T07:25:00.641912+00:00",
       "latest_age_hours": 0.0,
       "feeds": [
-        "shadeform"
+        "shadeform",
+        "voltage_park"
       ],
       "evidence_types": [
-        "aggregator: regions_with_capacity"
+        "aggregator: regions_with_capacity",
+        "live: stock_level"
       ],
       "configurations": [
         "unspecified"
       ],
-      "reasons": []
+      "reasons": [
+        "complete published inventory retrieved"
+      ]
     }
   ],
   "unobserved": [
@@ -8859,7 +8929,6 @@
       "provider": "verda",
       "gpu": "H100",
       "unobserved_purchase_types": [
-        "spot/preemptible",
         "reservation/commitment"
       ]
     },
@@ -8907,7 +8976,6 @@
       "provider": "verda",
       "gpu": "L40S",
       "unobserved_purchase_types": [
-        "spot/preemptible",
         "reservation/commitment"
       ]
     },
@@ -9083,12 +9151,13 @@
     {
       "source": "lambda",
       "status": "live",
-      "record_count": 10
+      "record_count": 8
     },
     {
       "source": "massedcompute",
-      "status": "live",
-      "record_count": 45
+      "status": "cached",
+      "record_count": 45,
+      "cache_age_hours": 15.4
     },
     {
       "source": "nebius",
@@ -9128,12 +9197,12 @@
     {
       "source": "verda",
       "status": "live",
-      "record_count": 20
+      "record_count": 24
     },
     {
       "source": "voltage_park",
-      "status": "empty",
-      "reason": "endpoint returned no locations; GPU inventory is unknown, not zero",
+      "status": "live",
+      "reason": "complete published inventory retrieved",
       "error_code": null,
       "planned_checks": 1,
       "completed_checks": 1,
@@ -9142,10 +9211,10 @@
       "requests_attempted": 1,
       "pages_fetched": 1,
       "pagination_complete": true,
-      "reported_locations": 0,
-      "parsed_locations": 0,
+      "reported_locations": 1,
+      "parsed_locations": 1,
       "invalid_locations": 0,
-      "record_count": 0
+      "record_count": 1
     }
   ]
 }

@@ -1,28 +1,29 @@
 {
-  "run_date": "2026-09-18",
-  "attempted_at": "2026-09-18T16:10:34+00:00",
+  "run_date": "2026-09-19",
+  "attempted_at": "2026-09-19T07:25:11+00:00",
   "publisher": "capacity/notify_confluence.py",
   "forced": false,
-  "verification_mode": "verify_only",
+  "verification_mode": "publish_and_verify",
   "ok": true,
-  "write_attempted": false,
+  "write_attempted": true,
   "stage": "verified",
   "pages": {
     "2164457614": {
       "file": "confluence_body.html",
       "ok": true,
-      "bytes": 402070,
-      "body_sha256": "92295c276efd3e2db7168536abd9994fbb0be9345684e2327c722557cae2a84a",
+      "bytes": 403634,
+      "body_sha256": "988cbcb87196f231c0b81ee9d450aba0bf26f00690cd2c8493e8e068cbfae0ec",
       "title": "GPU Competitor Capacity \u2014 Live Overview",
-      "expected_version": 45,
-      "returned_version": 45,
-      "version": 45,
-      "readback_body_sha256": "693db7b140ab369bdd5b82c7f3c267b099381dd9ee54eadbe2b5c3115fb900eb",
+      "expected_version": 46,
+      "returned_version": 46,
+      "version": 46,
+      "readback_body_sha256": "ba60a6a12f8910094919d7ada363cd46a2c31e77ce863e32f6eb9bef83694257",
       "verification": "canonical_storage_xml",
       "raw_body_equal": false,
-      "canonical_body_sha256": "8317f3bf9eb506454209ce7fda6638088bce1042263965e1ab55c9bb338c0e8c",
-      "verified_at": "2026-09-18T16:10:35+00:00"
+      "canonical_body_sha256": "03a1373a6b4333e106d0e815447f2828880a137baf1ac57a8859df22ed900d82",
+      "verified_at": "2026-09-19T07:25:14+00:00"
     }
   },
-  "verified_at": "2026-09-18T16:10:35+00:00"
+  "verified_at": "2026-09-19T07:25:14+00:00",
+  "published_at": "2026-09-19T07:25:14+00:00"
 }

@@ -1,23 +1,25 @@
 {
- "run_date": "2026-09-18",
- "started_at": "2026-09-18T15:58:47.071987+00:00",
- "completed_at": "2026-09-18T15:59:17.497788+00:00",
+ "run_date": "2026-09-19",
+ "started_at": "2026-09-19T07:24:44.818881+00:00",
+ "completed_at": "2026-09-19T07:25:10.978597+00:00",
  "status": "partial",
- "record_count": 482,
- "diff_count": 51,
+ "record_count": 485,
+ "diff_count": 48,
  "provider_count": 20,
  "live_provider_count": 17,
  "failed_providers": [
   "aws_capacity_blocks"
  ],
- "stale_providers": [],
+ "stale_providers": [
+  "massedcompute"
+ ],
  "paused_providers": [
   "crusoe"
  ],
  "provider_status": {
   "lambda": {
    "status": "live",
-   "record_count": 10
+   "record_count": 8
   },
   "coreweave": {
    "status": "live",
@@ -104,8 +106,8 @@
    "record_count": 16
   },
   "voltage_park": {
-   "status": "empty",
-   "reason": "endpoint returned no locations; GPU inventory is unknown, not zero",
+   "status": "live",
+   "reason": "complete published inventory retrieved",
    "error_code": null,
    "planned_checks": 1,
    "completed_checks": 1,
@@ -114,10 +116,10 @@
    "requests_attempted": 1,
    "pages_fetched": 1,
    "pagination_complete": true,
-   "reported_locations": 0,
-   "parsed_locations": 0,
+   "reported_locations": 1,
+   "parsed_locations": 1,
    "invalid_locations": 0,
-   "record_count": 0
+   "record_count": 1
   },
   "gmi": {
    "status": "live",
@@ -145,11 +147,12 @@
   },
   "verda": {
    "status": "live",
-   "record_count": 20
+   "record_count": 24
   },
   "massedcompute": {
-   "status": "live",
-   "record_count": 45
+   "status": "cached",
+   "record_count": 45,
+   "cache_age_hours": 15.4
   }
  },
  "post_thread": true
